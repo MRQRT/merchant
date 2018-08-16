@@ -25,7 +25,8 @@ const waitPayOrder = r => require.ensure([], () => r(require('../pages/storeGold
 
 /* 我的资产 */
 const assets = r => require.ensure([], () => r(require('../pages/assets/assets')), 'assets')
-const bindingBank = r => require.ensure([], () => r(require('../pages/assets/bindingBank')), 'bindingBank')
+const myBank = r => require.ensure([], () => r(require('../pages/assets/bank/myBank')), 'myBank')
+const bindingBank = r => require.ensure([], () => r(require('../pages/assets/bank/bindingBank')), 'bindingBank')
 
 /* 帐户管理 */
 const account = r => require.ensure([], () => r(require('../pages/account/account')), 'account')
@@ -100,6 +101,10 @@ const router = new Router({
         {
             path: '/assets',  // 我的资产页页
             component: assets,
+        },
+        {
+            path: '/myBank',   // 我的银行卡页
+            component: myBank,
         },
         {
             path: '/bindingBank',  // 绑定银行卡页

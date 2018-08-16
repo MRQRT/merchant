@@ -25,7 +25,7 @@
                         </div>
                         <!-- 预估金额 -->
                         <div class="estimate-price">
-                            <span class="txt">预估金额：</span><span class="price">0.00</span><b> 元</b>
+                            <span class="txt">预估金额：</span><span class="price">{{estimatePrice | formatPriceTwo}}</span><b> 元</b>
                             <span class="grey-question" @click="showPopup(2)"></span>
                         </div>
                         <!-- 表单部分 -->
@@ -41,7 +41,7 @@
                             <!-- 黄金总重 -->
                             <div class="gold-box gold-weight">
                                 <div class="left">黄金总重</div>
-                                <input type="number" name="" value="" placeholder="请输入黄金克重">
+                                <input type="number" name="" v-model="weight" @keyup="checkInput(weight+'')" placeholder="请输入黄金克重">
                                 <span>克</span>
                             </div>
                             <!-- 黄金数量 -->
@@ -193,7 +193,7 @@
                 <p class="priceTitle">预估金额</p>
                 <div class="content" style="margin-top:.4rem;">
                     <div class="mess">
-                        <p>预估金额为平台根据您的黄金类型、重量，根据实时金价给您计算预估价以做参考。平台将对您的黄金进行检测，最终成交价格以实际检测报告为准。;</p>
+                        <p>预估金额为平台根据您的黄金类型、重量，根据实时金价给您计算预估价以做参考。平台将对您的黄金进行检测，最终成交价格以实际检测报告为准。</p>
                     </div>
                 </div>
             </div>
@@ -206,16 +206,19 @@
 
 <script>
 import headTop from '@/components/header/head.vue'
+import { clearNoNum } from '../../config/mUtils.js';
 import { MessageBox } from 'mint-ui';
 
     export default {
         data(){
             return{
+                currentPrice:287.54,
                 loginStatus:true,   // 是否登录
                 bankStatus:false,   // 是否绑卡
                 addressStatus:false,// 是否选择地址
                 typeNum:0,          // 存金类型选择样式
-                extractNum:1,       // 选择数量
+                weight:'',           // 存金克重
+                extractNum:1,       // 存金数量
                 popupNum:'',        // 控制哪个弹窗显示
                 bg:true,            // 协议是否已读
                 popupVisible:false, // 全屏弹窗
@@ -225,7 +228,10 @@ import { MessageBox } from 'mint-ui';
             headTop,
         },
         computed: {
-
+            // 预估金额
+            estimatePrice(){
+                return (this.weight * this.extractNum * this.currentPrice).toFixed(2);
+            },
         },
         watch:{
 
@@ -238,6 +244,10 @@ import { MessageBox } from 'mint-ui';
 			},
             closePop(){
                 this.popupVisible = false;
+            },
+            // 输入内容保留4位小数
+			checkInput: function (val) {
+				this.weight = clearNoNum(val,4);
             },
             decreaseCount(){  //提金数量减1
                 if(this.extractNum==1){
@@ -306,22 +316,7 @@ import { MessageBox } from 'mint-ui';
 </script>
 
 <style media="screen">
-    .mint-msgbox-wrapper>.mint-msgbox{
-        width:5rem;
-        border-radius: 0;
-    }
-    .mint-msgbox-wrapper .mint-msgbox-message{
-        font-size: .26rem;
-    }
-    .mint-msgbox-wrapper .mint-msgbox-confirm, .mint-msgbox .mint-msgbox-btns .mint-msgbox-cancel{
-        color:#C09C60;
-    }
-    .mint-msgbox-wrapper .mint-msgbox-message{
-        text-align: left;
-    }
-    .mint-msgbox-wrapper .mint-msgbox-message{
-        padding:.1rem .2rem;
-    }
+
 </style>
 
 <style scoped lang="scss">
@@ -346,8 +341,8 @@ import { MessageBox } from 'mint-ui';
                     margin-bottom: .2rem;
                     .question{
                         display: inline-block;
-                        width: .3rem;
-                        height: .3rem;
+                        width: .31rem;
+                        height: .31rem;
                         margin-left:.1rem;
                         vertical-align: -.04rem;
                         @include bg-image('/static/images/storeGold-question.png');
@@ -445,6 +440,7 @@ import { MessageBox } from 'mint-ui';
                             color: #666;
                             font-size: .28rem;
                             padding-left:.3rem;
+                            padding-right:.8rem;
                             background-color: rgba(248,248,248,1);
                             @include border-radius(4px);
                         }
@@ -482,6 +478,7 @@ import { MessageBox } from 'mint-ui';
                             span{
                                 text-align: center;
                                 line-height: .44rem;
+                                padding-top:.1rem;
                                 @include flex-grow(1);
                             }
                             input{
