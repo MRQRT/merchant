@@ -160,3 +160,30 @@ html,body{
 .mint-msgbox-wrapper .mint-msgbox-confirm:active,.mint-msgbox-wrapper .mint-msgbox-cancel:active{
     color: #EDA835;
 }
+/*placeholder颜色*/
+input::-webkit-input-placeholder{
+    color:#BCBCBC;
+}
+input::-moz-placeholder{   /* Mozilla Firefox 19+ */
+    color:#BCBCBC;
+}
+input:-moz-placeholder{    /* Mozilla Firefox 4 to 18 */
+    color:#BCBCBC;
+}
+input:-ms-input-placeholder{  /* Internet Explorer 10-11 */ 
+    color:#BCBCBC;
+}
+/*细线*/
+.line{
+    height:1px;
+    -webkit-transform: scaleY(0.5);
+    -webkit-transform-origin:0 0;
+    -o-transform: scaleY(0.5);
+    -o-transform-origin:0 0;
+    -moz-transform: scaleY(0.5);
+    -moz-transform-origin:0 0;
+    transform: scaleY(0.5);
+    transform-origin:0 0;
+    overflow: hidden;
+    background: #dddddd;
+}

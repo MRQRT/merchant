@@ -95,6 +95,56 @@ export function clearNoNum(a,b){
     a=a.replace(new RegExp("^(\\-)*(\\d+)\\.(\\d{0,"+b+"}).*$","gmi"),"$1$2.$3");
     return a;
 }
+/*
+* 匹配中文字符和点
+*/
+export function cnCode(a){
+    if(typeof a == 'number'){
+        a = a+''
+    }
+    var reg = /[\u4e00-\u9fa5]+|\./gm;
+    var str = a.match(reg);
+    return str
+} 
+
+/*
+* 匹配数字
+*/
+export function isNumber(a){
+    if(typeof a == 'number'){
+        a = a+''
+    }
+    // var reg = /^\d{6}(18|19|20)?\d{2}(0[1-9]|1[012])(0[1-9]|[12]\d|3[01])\d{3}(\d|X)$/i;
+    var reg = /[0-9]+/g;
+    var str = a.match(reg);
+    return str
+}
+
+/*
+* 匹配数字或字母x
+*/
+
+export function isNumberOrx(a){
+    if(typeof a == 'number'){
+        a = a+''
+    }
+    var reg = /[0-9]{17}[x]|[0-9]{18}/gi;
+    var str = a.match(reg);
+    return str
+}
+
+/*
+* 匹配数字或字母
+*/
+
+export function isNumberOrenleter(a){
+    if(typeof a == 'number'){
+        a = a+''
+    }
+    var reg = /^[a-z0-9]+$/i;
+    var str = a.match(reg);
+    return str
+}
 
 /**
  * Created by yi on 2016-12-28.
