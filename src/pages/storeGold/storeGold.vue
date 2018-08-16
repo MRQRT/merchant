@@ -1,0 +1,773 @@
+<template>
+    <div class="storeGold">
+        <!-- 头部标题部分 -->
+        <head-top headTitle='填写存金订单' class="head-top nomal-font" ref="topHead">
+            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
+            <span slot="custom" class="custom" @click="showPopup(0)">存金说明</span>
+        </head-top>
+        <!-- 主体部分 -->
+        <div class="main-cont">
+            <div class="" v-show="!popupVisible">
+                <!-- 顶部banner -->
+                <div class="top-banner">
+                    <!-- 实时金价 -->
+                    <div class="current-price">
+                        <div class="text">实时金价(元/克)<span class="question" @click="showPopup(1)"></span></div>
+                        <div class="price">287.54</div>
+                    </div>
+                </div>
+                <!-- 填写信息部分 -->
+                <div class="order-wrap">
+                    <div class="inner-box">
+                        <!-- 顶部元宝 -->
+                        <div class="gold-img">
+                            <img src="static/images/storeGold-gold.png" alt="">
+                        </div>
+                        <!-- 预估金额 -->
+                        <div class="estimate-price">
+                            <span class="txt">预估金额：</span><span class="price">0.00</span><b> 元</b>
+                            <span class="grey-question" @click="showPopup(2)"></span>
+                        </div>
+                        <!-- 表单部分 -->
+                        <div class="form-wrap">
+                            <!-- 类型选择 -->
+                            <div class="gold-box gold-type">
+                                <div class="left">黄金类型</div>
+                                <div class="type-right">
+                                    <span :class="{'type-active':typeNum==0}" @click="chooseType(0)">投资金</span>
+                                    <span :class="{'type-active':typeNum==1}" @click="chooseType(1)">首饰</span>
+                                </div>
+                            </div>
+                            <!-- 黄金总重 -->
+                            <div class="gold-box gold-weight">
+                                <div class="left">黄金总重</div>
+                                <input type="number" name="" value="" placeholder="请输入黄金克重">
+                                <span>克</span>
+                            </div>
+                            <!-- 黄金数量 -->
+                            <div class="gold-box gold-num">
+                                <div class="left">黄金数量</div>
+                                <div class="right">
+                                    <span @touchstart="decreaseCount">
+                                        <img src="static/images/minus-count.png" class="minusNum">
+                                    </span>
+                                    <input type="number" v-model="extractNum" style="flex:1;" pattern="[0-9]*">
+                                    <span @touchstart="increaseCount">
+                                        <img src="static/images/plus-count.png" class="plusNum">
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 银行卡 -->
+                <div class="gold-bank">
+                    <div class="binding-bank">
+                        <p class="title">银行卡<span>按最终成交价汇款到银行卡</span></p>
+                        <!-- 未绑卡状态 -->
+                        <div class="bank-card no-bank" v-if="!bankStatus" @click="$router.push('/bindingBank')">
+                            <p class="txt">暂无绑定银行卡</p>
+                            <p class="btn"><span></span>添加银行卡</p>
+                        </div>
+                        <!-- 已绑卡状态 -->
+                        <div class="bank-card has-bank" v-else>
+                            <div class="top-part">
+                                <div class="left-icon">
+                                    <img src="" alt="">
+                                </div>
+                                <div class="right-text">
+                                    <p>中国工商银行</p>
+                                    <p class="card-type">储蓄卡</p>
+                                </div>
+                            </div>
+                            <div class="bottom-part">
+                                <span>****</span>
+                                <span>****</span>
+                                <span>****</span>
+                                <span>0820</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 取件地址 -->
+                <div class="gold-address">
+                    <div class="select-address">
+                        <p class="title">取件地址</p>
+                        <!-- 无地址状态 -->
+                        <div class="address-card no-address" v-if="!addressStatus" @click="$router.push('/addAddress')">
+                            <p class="txt">暂无取件地址</p>
+                            <p class="btn"><span></span>创建地址</p>
+                        </div>
+                        <!-- 有地址状态 -->
+                        <div class="address-card has-address" v-else @click="$router.push('/addressList')">
+                            <div class="left-part">
+                                <p class="name-tel">
+                                    <span class="name">张艺兴</span>
+                                    <span class="tel">{{13520842445 | hideMible}}</span>
+                                </p>
+                                <p class="add">北京市丰台区嘉和人家翠庭园3号楼1501京市丰台区嘉和人</p>
+                            </div>
+                            <div class="right-arrow">
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <!-- 协议部分 -->
+                <div class="argument">
+                    <input type="checkBox" class="check">
+    				<strong :class="{'change1':bg,'change2':!bg}" @click="changeBg" ref="arg"></strong>
+    				<router-link to="/storeArg" tag="div" class="argument-wrap">
+    					<span class="txt">我已阅读并同意<b style="color:#C09C60">《存金通商户版用户协议》</b></span>
+    				</router-link>
+                </div>
+            </div>
+            <!-- 按钮部分 -->
+            <div class="opration-wrap">
+                <!-- 未登录按钮 -->
+                <div class="login" v-if="!loginStatus">立即登录</div>
+                <!-- 已登录按钮 -->
+                <div class="other-btn">
+                    <div class="directly-submit" @click="showMessage(3)">直接提交</div>
+                    <div class="lock-price" @click="showMessage(4)">
+                        <span><b>保证金:</b>1234.56<b>元</b></span>
+                        <span>锁价提交</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 各类弹窗 -->
+        <div class="stor_box" v-show="popupVisible">
+            <!-- 存金说明 -->
+            <div class="inner-box" v-show="popupNum==0">
+                <p class="priceTitle">存金说明</p>
+                <div class="content" style="margin-top:.4rem;">
+                    <div class="mess">
+                        <p>1. 重量大于10g，运费、保价费、检测费全免。</p>
+                    </div>
+                </div>
+                <div class="content" style="margin-top:.5rem;">
+                    <div class="mess">
+                        <p>2. 存入的黄金克重直接变现，也可存为持有克重（价格随金价波动变化）。</p>
+                    </div>
+                </div>
+                <div class="content" style="margin-top:.5rem;">
+                    <div class="mess">
+                        <p>3.手续费中包含黄金损耗，各类投资金(含金量＞99.99%)损耗为2%。黄金饰品(含金量＞99.99%)损耗为4%，(99.99%＞含金量＞99.9%)损耗及其他为5%，(含金量＜99%)按照实际成色计算。</p>
+                    </div>
+                </div>
+                 <div class="content" style="margin-top:.5rem">
+                    <div class="mess">
+                        <p>4. 如提交的存金信息与实际检测结果不符，与用户协商未达成一致时导致交易失败，退回的运费及保价费（按实际发生）由用户承担。</p>
+                    </div>
+                </div>
+                 <div class="content" style="margin-top:.5rem">
+                    <div class="mess">
+                        <p>5. 由于黄金价格实时波动，预估金额仅供参考。</p>
+                    </div>
+                </div>
+            </div>
+            <!-- 金价说明 -->
+            <div class="inner-box" v-show="popupNum==1">
+                <p class="priceTitle">金价说明</p>
+                <div class="content" style="margin-top:.4rem;">
+                    <div class="mess">
+                        <h3>金价来源</h3>
+                        <p>上海黄金交易所交易时间段内，黄金管家金价实时参照上海黄金交易所最新成交价;</p>
+                        <p>上海黄金交易所休盘期间，黄金管家金价实时参照国际最新成交价；</p>
+                        <p>每周末全球黄金交易所闭盘时，黄金管家金价参照本周国际金价收盘价，金价不发生波动。</p>
+                    </div>
+                </div>
+                <div class="content" style="margin-top:.5rem;">
+                    <div class="mess">
+                        <h3>交易所交易时间</h3>
+                        <p>1.上海交易所交易时间：每周一至周五20:00-次日2:30，9:00-11:30；13:30-15:30;</p>
+                        <p>2.全球黄金交易所闭盘时间：每周六早6:00至周一早8:00（夏令时），每周六早7:00至周一早7:00（冬令时)；</p>
+                        <p>3.法定节假日及交易所公告的休市日，交易所的交易时间可能会有所调整。</p>
+                    </div>
+                </div>
+            </div>
+            <!-- 预估金额 -->
+            <div class="inner-box" v-show="popupNum==2">
+                <p class="priceTitle">预估金额</p>
+                <div class="content" style="margin-top:.4rem;">
+                    <div class="mess">
+                        <p>预估金额为平台根据您的黄金类型、重量，根据实时金价给您计算预估价以做参考。平台将对您的黄金进行检测，最终成交价格以实际检测报告为准。;</p>
+                    </div>
+                </div>
+            </div>
+            <div class="closePopup">
+                <img src="static/images/close.png"  @click="closePop()">
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+import headTop from '@/components/header/head.vue'
+import { MessageBox } from 'mint-ui';
+
+    export default {
+        data(){
+            return{
+                loginStatus:true,   // 是否登录
+                bankStatus:false,   // 是否绑卡
+                addressStatus:false,// 是否选择地址
+                typeNum:0,          // 存金类型选择样式
+                extractNum:1,       // 选择数量
+                popupNum:'',        // 控制哪个弹窗显示
+                bg:true,            // 协议是否已读
+                popupVisible:false, // 全屏弹窗
+            }
+        },
+        components:{
+            headTop,
+        },
+        computed: {
+
+        },
+        watch:{
+
+        },
+        methods: {
+            //存金说明弹框
+			showPopup: function(num){
+				this.popupVisible = true;
+                this.popupNum = num;
+			},
+            closePop(){
+                this.popupVisible = false;
+            },
+            decreaseCount(){  //提金数量减1
+                if(this.extractNum==1){
+                    return;
+                }
+                this.extractNum--;
+            },
+            increaseCount(){  //设置提金加1
+                this.extractNum++;
+            },
+            chooseType(num){
+                this.typeNum = num;
+            },
+            //协议阅读与否
+            changeBg(){
+                this.bg=!this.bg;
+            },
+            showMessage(num){
+                var text1 = '店铺审核通过后，方可存金';
+                var text2 = '店铺审核通过后，再进行绑卡操作';
+                var text3 = '订单提交后，我们将通知顺丰配送人员上门收件，请提前准备好您要寄出的货品。运费由黄金管家承担。'
+                var text4 = '锁价后，我们将收取预估价的10%作为定金；定金将在成后，退还至您的付款银行卡；订单提交后，我们将通知顺丰配送人员上门收件'
+                switch(num){
+                    case 1:
+                        MessageBox({
+                          title: '温馨提示',
+                          message:text1 ,
+                          confirmButtonText: '我知道了'
+                        })
+                    break;
+                    case 2:
+                        MessageBox({
+                          title: '温馨提示',
+                          message:text2,
+                          confirmButtonText: '我知道了'
+                        })
+                    break;
+                    case 3:
+                        MessageBox({
+                          title: '温馨提示',
+                          message:text3,
+                          confirmButtonText: '确认',
+                          showCancelButton:true,
+                        })
+                    break;
+                    case 4:
+                        MessageBox({
+                          title: '温馨提示',
+                          message:text4,
+                          confirmButtonText: '确认',
+                          showCancelButton:true,
+                        })
+                    break;
+                }
+
+            }
+        },
+        created(){
+
+        },
+        mounted(){
+
+        },
+    }
+
+</script>
+
+<style media="screen">
+    .mint-msgbox-wrapper>.mint-msgbox{
+        width:5rem;
+        border-radius: 0;
+    }
+    .mint-msgbox-wrapper .mint-msgbox-message{
+        font-size: .26rem;
+    }
+    .mint-msgbox-wrapper .mint-msgbox-confirm, .mint-msgbox .mint-msgbox-btns .mint-msgbox-cancel{
+        color:#C09C60;
+    }
+    .mint-msgbox-wrapper .mint-msgbox-message{
+        text-align: left;
+    }
+    .mint-msgbox-wrapper .mint-msgbox-message{
+        padding:.1rem .2rem;
+    }
+</style>
+
+<style scoped lang="scss">
+@import '../../sass/mixin';
+.storeGold{
+    width:100%;
+    padding-top:.88rem;
+    min-height: 100vh;
+    .main-cont{
+        position: relative;
+        padding-bottom: .98rem;
+        .top-banner{
+            width:100%;
+            height: 4.42rem;
+            text-align: center;
+            padding-top:.4rem;
+            @include bg-image('/static/images/storeGold-banner.png');
+            .current-price{
+                color: #DDC899;
+                .text{
+                    font-size: .28rem;
+                    margin-bottom: .2rem;
+                    .question{
+                        display: inline-block;
+                        width: .3rem;
+                        height: .3rem;
+                        margin-left:.1rem;
+                        vertical-align: -.04rem;
+                        @include bg-image('/static/images/storeGold-question.png');
+                    }
+                }
+                .price{
+                    font-size: .66rem;
+                    font-family:DINAlternate-Bold;
+                }
+            }
+        }
+        .order-wrap{
+            width:100%;
+            padding:0 .4rem;
+
+            .inner-box{
+                width:100%;
+                height: 7.54rem;
+                margin-top:-2.4rem;
+                padding-top:.5rem;
+                background-color: #fff;
+                @include box-shadow(8px 6px 24px rgba(0,0,0,0.06));
+                .gold-img{
+                    width: 2.31rem;
+                    height: 1.14rem;
+                    margin:0 auto;
+                    img{
+                        width: 100%;
+                    }
+                }
+                .estimate-price{
+                    width: 100%;
+                    text-align: center;
+                    color: #000;
+                    font-size: .28rem;
+                    margin-top:.5rem;
+                    .txt{
+                        font-family:PingFangSC-Regular;
+                    }
+                    .price{
+                        font-size: .5rem;
+                        font-family:DINAlternate-Bold;
+                    }
+                    b{
+                        color: #333;
+                    }
+                    .grey-question{
+                        display: inline-block;
+                        width: .3rem;
+                        height: .3rem;
+                        vertical-align: -.04rem;
+                        @include bg-image('/static/images/storeGold-grey.png');
+                    }
+                }
+                .form-wrap{
+                    width: 100%;
+                    padding:.5rem .35rem 0;
+                    .gold-box{
+                        width: 100%;
+                        height:.88rem;
+                        line-height: .88rem;
+                        @include flex-box();
+                        @include justify-content();
+                        .left{
+                            color: #000;
+                            font-size: .32rem;
+                        }
+                    }
+                    .gold-type{
+                        .type-right{
+                            span{
+                                display: inline-block;
+                                width:2.1rem;
+                                height:.88rem;
+                                color: #666;
+                                font-size: .28rem;
+                                text-align: center;
+                                border:1px solid #eee;
+                                @include border-radius(3px);
+                            }
+                            .type-active{
+                                color: #C09C60;
+                                border:1px solid #C09C60;
+                                background:#f8f4eb;
+                            }
+                        }
+
+                    }
+                    .gold-weight{
+                        margin:.4rem 0;
+                        position:relative;
+                        input{
+                            width: 4.4rem;
+                            height:.88rem;
+                            color: #666;
+                            font-size: .28rem;
+                            padding-left:.3rem;
+                            background-color: rgba(248,248,248,1);
+                            @include border-radius(4px);
+                        }
+                        span{
+                            color: #666;
+                            font-size: .28rem;
+                            position: absolute;
+                            right:.3rem;
+                        }
+                        ::-webkit-input-placeholder{
+                    		font-weight: normal;
+                    		color:#BCBCBC;
+                    		line-height: normal;
+                    	}
+                    	::-moz-placeholder{
+                    		font-weight: normal;
+                    		color:#BCBCBC;
+                    	}
+                    	:-moz-placeholder{
+                    		font-weight: normal;
+                    		color:#BCBCBC;
+                    	}
+                    	:-ms-input-placeholder{
+                    		font-weight: normal;
+                    		color:#BCBCBC;
+                    	}
+                    }
+                    .gold-num{
+                        .right{
+                            width: 4.4rem;
+                            height:.88rem;
+                            background-color: rgba(248,248,248,1);
+                            align-items: center;
+                            @include flex-box();
+                            span{
+                                text-align: center;
+                                line-height: .44rem;
+                                @include flex-grow(1);
+                            }
+                            input{
+                            	height:.5rem;
+                            	line-height: .5rem;
+                            	border:none;
+                            	outline-style: none;
+                            	text-align: center;
+                                color: #666;
+                            	font-size:.28rem;
+                                background-color: rgba(248,248,248,1);
+                            }
+                            .minusNum, .plusNum{
+                                width:.44rem;
+                                height:.44rem;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .bank-card, .address-card{
+            width:100%;
+            height: 2.6rem;
+            text-align: center;
+            padding:.4rem;
+            @include bg-image('/static/images/bank-card.png');
+            .txt{
+                color: #fff;
+                font-size: .34rem;
+                font-family:PingFangSC-Medium;
+                margin-bottom: .4rem;
+            }
+            .btn{
+                width: 2.74rem;
+                height: .88rem;
+                text-align: center;
+                line-height: .88rem;
+                color: #fff;
+                font-size: .3rem;
+                font-family:PingFangSC-Regular;
+                margin:0 auto;
+                border:1px solid #fff;
+                @include border-radius(.44rem);
+                span{
+                    display: inline-block;
+                    width: .3rem;
+                    height: .3rem;
+                    margin-right:.1rem;
+                    vertical-align: -.04rem;
+                    @include bg-image('/static/images/add.png');
+                }
+            }
+        }
+        .gold-bank{
+            width: 100%;
+            padding:0 .4rem;
+            margin-top:.8rem;
+            .binding-bank{
+                .title{
+                    color: #333;
+                    font-size: .34rem;
+                    margin-bottom: .3rem;
+                    font-family:PingFangSC-Medium;
+                    @include flex-box();
+                    @include justify-content();
+                    span{
+                        color: #BCBCBC;
+                        font-size: .24rem;
+                    }
+                }
+                .has-bank{
+                    color: #fff;
+                    .top-part{
+                        margin-bottom: .4rem;
+                        justify-content: flex-start;
+                        @include flex-box();
+                        .left-icon{
+                            width: .7rem;
+                            height: .7rem;
+                            background-color: #fff;
+                            position: relative;
+                            @include border-radius(50%);
+                            img{
+                                display: inline-block;
+                                border:1px solid #eee;
+                                @include border-radius(50%);
+                                @include center(.55rem,.55rem);
+                            }
+                        }
+                        .right-text{
+                            text-align: left;
+                            margin-left:.2rem;
+                            p{
+                                font-size: .34rem;
+                                font-weight: bold;
+                                font-family:PingFangSC-Medium;
+                            }
+                            .card-type{
+                                font-weight: normal;
+                                font-size: .24rem;
+                            }
+                        }
+                    }
+                    .bottom-part{
+                        span{
+                            display: inline-block;
+                            margin-right:.3rem;
+                            &:last-child{
+                                font-size: .38rem;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .gold-address{
+            @extend .gold-bank;
+            .title{
+                color: #333;
+                font-size: .34rem;
+                margin-bottom: .3rem;
+                font-family:PingFangSC-Medium;
+            }
+            .has-address{
+                color:#fff;
+                text-align: left;
+                padding:.4rem .2rem .4rem .4rem;
+                align-items: center;
+                @include justify-content();
+                @include flex-box();
+                .left-part{
+                    width:90%;
+                    .name-tel{
+                        font-size: .32rem;
+                        margin-bottom: .2rem;
+                        .name{
+                            margin-right:.2rem;
+                        }
+                    }
+                    .add{
+                        font-size: .26rem;
+                        @include overflow();
+                    }
+                }
+                .right-arrow{
+                    width: .19rem;
+                    height: .35rem;
+                    border:1px solid red;
+                }
+            }
+            .address-card{
+                @include bg-image('/static/images/address-card.png');
+            }
+        }
+        .argument {
+            width: 100%;
+            height: 1rem;
+            line-height: 1rem;
+            text-align: center;
+            margin:.6rem auto 0;
+            padding-left: .4rem;
+            position: relative;
+            .check {
+                display: none;
+            }
+            strong {
+                width: .24rem;
+                height: .24rem;
+                position: absolute;
+                left: .4rem;
+                top: .35rem;
+            }
+            .change1 {
+                background: url('/static/images/store-readed.png') no-repeat;
+                background-size: 100% 100%;
+            }
+            .change2 {
+                background: url('/static/images/store-read.png') no-repeat;
+                background-size: 100% 100%;
+            }
+            .argument-wrap {
+                width: 100%;
+                height: 1rem;
+                .txt {
+                    font-size: .24rem;
+                    color: #888;
+                    margin-left: .38rem;
+                    position: absolute;
+                    left: .4rem;
+                }
+            }
+        }
+        .opration-wrap{
+            width: 100%;
+            height: .98rem;
+            position: fixed;
+            bottom: 0;
+            .login{
+                width: 100%;
+                height: .98rem;
+                color: #FEFEFE;
+                font-size: .34rem;
+                text-align: center;
+                line-height: .98rem;
+                background-color: #DDC899;
+            }
+            .other-btn{
+                width:100%;
+                height:.98rem;
+                text-align: center;
+                line-height: .98rem;
+                @include flex-box();
+                .directly-submit{
+                    width:30%;
+                    color:#FEFEFE;
+                    background-color: #DDC899;
+                }
+                .lock-price{
+                    width:70%;
+                    color: #fff;
+                    background-color: #000;
+                    span{
+                        &:nth-of-type(1){
+                            font-size: .32rem;
+                            font-weight: bold;
+                            b{
+                                font-size:.24rem;
+                                font-weight: normal;
+                            }
+                        }
+                        &:nth-of-type(2){
+                            font-size: .34rem;
+                            font-family:PingFangSC-Regular;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .stor_box{
+    	width: 100%;
+        height:90vh;
+    	background-color: #fff;
+        overflow: scroll;
+    	position: fixed;
+    	top: 0;
+        left:0;
+        right:0;
+    	z-index: 9;
+    	padding: 0 .56rem;
+
+        .priceTitle{
+        	font-size: .38rem;
+        	color: #000;
+        	height: 2.6rem;
+        	line-height: 3.5rem;
+        	text-align: center;
+        	border-bottom: 1px solid #eeeeee;
+        	vertical-align: center;
+        }
+        .closePopup{
+        	width: 100%;
+        	height: 2rem;
+        	text-align: center;
+            position: relative;
+            img{
+            	width: .44rem;
+            	height: .44rem;
+                position: absolute;
+                left:49%;
+                bottom:.5rem;
+            }
+        }
+        .mess{
+        	font-size: .28rem;
+        	color: #666666;
+            line-height: .45rem;
+            h3{
+                color: #000;
+                font-size:.28rem;
+                margin-bottom: .2rem;
+                font-family:PingFangSC-Regular;
+            }
+        }
+    }
+
+}
+</style>
