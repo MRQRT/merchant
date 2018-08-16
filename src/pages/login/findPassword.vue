@@ -28,6 +28,7 @@
         <a class="confirmBtn" :class="{'noActived':dark,'hasActived':highLight}" @click="confirm">确定</a>
     </div>
 </template>
+
 <script>
   import headTop from '../../components/header/head.vue';
   import { Toast } from 'mint-ui';
@@ -209,101 +210,98 @@
 </script>
 
 <style scoped>
-.loginIn{
-  height: 100vh;  
-}
-.backPwd{
-    height:8.1rem;
-    padding-left:.4rem;
-    padding-right:.4rem;
-}
-.tele,.idenCode,.newPwd{
-    height:1.1rem;
-    border-bottom: 1px solid #EFEFEF;
-    line-height:1.1rem;
-}
-.tele,.newPwd,.idenCode{
-    position: relative;
-}
-.tele{
-    display: flex;
-    display: -webkit-flex;
-    display: -moz-flex;
-    display: -o-flex;
-}
-.tele #iptTel{
-    flex:2.5;
-    -webkit-flex:2.5;
-    -moz-flex:2.5;
-    -o-flex:2.5;
-}
-.tele .getIdenCode{
-    flex:1;
-    -webkit-flex:1;
-    -moz-flex:1;
-    -o-flex:1;
-    color:#C09C60;
+    .backPwd{
+        height:8.1rem;
+        padding-left:.4rem;
+        padding-right:.4rem;
+    }
+    .tele,.idenCode,.newPwd{
+        height:1.1rem;
+        border-bottom: 1px solid #EFEFEF;
+        line-height:1.1rem;
+    }
+    .tele,.newPwd,.idenCode{
+        position: relative;
+    }
+    .tele{
+        display: flex;
+        display: -webkit-flex;
+        display: -moz-flex;
+        display: -o-flex;
+    }
+    .tele #iptTel{
+        flex:2.5;
+        -webkit-flex:2.5;
+        -moz-flex:2.5;
+        -o-flex:2.5;
+    }
+    .tele .getIdenCode{
+        flex:1;
+        -webkit-flex:1;
+        -moz-flex:1;
+        -o-flex:1;
+        color:#C09C60;
+        text-align: center;
+    }
+    .tele #iptTel,.idenCode #iptCode,.newPwd #iptPwd{
+        border:none;
+        font-size:.3rem;
+        color:#999999;
+        outline-style: none;
+        width:5.5rem;
+        padding-left:.22rem;
+    }
+    .confirmBtn{
+        width:6.93rem;
+        height:0.9rem;
+        line-height:0.9rem;
+        font-size:.36rem;
+        text-align: center;
+        margin:0 auto;
+        border-radius: 5px;
+        display: block;
+    }
+    .visible{
+        position: absolute;
+        right:0.2rem;
+        padding-top:.15rem;
+    }
+    .hasActived{
+        background-color: #C09C60;
+        color: #fff;
+    }
+    .hasActived:link{
+        background-color: #C09C60;
+    }
+    .hasActived:hover{
+        background-color: #C09C60;
+    }
+    .hasActived:active{
+        background-color: #C09C60;
+    }
+    .hasActived:visited{
+        background-color: #C09C60;
+    }
+    .noActived{
+        background-color: #DDC899;
+        color:#FEFCF9;
+    }
+    .wrongTel,.wrongCode{
+        height:.3rem;
+        line-height: .3rem;
+        color:red;
+        font-size:.24rem;
+        position: absolute;
+        left: 0.22rem;
+        bottom:0;
+    }
+    .logoPart{
+    height: 2.3rem;
+    padding-top: .82rem;
+    margin-top: .88rem;
     text-align: center;
-}
-.tele #iptTel,.idenCode #iptCode,.newPwd #iptPwd{
-    border:none;
-    font-size:.3rem;
-    color:#999999;
-    outline-style: none;
-    width:5.5rem;
-    padding-left:.22rem;
-}
-.confirmBtn{
-    width:6.93rem;
-    height:0.9rem;
-    line-height:0.9rem;
-    font-size:.36rem;
-    text-align: center;
-    margin:0 auto;
-    border-radius: 5px;
-    display: block;
-}
-.visible{
-    position: absolute;
-    right:0.2rem;
-    padding-top:.15rem;
-}
-.hasActived{
-    background-color: #C09C60;
-    color: #fff;
-}
-.hasActived:link{
-    background-color: #C09C60;
-}
-.hasActived:hover{
-    background-color: #C09C60;
-}
-.hasActived:active{
-    background-color: #C09C60;
-}
-.hasActived:visited{
-    background-color: #C09C60;
-}
-.noActived{
-    background-color: #DDC899;
-    color:#FEFCF9;
-}
-.wrongTel,.wrongCode{
-    height:.3rem;
-    line-height: .3rem;
-    color:red;
-    font-size:.24rem;
-    position: absolute;
-    left: 0.22rem;
-    bottom:0;
-}
-.logoPart{
-height: 2.3rem;
-padding-top: .82rem;
-margin-top: .88rem;
-text-align: center;
-}
-.logoPart img{
-    width: 2rem;
-}
+    }
+    .logoPart img{
+        width: 2rem;
+    }
 </style>

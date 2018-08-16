@@ -107,7 +107,6 @@
             // if(localStorage.getItem('isWebview')){
             //     document.querySelector('.weixin_login').style.display="block"
             // }
-            this.weixinLogin();
 		},
 		computed:{
             // ...mapState([
@@ -174,6 +173,7 @@
             // ]),
             //微信登录
             weixinLogin(){
+                window.openWeChat()
             },
             //点击左上角关闭按钮
             backWard(){
