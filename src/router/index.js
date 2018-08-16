@@ -36,11 +36,13 @@ const addAddress = r => require.ensure([], () => r(require('../pages/account/add
 const registerArg = r => require.ensure([], () => r(require('../pages/arguments/registerArg')), 'registerArg')
 const storeArg = r => require.ensure([], () => r(require('../pages/arguments/storeArg')), 'storeArg')
 
-/* 登录页面 */
-const login = r => require.ensure([], () => r(require('../pages/login/login.vue')), 'login')
-const findPassword = r => require.ensure([], () => r(require('../pages/login/findPassword.vue')), 'findPassword')
-
-
+/* 登录注册页面 */
+const login = r => require.ensure([], () => r(require('../pages/login/login')), 'login')
+const findPassword = r => require.ensure([], () => r(require('../pages/login/findPassword')), 'findPassword')
+const register = r => require.ensure([], () => r(require('../pages/login/register')), 'register')
+const bindingWechat = r => require.ensure([], () => r(require('../pages/login/bindingWechat')), 'bindingWechat')
+const changePassword = r => require.ensure([], () => r(require('../pages/login/changePassword')), 'changePassword')
+const changeMobile = r => require.ensure([], () => r(require('../pages/login/changeMobile')), 'changeMobile')
 
 const router = new Router({
     mode: 'history',
@@ -132,6 +134,22 @@ const router = new Router({
         {
             path: '/findPassword', //找回密码
             component: findPassword
+        },
+        {
+            path: '/register', //注册页
+            component: register
+        },
+        {
+            path: '/bindingWechat', //绑定手机
+            component: bindingWechat
+        },
+        {
+            path: '/changeMobile', //修改绑定手机号
+            component: changeMobile
+        },
+        {
+            path: '/changePassword', //修改密码
+            component: changePassword
         }
 
     ],
