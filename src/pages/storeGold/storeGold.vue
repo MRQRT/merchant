@@ -6,122 +6,120 @@
             <span slot="custom" class="custom" @click="showPopup(0)">存金说明</span>
         </head-top>
         <!-- 主体部分 -->
-        <div class="main-cont">
-            <div class="" v-show="!popupVisible">
-                <!-- 顶部banner -->
-                <div class="top-banner">
-                    <!-- 实时金价 -->
-                    <div class="current-price">
-                        <div class="text">实时金价(元/克)<span class="question" @click="showPopup(1)"></span></div>
-                        <div class="price">287.54</div>
-                    </div>
+        <div class="main-cont" v-show="!popupVisible">
+            <!-- 顶部banner -->
+            <div class="top-banner">
+                <!-- 实时金价 -->
+                <div class="current-price">
+                    <div class="text">实时金价(元/克)<span class="question" @click="showPopup(1)"></span></div>
+                    <div class="price">287.54</div>
                 </div>
-                <!-- 填写信息部分 -->
-                <div class="order-wrap">
-                    <div class="inner-box">
-                        <!-- 顶部元宝 -->
-                        <div class="gold-img">
-                            <img src="static/images/storeGold-gold.png" alt="">
-                        </div>
-                        <!-- 预估金额 -->
-                        <div class="estimate-price">
-                            <span class="txt">预估金额：</span><span class="price">{{estimatePrice | formatPriceTwo}}</span><b> 元</b>
-                            <span class="grey-question" @click="showPopup(2)"></span>
-                        </div>
-                        <!-- 表单部分 -->
-                        <div class="form-wrap">
-                            <!-- 类型选择 -->
-                            <div class="gold-box gold-type">
-                                <div class="left">黄金类型</div>
-                                <div class="type-right">
-                                    <span :class="{'type-active':typeNum==0}" @click="chooseType(0)">投资金</span>
-                                    <span :class="{'type-active':typeNum==1}" @click="chooseType(1)">首饰</span>
-                                </div>
-                            </div>
-                            <!-- 黄金总重 -->
-                            <div class="gold-box gold-weight">
-                                <div class="left">黄金总重</div>
-                                <input type="number" name="" v-model="weight" @keyup="checkInput(weight+'')" placeholder="请输入黄金克重">
-                                <span>克</span>
-                            </div>
-                            <!-- 黄金数量 -->
-                            <div class="gold-box gold-num">
-                                <div class="left">黄金数量</div>
-                                <div class="right">
-                                    <span @touchstart="decreaseCount">
-                                        <img src="static/images/minus-count.png" class="minusNum">
-                                    </span>
-                                    <input type="number" v-model="extractNum" style="flex:1;" pattern="[0-9]*">
-                                    <span @touchstart="increaseCount">
-                                        <img src="static/images/plus-count.png" class="plusNum">
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+            </div>
+            <!-- 填写信息部分 -->
+            <div class="order-wrap">
+                <div class="inner-box">
+                    <!-- 顶部元宝 -->
+                    <div class="gold-img">
+                        <img src="static/images/storeGold-gold.png" alt="">
                     </div>
-                </div>
-                <!-- 银行卡 -->
-                <div class="gold-bank">
-                    <div class="binding-bank">
-                        <p class="title">银行卡<span>按最终成交价汇款到银行卡</span></p>
-                        <!-- 未绑卡状态 -->
-                        <div class="bank-card no-bank" v-if="!bankStatus" @click="$router.push('/bindingBank')">
-                            <p class="txt">暂无绑定银行卡</p>
-                            <p class="btn"><span></span>添加银行卡</p>
-                        </div>
-                        <!-- 已绑卡状态 -->
-                        <div class="bank-card has-bank" v-else>
-                            <div class="top-part">
-                                <div class="left-icon">
-                                    <img src="" alt="">
-                                </div>
-                                <div class="right-text">
-                                    <p>中国工商银行</p>
-                                    <p class="card-type">储蓄卡</p>
-                                </div>
+                    <!-- 预估金额 -->
+                    <div class="estimate-price">
+                        <span class="txt">预估金额：</span><span class="price">{{estimatePrice | formatPriceTwo}}</span><b> 元</b>
+                        <span class="grey-question" @click="showPopup(2)"></span>
+                    </div>
+                    <!-- 表单部分 -->
+                    <div class="form-wrap">
+                        <!-- 类型选择 -->
+                        <div class="gold-box gold-type">
+                            <div class="left">黄金类型</div>
+                            <div class="type-right">
+                                <span :class="{'type-active':typeNum==1}" @click="chooseType(1)">投资金</span>
+                                <span :class="{'type-active':typeNum==2}" @click="chooseType(2)">首饰</span>
                             </div>
-                            <div class="bottom-part">
-                                <span>****</span>
-                                <span>****</span>
-                                <span>****</span>
-                                <span>0820</span>
+                        </div>
+                        <!-- 黄金总重 -->
+                        <div class="gold-box gold-weight">
+                            <div class="left">黄金总重</div>
+                            <input type="number" name="" v-model="weight" @keyup="checkInput(weight+'')" placeholder="请输入黄金克重">
+                            <span>克</span>
+                        </div>
+                        <!-- 黄金数量 -->
+                        <div class="gold-box gold-num">
+                            <div class="left">黄金数量</div>
+                            <div class="right">
+                                <span @touchstart="decreaseCount">
+                                    <img src="static/images/minus-count.png" class="minusNum">
+                                </span>
+                                <input type="number" v-model="extractNum" style="flex:1;" pattern="[0-9]*">
+                                <span @touchstart="increaseCount">
+                                    <img src="static/images/plus-count.png" class="plusNum">
+                                </span>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- 取件地址 -->
-                <div class="gold-address">
-                    <div class="select-address">
-                        <p class="title">取件地址</p>
-                        <!-- 无地址状态 -->
-                        <div class="address-card no-address" v-if="!addressStatus" @click="$router.push('/addAddress')">
-                            <p class="txt">暂无取件地址</p>
-                            <p class="btn"><span></span>创建地址</p>
+            </div>
+            <!-- 银行卡 -->
+            <div class="gold-bank">
+                <div class="binding-bank">
+                    <p class="title">银行卡<span>按最终成交价汇款到银行卡</span></p>
+                    <!-- 未绑卡状态 -->
+                    <div class="bank-card no-bank" v-if="!bankStatus" @click="$router.push('/bindingBank')">
+                        <p class="txt">暂无绑定银行卡</p>
+                        <p class="btn"><span></span>添加银行卡</p>
+                    </div>
+                    <!-- 已绑卡状态 -->
+                    <div class="bank-card has-bank" v-else>
+                        <div class="top-part">
+                            <div class="left-icon">
+                                <img src="" alt="">
+                            </div>
+                            <div class="right-text">
+                                <p>中国工商银行</p>
+                                <p class="card-type">储蓄卡</p>
+                            </div>
                         </div>
-                        <!-- 有地址状态 -->
-                        <div class="address-card has-address" v-else @click="$router.push('/addressList')">
-                            <div class="left-part">
-                                <p class="name-tel">
-                                    <span class="name">张艺兴</span>
-                                    <span class="tel">{{13520842445 | hideMible}}</span>
-                                </p>
-                                <p class="add">北京市丰台区嘉和人家翠庭园3号楼1501京市丰台区嘉和人</p>
-                            </div>
-                            <div class="right-arrow">
-
-                            </div>
+                        <div class="bottom-part">
+                            <span>****</span>
+                            <span>****</span>
+                            <span>****</span>
+                            <span>0820</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 取件地址 -->
+            <div class="gold-address">
+                <div class="select-address">
+                    <p class="title">取件地址</p>
+                    <!-- 无地址状态 -->
+                    <div class="address-card no-address" v-if="!addressStatus" @click="$router.push('/addAddress')">
+                        <p class="txt">暂无取件地址</p>
+                        <p class="btn"><span></span>创建地址</p>
+                    </div>
+                    <!-- 有地址状态 -->
+                    <div class="address-card has-address" v-else @click="$router.push('/addressList')">
+                        <div class="left-part">
+                            <p class="name-tel">
+                                <span class="name">张艺兴</span>
+                                <span class="tel">{{13520842445 | hideMible}}</span>
+                            </p>
+                            <p class="add">北京市丰台区嘉和人家翠庭园3号楼1501京市丰台区嘉和人</p>
+                        </div>
+                        <div class="right-arrow">
 
                         </div>
+
                     </div>
                 </div>
-                <!-- 协议部分 -->
-                <div class="argument">
-                    <input type="checkBox" class="check">
-    				<strong :class="{'change1':bg,'change2':!bg}" @click="changeBg" ref="arg"></strong>
-    				<router-link to="/storeArg" tag="div" class="argument-wrap">
-    					<span class="txt">我已阅读并同意<b style="color:#C09C60">《存金通商户版用户协议》</b></span>
-    				</router-link>
-                </div>
+            </div>
+            <!-- 协议部分 -->
+            <div class="argument">
+                <input type="checkBox" class="check">
+				<strong :class="{'change1':bg,'change2':!bg}" @click="changeBg" ref="arg"></strong>
+				<router-link to="/storeArg" tag="div" class="argument-wrap">
+					<span class="txt">我已阅读并同意<b style="color:#C09C60">《存金通商户版用户协议》</b></span>
+				</router-link>
             </div>
             <!-- 按钮部分 -->
             <div class="opration-wrap">
@@ -129,9 +127,9 @@
                 <div class="login" v-if="!loginStatus">立即登录</div>
                 <!-- 已登录按钮 -->
                 <div class="other-btn">
-                    <div class="directly-submit" @click="showMessage(3)">直接提交</div>
-                    <div class="lock-price" @click="showMessage(4)">
-                        <span><b>保证金:</b>1234.56<b>元</b></span>
+                    <div class="directly-submit" :class="{'submitNo':!submitStatus}" @click="submit(1)">直接提交</div>
+                    <div class="lock-price" :class="{'lockNo':!submitStatus}"  @click="submit(2)">
+                        <span><b>保证金:</b>12346.56<b>元</b></span>
                         <span>锁价提交</span>
                     </div>
                 </div>
@@ -207,21 +205,23 @@
 <script>
 import headTop from '@/components/header/head.vue'
 import { clearNoNum } from '../../config/mUtils.js';
-import { MessageBox } from 'mint-ui';
+import { MessageBox,Toast } from 'mint-ui';
 
     export default {
         data(){
             return{
                 currentPrice:287.54,
                 loginStatus:true,   // 是否登录
-                bankStatus:false,   // 是否绑卡
-                addressStatus:false,// 是否选择地址
-                typeNum:0,          // 存金类型选择样式
-                weight:'',           // 存金克重
+                bankStatus:true,    // 是否绑卡
+                addressStatus:true, // 是否选择地址
+                typeNum:'',         // 存金类型选择样式
+                weight:'',          // 存金克重
                 extractNum:1,       // 存金数量
-                popupNum:'',        // 控制哪个弹窗显示
                 bg:true,            // 协议是否已读
+                popupNum:'',        // 控制哪个弹窗显示
                 popupVisible:false, // 全屏弹窗
+                btnCtroller:true,   // 按钮是否可以点击
+                shopCheckStatus:true,// 店铺审核状态
             }
         },
         components:{
@@ -232,6 +232,14 @@ import { MessageBox } from 'mint-ui';
             estimatePrice(){
                 return (this.weight * this.extractNum * this.currentPrice).toFixed(2);
             },
+            // 提交按钮是否可以点击
+            submitStatus(){
+                if(!this.typeNum || !this.weight || !this.bg || !this.bankStatus || !this.addressStatus){
+                    return false;
+                }else{
+                    return true;
+                }
+            }
         },
         watch:{
 
@@ -265,11 +273,38 @@ import { MessageBox } from 'mint-ui';
             changeBg(){
                 this.bg=!this.bg;
             },
+            // 点击按钮提交函数
+            submit(num){
+                if(this.submitStatus){ // 按钮可点击状态
+                    if(!this.shopCheckStatus){  // 店铺未通过审核
+                        this.showMessage(3);
+                    }else{
+                        if(this.btnCtroller){
+                            this.btnCtroller=false
+                            num == 1 ? this.showMessage(4) : this.showMessage(5);
+                        }else{
+                            Toast('频繁操作～')
+                        }
+                    }
+                }
+            },
+            directlyOrder(){
+                console.log('创建订单')
+                this.$router.push('/storeResult');
+            },
+            // 锁价提交
+            lockPriceOrder(){
+                //创建订单
+                // 显示支付弹窗
+                // 显示处理中动画
+            },
+            //各类提示弹窗
             showMessage(num){
-                var text1 = '店铺审核通过后，方可存金';
-                var text2 = '店铺审核通过后，再进行绑卡操作';
-                var text3 = '订单提交后，我们将通知顺丰配送人员上门收件，请提前准备好您要寄出的货品。运费由黄金管家承担。'
-                var text4 = '锁价后，我们将收取预估价的10%作为定金；定金将在成后，退还至您的付款银行卡；订单提交后，我们将通知顺丰配送人员上门收件'
+                var text1 = `<div style="text-align:center">店铺审核通过后，再进行绑卡操作</div>`;
+                var text2 = `<div style="text-align:center">店铺审核通过后，再进行新增地址操作</div>`;
+                var text3 = `<div style="text-align:center">店铺审核通过后，方可存金</div>`;
+                var text4 = '订单提交后，我们将通知顺丰配送人员上门收件，请提前准备好您要寄出的货品。运费由黄金管家承担。'
+                var text5 = '锁价后，我们将收取预估价的10%作为定金；定金将在成后，退还至您的付款银行卡；订单提交后，我们将通知顺丰配送人员上门收件'
                 switch(num){
                     case 1:
                         MessageBox({
@@ -289,8 +324,7 @@ import { MessageBox } from 'mint-ui';
                         MessageBox({
                           title: '温馨提示',
                           message:text3,
-                          confirmButtonText: '确认',
-                          showCancelButton:true,
+                           confirmButtonText: '我知道了'
                         })
                     break;
                     case 4:
@@ -299,6 +333,26 @@ import { MessageBox } from 'mint-ui';
                           message:text4,
                           confirmButtonText: '确认',
                           showCancelButton:true,
+                      }).then(action => {
+                            if(action == 'confirm'){
+                                this.directlyOrder()
+                            }else{
+                                this.btnCtroller = true;
+                            }
+                      })
+                    break;
+                    case 5:
+                        MessageBox({
+                          title: '温馨提示',
+                          message:text5,
+                          confirmButtonText: '确认',
+                          showCancelButton:true,
+                        }).then(action => {
+                            if(action == 'confirm'){
+                                this.lockPriceOrder()
+                            }else{
+                                this.btnCtroller = true;
+                            }
                         })
                     break;
                 }
@@ -323,10 +377,10 @@ import { MessageBox } from 'mint-ui';
 @import '../../sass/mixin';
 .storeGold{
     width:100%;
-    padding-top:.88rem;
     min-height: 100vh;
     .main-cont{
         position: relative;
+        padding-top:.88rem;
         padding-bottom: .98rem;
         .top-banner{
             width:100%;
@@ -677,6 +731,7 @@ import { MessageBox } from 'mint-ui';
             height: .98rem;
             position: fixed;
             bottom: 0;
+
             .login{
                 width: 100%;
                 height: .98rem;
@@ -692,6 +747,12 @@ import { MessageBox } from 'mint-ui';
                 text-align: center;
                 line-height: .98rem;
                 @include flex-box();
+                .submitNo{
+                    background-color: #eee3cb !important;
+                }
+                .lockNo{
+                    background-color: #bcbcbc !important;
+                }
                 .directly-submit{
                     width:30%;
                     color:#FEFEFE;
@@ -705,6 +766,7 @@ import { MessageBox } from 'mint-ui';
                         &:nth-of-type(1){
                             font-size: .32rem;
                             font-weight: bold;
+                            margin-right:.1rem;
                             b{
                                 font-size:.24rem;
                                 font-weight: normal;
@@ -721,15 +783,18 @@ import { MessageBox } from 'mint-ui';
     }
     .stor_box{
     	width: 100%;
-        height:90vh;
+        min-height:100vh;
     	background-color: #fff;
         overflow: scroll;
-    	position: fixed;
+    	// position: fixed;
     	top: 0;
         left:0;
         right:0;
     	z-index: 9;
     	padding: 0 .56rem;
+        flex-direction: column;
+        @include flex-box();
+        @include justify-content();
 
         .priceTitle{
         	font-size: .38rem;
@@ -742,15 +807,13 @@ import { MessageBox } from 'mint-ui';
         }
         .closePopup{
         	width: 100%;
-        	height: 2rem;
+        	height: 2.5rem;
+            line-height: 2.5rem;
         	text-align: center;
             position: relative;
             img{
             	width: .44rem;
             	height: .44rem;
-                position: absolute;
-                left:49%;
-                bottom:.5rem;
             }
         }
         .mess{
