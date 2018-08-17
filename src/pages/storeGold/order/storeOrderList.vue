@@ -5,30 +5,50 @@
             <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
         </head-top>
         <!-- 主体部分 -->
-        <div class="main-cont" ref="wrapper" :style="{ height: wrapperHeight + 'px' }">
+        <div class="main-cont" ref="wrapper" v-if="orderStatus" :style="{ height: wrapperHeight + 'px' }">
             <mt-loadmore :bottom-method="loadBottom" :bottom-all-loaded="allLoaded" :auto-fill="false"
                 bottomPullText="上滑加载更多" bottomDropText="松开加载" ref="loadmore" class="loadmore">
                 <ul class="order-list">
                     <li class="order-item" v-for="(item,index) in orderList" :key="index" @click="$router.push({path:'/storeOrderDetail',query:{id:index,status:index}})">
-                        <div class="type-status">
-                            <span class="gold-type">{{item.goldType}}</span>
-                            <span class="status" v-if="index==0" style="color:#FF6D39;font-size:.24rem">请在13分20秒内完成支付</span>
-                            <span class="status" v-else :class="{'overStatus':index==7 || index==8}">{{statusJson[index].name}}</span>
+                        <!-- 左侧图片 -->
+                        <div class="left-img">
+                            <img src="static/images/order-touzijin.png" alt="" v-if="item.goldType=='投资金'">
+                            <img src="static/images/order-shoushi.png" alt="" v-else>
                         </div>
-                        <div class="orderNo">
-                            <b>订单编号：</b>{{item.orderNo}}
-                        </div>
-                        <div class="trade-type">
-                            <span>{{typeJson[item.tradeType]}}</span>
-                            <span class="lock-price" v-if="item.lockStatus==1 && item.tradeType==0">锁价</span>
-                        </div>
-                        <div class="weight-time">
-                            <span>克重：{{item.weight}}克</span>
-                            <span>{{item.time}}</span>
+                        <!-- 右侧文字 -->
+                        <div class="right-text">
+                            <!-- 变现or存入克重 -->
+                            <div class="trade-type">
+                                <div class="left">
+                                    <span>{{typeJson[item.tradeType]}}</span>
+                                    <span class="lock-price" v-if="item.lockStatus==1 && item.tradeType==0"></span>
+                                </div>
+                                <div class="right">
+                                    <span class="status" :class="{'overStatus':index==7 || index==8}">{{statusJson[index].name}}</span>
+                                </div>
+                            </div>
+                            <!-- 订单信息 -->
+                            <div class="bottom-info">
+                                <div class="orderNo">
+                                    <b>订单编号：</b>{{item.orderNo}}
+                                </div>
+                                <div class="ensure-cash" v-if="item.lockStatus==1 && item.tradeType==0">保证金：{{500 | formatPriceTwo}}元</div>
+                                <div class="weight-time">
+                                    <span>总克重：{{item.weight}}克</span>
+                                    <span>{{item.time}}</span>
+                                </div>
+                            </div>
                         </div>
                     </li>
                 </ul>
             </mt-loadmore>
+        </div>
+        <!-- 没有订单显示 -->
+        <div class="no-order" v-else>
+            <div class="top-img">
+                <img src="static/images/no-order.png" alt="">
+            </div>
+            <p>您还没有订单！</p>
         </div>
     </div>
 </template>
@@ -39,7 +59,8 @@ import headTop from '@/components/header/head.vue'
     export default {
         data(){
             return{
-                allLoaded:false,   // 是否全部加载完毕
+                orderStatus:true,   // 是否有订单
+                allLoaded:false,     // 是否全部加载完毕
                 wrapperHeight:0,     // 加载内容动态高度
                 searchCondition: {   // 分页属性
                     pageNo: 1,
@@ -187,42 +208,97 @@ import headTop from '@/components/header/head.vue'
 .storeGoldList{
     width:100%;
     min-height: 100vh;
-    padding-top:.88rem;
     background-color: #f8f8f8;
     .main-cont{
         overflow: scroll;
+        padding-top:.88rem;
         .order-list{
             .order-item{
                 width:100%;
                 padding:.3rem .4rem;
                 color: #666;
                 font-size: .28rem;
+                margin-top:.2rem;
                 font-family:PingFangSC-Regular;
                 background-color: #fff;
-                div{
-                    margin-bottom: .12rem;
+                @include flex-box();
+                .left-img{
+                    width: 1.5rem;
+                    height: 1.5rem;
+                    margin-right:.25rem;
+                    background-color: #eee;
+                    img{
+                        width: 100%;
+                    }
                 }
-                .type-status, .trade-type,.weight-time{
+                .right-text{
+                    flex-grow: 2;
+                    flex-direction: column;
                     @include flex-box();
                     @include justify-content();
-                    .gold-type{
-                        color: #333;
-                        font-size: .32rem;
+                }
+                .trade-type{
+                    margin-top:-.05rem;
+                    .left{
+                        align-items: center;
+                        @include flex-box();
+                        span{
+                            color: #333;
+                            font-size: .28rem;
+                        }
+                        .lock-price{
+                            display: inline-block;
+                            width: .54rem;
+                            height: .31rem;
+                            margin-left:.1rem;
+                            background-size: 100% 100% !important;
+                            @include bg-image('/static/images/lock-price-icon.png');
+                        }
                     }
+
+                }
+                .bottom-info{
+                    justify-content: flex-end;
+                    flex-direction: column;
+                    @include flex-box();
+                }
+                .trade-type, .weight-time{
+                    align-items: center;
+                    @include flex-box();
+                    @include justify-content();
                     .status{
                         color: #C09C60;
                     }
                     .overStatus{
                         color: #999999;
                     }
-                    .lock-price{
-                        color: #333;
-                    }
                 }
-                .orderNo{
-                    color: #000;
+                .orderNo,.ensure-cash, .weight-time{
+                    color: #666;
+                    font-size:.24rem;
                 }
             }
+        }
+    }
+    .no-order{
+        width:100%;
+        height: 100vh;
+        padding-top:1.5rem;
+        background-color: #fff;
+        .top-img{
+            width: 2.8rem;
+            height: 2.6rem;
+            margin:0 auto .4rem;
+            img{
+                width:100%;
+            }
+        }
+        p{
+            width:100%;
+            color: #666;
+            font-size: .28rem;
+            text-align: center;
+            padding-left:.4rem;
         }
     }
 }

@@ -16,15 +16,30 @@
             <div class="bank-wrap">
                 <h3>银行卡</h3>
                 <div class="bank">
-                    <div class="left-part">
-                        <div class="icon"></div>
-                        <div class="text">
-                            <p class="bank-name">中国工商银行</p>
-                            <p class="bank-num">尾号3232</p>
+                    <!-- 已绑卡状态 -->
+                    <div class="has-bank" v-if="bankStatus" @click="$router.push('/myBank')">
+                        <div class="left-part">
+                            <div class="icon">
+                                <img src="" alt="">
+                            </div>
+                            <div class="text">
+                                <p class="bank-name">中国工商银行</p>
+                                <p class="bank-num">尾号3232</p>
+                            </div>
                         </div>
+                        <div class="right-part"></div>
                     </div>
-                    <div class="right-part">
-
+                    <!-- 未绑卡状态 -->
+                    <div class="no-bank" v-else @click="$router.push('/bindingBank')">
+                        <div class="left-part">
+                            <div class="icon">
+                                <img src="static/images/add-bank.png" alt="">
+                            </div>
+                            <div class="text">
+                                <p class="bank-name">添加银行卡</p>
+                            </div>
+                        </div>
+                        <div class="right-part"></div>
                     </div>
                 </div>
             </div>
@@ -38,7 +53,7 @@ import headTop from '@/components/header/head.vue'
     export default {
         data(){
             return{
-
+                bankStatus:true,  // 是否绑卡
             }
         },
         components:{
@@ -104,10 +119,28 @@ import headTop from '@/components/header/head.vue'
                 height: 1.4rem;
                 padding:0 .4rem;
                 background-color: #fff;
-                align-items: center;
-                @include flex-box();
-                @include justify-content();
 
+                .has-bank,.no-bank{
+                    height: 1.4rem;
+                    align-items: center;
+                    @include flex-box();
+                    @include justify-content();
+                }
+                .no-bank{
+                    .left-part{
+                        .icon{
+                            display: inline-block;
+                            width: .44rem;
+                            height: .44rem;
+                            margin-right:.25rem;
+                            background-color:none !important;
+                        }
+                        .bank-name{
+                            color: #666 !important;
+                            font-size: .3rem !important;
+                        }
+                    }
+                }
                 .left-part{
                     align-items: center;
                     @include flex-box();
@@ -117,8 +150,11 @@ import headTop from '@/components/header/head.vue'
                         width: .55rem;
                         height: .55rem;
                         margin-right:.25rem;
-                        background-color: #eee;
+                        border:1px solid #eee;
                         @include border-radius(50%);
+                        img{
+                            width: 100%;
+                        }
                     }
                     .text{
                         .bank-name{
