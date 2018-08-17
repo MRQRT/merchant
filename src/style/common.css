@@ -50,7 +50,7 @@ input{
     -ms-appearance: none;
 }
 input[type="button"], input[type="submit"], input[type="search"], input[type="reset"] {
-    /*-webkit-appearance: none;*/
+    /* -webkit-appearance: none; */
 }
 
 textarea { -webkit-appearance: none; -moz-appearance: none;}

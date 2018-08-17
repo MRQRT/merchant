@@ -45,6 +45,14 @@ const bindingWechat = r => require.ensure([], () => r(require('../pages/login/bi
 const changePassword = r => require.ensure([], () => r(require('../pages/login/changePassword')), 'changePassword')
 const changeMobile = r => require.ensure([], () => r(require('../pages/login/changeMobile')), 'changeMobile')
 
+/* 店铺相关 */ 
+const guide = r => require.ensure([], () => r(require('../pages/shop/guide')), 'guide')
+const guide2 = r => require.ensure([], () => r(require('../pages/shop/guide2')), 'guide2')
+const qcaddr = r => require.ensure([], () => r(require('../pages/shop/qcaddr')), 'qcaddr')
+const qcckms = r => require.ensure([], () => r(require('../pages/shop/qcckms')), 'qcckms')
+
+
+
 const router = new Router({
     mode: 'history',
     routes: [
@@ -155,6 +163,22 @@ const router = new Router({
         {
             path: '/changePassword', //修改密码
             component: changePassword
+        },
+        {
+            path: '/guide', //开店引导页首页
+            component: guide
+        },
+        {
+            path: '/guide2', //资质提交结果
+            component: guide2
+        },
+        {
+            path: '/qcaddr', //开店引导页3
+            component: qcaddr
+        },
+        {
+            path: '/qcckms',//核对资质信息
+            component: qcckms
         }
 
     ],

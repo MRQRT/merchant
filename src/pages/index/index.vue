@@ -11,6 +11,14 @@
             <div class="" @click="$router.push('/storeResult')">存金结果页</div>
             <div class="" @click="$router.push('/storeOrderList')">存金订单</div>
             <div class="" @click="$router.push('/myBank')">我的银行卡</div>
+            <!-- <div class="" @click="$router.push('/register')">注册页</div>
+            <div class="" @click="$router.push('/bindingWechat')">微信绑定手机页</div>
+            <div class="" @click="$router.push('/changeMobile')">修改绑定手机</div>
+            <div class="" @click="$router.push('/changePassword')">修改密码</div> -->
+            <div class="" @click="$router.push('/guide')">开店引导页</div>
+            <div class="" @click="$router.push('/guide2')">开店引导页2</div>
+            <div class="" @click="$router.push('/qcaddr')">资质信息提交结果</div>
+            <div class="" @click="$router.push('/qcckms')">资质信息核对</div>
         </div>
         <mt-popup v-model="popupVisible" position="left">
             <div class="nav-wrap">
