@@ -15,10 +15,12 @@
             <div class="" @click="$router.push('/bindingWechat')">微信绑定手机页</div>
             <div class="" @click="$router.push('/changeMobile')">修改绑定手机</div>
             <div class="" @click="$router.push('/changePassword')">修改密码</div> -->
-            <div class="" @click="$router.push('/guide')">开店引导页</div>
-            <div class="" @click="$router.push('/guide2')">开店引导页2</div>
-            <div class="" @click="$router.push('/qcaddr')">资质信息提交结果</div>
-            <div class="" @click="$router.push('/qcckms')">资质信息核对</div>
+            <div class="" @click="$router.push('/openshopguide')">开店引导页</div>
+            <div class="" @click="$router.push('/applicationresults')">资质审核结果</div>
+            <div class="" @click="$router.push('/qcmscommitresult')">资信结</div>
+            <div class="" @click="$router.push('/confirminfo')">资质信息核对</div>
+            <div class="" @click="$router.push('/uploadcertificate')">上传资质信息</div>
+            <div class="" @click="$router.push('/editshopinfo')">编辑商铺</div>
         </div>
         <mt-popup v-model="popupVisible" position="left">
             <div class="nav-wrap">
