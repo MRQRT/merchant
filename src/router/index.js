@@ -45,11 +45,12 @@ const bindingWechat = r => require.ensure([], () => r(require('../pages/login/bi
 const changePassword = r => require.ensure([], () => r(require('../pages/login/changePassword')), 'changePassword')
 const changeMobile = r => require.ensure([], () => r(require('../pages/login/changeMobile')), 'changeMobile')
 
-/* 店铺相关 */ 
+/* 店铺相关 */
 const guide = r => require.ensure([], () => r(require('../pages/shop/guide')), 'guide')
 const guide2 = r => require.ensure([], () => r(require('../pages/shop/guide2')), 'guide2')
 const qcaddr = r => require.ensure([], () => r(require('../pages/shop/qcaddr')), 'qcaddr')
 const qcckms = r => require.ensure([], () => r(require('../pages/shop/qcckms')), 'qcckms')
+
 
 
 
@@ -99,6 +100,9 @@ const router = new Router({
         {
             path: '/storeOrderList',  // 存金订单列表页
             component: storeOrderList,
+            meta: {
+                requireAuth: true,
+            }
         },
         {
             path: '/storeOrderDetail',  // 存金订单详情页
@@ -109,8 +113,11 @@ const router = new Router({
             component: waitPayOrder,
         },
         {
-            path: '/assets',  // 我的资产页页
+            path: '/assets',  // 我的资产页
             component: assets,
+            meta: {
+                requireAuth: true,
+            }
         },
         {
             path: '/myBank',   // 我的银行卡页
@@ -119,10 +126,16 @@ const router = new Router({
         {
             path: '/bindingBank',  // 绑定银行卡页
             component: bindingBank,
+            meta: {
+                requireAuth: true,
+            }
         },
         {
             path: '/account',  // 帐户管理页
             component: account,
+            meta: {
+                requireAuth: true,
+            }
         },
         {
             path: '/addressList',  // 地址列表页
@@ -131,6 +144,9 @@ const router = new Router({
         {
             path: '/addAddress',  // 新增地址页
             component: addAddress,
+            meta: {
+                requireAuth: true,
+            }
         },
         {
             path: '/registerArg',  // 注册协议

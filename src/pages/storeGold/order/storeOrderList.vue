@@ -9,7 +9,7 @@
             <mt-loadmore :bottom-method="loadBottom" :bottom-all-loaded="allLoaded" :auto-fill="false"
                 bottomPullText="上滑加载更多" bottomDropText="松开加载" ref="loadmore" class="loadmore">
                 <ul class="order-list">
-                    <li class="order-item" v-for="(item,index) in orderList" :key="index" @click="$router.push({path:'/storeOrderDetail',query:{id:index,status:index}})">
+                    <li class="order-item" v-for="(item,index) in orderList" :key="index" @click="$router.push({path:'/storeOrderDetail',query:{id:index,status:item.status}})">
                         <!-- 左侧图片 -->
                         <div class="left-img">
                             <img src="static/images/order-touzijin.png" alt="" v-if="item.goldType=='投资金'">
@@ -24,7 +24,7 @@
                                     <span class="lock-price" v-if="item.lockStatus==1 && item.tradeType==0"></span>
                                 </div>
                                 <div class="right">
-                                    <span class="status" :class="{'overStatus':index==7 || index==8}">{{statusJson[index].name}}</span>
+                                    <span class="status" :class="{'overStatus':item.status==9 ||item.status==12 }">{{statusJson[item.status].name}}</span>
                                 </div>
                             </div>
                             <!-- 订单信息 -->
@@ -66,16 +66,32 @@ import headTop from '@/components/header/head.vue'
                     pageNo: 1,
                     pageSize: 10
             	},
-                statusJson:{  // 订单状态
-                    '0':{name:'待支付'},
-                    '1':{name:'物流中'},
-                    '2':{name:'审核中'},
-                    '3':{name:'审核通过'},
+                // statusJson:{  // 订单状态
+                //     '0':{name:'待支付'},
+                //     '1':{name:'待审核'},
+                //     '2':{name:'审核通过'},
+                //     '3':{name:'物流中'},
+                //     '4':{name:'检测中'},
+                //     '5':{name:'待确认'},
+                //     '6':{name:'已完成'},
+                //     '7':{name:'已失效'},
+                //     '8':{name:'已取消'},
+                // },
+                statusJson:{
+                    '0':{name:'待审核'},
+                    '1':{name:'审核未通过'},
+                    '2':{name:'审核通过'},
+                    '3':{name:'物流中'},
                     '4':{name:'检测中'},
                     '5':{name:'待确认'},
-                    '6':{name:'已完成'},
-                    '7':{name:'已失效'},
-                    '8':{name:'已取消'},
+                    '6':{name:'检测不通过'},
+                    '7':{name:'用户不同意'},
+                    '8':{name:'已完成'},
+                    '9':{name:'已取消'},
+                    '10':{name:'已退货'},
+                    '11':{name:'未支付'},
+                    '12':{name:'已失败'},
+                    '13':{name:'物流异常'},
                 },
                 typeJson:{ // 存金类型
                     '0':'直接变现',
@@ -86,8 +102,8 @@ import headTop from '@/components/header/head.vue'
                         goldType:'投资金',
                         status:0,
                         orderNo:'TR180309141234033476',
-                        tradeType:0,
-                        lockStatus:0,
+                        tradeType:0, // 存入克重or直接变现
+                        lockStatus:0, // 是否锁价
                         weight:23.456,
                         time:'2018-03-05 09:38',
                     },
@@ -157,6 +173,24 @@ import headTop from '@/components/header/head.vue'
                     {
                         goldType:'投资金',
                         status:8,
+                        orderNo:'TR180309141234033476',
+                        tradeType:0,
+                        lockStatus:0,
+                        weight:23.456,
+                        time:'2018-03-05 09:38',
+                    },
+                    {
+                        goldType:'投资金',
+                        status:9,
+                        orderNo:'TR180309141234033476',
+                        tradeType:0,
+                        lockStatus:0,
+                        weight:23.456,
+                        time:'2018-03-05 09:38',
+                    },
+                    {
+                        goldType:'投资金',
+                        status:12,
                         orderNo:'TR180309141234033476',
                         tradeType:0,
                         lockStatus:0,
