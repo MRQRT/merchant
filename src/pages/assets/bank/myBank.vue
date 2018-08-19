@@ -12,7 +12,7 @@
                     <img src="static/images/no-binding.png" alt="">
                 </div>
                 <p>您没有绑定银行卡，立即绑卡！</p>
-                <div class="binding-btn" @click="$router.push('/bindingBank')">立即绑卡</div>
+                <div class="binding-btn" @click="$router.push('/bindingbank')">立即绑卡</div>
             </div>
             <!-- 已绑卡状态 -->
             <div class="has-binding" v-else>

@@ -9,7 +9,7 @@
             <mt-loadmore :bottom-method="loadBottom" :bottom-all-loaded="allLoaded" :auto-fill="false"
                 bottomPullText="上滑加载更多" bottomDropText="松开加载" ref="loadmore" class="loadmore">
                 <ul class="order-list">
-                    <li class="order-item" v-for="(item,index) in orderList" :key="index" @click="$router.push({path:'/storeOrderDetail',query:{id:index,status:item.status}})">
+                    <li class="order-item" v-for="(item,index) in orderList" :key="index" @click="$router.push({path:'/storeorderdetail',query:{id:index,status:item.status}})">
                         <!-- 左侧图片 -->
                         <div class="left-img">
                             <img src="static/images/order-touzijin.png" alt="" v-if="item.goldType=='投资金'">

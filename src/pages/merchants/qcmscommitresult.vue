@@ -1,5 +1,5 @@
 <template>
-    <div class="qcaddr">
+    <div class="qcmscommitresult">
         <!-- 头部标题部分 -->
         <head-top headTitle='核对资质信息' class="head-top nomal-font" ref="topHead">
             <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
@@ -53,8 +53,9 @@ import headTop from '@/components/header/head.vue'
 
 <style scoped lang="scss">
 @import '../../sass/mixin';
-.qcaddr{
+.qcmscommitresult{
     padding-top: 1rem;
+    min-height: 100vh;
 }
 .model{
     width: 100%;
@@ -103,8 +104,6 @@ import headTop from '@/components/header/head.vue'
     display: flex;
     justify-content: center;
     margin-top: .5rem;
-    position: fixed;
-    bottom: .4rem;
 }
 .button section{
     width: 6.7rem;

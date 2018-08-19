@@ -13,7 +13,7 @@
 						<span>实时金价&回收金价(元/克)</span>
 					</p>
 					<p class="price_amount">{{245.34 | formatPriceTwo}}</p>
-					<button class="goStore" @click="$router.push('/storeGold')">一键存金</button>
+					<button class="goStore" @click="$router.push('/storegold')">一键存金</button>
 				</div>
 			</div>
 		</div>
@@ -123,16 +123,12 @@
 		</section>
         <!-- 主体内容 -->
         <div class="main-cont">
-            <div class="">
-                <!-- <div class="" @click="$router.push('/register')">注册页</div>
-                <div class="" @click="$router.push('/bindingWechat')">微信绑定手机页</div>
-                <div class="" @click="$router.push('/changeMobile')">修改绑定手机</div>
-                <div class="" @click="$router.push('/changePassword')">修改密码</div> -->
-                <div class="" @click="$router.push('/guide')">开店引导页</div>
-                <div class="" @click="$router.push('/guide2')">开店引导页2</div>
-                <div class="" @click="$router.push('/qcaddr')">资质信息提交结果</div>
-                <div class="" @click="$router.push('/qcckms')">资质信息核对</div>
-            </div>
+            <div class="" @click="$router.push('/openshopguide')">开店引导页</div>
+            <div class="" @click="$router.push('/applicationresults')">资质审核结果</div>
+            <div class="" @click="$router.push('/qcmscommitresult')">资信结</div>
+            <div class="" @click="$router.push('/confirminfo')">资质信息核对</div>
+            <div class="" @click="$router.push('/uploadcertificate')">上传资质信息</div>
+            <div class="" @click="$router.push('/editshopinfo')">编辑商铺</div>
         </div>
         <!-- 左侧导航 -->
         <mt-popup v-model="popupVisible" position="left">
@@ -150,7 +146,7 @@
                         <span class="icon1"></span>
                         <span>我的资产</span>
                     </li>
-                    <li @click="$router.push('/storeOrderList')">
+                    <li @click="$router.push('/storeorderlist')">
                         <span class="icon2"></span>
                         <span>我的订单</span>
                     </li>

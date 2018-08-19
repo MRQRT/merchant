@@ -63,7 +63,7 @@ router.beforeEach((to, from, next) => {
         if (1) {    // 已登录
             next(true);
         } else {   // 未登录
-            if(from.fullPath == '/storeGold'){ //存金页点击绑卡和新增地址后仍跳转回存金页
+            if(from.fullPath == '/storegold'){ //存金页点击绑卡和新增地址后仍跳转回存金页
                 next({
                     path: '/login',
                     query: {redirect: from.fullPath}

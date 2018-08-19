@@ -117,14 +117,14 @@
             <div class="argument">
                 <input type="checkBox" class="check">
 				<strong :class="{'change1':bg,'change2':!bg}" @click="changeBg" ref="arg"></strong>
-				<router-link to="/storeArg" tag="div" class="argument-wrap">
+				<router-link to="/storearg" tag="div" class="argument-wrap">
 					<span class="txt">我已阅读并同意<b style="color:#C09C60">《存金通商户版用户协议》</b></span>
 				</router-link>
             </div>
             <!-- 按钮部分 -->
             <div class="opration-wrap">
                 <!-- 未登录按钮 -->
-                <div class="login" v-if="!loginStatus" @click="$router.push({path:'/login',query:{redirect:'/storeGold'}})">立即登录</div>
+                <div class="login" v-if="!loginStatus" @click="$router.push({path:'/login',query:{redirect:'/storegold'}})">立即登录</div>
                 <!-- 已登录按钮 -->
                 <div class="other-btn">
                     <div class="directly-submit" :class="{'submitNo':!submitStatus}" @click="submit(1)">直接提交</div>
@@ -324,9 +324,9 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                     this.showMessage(1)
                 }else{
                     this.$router.push({
-                        path:'/bindingBank',
+                        path:'/bindingbank',
                         query:{
-                            from:'/storeGold'
+                            from:'/storegold'
                         }
                     })
                 }
@@ -339,7 +339,7 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                     this.$router.push({
                         path:'/addAddress',
                         query:{
-                            from:'/storeGold'
+                            from:'/storegold'
                         }
                     })
                 }
@@ -365,7 +365,7 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
             },
             directlyOrder(){
                 console.log('创建订单')
-                this.$router.push('/storeResult');
+                this.$router.push('/storeresult');
             },
             // 锁价提交
             lockPriceOrder(){

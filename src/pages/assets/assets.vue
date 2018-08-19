@@ -17,7 +17,7 @@
                 <h3>银行卡</h3>
                 <div class="bank">
                     <!-- 已绑卡状态 -->
-                    <div class="has-bank" v-if="bankStatus" @click="$router.push('/myBank')">
+                    <div class="has-bank" v-if="bankStatus" @click="$router.push('/mybank')">
                         <div class="left-part">
                             <div class="icon">
                                 <img src="" alt="">

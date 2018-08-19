@@ -245,8 +245,8 @@ import { Toast } from 'mint-ui'
 					const res = await boundBankCard(formatBankN, this.telNum, this.validNum)
 					if(res.code==200){
 						Toast('银行卡绑定成功')
-						if(this.$route.query.from=='/storeGold'){
-                            this.$router.replace('/storeGold')
+						if(this.$route.query.from=='/storegold'){
+                            this.$router.replace('/storegold')
 						}else{
 							this.$router.replace('/myBank')
 						}

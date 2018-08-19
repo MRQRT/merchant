@@ -7,10 +7,11 @@ Vue.use(Router)
 const index = r => require.ensure([], () => r(require('../pages/index/index')), 'index')
 
 /* 商铺相关 */
-const openShopGuide = r => require.ensure([], () => r(require('../pages/merchants/openShopGuide')), 'openShopGuide')
-const uploadCertificate = r => require.ensure([], () => r(require('../pages/merchants/uploadCertificate')), 'uploadCertificate')
-const confirmInfo = r => require.ensure([], () => r(require('../pages/merchants/confirmInfo')), 'confirmInfo')
-const applicationResults = r => require.ensure([], () => r(require('../pages/merchants/applicationResults')), 'applicationResults')
+const openshopguide = r => require.ensure([], () => r(require('../pages/merchants/openshopguide')), 'openshopguide')
+const uploadcertificate = r => require.ensure([], () => r(require('../pages/merchants/uploadcertificate')), 'uploadcertificate')
+const confirminfo = r => require.ensure([], () => r(require('../pages/merchants/confirminfo')), 'confirminfo')
+const applicationresults = r => require.ensure([], () => r(require('../pages/merchants/applicationresults')), 'applicationresults')
+const qcmscommitresult = r => require.ensure([], () => r(require('../pages/merchants/qcmscommitresult')), 'qcmscommitresult')
 
 /* 店铺相关 */
 const myShop = r => require.ensure([], () => r(require('../pages/shop/myShop')), 'myShop')
@@ -45,14 +46,6 @@ const bindingWechat = r => require.ensure([], () => r(require('../pages/login/bi
 const changePassword = r => require.ensure([], () => r(require('../pages/login/changePassword')), 'changePassword')
 const changeMobile = r => require.ensure([], () => r(require('../pages/login/changeMobile')), 'changeMobile')
 
-/* 店铺相关 */
-const guide = r => require.ensure([], () => r(require('../pages/shop/guide')), 'guide')
-const guide2 = r => require.ensure([], () => r(require('../pages/shop/guide2')), 'guide2')
-const qcaddr = r => require.ensure([], () => r(require('../pages/shop/qcaddr')), 'qcaddr')
-const qcckms = r => require.ensure([], () => r(require('../pages/shop/qcckms')), 'qcckms')
-
-
-
 
 const router = new Router({
     mode: 'history',
@@ -66,20 +59,25 @@ const router = new Router({
             component: index,
         },
         {
-            path: '/openShopGuide',  // 入驻引导页
-            component: openShopGuide,
+            path: '/openshopguide',  // 入驻引导页
+            component: openshopguide,
         },
         {
-            path: '/uploadCertificate',  // 上传资质页
-            component: uploadCertificate,
+            path: '/uploadcertificate',  // 上传资质页
+            component: uploadcertificate,
         },
         {
-            path: '/confirmInfo',  // 核实信息页
-            component: confirmInfo,
+            path: '/confirminfo',  // 核实信息页
+            component: confirminfo,
         },
         {
-            path: '/applicationResults',  // 审核结果页
-            component: applicationResults,
+            path: '/qcmscommitresult', //审核信息提交成功
+            component: qcmscommitresult,
+
+        },
+        {
+            path: '/applicationresults',  // 审核结果页
+            component: applicationresults,
         },
         {
             path: '/myShop',  // 我的店铺页
@@ -90,22 +88,22 @@ const router = new Router({
             component: editShopInfo,
         },
         {
-            path: '/storeGold',  // 存金页
+            path: '/storegold',  // 存金页
             component: storeGold,
         },
         {
-            path: '/storeResult',  // 存金结果页
+            path: '/storeresult',  // 存金结果页
             component: storeResult,
         },
         {
-            path: '/storeOrderList',  // 存金订单列表页
+            path: '/storeorderlist',  // 存金订单列表页
             component: storeOrderList,
             meta: {
                 requireAuth: true,
             }
         },
         {
-            path: '/storeOrderDetail',  // 存金订单详情页
+            path: '/storeorderdetail',  // 存金订单详情页
             component: storeOrderDetail,
         },
         {
@@ -120,11 +118,11 @@ const router = new Router({
             }
         },
         {
-            path: '/myBank',   // 我的银行卡页
+            path: '/mybank',   // 我的银行卡页
             component: myBank,
         },
         {
-            path: '/bindingBank',  // 绑定银行卡页
+            path: '/bindingbank',  // 绑定银行卡页
             component: bindingBank,
             meta: {
                 requireAuth: true,
@@ -153,7 +151,7 @@ const router = new Router({
             component: registerArg,
         },
         {
-            path: '/storeArg',  // 存金协议
+            path: '/storearg',  // 存金协议
             component: storeArg,
         },
         {
@@ -180,23 +178,6 @@ const router = new Router({
             path: '/changePassword', //修改密码
             component: changePassword
         },
-        {
-            path: '/guide', //开店引导页首页
-            component: guide
-        },
-        {
-            path: '/guide2', //资质提交结果
-            component: guide2
-        },
-        {
-            path: '/qcaddr', //开店引导页3
-            component: qcaddr
-        },
-        {
-            path: '/qcckms',//核对资质信息
-            component: qcckms
-        }
-
     ],
     scrollBehavior (to, from, savedPosition) { // 记录滚动位置
         if (savedPosition) {
