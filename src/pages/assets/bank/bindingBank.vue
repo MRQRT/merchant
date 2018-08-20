@@ -7,17 +7,20 @@
         <!-- 主体部分 -->
         <div class="main-cont">
             <div class="form-wrap">
+                <!-- 姓名 -->
                 <section>
-    				<input type="text" name="name" placeholder="请输入真实姓名" v-model="name" readonly="readonly">
+    				<!-- <input type="text" name="name" placeholder="请输入真实姓名" v-model="name" readonly="readonly"> -->
+                    <p>小可爱</p>
     			</section>
                 <!-- 身份证 -->
                 <section>
-    				<input type="number" name="userID" placeholder="请输入身份证号" v-model="userID" readonly="readonly">
+    				<!-- <input type="number" name="userID" placeholder="请输入身份证号" v-model="userID" readonly="readonly"> -->
+                    <p>12345687899900900</p>
     			</section>
                 <!-- 银行卡 -->
                 <section>
-    				<input type="text" name="bankNum" placeholder="请输入有效银行卡号" pattern="[0-9]*" v-model="bankNum" maxlength="19"
-                    v-on:blur="check(bankNum)">
+    				<input type="text" name="bankNum" placeholder="请输入有效银行卡号" ref="bankNum_input" pattern="[0-9]*"
+                    v-model="bankNum" maxlength="23" @input="redSec()" v-on:blur="check(bankNum)">
                     <img :src="delImg" v-show="clear1" @click="del('b')">
     			</section>
                 <!-- 错误提示、银行卡类型提示 -->
@@ -33,14 +36,25 @@
                 </section>
                 <!-- 手机号 -->
                 <section>
-    				<input type="text" name="telNum" placeholder="请输入银行预留手机号" v-model="telNum" pattern="[0-9]*" maxlength="11">
+    				<input type="text" name="telNum" placeholder="请输入银行预留手机号" v-model="telNum" pattern="[0-9]*"
+                    maxlength="11" v-on:blur="checkTel(telNum)">
+                    <img :src="delImg" v-show="clear2" @click="del('p')">
     			</section>
+                <!-- 手机号错误提示 -->
+                <section class="mobile-error" v-show="telErrorStatus">
+                    <div class="error-tip">
+                        <span class="icon"></span>
+                        <span>请输入正确手机号</span>
+                    </div>
+                </section>
+                <!-- 获取短信验证码 -->
                 <section class="verification-code">
     				<input type="text" class="code-input" name="verifiCode" placeholder="请输入短信验证码" v-model="verifiCode" pattern="[0-9]*">
                     <span class="getVerif" @click="getVerif" ref="send_smscode">获取验证码</span>
                     <img :src="delImg" v-show="clear3" @click="del('v')">
     			</section>
             </div>
+            <!-- 确认按钮 -->
             <div class="store-btn" :class="{'sureYes':clickstatus}">确认</div>
         </div>
     </div>
@@ -58,12 +72,14 @@ import { Toast } from 'mint-ui'
                 userID:'12345687899900900', // 身份证号
                 delImg: delImg,         // 删除按钮
                 clear1:0,               // 银行卡清除按钮
+                clear2:0,               // 手机号清除按钮
                 clear3:0,               // 验证码清除按钮
                 bankNum:'',             // 银行卡号
                 telNum:'',              // 预留手机号
                 verifiCode:'',          // 短信验证码
-                errorTipStatus:false,   // 错误提示是否显示
+                errorTipStatus:false,   // 银行卡错误是否显示
                 bankTypeStatus:false,   // 银行卡类型提示
+                telErrorStatus:false,   // 手机号错误提示
                 errorTip:'',            // 银行卡错误提示文字
                 cardType:'借记卡',       // 银行卡类型
                 bankName:'工商银行',     // 银行类型
@@ -82,14 +98,11 @@ import { Toast } from 'mint-ui'
         watch:{
             // 手机号
             telNum: function(value){
-				let reg = /^(0|86|17951)?(13[0-9]|15[0-9]|17[0-9]|18[0-9]|14[0-9]|19[0-9])[0-9]{8}$/;
-				// this.telNum!=''?this.clear2=1:this.clear2=0
-				if(this.telNum.match(reg)){
-					this.rightShow = 1
-				}else if(this.telNum ==''){
-					this.rightShow = 0
+                if(this.telNum!=''){
+					this.clear2=1
 				}else{
-					this.rightShow = 0
+					this.clear2=0
+					this.telErrorStatus=false;
 				}
 			},
             //银行卡号
@@ -119,15 +132,53 @@ import { Toast } from 'mint-ui'
 			},
         },
         methods: {
+            // 验证手机格式
+            checkTel(){
+                let reg = /^(0|86|17951)?(13[0-9]|15[0-9]|17[0-9]|18[0-9]|14[0-9]|19[0-9])[0-9]{8}$/;
+				if(this.telNum.match(reg)){
+					this.rightShow = 1;
+                    this.telErrorStatus = false;
+				}else if(this.telNum ==''){
+					this.rightShow = 0;
+                    this.telErrorStatus = false;
+				}else{
+					this.rightShow = 0;
+                    this.telErrorStatus = true;
+				}
+            },
+            //格式化银行卡号
+            redSec: function(){
+                let num = 0;
+                const str = this.bankNum;
+                const elem = this.$refs.bankNum_input;
+                if(str.length > num){
+                    const c = str.replace(/\s/g,  "");
+                    if(str != "" && c.length > 4 && c.length % 4 == 1){
+                        this.bankNum = str.substring(0, str.length - 1)+ " " + str.substring(str.length - 1, str.length);
+                    }
+                }
+                if(elem.setSelectionRange){//W3C
+                    setTimeout(function(){
+                        elem.setSelectionRange(elem.value.length,elem.value.length);
+                        elem.focus()
+                    },0);
+                }else if(elem.createTextRange){//IE
+                    const textRange=elem.createTextRange()
+                    textRange.moveStart("character",elem.value.length)
+                    textRange.moveEnd("character",0)
+                    textRange.select()
+                }
+            },
             //校验银行卡号
 			check(value){
                 this.bankTypeStatus=true;
-				const num = /^[a-z0-9\s]{16,19}$/
-				if(num.test(value)){
+				const num = /^[a-z0-9\s]{16,19}$/;
+                var newValue = value.replace(/\s/g, "");
+
+				if(num.test(newValue)){
 					this.tipShow = false;
-					const formatBankN = this.bankNum.replace(/\s/g, "")
-					// this.checkBankCard(formatBankN)
-				}else if(value.length!=''){
+					// this.checkBankCard(newValue)
+				}else if(newValue.length!=''){
 					this.errorTipStatus=true;
 					this.bankTypeStatus=false;
 					this.errorTip='请输入正确的银行卡号'
@@ -192,12 +243,12 @@ import { Toast } from 'mint-ui'
 				if(this.clickstatus){
 					const formatBankN = this.bankNum.replace(/\s/g, "")
 					const res = await boundBankCard(formatBankN, this.telNum, this.validNum)
-					if(res.code==100){
-						Toast('绑定成功')
-						if(this.$route.query.paths){
-							this.$router.replace(this.$route.query.paths)
+					if(res.code==200){
+						Toast('银行卡绑定成功')
+						if(this.$route.query.from=='/storegold'){
+                            this.$router.replace('/storegold')
 						}else{
-							this.$router.replace('/buyGold')
+							this.$router.replace('/myBank')
 						}
 					}else{
 						MessageBox({
@@ -205,7 +256,7 @@ import { Toast } from 'mint-ui'
 							message: res.message+',请重新输入',
 							confirmButtonText: '我知道了'
 						})
-						this.validNum=''
+						this.verifiCode=''
 						let send_smscode = this.$refs.send_smscode
 						clearInterval(this.timer)
 						send_smscode.style.color="#eda835"
@@ -222,6 +273,7 @@ import { Toast } from 'mint-ui'
                     this.errorTipStatus = false;
 				}else if(val=='p'){
 					this.telNum = ''
+                    this.telErrorStatus = false;
 				}else if(val=='v'){
 					this.verifiCode = ''
 				}
@@ -249,18 +301,20 @@ import { Toast } from 'mint-ui'
             background-color: #fff;
             .cardType{
                 width: 100%;
-                padding:.25rem .4rem;
+                padding:.25rem 0;
                 background-color: #f8f8f8;
                 span{
                     color: #333;
                     font-size:.24rem;
                 }
             }
-            .tip{
+            .tip,.mobile-error{
                 width: 100%;
                 background-color: #f8f8f8;
                 .error-tip{
                     padding:.25rem 0;
+                    align-items: center;
+                    @include flex-box();
                     .icon{
                         display: inline-block;
                         width: .24rem;
@@ -277,10 +331,10 @@ import { Toast } from 'mint-ui'
             section{
                 padding:0 .4rem;
                 position: relative;
-                input{
+                input,p{
                     width:100%;
                     padding:.35rem 0;
-                    color:#BCBCBC;
+                    color:#333;
                     font-size: .28rem;
                     font-family:PingFangSC-Regular;
                     border-bottom: 1px solid #eee;
@@ -308,7 +362,7 @@ import { Toast } from 'mint-ui'
                 &:nth-of-type(2) input{
                     color:#333;
                 }
-                &:nth-of-type(6) input{
+                &:nth-of-type(7) input{
                     border-bottom: none;
                 }
             }

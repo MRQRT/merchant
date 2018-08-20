@@ -88,19 +88,22 @@ const router = new Router({
             component: editShopInfo,
         },
         {
-            path: '/storeGold',  // 存金页
+            path: '/storegold',  // 存金页
             component: storeGold,
         },
         {
-            path: '/storeResult',  // 存金结果页
+            path: '/storeresult',  // 存金结果页
             component: storeResult,
         },
         {
-            path: '/storeOrderList',  // 存金订单列表页
+            path: '/storeorderlist',  // 存金订单列表页
             component: storeOrderList,
+            meta: {
+                requireAuth: true,
+            }
         },
         {
-            path: '/storeOrderDetail',  // 存金订单详情页
+            path: '/storeorderdetail',  // 存金订单详情页
             component: storeOrderDetail,
         },
         {
@@ -108,20 +111,29 @@ const router = new Router({
             component: waitPayOrder,
         },
         {
-            path: '/assets',  // 我的资产页页
+            path: '/assets',  // 我的资产页
             component: assets,
+            meta: {
+                requireAuth: true,
+            }
         },
         {
-            path: '/myBank',   // 我的银行卡页
+            path: '/mybank',   // 我的银行卡页
             component: myBank,
         },
         {
-            path: '/bindingBank',  // 绑定银行卡页
+            path: '/bindingbank',  // 绑定银行卡页
             component: bindingBank,
+            meta: {
+                requireAuth: true,
+            }
         },
         {
             path: '/account',  // 帐户管理页
             component: account,
+            meta: {
+                requireAuth: true,
+            }
         },
         {
             path: '/addressList',  // 地址列表页
@@ -130,13 +142,16 @@ const router = new Router({
         {
             path: '/addAddress',  // 新增地址页
             component: addAddress,
+            meta: {
+                requireAuth: true,
+            }
         },
         {
             path: '/registerArg',  // 注册协议
             component: registerArg,
         },
         {
-            path: '/storeArg',  // 存金协议
+            path: '/storearg',  // 存金协议
             component: storeArg,
         },
         {

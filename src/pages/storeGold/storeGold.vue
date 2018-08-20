@@ -64,7 +64,7 @@
                 <div class="binding-bank">
                     <p class="title">银行卡<span>按最终成交价汇款到银行卡</span></p>
                     <!-- 未绑卡状态 -->
-                    <div class="bank-card no-bank" v-if="!bankStatus" @click="$router.push('/bindingBank')">
+                    <div class="bank-card no-bank" v-if="!bankStatus" @click="bindingBank()">
                         <p class="txt">暂无绑定银行卡</p>
                         <p class="btn"><span></span>添加银行卡</p>
                     </div>
@@ -93,7 +93,7 @@
                 <div class="select-address">
                     <p class="title">取件地址</p>
                     <!-- 无地址状态 -->
-                    <div class="address-card no-address" v-if="!addressStatus" @click="$router.push('/addAddress')">
+                    <div class="address-card no-address" v-if="!addressStatus" @click="addAddress()">
                         <p class="txt">暂无取件地址</p>
                         <p class="btn"><span></span>创建地址</p>
                     </div>
@@ -117,19 +117,19 @@
             <div class="argument">
                 <input type="checkBox" class="check">
 				<strong :class="{'change1':bg,'change2':!bg}" @click="changeBg" ref="arg"></strong>
-				<router-link to="/storeArg" tag="div" class="argument-wrap">
+				<router-link to="/storearg" tag="div" class="argument-wrap">
 					<span class="txt">我已阅读并同意<b style="color:#C09C60">《存金通商户版用户协议》</b></span>
 				</router-link>
             </div>
             <!-- 按钮部分 -->
             <div class="opration-wrap">
                 <!-- 未登录按钮 -->
-                <div class="login" v-if="!loginStatus">立即登录</div>
+                <div class="login" v-if="!loginStatus" @click="$router.push({path:'/login',query:{redirect:'/storegold'}})">立即登录</div>
                 <!-- 已登录按钮 -->
                 <div class="other-btn">
                     <div class="directly-submit" :class="{'submitNo':!submitStatus}" @click="submit(1)">直接提交</div>
                     <div class="lock-price" :class="{'lockNo':!submitStatus}"  @click="submit(2)">
-                        <span><b>保证金:</b>12346.56<b>元</b></span>
+                        <span><b>保证金:</b>{{ensureCash | formatPriceTwo}}<b>元</b></span>
                         <span>锁价提交</span>
                     </div>
                 </div>
@@ -199,20 +199,58 @@
                 <img src="static/images/close.png"  @click="closePop()">
             </div>
         </div>
+        <!-- 输入验证码弹窗 -->
+        <mt-popup v-model="popupVisible1" popup-transition="popup-fade" closeOnClickModal="false">
+            <div class="verifi-wrap">
+                <span class="close-btn" @click="closeVerifi()">×</span>
+                <!-- 顶部信息 -->
+                <div class="top-part">
+                    <h3>请输入短信验证码</h3>
+                    <p>锁价保证金</p>
+                    <p class="price">¥1500.00</p>
+                </div>
+                <!-- 输入框 -->
+                <div class="bottom-part">
+                    <div class="lock-single-price">
+                        <span>锁定金价</span>
+                        <span>276.15元/克</span>
+                    </div>
+                    <div class="input-wrap">
+                        <span>{{verifiCode[0]}}</span>
+                        <span>{{verifiCode[1]}}</span>
+                        <span>{{verifiCode[2]}}</span>
+                        <span>{{verifiCode[3]}}</span>
+                        <span>{{verifiCode[4]}}</span>
+                        <span>{{verifiCode[5]}}</span>
+                        <input type="number" maxlength="6" v-model="verifiCode">
+                    </div>
+                </div>
+            </div>
+        </mt-popup>
+        <!-- 正在支付中弹窗 -->
+        <mt-popup v-model="popupVisible2" popup-transition="popup-fade" closeOnClickModal="false">
+            <div class="pay-wrap">
+                <div class="top-img">
+                    <img src="static/images/pay-inner.png" alt="">
+                    <img src="static/images/pay-outer.png" alt="">
+                </div>
+                <p>处理中，请稍候...</p>
+            </div>
+        </mt-popup>
     </div>
 </template>
 
 <script>
 import headTop from '@/components/header/head.vue'
 import { clearNoNum } from '../../config/mUtils.js';
-import { MessageBox,Toast } from 'mint-ui';
+import { MessageBox,Toast,Popup } from 'mint-ui';
 
     export default {
         data(){
             return{
                 currentPrice:287.54,
                 loginStatus:true,   // 是否登录
-                bankStatus:true,    // 是否绑卡
+                bankStatus:true,    // 是否绑定银行卡
                 addressStatus:true, // 是否选择地址
                 typeNum:'',         // 存金类型选择样式
                 weight:'',          // 存金克重
@@ -222,6 +260,9 @@ import { MessageBox,Toast } from 'mint-ui';
                 popupVisible:false, // 全屏弹窗
                 btnCtroller:true,   // 按钮是否可以点击
                 shopCheckStatus:true,// 店铺审核状态
+                popupVisible1:false,   // 验证码弹窗
+                popupVisible2:false,   // 支付中弹窗
+                verifiCode:[],       // 验证码
             }
         },
         components:{
@@ -230,7 +271,11 @@ import { MessageBox,Toast } from 'mint-ui';
         computed: {
             // 预估金额
             estimatePrice(){
-                return (this.weight * this.extractNum * this.currentPrice).toFixed(2);
+                return (this.weight * this.currentPrice).toFixed(2);
+            },
+            // 保证金
+            ensureCash(){
+                return (this.estimatePrice * 0.1).toFixed(2);
             },
             // 提交按钮是否可以点击
             submitStatus(){
@@ -273,6 +318,36 @@ import { MessageBox,Toast } from 'mint-ui';
             changeBg(){
                 this.bg=!this.bg;
             },
+            // 点击绑卡操作
+            bindingBank(){
+                if(!this.shopCheckStatus){
+                    this.showMessage(1)
+                }else{
+                    this.$router.push({
+                        path:'/bindingbank',
+                        query:{
+                            from:'/storegold'
+                        }
+                    })
+                }
+            },
+            // 点击新增地址
+            addAddress(){
+                if(!this.shopCheckStatus){
+                    this.showMessage(2)
+                }else{
+                    this.$router.push({
+                        path:'/addAddress',
+                        query:{
+                            from:'/storegold'
+                        }
+                    })
+                }
+            },
+            //关闭验证码弹窗(取消订单)
+            closeVerifi(){
+                this.popupVisible1 = false;
+            },
             // 点击按钮提交函数
             submit(num){
                 if(this.submitStatus){ // 按钮可点击状态
@@ -290,7 +365,7 @@ import { MessageBox,Toast } from 'mint-ui';
             },
             directlyOrder(){
                 console.log('创建订单')
-                this.$router.push('/storeResult');
+                this.$router.push('/storeresult');
             },
             // 锁价提交
             lockPriceOrder(){
@@ -828,6 +903,116 @@ import { MessageBox,Toast } from 'mint-ui';
             }
         }
     }
-
+    .verifi-wrap{
+        width: 6.7rem;
+        padding:.4rem .3rem;
+        text-align: center;
+        background-color: #fff;
+        position: relative;
+        @include border-radius(.2rem);
+        .close-btn{
+            font-size: .6rem;
+            position: absolute;
+            left:.25rem;
+            top:.05rem;
+        }
+        .top-part{
+            border-bottom: 1px solid #eee;
+            h3{
+                color: #000;
+                font-size: .32rem;
+                margin-bottom: .25rem;
+            }
+            p{
+                color: #999;
+                font-size: .24rem;
+            }
+            .price{
+                color: #333;
+                font-size: .6rem;
+                margin-bottom: .4rem;
+                font-family:DINAlternate-Bold;
+            }
+        }
+        .bottom-part{
+            .lock-single-price{
+                width: 100%;
+                color: #666;
+                font-size: .28rem;
+                padding:.35rem 0;
+                @include flex-box();
+                @include justify-content();
+                span{
+                    &:nth-of-type(2){
+                        color: #C09C60;
+                    }
+                }
+            }
+            .input-wrap{
+                height: .98rem;
+                width: 6rem;
+                margin: 0 auto;
+                position: relative;
+                text-align: left;
+                align-items: center;
+                border:1px solid #E1E1E1;
+                border-left:none;
+                @include flex-box();
+                > span {
+                    width: 1rem;
+                    height: .98rem;
+                    line-height: .98rem;
+                    border-left: 1px solid #E1E1E1;
+                    display: inline-block;
+                    text-align: center;
+                    vertical-align: middle;
+                    // @include flex-grow(1);
+                }
+                > input {
+                    position: absolute;
+                    width: 100%;
+                    letter-spacing: 1rem;
+                    padding-left: 0.3rem;
+                    color: #fff;
+                    opacity: 0;
+                    left: 0;
+                    height: 100%;
+                }
+            }
+        }
+    }
+    .pay-wrap{
+        width: 4.9rem;
+        height: 2.86rem;
+        padding-top:.6rem;
+        background-color: #fff;
+        @include border-radius(.2rem);
+        @keyframes roundLoop2{
+            0%{ transform: rotate(0deg); }
+            100%{ transform: rotate(360deg); }
+        }
+        .top-img{
+            width: 1.08rem;
+            height: 1.08rem;
+            margin:0 auto .3rem;
+            position: relative;
+            img{
+                &:nth-of-type(1){
+                    width:100%;
+                    position: absolute;
+                    top:0;
+                    left:0;
+                }
+                &:nth-of-type(2){
+                    animation: roundLoop2 1s linear infinite;
+                }
+            }
+        }
+        p{
+            color: #666;
+            font-size: .28rem;
+            text-align: center;
+        }
+    }
 }
 </style>

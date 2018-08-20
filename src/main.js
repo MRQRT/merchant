@@ -44,6 +44,12 @@ Vue.filter('hideMible',function(val){
     var reg = /^(\d{3})\d*(\d{4})$/;
     return (val+'').replace(reg,'$1****$2')
 });
+/* 全局函数*/
+/* 禁止页面滚动 */
+Vue.prototype.fixed = function(status){
+    var el = document.body || document.getElementsByTagName('html');
+    el.style.position = status ? 'fixed' : 'static';
+}
 /* eslint-disable no-new */
 export let a = new Vue({
   el: '#app',
@@ -54,13 +60,21 @@ export let a = new Vue({
 
 router.beforeEach((to, from, next) => {
 	if (to.matched.some(r => r.meta.requireAuth)) {
-        if (store.state.token) {
-            next(true)
-        }else{
-            alert('未登录')
-            // next(
-            //     window.location.href = 'http://m.baidu.com?redirect=localhost:8088/'+to.fullPath
-            // )
+        if (1) {    // 已登录
+            next(true);
+        } else {   // 未登录
+            if(from.fullPath == '/storegold'){ //存金页点击绑卡和新增地址后仍跳转回存金页
+                next({
+                    path: '/login',
+                    query: {redirect: from.fullPath}
+                })
+            }else{
+                next({
+                    path: '/login',
+                    query: {redirect: to.fullPath}
+                })
+            }
+
         }
     }else{
         next(true)
