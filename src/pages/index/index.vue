@@ -129,6 +129,9 @@
             <div class="" @click="$router.push('/confirminfo')">资质信息核对</div>
             <div class="" @click="$router.push('/uploadcertificate')">上传资质信息</div>
             <div class="" @click="$router.push('/editshopinfo')">编辑商铺</div>
+            <div class="" @click="$router.push('/myshop')">我的店铺</div>
+            <div class="" @click="$router.push('/addressList')">我的地址</div>
+            <div class="" @click="$router.push('/addAddress')">添加地址</div>
         </div>
         <!-- 左侧导航 -->
         <mt-popup v-model="popupVisible" position="left">
