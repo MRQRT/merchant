@@ -1,218 +1,296 @@
 <template>
-	<div class="address">
-		<head-top headTitle='我的地址'>
-			<img slot='head_goback' src='static/images/back.png' class="head_goback" @click="backWard">
+	<div class="addAddress">
+		<head-top :headTitle='title'>
+			<img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
 		</head-top>
-		<div class="address_list">
-            啊啥的负担
-			<!-- <section class="addressDe" v-for="(item,index) in addre" :key="index">
-				<p @click="selectAdd(item)"><span>{{item.contact}}</span><span>{{item.telephone}}</span></p>
-				<div @click="selectAdd(item)">{{item.address}}</div>
-				<p>
-					<input type="radio"  v-model="picked" :id="index" :value="index" @click="putDefault(item,item.id)">
-					<label :for="index" @click="putDefault(item,item.id)">设为默认</label>
-					<span class="del" @click="delAddress(item.id)">
-						<img :src="del">
-						<span>删除</span>
-					</span>
-					<span class="compile" @click="putAddress(item)">
-						<img :src="compile">
-						<span>编辑</span>
-					</span>
-				</p>
-				<textarea :value="item" style="display: none"></textarea>
-			</section> -->
-		</div>
-		<div class="empty" v-show='empty'>
-			<img src="static/images/emptA.png">
-			<p>您的家在哪里？赶紧告诉我吧！</p>
-			<section @click.native="addNewAddr" class="toAdd" buttonText="添加地址">
-			</section>
-		</div>
-		<a class="add" @click="addNewAddr" v-show='hasAddress'><img :src="add3">新建地址</a>
+		<section class="name_tel_addr" style="margin-top: .88rem;">
+			<input type="text" name="realName" placeholder="请输入联系人姓名" v-model="realName" maxlength="15" id="name">
+			<img :src="delImg" @click="del('n')" v-show="is_1">
+		</section>
+		<section class="name_tel_addr">
+			<input type="number" name="telNum" placeholder="请输入手机号" pattern="[0-9]*" v-model="telNum" maxlength="11" id="tel">
+			<img :src="delImg" @click="del('t')" v-show="is_2">
+			<img :src="right" v-show="rightShow" style="margin-right: .2rem;">
+		</section>
+		<section class="name_tel_addr" @click="check_city">
+			<input type="text" name="area" placeholder="所在地区" v-model="area" readonly="value">
+			<img :src="right" style="width:.4rem;margin-top: .25rem;">
+		</section>
+		<section class="name_tel_addr last" style="height: 1.6rem">
+			<textarea name="addr" placeholder="请输入详细地址" v-model="addr" maxlength="50" id="area">
+			</textarea>
+		</section>
+		<div class="stor"><span class="storAdd" :class="stor?'isStor':'noStor'" @click="baocun()">保存</span></div>
+		<!-- 地区弹出区域 -->
+		<mt-popup v-model="popupVisible"  position="bottom" modal="false">
+			<div class="area">
+					<p class="head_title"><img src="static/images/close.png" @click="closepop">所在地区</p>
+				<div class="checked">
+					<span @click="has_checked_click('province')">{{province}}</span>
+					<span @click="has_checked_click('city')">{{city}}</span>
+					<span @click="has_checked_click('town')">{{town}}</span>
+					<span class="checkedtext" v-show="!town">请选择</span>
+				</div>
+				<div class="line" stlye="margin-top:.1rem;"></div>
+				<div class="province" v-show="province_show">
+					<ul class="list" style="over-flow:auto;">
+						<li class="list_li" :class="{'has_checked':index==currprov}" v-for="(item,index) in provinces" @click="checkprov(item,index)" :key="index">
+							{{item}}
+							<img src="static/images/address_checked.png" class="haschecked_tip" v-show="index==currprov">
+						</li>
+					</ul>
+				</div>
+				<div class="citylist" v-show="city_show">
+					<ul class="list">
+						<li class="list_li" :class="{'has_checked':index==currcity}" v-for="(item,index) in citys" @click="checkcity(item,index)" :key="index">
+							{{item}}
+							<img src="static/images/address_checked.png" class="haschecked_tip" v-show="index==currcity">
+						</li>
+					</ul>
+				</div>
+				<div class="town" v-show="town_show">
+					<ul class="list">
+						<li class="list_li" :class="{'has_checked':index==currtown}" v-for="(item,index) in towns" @click="checktown(item,index)" :key="index">
+							{{item}}
+							<img src="static/images/address_checked.png" class="haschecked_tip" v-show="index==currtown">
+						</li>
+					</ul>
+				</div>
+			</div>
+		</mt-popup>
 	</div>
 </template>
 <script type="text/javascript">
 	import headTop from "@/components/header/head"
-	import { Toast } from 'mint-ui'
-	// import { queryAddress, putDefault, delAddress, putAddress } from '@/service/getData.js'
-	import { setStore,getStore,getRem } from '@/config/mUtils.js'
-	// import { mapState, mapMutations } from 'vuex'
+	import	delImg from 'static/images/delImg.png'
+	import	right from 'static/images/next.png'
+	import {Popup} from 'mint-ui'
 
-	import del from "static/images/del.png"
-	import compile from "static/images/compile.png"
-	import add3 from "static/images/add3.png"
-	import emptA from 'static/images/emptA.png'
-
+	// import { addAddress, putAddress, putDefault } from '@/service/getData.js'
+	// import { getStore } from '@/config/mUtils.js'
+	// import { mapState,mapMutations } from 'vuex'
 	export default{
 		data(){
 			return {
-				picked: null,//和radio的值匹配，所匹配的值就是那个默认值
-				   del: del,//删除
-			   compile: compile,//编辑
-				  add3: add3,
-			     addre: null,//地址
-				 empty: false, //无地址
-				 hasAddress:true //有地址
+				delImg: delImg,//删除图片
+				 right: right,//对号
+			  realName: '',//真实姓名
+			    telNum: '',//电话号
+			      is_1: 0,//删除变量1
+			      is_2: 0,//删除变量2
+			 rightShow: 0,
+			      addr: '',
+			      stor: 0,//底部保存地址开关
+				 title: '添加地址',
+				  area: '',//地区 
+			 addressId: null,//修改地址的Id
+			  province: '',//省
+				  city: '',//市
+				  town: '',//区/县
+		  popupVisible: false,//地区弹出层控制
+			  currprov: '',//当前选中省份
+			  currcity: '', //当前选中市
+			  currtown: '',//当前选中县
+		 province_show: false,
+			 city_show: false,
+			 town_show: false,
+			 provinces:['广西','陕西','河北','黑龙江','宁夏','甘肃','青海','江西','长春','四川','河南','山东','安徽','广东','贵州','新疆','福建','辽宁','浙江','云南'],
+			     citys:['呼和浩特','拉萨','西安','朔州','厦门','临汾','海口','深圳','广州','安阳','齐齐哈尔','杭州','无锡','大同','忻州','石家庄','太原','上海','厦门','北京'],
+			     towns:['郊区','河底镇','西南舁乡','安在']
+
 			}
 		},
 		created(){
-			var from=this.$route.query.from;
+			if(this.$route.query.modify=='address'){
+				this.title='修改地址'
+				this.modify()
+			}
 		},
 		mounted(){
-			this.getAddress();
-			const continer = document.getElementsByClassName('address')[0];
-			continer.style.minHeight=(document.documentElement.clientHeight)+'px';
+			
 		},
-		watch: {
-			// $route(to,from){
-			// 	this.watchRouter(to,from)
-			// },
-			// addre(val){
-			// 	(val==null || val.length=='0')?this.empty=1:this.empty=0
-			// }
+		watch:{
+			realName: function(val){
+				val!=''?this.is_1=1:this.is_1=0
+				val!=''&&this.rightShow==1&&this.addr!=''?this.stor=1:this.stor=0
+			},
+			telNum: function(val){
+				val!=''?this.is_2=1:this.is_2=0;
+				let reg = /^(0|86|17951)?(13[0-9]|15[0-9]|17[0-9]|18[0-9]|14[0-9]|19[0-9])[0-9]{8}$/;
+				if(val.match(reg)){
+					this.rightShow = 1;
+				}else if(this.telNum ==''){
+					this.rightShow = 0
+				}else{
+					this.rightShow = 0
+				};
+				this.realName!=''&&this.rightShow==1&&this.addr!=''?this.stor=1:this.stor=0
+			},
+			addr: function(val){
+				val!=''&&this.rightShow==1&&this.realName!=''?this.stor=1:this.stor=0
+			}
 		},
 		computed:{
-			// ...mapState([
-			// 	'address','fillExtractInfo'
-			// ])
+            // ...mapState([
+            // 	'updateAddress'
+            // ])
 		},
 		methods:{
 			// ...mapMutations([
-            //     'RECORD_ADDRESS','RECORD_UPDATEADDRESS'
-            // ]),
-			//点击返回按钮
-			backWard(){
-				var from=this.$route.query.from;
-				//从填写提金订单处跳转过来的，则跳转回填写提金订单
-				if(this.fillExtractInfo){
-					this.$router.push({
-						path: '/fillInOrder',
-					});
-				}else if(from==2){//从存金订单提交页面跳转过来，跳回到存金订单提交的页面
-					this.$router.push({
-						path: '/storAddress',
-						query: {
-							from: 2
-						}
-					});
-				}else if(from==3){//从修改存金订单提交页面跳转过来，跳回到修改存金订单的页面
-					//获取用户的默认地址
-					this.$router.push({
-						path: '/modifiRecycleOrder',
-						query: {
-							from: 3
-						}
-					});
-				}else{
-					this.$router.push('/mine');
+            //     'RECORD_ADDRESS'
+			// ]),
+			//选择省份
+			checkprov(val,val2){
+				this.currprov=val2
+				this.province=val
+				this.province_show=false
+				this.city_show=true
+			}, 
+			// 选择城市
+			checkcity(val,val2){
+				this.currcity=val2
+				this.city=val
+				this.city_show=false
+				this.town_show=true
+			},
+			//选择县区
+			checktown(val,val2){
+				this.currtown=val2
+				this.town=val
+				this.popupVisible=false
+				this.area=this.province+this.city+this.town
+			},
+			// 已选择地址点击事件
+			has_checked_click(val){
+				if(val=='province'){
+					this.province_show=true
+					this.city_show=false
+					this.town_show=false
+					this.city=''
+					this.town=''
+				}else if(val=='city'){
+					this.city_show=true
+					this.province_show=false
+					this.town_show=false
+					this.town=''
+				}else if(val=='town'){
+					this.province_show=false
+					this.city_show=false
+					this.town_show=true
 				}
 			},
-			watchRouter(to, from){
+			closepop: function(){
+				this.popupVisible=false;
 			},
-			//获取用户地址
-			async getAddress(){
-                this.picked=1
-                var res = {"code":100,"content":[{"address":"1212323323","contact":"郭佳伟","createTime":"2018-07-03 11:58:31","deleted":0,"id":"ff808081641c4f7e01645e4ab3ba1dc0","isDefault":0,"telephone":"18735312081","userId":"199869"},{"address":"打算减","contact":"giaojfa","createTime":"2018-07-03 12:00:29","deleted":0,"id":"ff808081641c4f7e01645e4c7e201dc6","isDefault":1,"telephone":"13120122211","updateTime":"2018-07-03 12:00:39","userId":"199869"},{"address":"郭佳伟","contact":"郭佳伟","createTime":"2018-07-02 20:13:05","deleted":0,"id":"ff808081641c51e201645ae922061c69","isDefault":0,"telephone":"18735312081","userId":"199869"},{"address":"hahhahhahahha","contact":"孙小贱","createTime":"2018-07-03 11:59:49","deleted":0,"id":"ff808081641c51e201645e4be2021e11","isDefault":0,"telephone":"13122291122","userId":"199869"}],"message":"成功"}
-                this.addre = res.content
-				// let res = await queryAddress()
-				this.picked=null
-				// if(res.code==100){
-				// 	this.addre = res.content
-				// 	if(res.content.length>0){
-				// 		this.hasAddress=true
-				// 		this.empty=false
-				// 		//遍历地址是否默认,如果没有默认地址，设置第一个地址为默认地址
-				// 		for(var i=0; i<res.content.length;i++){
-				// 			if(res.content[i].isDefault==1){
-				// 				this.picked=i
-				// 				break;
-				// 			}
-				// 		}
-				// 		//如果add的值为0，说明没有默认地址，设置第一个地址为默认地址
-				// 		if(this.picked==null){
-				// 			this.picked=0
-				// 			await putDefault(res.content[0].id)
-				// 		}
-				// 	}else{
-				// 		this.empty=true
-				// 		this.hasAddress=false
-				// 	}
-				// }
+			check_city: function(){
+				this.popupVisible=true;
+				this.province_show=true;
 			},
-			//设置默认地址设置默认地址
-			async putDefault(item,val){
+			del: function(val){
+				return val=='n'?this.realName='':this.telNum=''
+			},
+			//保存地址
+			async baocun(){
+				if(this.$route.query.from){
+					var from=this.$route.query.from;
+					var that=this;
+					if(from==1){ //如果当前是提金业务，需要保存提金标志from 1
+						if(this.title=='添加地址' && this.stor){
+							const res_1 = await addAddress(this.realName, this.telNum, this.addr)
+							if(res_1.code==100){
+								//设置默认地址
+								this.putDefault(res_1.content)
+							}
+						}
+						if(this.title=='修改地址' && this.stor){
+							const res_2 = await putAddress(this.addressId, this.realName, this.telNum, this.addr)
+							res_2.code==100?this.$router.push({path:"/fillInOrder",query:{from:1}}):''
+						}
+						return;
+					}
+					if(from==2){ //如果当前是存金业务，需要保存存金标志from 2
+						let address = {
+								contact: this.realName,
+								address: this.addr,
+							  telephone: this.telNum
+						};
+						this.RECORD_ADDRESS(address)
+						if(this.title=='添加地址' && this.stor){
+							const res_1 = await addAddress(this.realName, this.telNum, this.addr)
+							if(res_1.code==100){
+								//设置默认地址
+								this.putDefault(res_1.content)
+							}
+						}
+						if(this.title=='修改地址' && this.stor){
+							const res_2 = await putAddress(this.addressId, this.realName, this.telNum, this.addr)
+							res_2.code==100?this.$router.push({path:"/storAddress"}):''
+						}
+						return;
+					}
+					if(from==3){ //如果当前是存金修改订单业务，需要保存存金标志from 3
+						let address = {
+								contact: this.realName,
+								address: this.addr,
+							  telephone: this.telNum
+						};
+						this.RECORD_ADDRESS(address)
+						if(this.title=='添加地址' && this.stor){
+							const res_1 = await addAddress(this.realName, this.telNum, this.addr)
+							if(res_1.code==100){
+								//设置默认地址
+								this.putDefault(res_1.content)
+							}
+						}
+						if(this.title=='修改地址' && this.stor){
+							const res_2 = await putAddress(this.addressId, this.realName, this.telNum, this.addr)
+							res_2.code==100?this.$router.push({path:"/modifiRecycleOrder",query:{from: 3}}):''
+						}
+						return;
+					}
+				}
+				if(this.title=='添加地址' && this.stor){
+					const res_1 = await addAddress(this.realName, this.telNum, this.addr)
+					if(res_1.code==100){
+						//设置默认地址
+						this.putDefault(res_1.content)
+					}
+				}
+				if(this.title=='修改地址' && this.stor){
+					const res_2 = await putAddress(this.addressId, this.realName, this.telNum, this.addr)
+					res_2.code==100?this.$router.push("/personHomepage/address"):''
+				}
+			},
+			//设置默认地址
+			async putDefault(val){
 				let res = await putDefault(val)
-				this.RECORD_ADDRESS(item)
-			},
-			//删除地址
-			async delAddress(val){
-				let res = await delAddress(val)
 				if(res.code==100){
-					this.getAddress();
+					if(this.$route.query.from==1){
+						this.$router.push({path:"/fillInOrder",query:{from:1}})
+						return;
+					}
+					if(this.$route.query.from==2){
+						this.$router.push({path:"/storAddress",query:{from:2}})
+						return;
+					}
+					if(this.$route.query.from==3){
+						this.$router.push({path:"/modifiRecycleOrder",query:{from:3}})
+						return;
+					}
+					this.$router.push("/personHomepage/address")
 				}
 			},
-			//编辑地址
-			putAddress(val){
-				this.RECORD_UPDATEADDRESS(val)
-				var from=this.$route.query.from;
-				if(from=='1') { //如果是由提金业务跳转过来，则保存参数from1
-					this.$router.push({path:'addAddress',  query: { modify: 'address',from:1}})
-				}else if(from=='2'){ //如果是由存金业务跳转过来，则保存参数from2
-					this.$router.push({path:'addAddress',  query: { modify: 'address',from:2}})
-				}else if(from=='3') {//如果是从修改订单业务跳转过来的，则保存参数from3
-					this.$router.push({path:'addAddress',  query: { modify: 'address',from:3}})
-				}else{
-					this.$router.push({path:'addAddress',  query: { modify: 'address'}})
-				}
-			},
-			//地址选择
-			selectAdd(value){
-				this.RECORD_ADDRESS(value);
-				var from=this.$route.query.from;
-				if(!from) return;
-				if(from=='1'){
-					var params=this.$route.query;
-					params.address=value
-					this.$router.push({
-						path:'/fillInOrder',
-						query: {
-							from: 1,
-							address:value
-						}
-					})
-				}else if(from=='2'){
-					this.$router.push({//从存金订单提交页面跳转过来
-						path:'/storAddress',
-						query: {
-							from: 2
-						}
-					})
-				}else if(from=='3'){//从修改存金订单页面跳转过来
-					this.$router.push({
-						path:'/modifiRecycleOrder',
-						query: {
-							from: 3
-						}
-					})
-				}
-			},
-			//点击添加新地址
-			addNewAddr(){
-				var from=this.$route.query.from;
-				if(from=='1') { //如果是由提金业务跳转过来，则保存参数from:1  如果是由存金业务跳转过来，则保存参数from:2
-					this.$router.push({path:'/personHomepage/addAddress',query:{'from':1}})
-				}else if(from=='2'){
-					this.$router.push({path:'/personHomepage/addAddress',query:{'from':2}})
-				}else if(from=='3'){
-					this.$router.push({path:'/personHomepage/addAddress',query:{'from':3}})
-				}else{
-					this.$router.push({path:'/personHomepage/addAddress'})
-				}
+			//需要修改的地址渲染页面
+			modify(){
+				let a = this.updateAddress;
+				this.realName = a.contact
+				this.telNum = a.telephone
+				this.addr = a.address
+				this.addressId = a.id
 			},
 		},
 		components:{
-			headTop: headTop,
+			headTop: headTop
 		}
 	}
 </script>
@@ -222,182 +300,168 @@
 	padding: 0;
 	box-sizing: border-box;
 }
-.address{
+.addAddress{
 	width: 100%;
 	position: absolute;
 	top: 0;
-	z-index: 11;
+	z-index: 12;
 	background-color: #f5f5f5;
+	min-height: 100vh;
 }
-.address_list{
+.addAddress>.name_tel_addr{
 	width: 100%;
-	margin-top: .88rem;
-	padding-bottom: 1rem;
-	background-color: #f5f5f5;
-}
-.address_list>.addressDe{
+	height: 1.1rem;
 	background-color: #fff;
-	margin-top: .2rem;
-	min-height: 2.1rem;
 	padding: 0 .3rem 0 .3rem;
+	position: relative;
 }
-.address_list>.addressDe>p{
-	height: .7rem;
-	line-height: .8rem;
+.addAddress>.name_tel_addr>input{
+	margin-top: .3rem;
+	width: 80%;
+	height: .5rem;
+	border: none;
+	outline: none;
 	font-size: .3rem;
+	float: left;
+	margin-bottom: .2rem;
 }
-.address_list>.addressDe>p:first-child{
-	height: .7rem;
-	line-height: .8rem;
+.addAddress>.name_tel_addr>textarea{
+	margin-top: .3rem;
+	width: 100%;
+	height: 1rem;
+	border: none;
+	outline: none;
+	background: transparent;
+	resize: none;
 	font-size: .3rem;
-}
-.address_list>.addressDe>div:nth-child(2){
-	word-break: break-all;
-	min-height: .7rem;
-	line-height: .4rem;
-	font-size: .3rem;
-	padding-top: .15rem;
-}
-.address_list>.addressDe>p:nth-child(3){
-	height: .75rem;
-	line-height: .75rem;
-	font-size: .3rem;
-}
-.address_list>.addressDe>p:first-child span{
-	margin-right: .4rem;
+    color: #000;
+    display: inline-block;
+    font-family: 'Microsoft Yahei';
 }
 @media(-webkit-min-device-pixel-ratio:1.5),(min-device-pixel-ratio:1.5),(-o-min-device-pixel-ratio:1.5){
-	.address_list>.addressDe>div:nth-child(2):after{
+	.addAddress>.name_tel_addr:after{
 		content: '';
-		display: inline-block;
+		display: block;
 		width: 100%;
-		border-bottom: 1px solid #eeeeee;
+		border-bottom: 1px solid #eee;
 		-webkit-transform: scaleY(0.7);
 		-o-transform: scaleY(0.7);
 		-moz-transform: scaleY(0.7);
 		transform:scaleY(0.7);
+		float: left;
 	}
 }
-@media(-webkit-min-device-pixel-ratio:2),(min-device-pixel-ratio:2)(-o-min-device-pixel-ratio:1.5){
-	.address_list>.addressDe>div:nth-child(2):after{
+@media(-webkit-min-device-pixel-ratio:2),(min-device-pixel-ratio:2),(-o-min-device-pixel-ratio:1.5){
+	.addAddress>.name_tel_addr:after{
 		content: '';
-		display: inline-block;
+		display: block;
 		width: 100%;
-		border-bottom: 1px solid #eeeeee;
+		border-bottom: 1px solid #eee;
 		-webkit-transform: scaleY(0.5);
 		-o-transform: scaleY(0.5);
 		-moz-transform: scaleY(0.5);
 		transform:scaleY(0.5);
+		float: left;
 	}
 }
-.add{
-	position: fixed;
-	bottom: 0;
+.addAddress>.name_tel_addr.last:after{
+	border: none;
+}
+.addAddress>.name_tel_addr>img{
+	width: .3rem;
+	float: right;
+	margin-top: .4rem;
+}
+.stor{
 	width: 100%;
+	text-align: center;
+	height: 1.28rem;
+	margin-top: .8rem;
+}
+.storAdd{
+	display: inline-block;
+	bottom: 0;
+	width: 94%;
 	height: .95rem;
 	text-align: center;
 	line-height: .95rem;
 	color: #fff;
-	font-size: .3rem;
-	background-color: #f2b643;
+	font-size: .35rem;
+	border-radius: 5px;
 }
-.add:active{
-	background-color: #eda835;
+.storAdd:active{
+ background-color: #DDC899;
 }
-.add>img{
-	width: .45rem;
-	height: .43rem;
-	vertical-align: middle;
-	margin-bottom: .1rem;
-	margin-right: .1rem;
+.isStor{
+	background-color: #DDC899;
 }
-.add>span{
-	font-size: .5rem;
-	margin-right: .1rem;
+.noStor{
+	background-color: #ded1b5;
 }
-.address_list>.addressDe>p:nth-child(3)>input{
-	width: .28rem;
-	height: .28rem;
-	vertical-align: middle;
-	opacity: 1;
-	position: relative;
-	margin-right: .1rem;
-}
-.address_list>.addressDe>p:nth-child(3)>input[type=radio]:before {
-	content: '';
-    display: inline-block;
-    width: .34rem;
-    height: .35rem;
-    background: url("/static/images/reading.png") no-repeat;
-    background-size: 100%;
-    border: none;
-    position: absolute;
-    top: -3px;
-    left: -2px;
-    background-color: #fff;
-}
-.address_list>.addressDe>p:nth-child(3)>input[type=radio]:checked:before{
-    background: url("/static/images/readed.png") no-repeat;
-    background-size: 100%;
-    border: none;
-}
-.address_list>.addressDe>p:nth-child(3)>.compile{
-	float: right;
-	margin-right: .25rem;
-}
-.address_list>.addressDe>p:nth-child(3)>.compile>img{
-	width: .35rem;
-	height: .31rem;
-}
-.address_list>.addressDe>p:nth-child(3)>.compile>span{
-	font-size: .26rem;
-	color: #999999;
-}
-.address_list>.addressDe>p:nth-child(3)>.del{
-	display: inline-block;
-	float: right;
-}
-.address_list>.addressDe>p:nth-child(3)>.del>img{
-	width: .35rem;
-	height: .32rem;
-	vertical-align: middle;
-	margin-bottom: 3px;
-}
-.address_list>.addressDe>p:nth-child(3)>.del>span{
-	font-size: .26rem;
-	color: #999999;
-}
-.address_list>.addressDe>p:nth-child(3)>label{
-	font-size: .26rem;
-}
-.empty{
+.mint-popup{
 	width: 100%;
-	height:100vh;
-	text-align: center;
-	padding-top:2.98rem;
 }
-.empty img{
-	width:3.1rem;
-	height:2.38rem;
+.area{
+	width: 100%;
+	height: 8rem;
+	background-color: #fff;
 }
-.empty>p{
-	padding-top:.8rem;
-	font-size: .28rem;
-	color: #666666;
-}
-.myBtn.toAdd{
-	width:2.2rem;
-	height:.7rem;
-	background-color: #f2b643;
-	line-height:.7rem;
-	text-align:center;
-	font-size:.28rem;
-	margin-top:.4rem;
-	color:#fff;
-	-webkit-border-radius:2px;
-	-o-border-radius:2px;
-	-moz-border-radius:2px;
-	border-radius:2px;
+.head_title{
+	width: 100%;
+	height: 1rem;
+	font-size: .32rem;
+	text-align: center;font-weight:bold;
+	line-height: 1rem;
 	position: relative;
+}
+.head_title img{
+	width: .26rem;
+	position: absolute;
+	top: .3rem;
+	left: .35rem;
+}
+.checked{
+	width: 100%;
+	height: .5rem;
+	line-height: .3rem;
+	font-size: .28rem;
+	padding-left: .4rem;
+}
+.checked span{
+	padding: 0 .18rem 0 .18rem;
+	float: left;
+}
+.checked .checkedtext{
+	display: inline-block;
+	height: .5rem;
+	color: #C09C60;
+	font-size: .28rem;
+	position: relative;
+}
+.checkedtext:after{
+	content: '';
+	width: 80%;
+	border: 1px solid #C09C60;
+	position: absolute;
+	bottom: 0;
+	left: 10%;
+}
+.list{
+	overflow:auto;
+}
+.list_li{
+	width: 100%;
+	height: .75rem;
+	line-height: .75rem;
+	color: #333;
+	font-size: .26rem;
+	padding-left: .4rem;
+}
+.has_checked{
+	color: #C09C60;
+}
+.haschecked_tip{
+	width: .24rem;
+	margin-left: .2rem;
 }
 </style>

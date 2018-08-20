@@ -16,6 +16,7 @@ const qcmscommitresult = r => require.ensure([], () => r(require('../pages/merch
 /* 店铺相关 */
 const myShop = r => require.ensure([], () => r(require('../pages/shop/myShop')), 'myShop')
 const editShopInfo = r => require.ensure([], () => r(require('../pages/shop/editShopInfo')), 'editShopInfo')
+const location = r => require.ensure([], () => r(require('../pages/shop/location')), 'location')
 
 /* 存金相关 */
 const storeGold = r => require.ensure([], () => r(require('../pages/storeGold/storeGold')), 'storeGold')
@@ -178,6 +179,10 @@ const router = new Router({
             path: '/changePassword', //修改密码
             component: changePassword
         },
+        {
+            path: '/location', //选择店铺地址页
+            component: location,
+        }
     ],
     scrollBehavior (to, from, savedPosition) { // 记录滚动位置
         if (savedPosition) {

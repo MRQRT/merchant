@@ -16,22 +16,23 @@
         <section class="shop_mess">
             <div class="one">
                 <span>店铺名称</span>
-                <input type="text" placeholder="请输入店铺名称，不超过16个汉字">
+                <input type="text" v-model="shop_message.shop_name" placeholder="请输入店铺名称，不超过16个汉字">
             </div>
             <div class="line"></div>
-            <div class="one">
+            <div class="one" style="position:relative;" @click="$router.push('/location')">
                 <span>店铺地址</span>
-                <input type="text" placeholder="请选择店铺地址">
+                <input type="text" v-model="shop_message.shop_name" placeholder="请选择店铺地址" readonly="value">
+                <img :src="right" class="right_jiantou">
             </div>
             <div class="line"></div>
             <div class="one">
                 <span>预约电话</span>
-                <input type="text" placeholder="固定电话/手机">
+                <input type="text" v-model="shop_message.shop_name" placeholder="固定电话/手机">
             </div>
             <div class="line"></div>
             <div class="one" style="display:flex">
                 <span style="float:left;">店铺简介</span>
-                <textarea type="text" style="float:left;flex-grow:1" placeholder="店铺简介不可为空，最大长度144个汉字"></textarea>
+                <textarea type="text" v-model="shop_message.shop_name" style="float:left;flex-grow:1" placeholder="店铺简介不可为空，最大长度144个汉字"></textarea>
             </div>
             <div class="line"></div>
             <div class="one" style="padding:0;">
@@ -72,9 +73,11 @@
 <script>
 import headTop from '@/components/header/head.vue'
 import headimg from 'static/images/deheadpro.png'
+import	right from 'static/images/next.png'
     export default {
         data(){
             return{
+                right:right,//右箭头
                 headimg:headimg,
                 hui:0,
                 ti:0,
@@ -91,6 +94,15 @@ import headimg from 'static/images/deheadpro.png'
                 },
                 canPhoto:true,
                 canAdd:true,
+                shop_message:{
+                    shop_name:'',//店铺名称
+                 shop_address:'',//店铺地址
+                  shop_mobile:'',//店铺预约电话
+                   shop_intro:'',//店铺简介
+               business_scope:[],//营业范围
+                   shop_photo:[],//店铺门面图
+
+                }
             }
         },
         components:{
@@ -315,7 +327,14 @@ import headimg from 'static/images/deheadpro.png'
     line-height: .88rem;
     text-align: center;
     border-radius: 4px;
-}    
+}   
+.right_jiantou{
+    width:.4rem;
+    margin-top: .25rem;
+    position: absolute;
+    right: 0rem;
+    top: .1rem;
+} 
 textarea::-webkit-input-placeholder{
     font-size: .28rem;
 }
