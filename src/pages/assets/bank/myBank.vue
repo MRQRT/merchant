@@ -7,15 +7,15 @@
         <!-- 主体部分 -->
         <div class="main-cont">
             <!-- 未绑卡状态 -->
-            <div class="no-binding" v-if="!bindingStatus">
+            <!-- <div class="no-binding" v-if="!bindingStatus">
                 <div class="top-img">
                     <img src="static/images/no-binding.png" alt="">
                 </div>
                 <p>您没有绑定银行卡，立即绑卡！</p>
                 <div class="binding-btn" @click="$router.push('/bindingbank')">立即绑卡</div>
-            </div>
+            </div> -->
             <!-- 已绑卡状态 -->
-            <div class="has-binding" v-else>
+            <div class="has-binding">
                 <div class="card">
                     <div class="top-part">
                         <div class="left-icon">
@@ -44,7 +44,7 @@ import headTop from '@/components/header/head.vue'
     export default {
         data(){
             return{
-                bindingStatus:false,
+                // bindingStatus:false,
             }
         },
         components:{

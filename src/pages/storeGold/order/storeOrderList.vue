@@ -2,7 +2,7 @@
     <div class="storeGoldList">
         <!-- 头部标题部分 -->
         <head-top headTitle='我的订单' class="head-top nomal-font" ref="topHead">
-            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
+            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.push({path:'/index',query:{navStatus:1}})">
         </head-top>
         <!-- 主体部分 -->
         <div class="main-cont" ref="wrapper" v-if="orderStatus" :style="{ height: wrapperHeight + 'px' }">
@@ -181,7 +181,7 @@ import headTop from '@/components/header/head.vue'
                     },
                     {
                         goldType:'投资金',
-                        status:9,
+                        status:11,
                         orderNo:'TR180309141234033476',
                         tradeType:0,
                         lockStatus:0,

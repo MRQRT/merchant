@@ -18,7 +18,7 @@
 			</div>
 		</div>
 		<!-- 成交数量 -->
-		<section class="dealNum">
+		<section class="dealNum" v-if="loginStatus && shopCheckStatus">
             <p class="title">店铺近一月成交量</p>
             <div class="deal-num">
                 <div class="total-price">
@@ -134,11 +134,16 @@
         <mt-popup v-model="popupVisible" position="left">
             <div class="nav-wrap">
                 <!-- 店铺图标名称 -->
-                <div class="top-info">
+                <div class="top-info" @click="goShop()">
                     <div class="shop-logo">
                         <img src="static/images/shop-logo.png" alt="">
                     </div>
-                    <p>我的店铺啦啦啦啦啦啦啦啦啦啦</p>
+                    <!-- 未登录显示 -->
+                    <p v-if="!loginStatus">请登录</p>
+                    <!-- 登录且审核通过提示 -->
+                    <p v-if="loginStatus && shopCheckStatus">我的店铺啦啦啦啦啦啦啦啦啦啦</p>
+                    <!-- 未开店/店铺正在审核中显示 -->
+                    <p v-else>我的店铺</p>
                 </div>
                 <!-- 导航路由 -->
                 <ul class="nav-list">
@@ -172,6 +177,8 @@ import { Popup } from 'mint-ui';
         data(){
             return{
                 popupVisible:false,   // 左侧导航显示
+                loginStatus:true,     // 是否登录
+                shopCheckStatus:true, // 店铺审核是否通过
             }
         },
         components:{
@@ -189,10 +196,21 @@ import { Popup } from 'mint-ui';
         methods: {
             navPopup(){
                 this.popupVisible = true;
+            },
+            // 点击我的店铺logo跳转操作
+            goShop(){
+                if(this.shopCheckStatus){
+                    this.$router.push('/myshop') // 跳转我的店铺页
+                }else{
+                    this.$router.push('/openshopguide') // 开店引导页
+                }
             }
         },
         created(){
-
+            if(this.$route.query.navStatus){ // 从五个导航跳转回来导航要默认展开
+                this.popupVisible = true;
+                this.fixed(true);
+            }
         },
         mounted(){
 
@@ -300,9 +318,9 @@ import { Popup } from 'mint-ui';
     }
     .storBanner{
     	width:100%;
-        height: 5.76rem;
+        height: 6.2rem;
     	position: relative;
-        @include bg-image('/static/images/store-banner.jpeg');
+        @include bg-image('/static/images/index-bg.png');
         img{
         	width:100%;
         }
@@ -315,7 +333,7 @@ import { Popup } from 'mint-ui';
     }
     .price_container{
     	width:100%;
-    	bottom:-2.2rem;
+    	bottom:-2.1rem;
     	position: absolute;
     	display: flex;
     	justify-content: center;

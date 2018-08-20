@@ -5,7 +5,83 @@
             <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
         </head-top>
         <!-- 主体内容 -->
-        <div class="main-cont">
+        <!-- 待支付订单 -->
+        <div class="main-cont" v-if="status==11">
+            <!-- 顶部倒计时 -->
+            <div class="countDown">
+                <p class="clock-icon"></p>
+                <p class="clock-text">
+                    <span>待支付</span>
+                    <span>请在13分25秒内完成支付</span>
+                </p>
+            </div>
+            <!-- 已失效提示 -->
+            <div class="order-cancel" v-if="timeOut">
+                <p class="wraning-icon"></p>
+                <p class="clock-text">
+                    <span>订单已失效</span>
+                    <span>由于您长时间未支付！</span>
+                </p>
+            </div>
+            <!-- 地址 -->
+            <div class="address-info">
+                <div class="left-icon"></div>
+                <div class="right-text">
+                    <p class="name-tel">
+                        <span class="name">张艺兴</span>
+                        <span class="tel">{{13520842445 | hideMible}}</span>
+                    </p>
+                    <p class="add">北京市丰台区嘉和人家翠庭园3号楼1501和人家翠庭园楼1501</p>
+                </div>
+            </div>
+            <div class="distans"></div>
+            <!-- 存金信息 -->
+            <div class="bottom-orderInfo">
+                <h3>存金信息</h3>
+                <div class="order-info">
+                    <p>
+                        <span>存金类型</span>
+                        <span>投资金</span>
+                    </p>
+                    <p>
+                        <span>总克重</span>
+                        <span>200克</span>
+                    </p>
+                    <p>
+                        <span>数量</span>
+                        <span>4件</span>
+                    </p>
+                    <p>
+                        <span>存金方式</span>
+                        <span>直接变现</span>
+                    </p>
+                    <p>
+                        <span>锁价保证金</span>
+                        <span>1500.00元</span>
+                    </p>
+                    <p>
+                        <span>锁定金价<b @click="lockPricePopup"></b></span>
+                        <span class="special-color">276.15元/克</span>
+                    </p>
+                </div>
+            </div>
+            <div class="distans"></div>
+            <!-- 银行卡 -->
+            <div class="bank">
+                <span>银行卡</span>
+                <span>工商银行(尾号1234)</span>
+            </div>
+            <!-- 底部按钮 -->
+            <div class="pay-btn">
+                <div class="left-price">
+                    <span>锁价保证金</span>
+                    <span>15679.00元</span>
+                </div>
+                <div class="right-btn">支付</div>
+            </div>
+        </div>
+        <!-- 其他状态订单 -->
+        <div class="main-cont" v-else>
             <!-- 顶部状态 -->
             <div class="top-info">
                 <div class="orderNo">
@@ -196,12 +272,13 @@
 
 <script>
 import headTop from '@/components/header/head.vue'
-import { MessageBox,Popup } from 'mint-ui';
+import { MessageBox,Toast,Popup } from 'mint-ui';
 
     export default {
         data(){
             return{
-                status:'',    // 状态
+                status:'',             // 状态
+                timeOut:false,         // 订单是否超时
                 popupVisible:false,   // 信息弹窗显示隐藏
                 popupNum:'',          // 哪个弹窗显示
                 trackingStatus:false,  // 订单追踪显示、隐藏
@@ -318,7 +395,7 @@ import { MessageBox,Popup } from 'mint-ui';
             // 锁价解释弹窗
             lockPricePopup(){
                 MessageBox({
-                  title: '名词解释',
+                  title: '提示',
                   message:'锁定金价：当前订单将以您锁定金 价成交。' ,
                   confirmButtonText: '我知道了'
                 })
@@ -389,6 +466,86 @@ import { MessageBox,Popup } from 'mint-ui';
         min-height: 100vh;
         padding-top:.88rem;
         position: relative;
+        /* 等待付款状态 */
+        .order-cancel{
+            background: rgba(188,188,188,1) !important;
+        }
+        .countDown,.order-cancel{
+            width:100%;
+            height:1.62rem;
+            color:#fff;
+            padding:.3rem .4rem;
+            align-items: flex-start;
+            @include flex-box();
+            @include bg-color();
+
+            .clock-icon,.wraning-icon{
+                width:.36rem;
+                height:.36rem;
+                margin-top:.05rem;
+                @include bg-image('/static/images/waiting.png');
+            }
+            .wraning-icon{
+                @include bg-image('/static/images/pay-error.png');
+            }
+            .clock-text{
+                text-align: left;
+                margin-left:.2rem;
+                flex-direction: column;
+                @include flex-box();
+                @include justify-content();
+                span{
+                    font-size:.28rem;
+                    &:nth-of-type(1){
+                        font-size:.36rem;
+                        margin-bottom: .1rem;
+                    }
+                }
+            }
+        }
+        .bank{
+            width: 100%;
+            height: .9rem;
+            line-height: .9rem;
+            color: #333;
+            font-size: .3rem;
+            padding:0 .3rem;
+            background-color: #fff;
+            @include flex-box();
+            @include justify-content();
+        }
+        .pay-btn{
+            width: 100%;
+            height: .98rem;
+            background-color: #fff;
+            position: fixed;
+            bottom: 0;
+            @include flex-box();
+            @include justify-content();
+            .left-price{
+                padding:.1rem 0 .1rem .4rem;
+                flex-direction: column;
+                @include flex-box();
+                span{
+                    color: #999;
+                    font-size: .24rem;
+                    &:nth-of-type(2){
+                        color: #C09C60;
+                        font-size: .36rem;
+                    }
+                }
+            }
+            .right-btn{
+                width: 2.2rem;
+                height: .98rem;
+                color: #fff;
+                text-align: center;
+                line-height: .98rem;
+                font-size: .34rem;
+                background-color: #000;
+            }
+        }
+        /* 其他状态 */
         .distans{
             width:100%;
             height:.2rem;

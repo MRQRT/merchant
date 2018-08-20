@@ -2,7 +2,7 @@
     <div class="assets">
         <!-- 头部标题部分 -->
         <head-top headTitle='资产' class="head-top nomal-font" ref="topHead">
-            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
+            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.push({path:'/index',query:{navStatus:1}})">
         </head-top>
         <!-- 主体部分 -->
         <div class="main-cont">
@@ -17,7 +17,7 @@
                 <h3>银行卡</h3>
                 <div class="bank">
                     <!-- 已绑卡状态 -->
-                    <div class="has-bank" v-if="bankStatus" @click="$router.push('/mybank')">
+                    <div class="has-bank" v-if="!bankStatus" @click="$router.push('/mybank')">
                         <div class="left-part">
                             <div class="icon">
                                 <img src="" alt="">
@@ -30,7 +30,7 @@
                         <div class="right-part"></div>
                     </div>
                     <!-- 未绑卡状态 -->
-                    <div class="no-bank" v-else @click="$router.push('/bindingBank')">
+                    <div class="no-bank" v-else @click="$router.push({path:'/bindingBank',query:{from:'assets'}})">
                         <div class="left-part">
                             <div class="icon">
                                 <img src="static/images/add-bank.png" alt="">

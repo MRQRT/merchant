@@ -2,7 +2,7 @@
     <div class="bindingBank">
         <!-- 头部标题部分 -->
         <head-top headTitle='添加银行卡' class="head-top nomal-font" ref="topHead">
-            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
+            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="goBack()">
         </head-top>
         <!-- 主体部分 -->
         <div class="main-cont">
@@ -132,6 +132,9 @@ import { Toast } from 'mint-ui'
 			},
         },
         methods: {
+            goBack(){
+                this.$route.query.from == 'assets' ? this.$router.push('/assets') : this.$router.push('/storegold')
+            },
             // 验证手机格式
             checkTel(){
                 let reg = /^(0|86|17951)?(13[0-9]|15[0-9]|17[0-9]|18[0-9]|14[0-9]|19[0-9])[0-9]{8}$/;
@@ -245,10 +248,10 @@ import { Toast } from 'mint-ui'
 					const res = await boundBankCard(formatBankN, this.telNum, this.validNum)
 					if(res.code==200){
 						Toast('银行卡绑定成功')
-						if(this.$route.query.from=='/storegold'){
+						if(this.$route.query.from=='storegold'){
                             this.$router.replace('/storegold')
 						}else{
-							this.$router.replace('/myBank')
+							this.$router.replace('/assets')
 						}
 					}else{
 						MessageBox({

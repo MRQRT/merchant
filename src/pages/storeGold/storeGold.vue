@@ -2,7 +2,7 @@
     <div class="storeGold">
         <!-- 头部标题部分 -->
         <head-top headTitle='填写存金订单' class="head-top nomal-font" ref="topHead">
-            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
+            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.push('/index')">
             <span slot="custom" class="custom" @click="showPopup(0)">存金说明</span>
         </head-top>
         <!-- 主体部分 -->
@@ -33,8 +33,8 @@
                         <div class="gold-box gold-type">
                             <div class="left">黄金类型</div>
                             <div class="type-right">
-                                <span :class="{'type-active':typeNum==1}" @click="chooseType(1)">投资金</span>
-                                <span :class="{'type-active':typeNum==2}" @click="chooseType(2)">首饰</span>
+                                <span :class="{'type-active':typeNum==0}" @click="chooseType(0)">投资金</span>
+                                <span :class="{'type-active':typeNum==1}" @click="chooseType(1)">首饰</span>
                             </div>
                         </div>
                         <!-- 黄金总重 -->
@@ -106,10 +106,7 @@
                             </p>
                             <p class="add">北京市丰台区嘉和人家翠庭园3号楼1501京市丰台区嘉和人</p>
                         </div>
-                        <div class="right-arrow">
-
-                        </div>
-
+                        <div class="right-arrow"></div>
                     </div>
                 </div>
             </div>
@@ -252,7 +249,7 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                 loginStatus:true,   // 是否登录
                 bankStatus:true,    // 是否绑定银行卡
                 addressStatus:true, // 是否选择地址
-                typeNum:'',         // 存金类型选择样式
+                typeNum:null,         // 存金类型选择样式
                 weight:'',          // 存金克重
                 extractNum:1,       // 存金数量
                 bg:true,            // 协议是否已读
@@ -279,7 +276,7 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
             },
             // 提交按钮是否可以点击
             submitStatus(){
-                if(!this.typeNum || !this.weight || !this.bg || !this.bankStatus || !this.addressStatus){
+                if(this.typeNum==null || !this.weight || !this.bg || !this.bankStatus || !this.addressStatus){
                     return false;
                 }else{
                     return true;
@@ -326,7 +323,7 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                     this.$router.push({
                         path:'/bindingbank',
                         query:{
-                            from:'/storegold'
+                            from:'storegold'
                         }
                     })
                 }
@@ -754,9 +751,9 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                     }
                 }
                 .right-arrow{
-                    width: .19rem;
-                    height: .35rem;
-                    border:1px solid red;
+                    width: .44rem;
+                    height: .44rem;
+                    @include bg-image('/static/images/white-arrow.png');
                 }
             }
             .address-card{
