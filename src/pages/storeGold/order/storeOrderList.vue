@@ -24,7 +24,7 @@
                                     <span class="lock-price" v-if="item.lockStatus==1 && item.tradeType==0"></span>
                                 </div>
                                 <div class="right">
-                                    <span class="status" :class="{'overStatus':item.status==9 ||item.status==12 }">{{statusJson[item.status].name}}</span>
+                                    <span class="status" :class="{'overStatus':item.status==1 ||item.status==11 }">{{statusJson[item.status].name}}</span>
                                 </div>
                             </div>
                             <!-- 订单信息 -->
@@ -66,32 +66,21 @@ import headTop from '@/components/header/head.vue'
                     pageNo: 1,
                     pageSize: 10
             	},
-                // statusJson:{  // 订单状态
-                //     '0':{name:'待支付'},
-                //     '1':{name:'待审核'},
-                //     '2':{name:'审核通过'},
-                //     '3':{name:'物流中'},
-                //     '4':{name:'检测中'},
-                //     '5':{name:'待确认'},
-                //     '6':{name:'已完成'},
-                //     '7':{name:'已失效'},
-                //     '8':{name:'已取消'},
-                // },
                 statusJson:{
                     '0':{name:'待审核'},
-                    '1':{name:'审核未通过'},
+                    '1':{name:'已取消'},
                     '2':{name:'审核通过'},
                     '3':{name:'物流中'},
                     '4':{name:'检测中'},
-                    '5':{name:'待确认'},
-                    '6':{name:'检测不通过'},
-                    '7':{name:'用户不同意'},
-                    '8':{name:'已完成'},
-                    '9':{name:'已取消'},
-                    '10':{name:'已退货'},
-                    '11':{name:'未支付'},
-                    '12':{name:'已失败'},
-                    '13':{name:'物流异常'},
+                    '5':{name:'检测不通过'},
+                    '6':{name:'待确认'},
+                    '7':{name:'已完成'},
+                    '8':{name:'已取消'},
+                    '9':{name:'退货中'},
+                    '10':{name:'未支付'},
+                    '11':{name:'已失效'},
+                    '12':{name:'物流异常'},
+                    '13':{name:'已关闭'},
                 },
                 typeJson:{ // 存金类型
                     '0':'直接变现',
@@ -181,6 +170,24 @@ import headTop from '@/components/header/head.vue'
                     },
                     {
                         goldType:'投资金',
+                        status:9,
+                        orderNo:'TR180309141234033476',
+                        tradeType:0,
+                        lockStatus:0,
+                        weight:23.456,
+                        time:'2018-03-05 09:38',
+                    },
+                    {
+                        goldType:'投资金',
+                        status:10,
+                        orderNo:'TR180309141234033476',
+                        tradeType:0,
+                        lockStatus:0,
+                        weight:23.456,
+                        time:'2018-03-05 09:38',
+                    },
+                    {
+                        goldType:'投资金',
                         status:11,
                         orderNo:'TR180309141234033476',
                         tradeType:0,
@@ -191,6 +198,15 @@ import headTop from '@/components/header/head.vue'
                     {
                         goldType:'投资金',
                         status:12,
+                        orderNo:'TR180309141234033476',
+                        tradeType:0,
+                        lockStatus:0,
+                        weight:23.456,
+                        time:'2018-03-05 09:38',
+                    },
+                    {
+                        goldType:'投资金',
+                        status:13,
                         orderNo:'TR180309141234033476',
                         tradeType:0,
                         lockStatus:0,

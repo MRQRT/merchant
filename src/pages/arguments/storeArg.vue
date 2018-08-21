@@ -2,7 +2,7 @@
     <div class="storeGold">
         <!-- 头部标题部分 -->
         <head-top headTitle='存金协议' class="head-top nomal-font" ref="topHead">
-            <img slot='head_goback' src='static/images/close.png' class="head_goback" @click="$router.push({path:'/storegold',query:{radioStatus:0}})">
+            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
         </head-top>
         <div class="content">
 			<p class="title">存金通商户版用户协议<span class="middLine"></span></p>
@@ -103,7 +103,7 @@
 			</div>
 		</div>
         <!-- 同意按钮 -->
-        <div class="btn" @click="goStore()">我已阅读并同意该协议</div>
+        <!-- <div class="btn" @click="goStore()">我已阅读并同意该协议</div> -->
     </div>
 </template>
 
