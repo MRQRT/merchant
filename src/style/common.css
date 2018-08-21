@@ -200,3 +200,9 @@ textarea:-ms-input-placeholder{  /* Internet Explorer 10-11 */
     overflow: hidden;
     background: #dddddd;
 }
+.BMap_cpyCtrl {
+    display: none;
+}
+.anchorBL {
+    display: none;
+}

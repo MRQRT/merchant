@@ -9,22 +9,22 @@
         <!-- license -->
         <section class="qc">
             <img :src="license" alt="">
-            <label for="license" class="upload"></label>
-            <input type="file" accept="image/*" id="license" style="display:none;">
+            <label for="license" class="upload" @change="selectImage('license')"></label>
+            <input type="file" accept="image/*" id="license" style="display:none;" @change="selectImage('license',$event)">
             <p>点击上传营业执照</p>
         </section>
         <!-- idcard1 -->
         <section class="qc">
             <img :src="idcard1" alt="">
-            <label for="idcard1" class="upload"></label>
-            <input type="file" accept="image/*" id="idcard1" style="display:none;">
+            <label for="idcard1" class="upload" @change="selectImage('idcard1')"></label>
+            <input type="file" accept="image/*" id="idcard1" style="display:none;" @change="selectImage('idcard1',$event)">
             <p>点击上传法人身份证正面</p>
         </section>
         <!-- idcard2 -->
         <section class="qc">
             <img :src="idcard2" alt="">
-            <label for="idcard2" class="upload"></label>
-            <input type="file" accept="image/*" id="idcard2" style="display:none;">
+            <label for="idcard2" class="upload" @change="selectImage('idcard2')"></label>
+            <input type="file" accept="image/*" id="idcard2" style="display:none;" @change="selectImage('idcard2',$event)">
             <p>点击上传法人身份证反面</p>
         </section>
         <!-- button -->
@@ -39,6 +39,7 @@ import headTop from '@/components/header/head.vue'
 import license from 'static/images/license.png'
 import idcard1 from 'static/images/idcard1.png'
 import idcard2 from 'static/images/idcard2.png'
+import {Indicator} from 'mint-ui'
 
     export default {
         data(){
@@ -58,7 +59,43 @@ import idcard2 from 'static/images/idcard2.png'
 
         },
         methods: {
-
+            selectImage(val,e){
+                console.log(val)
+                if (!e.target.files || !e.target.files[0]){
+				return;
+                }
+                Indicator.open();
+                var that=this;
+                let reader = new FileReader();
+                reader.readAsDataURL(e.target.files[0]);
+                reader.onload =function(evt){
+                    Indicator.close();
+                    if(val=='license'){
+                        that.license = evt.target.result;
+                        var lic = document.getElementById("license").files; 
+                        alert(lic[0].size/1024/1024)
+                        if(lic[0].size/1024/1024>3){
+                            //进行压缩
+                            alert('压缩')
+                            //压缩完后进行回调上传
+                        }
+                    }else if(val=='idcard1'){
+                        that.idcard1 = evt.target.result;
+                        var id1 = document.getElementById("idcard1").files; 
+                        if(id1[0].size/1024/1024>3){
+                            //进行压缩
+                            alert('压缩')
+                        }
+                    }else if(val=='idcard2'){
+                        that.idcard2 = evt.target.result;
+                        var id2 = document.getElementById("idcard2").files; 
+                        if(id2[0].size/1024/1024>3){
+                            //进行压缩
+                        }
+                    }
+                    // that.createImage(evt.target.result);
+                }
+            }
         },
         created(){
 
