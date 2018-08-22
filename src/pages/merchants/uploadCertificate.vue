@@ -9,27 +9,27 @@
         <!-- license -->
         <section class="qc">
             <img :src="license" alt="">
-            <label for="license" class="upload"></label>
-            <input type="file" accept="image/*" id="license" style="display:none;">
+            <label for="license" class="upload" @change="selectImage('license')"></label>
+            <input type="file" accept="image/*" id="license" style="display:none;" @change="selectImage('license',$event)">
             <p>点击上传营业执照</p>
         </section>
         <!-- idcard1 -->
         <section class="qc">
             <img :src="idcard1" alt="">
-            <label for="idcard1" class="upload"></label>
-            <input type="file" accept="image/*" id="idcard1" style="display:none;">
+            <label for="idcard1" class="upload" @change="selectImage('idcard1')"></label>
+            <input type="file" accept="image/*" id="idcard1" style="display:none;" @change="selectImage('idcard1',$event)">
             <p>点击上传法人身份证正面</p>
         </section>
         <!-- idcard2 -->
         <section class="qc">
             <img :src="idcard2" alt="">
-            <label for="idcard2" class="upload"></label>
-            <input type="file" accept="image/*" id="idcard2" style="display:none;">
+            <label for="idcard2" class="upload" @change="selectImage('idcard2')"></label>
+            <input type="file" accept="image/*" id="idcard2" style="display:none;" @change="selectImage('idcard2',$event)">
             <p>点击上传法人身份证反面</p>
         </section>
         <!-- button -->
         <div class="button">
-            <section>下一步</section>
+            <section @click="next">下一步</section>
         </div>
     </div>
 </template>
@@ -39,13 +39,15 @@ import headTop from '@/components/header/head.vue'
 import license from 'static/images/license.png'
 import idcard1 from 'static/images/idcard1.png'
 import idcard2 from 'static/images/idcard2.png'
+import {Indicator} from 'mint-ui'
+import { compress } from '@/config/mUtils.js'
 
     export default {
         data(){
             return{
                 license: license,
                 idcard1: idcard1,
-                idcard2: idcard2, 
+                idcard2: idcard2,
             }
         },
         components:{
@@ -58,7 +60,62 @@ import idcard2 from 'static/images/idcard2.png'
 
         },
         methods: {
-
+            //图片选取
+            selectImage(val,e){
+                if (!e.target.files || !e.target.files[0]){
+				return;
+                }
+                var that=this;
+                // 用FileReader读取图片并显示
+                let reader = new FileReader();
+                reader.readAsDataURL(e.target.files[0]);
+                // 文件读取完成
+                reader.onload =function(evt){
+                    if(val=='license'){
+                        that.license = evt.target.result;//读取后的文件进行页面显示
+                        var lic = document.getElementById("license").files;
+                        //文件大于3M进行压缩
+                        if(lic[0].size/1024/1024>3){
+                            //进行压缩,压缩完后进行回调上传
+                            compress(reader,e.target.files[0].size,that)
+                        }else{
+                            let formData = new FormData();
+                            formData.append('files',lic[0]);//lic[0]如果获取不到文件，就用e.target.files[0]
+                            that.uploadimg(formData);
+                        }
+                    }else if(val=='idcard1'){
+                        that.idcard1 = evt.target.result;
+                        var id1 = document.getElementById("idcard1").files;
+                        if(id1[0].size/1024/1024>3){
+                            //进行压缩
+                            compress(reader,e.target.files[0].size,that)
+                        }else{
+                            let formData = new FormData();
+                            formData.append('files',id1[0]);//lic[0]如果获取不到文件，就用e.target.files[0]
+                            that.uploadimg(formData);
+                        }
+                    }else if(val=='idcard2'){
+                        that.idcard2 = evt.target.result;
+                        var id2 = document.getElementById("idcard2").files;
+                        if(id2[0].size/1024/1024>3){
+                            //进行压缩
+                            compress(reader,e.target.files[0].size,that)
+                        }else{
+                            let formData = new FormData();
+                            formData.append('files',id2[0]);//lic[0]如果获取不到文件，就用e.target.files[0]
+                            that.uploadimg(formData);
+                        }
+                    }
+                }
+            },
+            //图片上传
+            uploadimg(val){
+                console.log(val)
+            },
+            //下一步
+            next(){
+                this.$router.push('/qcmscommitresult');
+            }
         },
         created(){
 

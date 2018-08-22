@@ -12,13 +12,14 @@
             </section>
         </div>
         <!-- 地图 -->
-        <div class="map">
+        <div class="allmap" id="container">
             
         </div>
     </div>
 </template>
 <script>
 import headTop from '@/components/header/head.vue'
+import icons from "static/images/delivery-recent.png"
 
     export default {
         data(){
@@ -37,13 +38,62 @@ import headTop from '@/components/header/head.vue'
 
         },
         methods: {
-            
+            map(){
+            let v_this = this;
+                var map = new BMap.Map("container");
+                // 创建地图实例  
+                var point = new BMap.Point(116.317, 39.989);
+                // 创建点坐标  
+                map.centerAndZoom(point, 17);
+                //获取定位
+                var geolocation = new BMap.Geolocation();
+                geolocation.getCurrentPosition(function(r){
+                    if(this.getStatus() == BMAP_STATUS_SUCCESS){
+                        //以指定的经度与纬度创建一个坐标点
+                        var pt = new BMap.Point(r.point.lng,r.point.lat);
+                        //创建一个地理位置解析器
+                        var geoc = new BMap.Geocoder();
+                        geoc.getLocation(pt, function(rs){//解析格式：城市，区县，街道
+                        // alert(rs.address)
+                        var addComp = rs.addressComponents;
+                        var localPosition = addComp.city + addComp.district + addComp.street;
+                            // alert(localPosition)
+                        var local = new BMap.LocalSearch(map, {      
+                            renderOptions:{map: map}  
+                        });    
+                        local.search(rs.address);
+                        });
+
+                        // alert('您的位置：'+r.point.lng+','+r.point.lat);
+                        v_this.v_mark(map,r.point.lng,r.point.lat);
+                    }
+                    else {
+                        alert('failed'+this.getStatus());
+                    }        
+                });
+            },
+            v_mark(val,val1,val2){
+                var point = new BMap.Point(val1, val2);
+                val.centerAndZoom(point, 17);
+                this.v_zidingyi_marker(val,point);//自定义标注
+            },
+            //自定义标注
+            v_zidingyi_marker(val,val1){
+                // 创建图标对象   
+                var myIcon = new BMap.Icon(icons, new BMap.Size(23, 25), { 
+                    anchor: new BMap.Size(10, 25),    
+                    // imageOffset: new BMap.Size(0, 0 - index * 25)   // 设置图片偏移 
+                });      
+                // 创建标注对象并添加到地图   
+                var marker = new BMap.Marker(val1, {icon: myIcon}); 
+                val.addOverlay(marker);    
+            }
         },
         created(){
 
         },
         mounted(){
-
+            this.map();
         },
     }
 
@@ -104,10 +154,9 @@ import headTop from '@/components/header/head.vue'
     margin-top: .15rem;
     margin-left: .75rem;
 }
-.map{
+.allmap{
     width: 100%;
     height: 6.2rem;
-    border: 1px solid green;
     margin-top: .2rem;
 }
 input::-webkit-input-placeholder{

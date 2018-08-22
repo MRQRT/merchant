@@ -7,7 +7,7 @@
         <!-- headportrait -->
         <section class="headportrait">
             <label for="headpo" class="headpo">
-                <input type="file" accept="image/*" style="display:none;" id="headpo">
+                <input type="file" accept="image/*" style="display:none;" id="headpo" @change="selectheadimg">
                 <img :src="headimg" alt="头像">
             </label>
                 <p>设置店铺头像</p>
@@ -16,7 +16,7 @@
         <section class="shop_mess">
             <div class="one">
                 <span>店铺名称</span>
-                <input type="text" v-model="shop_message.shop_name" placeholder="请输入店铺名称，不超过16个汉字">
+                <input type="text" v-model="shop_message.name" placeholder="请输入店铺名称，不超过16个汉字">
             </div>
             <div class="line"></div>
             <div class="one" style="position:relative;" @click="$router.push('/location')">
@@ -27,12 +27,12 @@
             <div class="line"></div>
             <div class="one">
                 <span>预约电话</span>
-                <input type="text" v-model="shop_message.shop_name" placeholder="固定电话/手机">
+                <input type="text" v-model="shop_message.mobile" placeholder="固定电话/手机">
             </div>
             <div class="line"></div>
             <div class="one" style="display:flex">
                 <span style="float:left;">店铺简介</span>
-                <textarea type="text" v-model="shop_message.shop_name" style="float:left;flex-grow:1" placeholder="店铺简介不可为空，最大长度144个汉字"></textarea>
+                <textarea type="text" v-model="shop_message.introduce" style="float:left;flex-grow:1" placeholder="店铺简介不可为空，最大长度144个汉字"></textarea>
             </div>
             <div class="line"></div>
             <div class="one" style="padding:0;">
@@ -50,12 +50,12 @@
             <p>店铺门面图</p>
             <div class="uploadPho_photo">
                 <div class="upload_image_preview">
-                    <section v-for="(image, index) in order.images" :key="index">
+                    <section v-for="(image, index) in shop_message.images" :key="index" :class="{'cover':index==0}">
                         <img :src="image.src" class="thing_img">
                         <span @click='delImage(index)' class="del_image"></span>
                     </section>
                     <input type="file" accept="image/*" @change="selectImage($event)" v-if="canPhoto" ref="file" style="display: none" name="file" id="storImg" multiple>
-                    <label for="storImg" class="add_img_label" @click="selectImage" v-show="canAdd">
+                    <label for="storImg" class="add_img_label" v-show="files.length<6">
                         <div>
                             <img src="static/images/uploadimg.png">
                         </div>
@@ -65,7 +65,7 @@
         </section>
         <!-- buttom -->
         <section class="button">
-            <div>提交</div>
+            <div @click="submit()">提交</div>
         </section>
     </div>
 </template>
@@ -74,6 +74,8 @@
 import headTop from '@/components/header/head.vue'
 import headimg from 'static/images/deheadpro.png'
 import	right from 'static/images/next.png'
+import {compress} from '@/config/mUtils.js'
+import {MessageBox} from 'mint-ui'
     export default {
         data(){
             return{
@@ -83,26 +85,22 @@ import	right from 'static/images/next.png'
                 ti:0,
                 huan:0,
                 wei:0,
-                order: {//订单对象
-                    checkType: '',//投资金的选择类型
-                    productId: '',//投资金类型的产品ID
-                    applyWeight: 10.0,//克重
-                    brandType: null,//品牌
-                        images: [],//手机上选择图片的图片地址
-                        urls: [],//存放上传后图片在服务器的地址
-                    brandName: '',//自定义品牌
-                },
                 canPhoto:true,
-                canAdd:true,
                 shop_message:{
-                    shop_name:'',//店铺名称
-                 shop_address:'',//店铺地址
-                  shop_mobile:'',//店铺预约电话
-                   shop_intro:'',//店铺简介
-               business_scope:[],//营业范围
-                   shop_photo:[],//店铺门面图
-
-                }
+                          logoId:'',//店铺头像地址
+                            name:'',//店铺名称
+                          areaId:'',//店铺区域主键
+                         address:'',//店铺地址
+                             lat:'',//店铺经度
+                             lng:'',//店铺纬度
+                          mobile:'',//店铺预约电话
+                       introduce:'',//店铺简介
+                          images:[],//店铺门面图缓存
+                        facadeId:[],//店铺门面图地址数组（上传数据用）
+                 businessScopeId:[],//营业范围
+                },
+                files: [], // 文件缓存（上传图片）
+                index: 0, // 序列号 可记录一共上传了多少张
             }
         },
         components:{
@@ -116,27 +114,121 @@ import	right from 'static/images/next.png'
         },
         methods: {
             select(val){
+                //删除数组指定元素
+                Array.prototype.remove = function(val) {
+                    var index = this.indexOf(val);
+                    if (index > -1) {
+                        this.splice(index, 1);
+                    }
+                }
                 if(val=='hui'){
                     this.hui=!this.hui;
+                    this.hui?this.shop_message.businessScopeId.push('回购'):this.shop_message.businessScopeId.remove('回购');
                 }else if(val=='ti'){
                     this.ti=!this.ti;
+                    this.ti?this.shop_message.businessScopeId.push('提金'):this.shop_message.businessScopeId.remove('提金');
                 }else if(val=='huan'){ 
                     this.huan=!this.huan;
+                    this.huan?this.shop_message.businessScopeId.push('换购'):this.shop_message.businessScopeId.remove('换购');
                 }else if(val=='wei'){
                     this.wei=!this.wei;
+                    this.wei?this.shop_message.businessScopeId.push('维保'):this.shop_message.businessScopeId.remove('维保');
+                }
+            },
+            //头像图片选择
+            selectheadimg(e){
+                if (!e.target.files || !e.target.files[0]){
+				return;
+                }
+                var that=this;
+                // 用FileReader读取图片并显示
+                let reader = new FileReader();
+                reader.readAsDataURL(e.target.files[0]);
+                // 文件读取完成
+                reader.onload =function(evt){
+                    that.headimg = evt.target.result;//读取后的文件进行页面显示
+                    var hea = document.getElementById("headpo").files;
+                    //文件大于3M进行压缩
+                    if(hea[0].size/1024/1024>3){
+                        //进行压缩,压缩完后进行回调上传
+                        compress(reader,e.target.files[0].size,that)
+                    }else{
+                        let formData = new FormData();
+                        formData.append('files',hea[0]);//lic[0]如果获取不到文件，就用e.target.files[0]
+                        that.uploadimg(formData,'headimg');
+                    }
+                }
+            },
+            //选择图片
+            selectImage(e){
+                // 查看文件选取数量和文件是否为空
+                if(e.target.files && e.target.files.length){
+					if((e.target.files.length+this.shop_message.images.length)>6){
+						Toast('最多上传6张图片')
+						return;
+					}
+                }
+                for (var i=0,len=e.target.files.length;i<len;i++) {
+        			let item = {
+          				 key: this.index++,
+          				name: e.target.files[i].name,
+          				size: e.target.files[i].size,
+          				file: e.target.files[i],
+        			}
+        			let reader = new FileReader()
+        			reader.onload = (e) => {
+						this.$set(item, 'src', e.target.result)  
+						if(this.index<6||this.index==6){ //图片已达到6张 不在执行添加上传操作
+							this.files.push(item)
+							this.shop_message.images.push(item)
+						}
+						if(this.files.length==len){
+                            this.compressimg(reader)//图片压缩
+						}
+					}
+					reader.readAsDataURL(e.target.files[i])
+                }
+            },
+            //进行图片压缩
+            compressimg(reader){
+                var that = this
+				let formData = new FormData()
+        		this.files.forEach((item, index) => {
+                    var img_size=item.size
+                    if(img_size/1024/1024>3){
+                        //进行压缩
+                        compress(reader,img_size,that)
+                    }else{
+                        let formData = new FormData();
+                        formData.append('files',item.file);//lic[0]如果获取不到文件，就用e.target.files[0]
+                        that.uploadimg(formData,'shopphoto');
+                    }
+                })
+            },
+            //图片上传
+            uploadimg(val,val2){
+                console.log(val)
+                //备注：上传完要记得清空缓存数组
+                if(val2=='shopphoto'){
+                    this.files=[]
                 }
             },
             /*删除图片*/
 			delImage: function(index){
-                this.order.images.splice(index,1)
-				this.order.urls.splice(index,1)
+                this.files.splice(index,1)
+                this.shop_message.images.splice(index,1)
+				this.shop_message.facadeId.splice(index,1)
 				this.index--
-                if(this.order.images.length==0){
-                }
             },
-            //选择图片
-            selectImage(){
-
+            //信息提交
+            submit(){
+                MessageBox({
+                    title:'店铺信息已提交',
+                    message:'审核信息将在3个工作日内发到您的手机上，请留意短信',
+                    confirmButtonText:'我知道了',
+                }).then(action=>{
+                    this.$router.push('/index')
+                })
             }
         },
         created(){
@@ -235,11 +327,12 @@ import	right from 'static/images/next.png'
     margin-top: .2rem;
     background-color: #fff; 
     min-height: 5.68rem;
-    padding: 0 .4rem 0 .4rem;
+    padding: 0 .0rem 0 0.3rem;
 }
 .shop_photo>p{
     font-size: .28rem;
-    line-height: 1.1rem;
+    height: .8rem;
+    line-height: 1rem;
 }
 /*上传图片*/
 .uploadPho_photo{
@@ -258,6 +351,7 @@ import	right from 'static/images/next.png'
 	font-size: .24rem;
 	color: #999999;
 	float:left;
+    margin-top:.28rem;
 }
 .add_img_label>div>span{
     display: inline-block;
@@ -273,6 +367,7 @@ import	right from 'static/images/next.png'
 	list-style: none;
 	overflow: hidden;
 	box-sizing: border-box;
+    padding-bottom: 1rem;
 }
 .upload_image_preview>section{
 	position: relative;
@@ -298,13 +393,10 @@ import	right from 'static/images/next.png'
 	width: .35rem;
 	height: .35rem;
 	position: absolute;
-	top: -.1rem;
-	right: -.03rem;
+	top: .1rem;
+	right: .1rem;
 	border-radius: 50%;
-	-webkit-border-radius: 50%;
-	-moz-border-radius: 50%;
-	-o-border-radius: 50%;
-    @include bg-image("/static/images/cam.png");
+    @include bg-image("/static/images/delImg.png");
 	background-position: center;
 	background-size: 100%;
 } 
@@ -346,5 +438,17 @@ textarea:-moz-placeholder{    /* Mozilla Firefox 4 to 18 */
 }
 textarea:-ms-input-placeholder{  /* Internet Explorer 10-11 */ 
     font-size: .28rem;
+}
+.cover{
+    position: relative;
+}
+.cover:after{
+    content:''; 
+    width:1.18rem;
+    height:.45rem;
+    position: absolute;
+    top:-0.08rem;
+    left:0;
+    @include bg-image('/static/images/cover.png')
 }
 </style>
