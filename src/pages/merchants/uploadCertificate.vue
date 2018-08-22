@@ -29,7 +29,7 @@
         </section>
         <!-- button -->
         <div class="button">
-            <section>下一步</section>
+            <section @click="next">下一步</section>
         </div>
     </div>
 </template>
@@ -111,6 +111,10 @@ import { compress } from '@/config/mUtils.js'
             //图片上传
             uploadimg(val){
                 console.log(val)
+            },
+            //下一步
+            next(){
+                this.$router.push('/qcmscommitresult');
             }
         },
         created(){

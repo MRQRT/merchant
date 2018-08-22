@@ -15,7 +15,7 @@
         </div>
         <!-- button -->
         <div class="button">
-            <section>完善店铺信息</section>
+            <section @click="$router.push('/editshopinfo')">完善店铺信息</section>
         </div>
     </div>
 </template>

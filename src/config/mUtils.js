@@ -59,9 +59,11 @@ export function compress(file,size,that){
         //如果浏览器版本都兼容，就不需要进行判断
     // }
 }
+
 /**
  * Created by yi on 2016-12-27.
  */
+
 export function formatDate(date, fmt) {
     if (/(y+)/.test(fmt)) {
         fmt = fmt.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length));

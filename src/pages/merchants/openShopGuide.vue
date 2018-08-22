@@ -32,11 +32,10 @@
         </div>
         <!-- footer -->
         <footer>
-            <section>立即入驻</section>
+            <section @click="$router.push('/uploadcertificate')">立即入驻</section>
         </footer>
     </div>
 </template>
-
 <script>
 import headTop from '@/components/header/head.vue'
 

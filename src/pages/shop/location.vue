@@ -54,7 +54,7 @@ import icons from "static/images/delivery-recent.png"
                         //创建一个地理位置解析器
                         var geoc = new BMap.Geocoder();
                         geoc.getLocation(pt, function(rs){//解析格式：城市，区县，街道
-                        alert(rs.address)
+                        // alert(rs.address)
                         var addComp = rs.addressComponents;
                         var localPosition = addComp.city + addComp.district + addComp.street;
                             // alert(localPosition)
