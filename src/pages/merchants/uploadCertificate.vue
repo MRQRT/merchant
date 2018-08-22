@@ -60,46 +60,57 @@ import { compress } from '@/config/mUtils.js'
 
         },
         methods: {
+            //图片选取
             selectImage(val,e){
-                // console.log(val)
                 if (!e.target.files || !e.target.files[0]){
 				return;
                 }
-                Indicator.open();
                 var that=this;
-                // 将图片文件转成BASE64格式
+                // 用FileReader读取图片并显示
                 let reader = new FileReader();
                 reader.readAsDataURL(e.target.files[0]);
+                // 文件读取完成
                 reader.onload =function(evt){
-                    Indicator.close();
                     if(val=='license'){
-                        that.license = evt.target.result;
-                        var lic = document.getElementById("license").files; 
-                        // alert(lic[0].size/1024/1024)
-                        // if(lic[0].size/1024/1024>3){
-                            //进行压缩
-                            // alert('压缩')
-                            // console.log(compress)
-                            //压缩完后进行回调上传
-                            compress(reader.result)
-                        // }
+                        that.license = evt.target.result;//读取后的文件进行页面显示
+                        var lic = document.getElementById("license").files;
+                        //文件大于3M进行压缩
+                        if(lic[0].size/1024/1024>3){
+                            //进行压缩,压缩完后进行回调上传
+                            compress(reader,e.target.files[0].size,that)
+                        }else{
+                            let formData = new FormData();
+                            formData.append('files',lic[0]);//lic[0]如果获取不到文件，就用e.target.files[0]
+                            that.uploadimg(formData);
+                        }
                     }else if(val=='idcard1'){
                         that.idcard1 = evt.target.result;
-                        var id1 = document.getElementById("idcard1").files; 
+                        var id1 = document.getElementById("idcard1").files;
                         if(id1[0].size/1024/1024>3){
                             //进行压缩
-                            alert('压缩')
+                            compress(reader,e.target.files[0].size,that)
+                        }else{
+                            let formData = new FormData();
+                            formData.append('files',id1[0]);//lic[0]如果获取不到文件，就用e.target.files[0]
+                            that.uploadimg(formData);
                         }
                     }else if(val=='idcard2'){
                         that.idcard2 = evt.target.result;
-                        var id2 = document.getElementById("idcard2").files; 
+                        var id2 = document.getElementById("idcard2").files;
                         if(id2[0].size/1024/1024>3){
                             //进行压缩
-                            alert("压缩")
+                            compress(reader,e.target.files[0].size,that)
+                        }else{
+                            let formData = new FormData();
+                            formData.append('files',id2[0]);//lic[0]如果获取不到文件，就用e.target.files[0]
+                            that.uploadimg(formData);
                         }
                     }
-                    // that.createImage(evt.target.result);
                 }
+            },
+            //图片上传
+            uploadimg(val){
+                console.log(val)
             }
         },
         created(){
