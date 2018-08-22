@@ -5,9 +5,48 @@
 </template>
 
 <script>
+import {queryGoldPrice} from './service/getData.js'
+
 export default {
-  name: 'App'
-}
+        name: 'App',
+        data(){
+            return{
+
+            }
+        },
+        computed: {
+
+        },
+        watch:{
+
+        },
+        methods: {
+            /*请求实时金价*/
+            async getCurrent(){
+                var res=await queryGoldPrice();
+                if(res.code==200){
+                    var price=res.data.goldPrice
+                    this.RECORD_CURRENPRICE(price) // 将获取到的金价储存在session中
+                }else{
+					if(!this.currentPrice){ 	// 如果session中无数据，则是首次请求失败
+						this.RECORD_CURRENPRICE('')
+					}
+				}
+            },
+        },
+        created(){
+
+        },
+        mounted(){
+            /*调用实时金价*/
+            // this.getCurrent();
+            var that=this;
+            /*3秒刷新一次*/
+            // setInterval(function(){
+            //     that.getCurrent();
+            // },10000)
+        },
+    }
 </script>
 
 <style>

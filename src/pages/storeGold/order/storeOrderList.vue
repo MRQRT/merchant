@@ -12,7 +12,7 @@
                     <li class="order-item" v-for="(item,index) in orderList" :key="index" @click="$router.push({path:'/storeorderdetail',query:{id:index,status:item.status}})">
                         <!-- 左侧图片 -->
                         <div class="left-img">
-                            <img src="static/images/order-touzijin.png" alt="" v-if="item.goldType=='投资金'">
+                            <img src="static/images/order-touzijin.png" alt="" v-if="item.productType==0">
                             <img src="static/images/order-shoushi.png" alt="" v-else>
                         </div>
                         <!-- 右侧文字 -->
@@ -20,22 +20,22 @@
                             <!-- 变现or存入克重 -->
                             <div class="trade-type">
                                 <div class="left">
-                                    <span>{{typeJson[item.tradeType]}}</span>
-                                    <span class="lock-price" v-if="item.lockStatus==1 && item.tradeType==0"></span>
+                                    <span>{{typeJson[item.cash]}}</span>
+                                    <span class="lock-price" v-if="item.isLockprice==1"></span>
                                 </div>
                                 <div class="right">
-                                    <span class="status" :class="{'overStatus':item.status==1 ||item.status==11 }">{{statusJson[item.status].name}}</span>
+                                    <span class="status" :class="{'overStatus':item.status==1 ||item.status==8 || item.status==11 || item.status==13}">{{statusJson[item.status].name}}</span>
                                 </div>
                             </div>
                             <!-- 订单信息 -->
                             <div class="bottom-info">
                                 <div class="orderNo">
-                                    <b>订单编号：</b>{{item.orderNo}}
+                                    <b>订单编号：</b>{{item.code}}
                                 </div>
-                                <div class="ensure-cash" v-if="item.lockStatus==1 && item.tradeType==0">保证金：{{500 | formatPriceTwo}}元</div>
+                                <div class="ensure-cash" v-if="item.isLockprice==1">保证金：{{item.ensureCash | formatPriceTwo}}元</div>
                                 <div class="weight-time">
-                                    <span>总克重：{{item.weight}}克</span>
-                                    <span>{{item.time}}</span>
+                                    <span>总克重：{{item.applyWeight}}克</span>
+                                    <span>{{item.createTime}}</span>
                                 </div>
                             </div>
                         </div>
@@ -66,13 +66,14 @@ import headTop from '@/components/header/head.vue'
                     pageNo: 1,
                     pageSize: 10
             	},
+                pages:'',             // 总页数
                 statusJson:{
                     '0':{name:'待审核'},
-                    '1':{name:'已取消'},
+                    '1':{name:'审核失败'},
                     '2':{name:'审核通过'},
                     '3':{name:'物流中'},
                     '4':{name:'检测中'},
-                    '5':{name:'检测不通过'},
+                    '5':{name:'退货中'},
                     '6':{name:'待确认'},
                     '7':{name:'已完成'},
                     '8':{name:'已取消'},
@@ -83,135 +84,152 @@ import headTop from '@/components/header/head.vue'
                     '13':{name:'已关闭'},
                 },
                 typeJson:{ // 存金类型
-                    '0':'直接变现',
-                    '1':'存入克重',
+                    '0':'存入克重',
+                    '1':'直接变现',
                 },
                 orderList:[
                     {
-                        goldType:'投资金',
+                        productType:0,
                         status:0,
-                        orderNo:'TR180309141234033476',
+                        code:'TR180309141234033476',
                         tradeType:0, // 存入克重or直接变现
-                        lockStatus:0, // 是否锁价
-                        weight:23.456,
-                        time:'2018-03-05 09:38',
+                        isLockprice:1, // 是否锁价
+                        applyWeight:23.456,
+                        createTime:'2018-03-05 09:38',
+                        cash:1,
+                        ensureCash:543.345
                     },
                     {
-                        goldType:'首饰',
+                        productType:1,
                         status:1,
-                        orderNo:'TR180309141234033476',
+                        code:'TR180309141234033476',
                         tradeType:0,
-                        lockStatus:1,
-                        weight:23.456,
-                        time:'2018-03-05 09:38',
+                        isLockprice:1,
+                        applyWeight:23.456,
+                        createTime:'2018-03-05 09:38',
+                        cash:0,
+                        ensureCash:543.345
                     },
                     {
-                        goldType:'投资金',
+                        productType:0,
                         status:2,
-                        orderNo:'TR180309141234033476',
+                        code:'TR180309141234033476',
                         tradeType:0,
-                        lockStatus:0,
-                        weight:23.456,
-                        time:'2018-03-05 09:38',
+                        isLockprice:0,
+                        applyWeight:23.456,
+                        createTime:'2018-03-05 09:38',
+                        cash:0,
                     },
                     {
-                        goldType:'投资金',
+                        productType:1,
                         status:3,
-                        orderNo:'TR180309141234033476',
+                        code:'TR180309141234033476',
                         tradeType:1,
-                        lockStatus:0,
-                        weight:23.456,
-                        time:'2018-03-05 09:38',
+                        isLockprice:0,
+                        applyWeight:23.456,
+                        createTime:'2018-03-05 09:38',
+                        cash:0,
                     },
                     {
-                        goldType:'投资金',
+                        productType:0,
                         status:4,
-                        orderNo:'TR180309141234033476',
+                        code:'TR180309141234033476',
                         tradeType:0,
-                        lockStatus:1,
-                        weight:23.456,
-                        time:'2018-03-05 09:38',
+                        isLockprice:1,
+                        applyWeight:23.456,
+                        createTime:'2018-03-05 09:38',
+                        cash:0,
+                        ensureCash:543.345
                     },
                     {
-                        goldType:'投资金',
+                        productType:1,
                         status:5,
-                        orderNo:'TR180309141234033476',
+                        code:'TR180309141234033476',
                         tradeType:0,
-                        lockStatus:0,
-                        weight:23.456,
-                        time:'2018-03-05 09:38',
+                        isLockprice:0,
+                        applyWeight:23.456,
+                        createTime:'2018-03-05 09:38',
+                        cash:0,
                     },
                     {
-                        goldType:'投资金',
+                        productType:1,
                         status:6,
-                        orderNo:'TR180309141234033476',
+                        code:'TR180309141234033476',
                         tradeType:0,
-                        lockStatus:0,
-                        weight:23.456,
-                        time:'2018-03-05 09:38',
+                        isLockprice:0,
+                        applyWeight:23.456,
+                        createTime:'2018-03-05 09:38',
+                        cash:0,
                     },
                     {
-                        goldType:'投资金',
+                        productType:1,
                         status:7,
-                        orderNo:'TR180309141234033476',
+                        code:'TR180309141234033476',
                         tradeType:0,
-                        lockStatus:0,
-                        weight:23.456,
-                        time:'2018-03-05 09:38',
+                        isLockprice:0,
+                        applyWeight:23.456,
+                        createTime:'2018-03-05 09:38',
+                        cash:0,
                     },
                     {
-                        goldType:'投资金',
+                        productType:0,
                         status:8,
-                        orderNo:'TR180309141234033476',
+                        code:'TR180309141234033476',
                         tradeType:0,
-                        lockStatus:0,
-                        weight:23.456,
-                        time:'2018-03-05 09:38',
+                        isLockprice:0,
+                        applyWeight:23.456,
+                        createTime:'2018-03-05 09:38',
+                        cash:0,
                     },
                     {
-                        goldType:'投资金',
+                        productType:0,
                         status:9,
-                        orderNo:'TR180309141234033476',
+                        code:'TR180309141234033476',
                         tradeType:0,
-                        lockStatus:0,
-                        weight:23.456,
-                        time:'2018-03-05 09:38',
+                        isLockprice:0,
+                        applyWeight:23.456,
+                        createTime:'2018-03-05 09:38',
+                        cash:0,
                     },
                     {
-                        goldType:'投资金',
+                        productType:0,
                         status:10,
-                        orderNo:'TR180309141234033476',
+                        code:'TR180309141234033476',
                         tradeType:0,
-                        lockStatus:0,
-                        weight:23.456,
-                        time:'2018-03-05 09:38',
+                        isLockprice:0,
+                        applyWeight:23.456,
+                        createTime:'2018-03-05 09:38',
+                        cash:0,
                     },
                     {
-                        goldType:'投资金',
+                        productType:0,
                         status:11,
-                        orderNo:'TR180309141234033476',
+                        code:'TR180309141234033476',
                         tradeType:0,
-                        lockStatus:0,
-                        weight:23.456,
-                        time:'2018-03-05 09:38',
+                        isLockprice:0,
+                        applyWeight:23.456,
+                        createTime:'2018-03-05 09:38',
+                        cash:0,
                     },
                     {
-                        goldType:'投资金',
+                        productType:0,
                         status:12,
-                        orderNo:'TR180309141234033476',
+                        code:'TR180309141234033476',
                         tradeType:0,
-                        lockStatus:0,
-                        weight:23.456,
-                        time:'2018-03-05 09:38',
+                        isLockprice:0,
+                        applyWeight:23.456,
+                        createTime:'2018-03-05 09:38',
+                        cash:0,
                     },
                     {
-                        goldType:'投资金',
+                        productType:1,
                         status:13,
-                        orderNo:'TR180309141234033476',
+                        code:'TR180309141234033476',
                         tradeType:0,
-                        lockStatus:0,
-                        weight:23.456,
-                        time:'2018-03-05 09:38',
+                        isLockprice:0,
+                        applyWeight:23.456,
+                        createTime:'2018-03-05 09:38',
+                        cash:0,
                     },
                 ]
             }
@@ -226,13 +244,55 @@ import headTop from '@/components/header/head.vue'
 
         },
         methods: {
+            // 首次进入请求数据
+            async requestList(){
+                var res=await query_list(this.searchCondition.pageNo,this.searchCondition.pageSize);
+                if(res.code==200){
+                    this.orderList = res.data.list;
+                    this.pages=res.data.pages;
+                    if(this.searchCondition.pageNo>=this.pages){
+                       this.allLoaded=true;  //数据加载完，bottomMethod则不再执行
+                    }
+                }
+                return timestamp1;
+            },
+            // 加载更多
+            // loadMore(){
+            //     this.searchCondition.pageNo=this.searchCondition.pageNo+1;
+            //     var res=await query_list(this.searchCondition.pageNo,this.searchCondition.pageSize);
+            //     if(res.code==200){
+            //       this.orderList=this.orderList.concat(res.data.list);
+            //       if(this.searchCondition.pageNo>=this.pages){
+            //            this.allLoaded=true;  //数据加载完，bottomMethod则不再执行
+            //       }
+            //     }
+            // },
             loadBottom(){  //上拉加载
                 var that = this;
                 setTimeout(function(){
-                    console.log('加载更多')
+                    // that.loadMore();
                     that.$refs.loadmore.onBottomLoaded();
                 },800)
             },
+        },
+        updated(){
+          if(this.allLoaded){
+             //创建标签 提示内容已到底部 加载完毕
+             var dv=document.querySelector('.hasBottom');
+             if(dv){
+              dv.parentNode.removeChild(dv)
+            }
+            var p=document.createElement('p');
+            p.classList.add('hasBottom')
+            p.innerHTML='已经到底了~';
+            p.style.fontSize='0.28rem';
+            p.style.color = '#999999';
+            p.style.width='100%';
+            p.style.height='1rem';
+            p.style.lineHeight ='1rem';
+            p.style.textAlign = 'center';
+            document.querySelector('.order-list').appendChild(p)
+          }
         },
         created(){
 

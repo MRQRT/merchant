@@ -3,6 +3,7 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import store from './store'
 import MintUI from 'mint-ui'
 import VueAwesomeSwiper from 'vue-awesome-swiper'
 
@@ -54,6 +55,7 @@ Vue.prototype.fixed = function(status){
 export let a = new Vue({
   el: '#app',
   router,
+  store,
   components: { App },
   template: '<App/>'
 })

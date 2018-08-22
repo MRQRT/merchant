@@ -83,19 +83,19 @@
         <!-- 其他状态订单 -->
         <div class="main-cont" v-else>
             <!-- 异常取消状态 -->
-            <div class="abnormal-cancel" v-if="status === 8">
+            <div class="abnormal-cancel" v-if="status == 8">
                 <img src="static/images/shopmsnopass.png" alt="">
                 <h3>订单已取消</h3>
                 <p>您可以重新填写订单，风里雨里我们在这等你</p>
             </div>
-            <div class="distans" v-if="status === 8"></div>
+            <div class="distans" v-if="status == 8"></div>
             <!-- 顶部状态 -->
             <div class="top-info">
                 <div class="orderNo">
-                    <span>订单编号：{{'CJ20180305001'}}</span>
-                    <span class="status">{{iconJson[status].name}}</span>
+                    <span>订单编号：{{orderInfo.code}}</span>
+                    <span class="status" v-if="status!=8">{{iconJson[status].name}}</span>
                 </div>
-                <div class="create-time">提交时间：2018-03-05 09:38</div>
+                <div class="create-time">提交时间：{{orderInfo.createTime}}</div>
             </div>
             <div class="distans"></div>
             <!-- 中间进度显示 -->
@@ -138,28 +138,30 @@
                 <div class="order-info">
                     <p>
                         <span>存金类型</span>
-                        <span>投资金</span>
+                        <span>{{typeJson[orderInfo.productType]}}</span>
                     </p>
                     <p>
                         <span>总克重</span>
-                        <span>200克</span>
+                        <span>{{orderInfo.applyWeight}}克</span>
                     </p>
                     <p>
                         <span>数量</span>
-                        <span>4件</span>
+                        <span>{{orderInfo.applyQuantity}}件</span>
                     </p>
                     <p>
                         <span>存金方式</span>
-                        <span>直接变现</span>
+                        <span>{{cashJson[orderInfo.cash]}}</span>
                     </p>
-                    <p>
-                        <span>锁价保证金</span>
-                        <span>1500.00元</span>
-                    </p>
-                    <p>
-                        <span>锁定金价<b @click="lockPricePopup"></b></span>
-                        <span class="special-color">276.15元/克</span>
-                    </p>
+                    <div class="" v-if="orderInfo.isLockprice==0">
+                        <p>
+                            <span>锁价保证金</span>
+                            <span>{{orderInfo.ensure_cash}}元</span>
+                        </p>
+                        <p>
+                            <span>锁定金价<b @click="lockPricePopup"></b></span>
+                            <span class="special-color">{{orderInfo.lockPrice}}元/克</span>
+                        </p>
+                    </div>
                 </div>
             </div>
             <div class="distans"></div>
@@ -300,6 +302,14 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                 popupNum:'',           // 哪个弹窗显示
                 trackingStatus:false,  // 订单追踪显示、隐藏
                 stepTipText:'',        // 进度提示文字
+                typeJson:{
+                    '0':'投资金',
+                    '1':'首饰',
+                },
+                cashJson:{
+                    '0':'存入克重',
+                    '1':'直接变现',
+                },
                 stepList:[
                     {name:'订单审核'},
                     {name:'物流运输'},
@@ -314,11 +324,11 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                         iconType: 属于哪个图标
                     **/
                     '0':{name:'待审核',status:1,iconType:0,beforeStatus:1},
-                    '1':{name:'已取消',status:2,iconType:0,beforeStatus:1},
+                    '1':{name:'审核失败',status:2,iconType:0,beforeStatus:1},
                     '2':{name:'审核通过',status:1,iconType:0,beforeStatus:1},
                     '3':{name:'物流中',status:1,iconType:1,beforeStatus:0},
                     '4':{name:'检测中',status:1,iconType:2,beforeStatus:1},
-                    '5':{name:'检测不通过',status:3,iconType:3,beforeStatus:1},
+                    '5':{name:'退货中',status:3,iconType:3,beforeStatus:1},
                     '6':{name:'待确认',status:1,iconType:3,beforeStatus:1},
                     '7':{name:'已完成',status:1,iconType:4,beforeStatus:1},
                     '8':{name:'已取消',status:1,iconType:3,beforeStatus:1},
@@ -327,6 +337,32 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                     '11':{name:'已失效',status:0,iconType:'',beforeStatus:1},
                     '12':{name:'物流异常',status:0,iconType:'',beforeStatus:1},
                     '13':{name:'已关闭',status:4,iconType:4,beforeStatus:1},
+                },
+                orderInfo:{
+                    code:37467288374467364,
+                    createTime:'2018-08-20 12:20:34',
+                    status:0,
+                    productType:0,
+                    applyWeight:3.23,
+                    isLockprice:1,
+                    cash:0,
+                    lockPrice:256.34,
+                    ensure_cash:3452.234,
+                    applyQuantity:3,
+                },
+                orderTrackJson:{
+                    '1':{name:'订单已提交'},
+                    '2':{name:'已支付锁价保证金'},
+                    '3':{name:'订单审核通过'},
+                    '4':{name:'订单审核未通过'},
+                    '5':{name:'平台已签收'},
+                    '6':{name:'存金检测完毕-检测通过'},
+                    '7':{name:'存金检测完毕-检测未通过'},
+                    '8':{name:'已确认检测报告'},
+                    '9':{name:'平台已退货'},
+                    '10':{name:'保证金已退还'},
+                    '11':{name:'订单完成'},
+                    '12':{name:'订单已取消'},
                 },
                 orderTracking:[
                     {
@@ -404,12 +440,12 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                     this.fixed(false)
                 }
             },
-            // 显示检测报告
+            // 显示检测报告、物流信息
             stepTipText(val){
                 var that = this;
                 if(val){
                     this.$nextTick().then(function () { // 物流信息
-                        if(that.squreNum==3 && (that.status==9 || that.status==13)){
+                        if(that.squreNum==3 && (that.status==9 || that.status==13)){ // 退货中、已关闭既有报告，又有物流
                             that.showReport();
                             that.showDelivery();
                         }else if(that.squreNum==1){ // 物流信息
@@ -429,6 +465,7 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                     that.lookPopup(1)
                 }
             },
+            // 物流信息弹窗
             showDelivery(){
                 var that = this;
                 document.getElementById('delivery').onclick=function(){
@@ -454,10 +491,11 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                 this.popupVisible = false;
                 this.fixed(false);
             },
-            // 订单追踪
+            // 订单追踪显示、隐藏
             showList(){
                 this.trackingStatus = !this.trackingStatus;
             },
+            // 进度提示文字
             showTips(isClick,index,event,status,islock){
                 var text0 = '<p>我们正在马不停蹄地审核您的订单哦，审核结果将在2个工作日内通知到您！请耐心等待～</p>';
                 var text1 = `<p>恭喜您，订单审核通过！</p>
@@ -470,7 +508,8 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                 var text6 = '<p>亲，专业检测师紧锣密鼓地开工啦！1个工作日内就会有结果哦！</p>'
                 var text7 = '<p>您的订单检测完毕！请尽快查看并确认<span id="report" style="color:#C09C60;border-bottom:1px solid #C09C60">检测报告</span>哦！</p>'
                 var text8 = `<p>亲，只差最后一步啦，快来看看您的<span id="report" style="color:#C09C60;border-bottom:1px solid #C09C60">检测报告</span>吧~三个工作日后将自动确认，如您对检测结果有任何疑问，请联系客服：4008-196-199</p>`
-                var text9 = '<p>很抱歉，您的订单检测未通过，查看<span id="report" style="color:#C09C60;border-bottom:1px solid #C09C60">检测报告</span>，我们已安排您的宝贝回家，物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">SFXXXXXXXXXX</span></p>'
+                var text9 = `<p>很抱歉，您的订单检测未通过，查看<span id="report" style="color:#C09C60;border-bottom:1px solid #C09C60">检测报告</span>
+                             <p>我们已安排您的宝贝回家，物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">SFXXXXXXXXXX</span></p>`
                 var text10 = '<p>恭喜啦，您的黄金成功卖出，T+1个工作日内到账，锁价保证金会同时返还至您的银行卡，具体以银行实际到账时间为准哦！</p>'
                 var text11 = '<p>恭喜啦，您的黄金成功卖出，T+1个工作日内到账，具体以银行实际到账时间为准哦！</p>'
                 var text12 = '<p>存金已退还，订单关闭</p>'
@@ -486,11 +525,15 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                     '9':text9,  // 退货中
                     '13':text12,// 已关闭
                 }
-                this.squreNum = index;
                 if(isClick){ // 如果是点击显示
                     if(event.currentTarget.classList.contains('stepSuccess')){ // 只有成功状态可点击
+                        this.squreNum = index;
                         if(index == 3){ // 第4个图标判断是确认还是退货
-                            this.stepTipText = (status==6 || status==7) ? text8 : text9;
+                            if(status==5){
+                                this.stepTipText=text13;
+                            }else{
+                                this.stepTipText = (status==6 || status==7) ? text8 : text9;
+                            }
                         }else if(index == 4){ // 第5个图标判断是完成还是关闭
                             if(status==7){
                                 this.stepTipText = islock ? text10 : text11; // 完成：判断是否锁价
@@ -513,6 +556,7 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
 
                     }
                 }else{ // 初次进入页面直接显示
+                    this.squreNum = index;
                     if(status==1){ // 审核未通过，判断是否锁价
                         this.stepTipText = islock ? text3 : text2;
                     }else if(status==7){ // 已完成订单，判断是否锁价
@@ -1000,7 +1044,7 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
     .delivery-wrap,.report-wrap{
         .top-wrap{
             width: 6.7rem;
-            max-height: 9.2rem;
+            max-height: 8.2rem;
             padding:.3rem;
             background-color: #fff;
             overflow: scroll;
@@ -1018,10 +1062,10 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                 position: relative;
                 .line{
                     width:1px;
-                    height: 160%;
+                    height: 185%;
                     position: absolute;
                     left:1.1rem;
-                    top:.44rem;
+                    top:.3rem;
                     background-color: #999999;
                 }
                 .delivery-item{
