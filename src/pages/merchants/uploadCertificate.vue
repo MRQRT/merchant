@@ -40,6 +40,7 @@ import license from 'static/images/license.png'
 import idcard1 from 'static/images/idcard1.png'
 import idcard2 from 'static/images/idcard2.png'
 import {Indicator} from 'mint-ui'
+import { compress } from '@/config/mUtils.js'
 
     export default {
         data(){
@@ -60,12 +61,13 @@ import {Indicator} from 'mint-ui'
         },
         methods: {
             selectImage(val,e){
-                console.log(val)
+                // console.log(val)
                 if (!e.target.files || !e.target.files[0]){
 				return;
                 }
                 Indicator.open();
                 var that=this;
+                // 将图片文件转成BASE64格式
                 let reader = new FileReader();
                 reader.readAsDataURL(e.target.files[0]);
                 reader.onload =function(evt){
@@ -73,12 +75,14 @@ import {Indicator} from 'mint-ui'
                     if(val=='license'){
                         that.license = evt.target.result;
                         var lic = document.getElementById("license").files; 
-                        alert(lic[0].size/1024/1024)
-                        if(lic[0].size/1024/1024>3){
+                        // alert(lic[0].size/1024/1024)
+                        // if(lic[0].size/1024/1024>3){
                             //进行压缩
-                            alert('压缩')
+                            // alert('压缩')
+                            // console.log(compress)
                             //压缩完后进行回调上传
-                        }
+                            compress(reader.result)
+                        // }
                     }else if(val=='idcard1'){
                         that.idcard1 = evt.target.result;
                         var id1 = document.getElementById("idcard1").files; 
@@ -91,6 +95,7 @@ import {Indicator} from 'mint-ui'
                         var id2 = document.getElementById("idcard2").files; 
                         if(id2[0].size/1024/1024>3){
                             //进行压缩
+                            alert("压缩")
                         }
                     }
                     // that.createImage(evt.target.result);

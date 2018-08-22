@@ -6,9 +6,9 @@
         </head-top>
         <!-- 主体内容 -->
         <!-- 待支付订单 -->
-        <div class="main-cont" v-if="status==11">
+        <div class="main-cont" v-if="status==10 || status==11">
             <!-- 顶部倒计时 -->
-            <div class="countDown">
+            <div class="countDown" v-if="status==10">
                 <p class="clock-icon"></p>
                 <p class="clock-text">
                     <span>待支付</span>
@@ -16,7 +16,7 @@
                 </p>
             </div>
             <!-- 已失效提示 -->
-            <div class="order-cancel" v-if="timeOut">
+            <div class="order-cancel" v-if="status==11">
                 <p class="wraning-icon"></p>
                 <p class="clock-text">
                     <span>订单已失效</span>
@@ -72,7 +72,7 @@
                 <span>工商银行(尾号1234)</span>
             </div>
             <!-- 底部按钮 -->
-            <div class="pay-btn">
+            <div class="pay-btn" v-if="status==10">
                 <div class="left-price">
                     <span>锁价保证金</span>
                     <span>15679.00元</span>
@@ -82,6 +82,13 @@
         </div>
         <!-- 其他状态订单 -->
         <div class="main-cont" v-else>
+            <!-- 异常取消状态 -->
+            <div class="abnormal-cancel" v-if="status === 8">
+                <img src="static/images/shopmsnopass.png" alt="">
+                <h3>订单已取消</h3>
+                <p>您可以重新填写订单，风里雨里我们在这等你</p>
+            </div>
+            <div class="distans" v-if="status === 8"></div>
             <!-- 顶部状态 -->
             <div class="top-info">
                 <div class="orderNo">
@@ -92,25 +99,27 @@
             </div>
             <div class="distans"></div>
             <!-- 中间进度显示 -->
-            <div class="middle-step">
+            <div class="middle-step" v-if="status != 8">
                 <div class="step-img">
                     <ul>
-                        <li class="step-item" v-for="(item,index) in stepList" :key="index"
-                        :class="{'stepSuccess':iconJson[status].status==1 && iconJson[status].iconType>=index,'stepError':iconJson[status].status==2 && iconJson[status].iconType==index}">
+                        <li class="step-item" v-for="(item,index) in stepList" :key="index" @click="showTips(1,index,$event,status,isLockOrder)"
+                        :class="{'stepSuccess':(iconJson[status].status==1 || iconJson[status].beforeStatus==1) && iconJson[status].iconType>=index,
+                        'stepError':iconJson[status].status==2 && iconJson[status].iconType==index,
+                        'stepSpecial':iconJson[status].status==3 && (index==3 || index==4),
+                        'stepClosed':iconJson[status].status==4 && index==4}">
                             <span class="step-icon"></span>
-                            <span class="step-txt">{{item.name}}</span>
-                            <span class="left-line"></span>
-                            <span class="squre" v-show="iconJson[status].iconType==index"></span>
+                            <span class="step-txt" v-if="index==3 && (status==5 || status==9 || status==13)">&nbsp;&nbsp;退货中&nbsp;</span>
+                            <span class="step-txt" v-else-if="index==4 && (status==5 || status==9 || status==13)">订单关闭</span>
+                            <span class="step-txt" v-else>{{item.name}}</span>
+                            <span class="left-line" :class="{'active-line':status==2 && iconJson[status].iconType==(index -1)}"></span>
+                            <span class="squre" v-show="squreNum==index"></span>
                         </li>
                     </ul>
                 </div>
-                <div class="step-tip">
-                    <!-- <p>我们正在马不停蹄的审核您的订单，审核结果将在2个工作日内通知到您！请耐心等待～</p> -->
-                    <p>快递小哥正在用心传递速度，物流单号：<span style="color:#C09C60" @click="lookPopup(1)">023083120643</span>
-                        孙吉光／138*******1 北京市海淀区海淀北一街中关村S</p>
-                </div>
+                <!-- 对应文字提示 -->
+                <div class="step-tip" id="reportWrap" v-html="stepTipText"></div>
             </div>
-            <div class="distans"></div>
+            <div class="distans" v-if="status != 8"></div>
             <!-- 地址信息 -->
             <div class="address-info">
                 <div class="left-icon"></div>
@@ -259,8 +268,12 @@
                         <div class="report-img">
                             <img src="static/images/storeGold-banner.png" alt="">
                         </div>
-                        <div class="report-btn">
-                            <span>确认订单</span>
+                        <!-- 异常情况 -->
+                        <div class="report-btn" v-if="status==5 || status==9 || status==13"><a href="tel:4001689999">联系客服</a></div>
+                        <!-- 待确认、已完成情况 -->
+                        <div class="report-btn" v-else>
+                            <span v-if="status==7" style="color:#999">已确认</span>
+                            <span v-else>确认订单</span>
                             <span><a href="tel:4001689999">联系客服</a></span>
                         </div>
                     </div>
@@ -277,43 +290,43 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
     export default {
         data(){
             return{
-                status:'',             // 状态
+                deliveryNo:238487737766,
+                isLockOrder:0,         // 是否是锁价订单
+                isClick:0,             // 进度提示是否是点击显示
+                squreNum:null,         // 提示三角显示隐藏
+                status:'',             // 订单状态
                 timeOut:false,         // 订单是否超时
-                popupVisible:false,   // 信息弹窗显示隐藏
-                popupNum:'',          // 哪个弹窗显示
+                popupVisible:false,    // 信息弹窗显示隐藏
+                popupNum:'',           // 哪个弹窗显示
                 trackingStatus:false,  // 订单追踪显示、隐藏
-                // statusJson:{  // 订单状态
-                //     '0':{name:'待支付'},
-                //     '1':{name:'审核中'},
-                //     '2':{name:'审核通过'},
-                //     '3':{name:'物流中'},
-                //     '4':{name:'检测中'},
-                //     '5':{name:'待确认'},
-                //     '6':{name:'已完成'},
-                //     '7':{name:'已失效'},
-                //     '8':{name:'已取消'},
-                // },
+                stepTipText:'',        // 进度提示文字
                 stepList:[
                     {name:'订单审核'},
                     {name:'物流运输'},
                     {name:'存金检测'},
                     {name:'订单确认'},
+                    {name:'订单完成'},
                 ],
-                iconJson:{ // icon显示样式(0:未开始；1:进行中；2:失败)
-                    '0':{name:'待审核',status:1,iconType:0},
-                    '1':{name:'审核未通过',status:2,iconType:0},
-                    '2':{name:'审核通过',status:1,iconType:0},
-                    '3':{name:'物流中',status:1,iconType:1},
-                    '4':{name:'检测中',status:1,iconType:2},
-                    '5':{name:'待确认',status:1,iconType:2},
-                    '6':{name:'检测不通过',status:2,iconType:2},
-                    '7':{name:'用户不同意',status:1,iconType:2},
-                    '8':{name:'已完成',status:1,iconType:3},
-                    '9':{name:'已取消',status:2,iconType:3},
-                    '10':{name:'已退货',status:0,iconType:3},
-                    '11':{name:'未支付',status:0,iconType:3},
-                    '12':{name:'已失败',status:0,iconType:3},
-                    '13':{name:'物流异常',status:0,iconType:3},
+                iconJson:{
+                    /** icon显示样式
+                        status: 0:未开始；1:进行中；2:失败；3:退货中；4:订单关闭
+                        beforeStatus: 之前状态是否完成
+                        iconType: 属于哪个图标
+                    **/
+                    '0':{name:'待审核',status:1,iconType:0,beforeStatus:1},
+                    '1':{name:'已取消',status:2,iconType:0,beforeStatus:1},
+                    '2':{name:'审核通过',status:1,iconType:0,beforeStatus:1},
+                    '3':{name:'物流中',status:1,iconType:1,beforeStatus:0},
+                    '4':{name:'检测中',status:1,iconType:2,beforeStatus:1},
+                    '5':{name:'检测不通过',status:3,iconType:3,beforeStatus:1},
+                    '6':{name:'待确认',status:1,iconType:3,beforeStatus:1},
+                    '7':{name:'已完成',status:1,iconType:4,beforeStatus:1},
+                    '8':{name:'已取消',status:1,iconType:3,beforeStatus:1},
+                    '9':{name:'退货中',status:3,iconType:3,beforeStatus:1},
+                    '10':{name:'未支付',status:0,iconType:'',beforeStatus:1},
+                    '11':{name:'已失效',status:0,iconType:'',beforeStatus:1},
+                    '12':{name:'物流异常',status:0,iconType:'',beforeStatus:1},
+                    '13':{name:'已关闭',status:4,iconType:4,beforeStatus:1},
                 },
                 orderTracking:[
                     {
@@ -385,13 +398,43 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
 
         },
         watch:{
+            // 弹窗关闭解除禁止页面滚动
             popupVisible(val){
                 if(!this.popupVisible){
                     this.fixed(false)
                 }
-            }
+            },
+            // 显示检测报告
+            stepTipText(val){
+                var that = this;
+                if(val){
+                    this.$nextTick().then(function () { // 物流信息
+                        if(that.squreNum==3 && (that.status==9 || that.status==13)){
+                            that.showReport();
+                            that.showDelivery();
+                        }else if(that.squreNum==1){ // 物流信息
+                            that.showDelivery();
+                        }else if((that.squreNum==2 || that.squreNum==3) && that.status!=4){ // 检测报告
+                            that.showReport();
+                        }
+                    }.bind(this))
+                }
+            },
         },
         methods: {
+            // 检测报告弹窗
+            showReport(){
+                var that = this;
+                document.getElementById('report').onclick=function(){
+                    that.lookPopup(1)
+                }
+            },
+            showDelivery(){
+                var that = this;
+                document.getElementById('delivery').onclick=function(){
+                    that.lookPopup(0)
+                }
+            },
             // 锁价解释弹窗
             lockPricePopup(){
                 MessageBox({
@@ -411,15 +454,80 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                 this.popupVisible = false;
                 this.fixed(false);
             },
+            // 订单追踪
             showList(){
                 this.trackingStatus = !this.trackingStatus;
             },
+            showTips(isClick,index,event,status,islock){
+                var text0 = '<p>我们正在马不停蹄地审核您的订单哦，审核结果将在2个工作日内通知到您！请耐心等待～</p>';
+                var text1 = `<p>恭喜您，订单审核通过！</p>
+                             <p>我们已经安排快递小哥上门取件啦，请留意接听取件电话</p>`;
+                var text2 = '<p>订单审核未通过，您可以重新填写订单，风里雨里我们在这里等您！</p>';
+                var text3 = '<p>订单审核未通过，锁价定金将在3个工作日内退回至绑定银行卡，您可以重新填写订单，风里雨里我们在这里等您！</p>'
+                var text4 = `<p>快递小哥正在用心传递速度，物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">${this.deliveryNo}</span></p>`;
+                var text5 = `<p>亲爱的用户，您的宝贝我们收到啦~</p>
+                             <p>物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">${this.deliveryNo}<span></p>`;
+                var text6 = '<p>亲，专业检测师紧锣密鼓地开工啦！1个工作日内就会有结果哦！</p>'
+                var text7 = '<p>您的订单检测完毕！请尽快查看并确认<span id="report" style="color:#C09C60;border-bottom:1px solid #C09C60">检测报告</span>哦！</p>'
+                var text8 = `<p>亲，只差最后一步啦，快来看看您的<span id="report" style="color:#C09C60;border-bottom:1px solid #C09C60">检测报告</span>吧~三个工作日后将自动确认，如您对检测结果有任何疑问，请联系客服：4008-196-199</p>`
+                var text9 = '<p>很抱歉，您的订单检测未通过，查看<span id="report" style="color:#C09C60;border-bottom:1px solid #C09C60">检测报告</span>，我们已安排您的宝贝回家，物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">SFXXXXXXXXXX</span></p>'
+                var text10 = '<p>恭喜啦，您的黄金成功卖出，T+1个工作日内到账，锁价保证金会同时返还至您的银行卡，具体以银行实际到账时间为准哦！</p>'
+                var text11 = '<p>恭喜啦，您的黄金成功卖出，T+1个工作日内到账，具体以银行实际到账时间为准哦！</p>'
+                var text12 = '<p>存金已退还，订单关闭</p>'
+
+                var text13 = '<p>很抱歉，您的订单检测未通过，查看<span id="report" style="color:#C09C60;border-bottom:1px solid #C09C60">检测报告</span></p>'
+                var textJson = {
+                    '0':text0,  // 审核中
+                    '2':text1,  // 审核通过
+                    '3':text4,  // 物流中
+                    '4':text6,  // 检测中
+                    '5':text13,  // 检测不通过
+                    '6':text8,  // 待确认
+                    '9':text9,  // 退货中
+                    '13':text12,// 已关闭
+                }
+                this.squreNum = index;
+                if(isClick){ // 如果是点击显示
+                    if(event.currentTarget.classList.contains('stepSuccess')){ // 只有成功状态可点击
+                        if(index == 3){ // 第4个图标判断是确认还是退货
+                            this.stepTipText = (status==6 || status==7) ? text8 : text9;
+                        }else if(index == 4){ // 第5个图标判断是完成还是关闭
+                            if(status==7){
+                                this.stepTipText = islock ? text10 : text11; // 完成：判断是否锁价
+                            }else{
+                                this.stepTipText = text12;  // 关闭订单
+                            }
+                        }else{
+                            switch(index){
+                                case 0:
+                                    this.stepTipText = status==0?text0:text1; // 避免在当前状态点击切换
+                                    break;
+                                case 1:
+                                    this.stepTipText = status==3?text4:text5;
+                                    break;
+                                case 2:
+                                    this.stepTipText = status==4?text6:text7;
+                                    break;
+                            }
+                        }
+
+                    }
+                }else{ // 初次进入页面直接显示
+                    if(status==1){ // 审核未通过，判断是否锁价
+                        this.stepTipText = islock ? text3 : text2;
+                    }else if(status==7){ // 已完成订单，判断是否锁价
+                        this.stepTipText = islock ? text10 : text11;
+                    }else{ // 其他状态
+                        this.stepTipText = textJson[status]
+                    }
+                }
+            }
         },
         created(){
             this.status = this.$route.query.status;
         },
         mounted(){
-
+            this.showTips(this.isClick,this.iconJson[this.status].iconType,'',this.status,this.isLockOrder);
         },
     }
 
@@ -551,6 +659,27 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
             height:.2rem;
             background-color: #f8f8f8;
         }
+        .abnormal-cancel{
+            width: 100%;
+            text-align: center;
+            background-color: #fff;
+            padding:.6rem 0 .4rem;
+            img{
+                display: inline-block;
+                width: 1rem;
+                height: 1rem;
+                margin:0 auto;
+            }
+            h3{
+                color: #333;
+                font-size: .3rem;
+                margin:.3rem 0 .2rem;
+            }
+            p{
+                color: #666;
+                font-size: .26rem;
+            }
+        }
         .top-info{
             padding:.4rem;
             color: #666;
@@ -601,25 +730,33 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                                 @include bg-image('/static/images/order-error.png');
                             }
                         }
+                        &:nth-of-type(5){
+                            .step-icon{
+                                @include bg-image('/static/images/order-end.png');
+                            }
+                        }
                         .step-icon{
                             display: inline-block;
-                            width: .8rem;
-                            height: .8rem;
-                            margin: 0 auto .15rem;
+                            width: .6rem;
+                            height: .6rem;
+                            margin: 0 auto .2rem;
                             @include border-radius(50%);
                             @include bg-image('/static/images/check-ing.png');
                         }
                         .step-txt{
-                            color: #333;
+                            color: #666;
                             font-size: .22rem;
                         }
                         .left-line{
-                            width: .94rem;
+                            width: .74rem;
                             height: .4rem;
                             position: absolute;
-                            left:-1rem;
-                            top:.4rem;
+                            left:-.6rem;
+                            top:.3rem;
                             @include bg-image('/static/images/step-nomal.png');
+                        }
+                        .active-line{
+                            @include bg-image('/static/images/step-special.png');
                         }
                         .squre{
                             display: inline-block;
@@ -628,10 +765,11 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                             background-color: #F5F5F5;
                             position: absolute;
                             bottom:-.3rem;
-                            left:50%;
+                            left:48%;
                             @include rotate(45deg);
                         }
                     }
+                    /**** 成功样式 *****/
                     .stepSuccess{
                         &:nth-of-type(2){
                             .step-icon{
@@ -648,10 +786,16 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                                 @include bg-image('/static/images/order-over.png');
                             }
                         }
+                        &:nth-of-type(5){
+                            .step-icon{
+                                @include bg-image('/static/images/order-ended.png');
+                            }
+                        }
                         .left-line{
                             @include bg-image('/static/images/step-special.png');
                         }
                     }
+                    /***** 失败样式 ******/
                     .stepError{
                         &:nth-of-type(1){
                             .step-icon{
@@ -670,11 +814,31 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                         }
                         &:nth-of-type(4){
                             .step-icon{
-                                @include bg-image('/static/images/order-cancel.png');
+                                @include bg-image('/static/images/order-return.png');
                             }
                         }
                         .left-line{
                             @include bg-image('/static/images/step-special.png');
+                        }
+                    }
+                    /*** 特殊样式 ****/
+                    .stepSpecial{
+                        &:nth-of-type(4){  // 退货中icon
+                            .step-icon{
+                                @include bg-image('/static/images/order-return.png');
+                            }
+                        }
+                        &:nth-of-type(5){ // 订单关闭icon
+                            .step-icon{
+                                @include bg-image('/static/images/order-close.png');
+                            }
+                        }
+                    }
+                    /*** 关闭成功样式 ***/
+                    .stepClosed{
+                        .step-icon{
+                            background: url('/static/images/order-closed.png') no-repeat !important;
+                            background-size: 100% !important;
                         }
                     }
                 }
