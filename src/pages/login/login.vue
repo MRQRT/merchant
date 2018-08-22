@@ -7,7 +7,7 @@
     <section class="logoPart">
         <img src="static/images/logo.png">
     </section>
-    <!--登录方式模块-->
+    <!--登录模块-->
 	<section class="loginPart">
         <!--登录方式切换-->
         <div class="tabPart">
@@ -54,12 +54,12 @@
          </div>
     </section>
     <!--登录按钮-->
-    <div class="login"  @click="goToNext" ref="login">
-        <mt-button type="default" :class="{'hasActived':highLight,'noActived':dark}">立即登录</mt-button>
+    <div class="login" ref="login">
+        <section @click="goToNext" class="login_click" type="default" :class="{'hasActived':highLight,'noActived':dark}">立即登录</section>
     </div>
     <!-- 注册按钮 -->
     <div class="register">
-        <span>注册新用户</span>
+        <span @click="$router.push('/register')">注册新用户</span>
     </div>
     <!--微信登录-->
     <div class="weixin_login" v-show="isWeixin">
@@ -73,13 +73,14 @@
     // import {mapMutations,mapState} from 'vuex'
     // import {sendSms,quickLogin,login,picCheck,queryMyProfil} from '@/service/getData.js'
     import { Toast,Button } from 'mint-ui'
+    import md5 from 'js-md5'
 	export default {
 		data(){
 			return {
-                fast:true,
-                pwd:false,
-                withStyle1:true,
-                withStyle2:false,
+                fast:false,//快捷登录
+                pwd:true,//密码登录
+                withStyle1:false,
+                withStyle2:true,
                 numWrong:false,//控制快捷登录校验手机号
                 codeWrong:false,//控制快捷登录校验验证码
                 num:'',//手机号登录之手机号
@@ -441,7 +442,7 @@
             },
             toggleOpen(){
                 this.close=true;
-            }
+            },
         },
 		
 	}
@@ -636,5 +637,13 @@ input{
     text-align: center;
     height: 1rem;
     line-height: 1rem;
+}
+.login_click{
+    width: 100%;
+    height: .88rem;
+    border-radius: 4px;
+    line-height: .88rem;
+    text-align: center;
+    font-size: .34rem;
 }
 </style>
