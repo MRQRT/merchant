@@ -47,6 +47,9 @@ const bindingWechat = r => require.ensure([], () => r(require('../pages/login/bi
 const changePassword = r => require.ensure([], () => r(require('../pages/login/changePassword')), 'changePassword')
 const changeMobile = r => require.ensure([], () => r(require('../pages/login/changeMobile')), 'changeMobile')
 
+/* 关于我们 */
+const aboutus = r => require.ensure([], () => r(require('../pages/aboutUs/aboutus')), 'changeMobile')
+
 
 const router = new Router({
     mode: 'history',
@@ -182,6 +185,10 @@ const router = new Router({
         {
             path: '/location', //选择店铺地址页
             component: location,
+        },
+        {
+            path: '/aboutus', //关于我们
+            component: aboutus
         }
     ],
     scrollBehavior (to, from, savedPosition) { // 记录滚动位置

@@ -47,7 +47,7 @@ import { compress } from '@/config/mUtils.js'
             return{
                 license: license,
                 idcard1: idcard1,
-                idcard2: idcard2, 
+                idcard2: idcard2,
             }
         },
         components:{
