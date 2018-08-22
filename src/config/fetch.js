@@ -1,12 +1,12 @@
 import router from '@/main.js'
 import {a} from '@/main.js'//将vue实例引入
-import apiConfig from '../../config/api.config' // 请求接口时判断环境
+// import apiConfig from '../../config/api.config' // 请求接口时判断环境
 import axios from 'axios'
 import qs from 'qs'
 import { Toast, MessageBox,Indicator} from 'mint-ui'
 import store from '../store'
 
-axios.defaults.baseURL = apiConfig.baseUrl   //配置接口地址
+axios.defaults.baseURL = '/api'   //配置接口地址
 // axios.defaults.timeout = 5000; //配置请求的超时时间，超时将被中断
 
 //POST传参序列化(添加请求拦截器)

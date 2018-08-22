@@ -219,7 +219,7 @@
                         <span>{{verifiCode[3]}}</span>
                         <span>{{verifiCode[4]}}</span>
                         <span>{{verifiCode[5]}}</span>
-                        <input type="number" maxlength="6" v-model="verifiCode">
+                        <input type="number" maxlength="6" v-model="verifiCode" @blur='closeVerifi'>
                     </div>
                 </div>
             </div>
@@ -260,6 +260,7 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                 popupVisible1:false,   // 验证码弹窗
                 popupVisible2:false,   // 支付中弹窗
                 verifiCode:[],       // 验证码
+                screenHeight: document.documentElement.clientHeight,//记录高度值(这里是给到了一个默认值)
             }
         },
         components:{
@@ -284,7 +285,9 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
             }
         },
         watch:{
-
+            popupVisible1(val){
+                val ? this.fixed(true): this.fixed(false)
+            }
         },
         methods: {
             //存金说明弹框
@@ -344,6 +347,13 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
             //关闭验证码弹窗(取消订单)
             closeVerifi(){
                 this.popupVisible1 = false;
+                this.$router.push({ // 跳转待支付订单详情页
+                    path:'/storeorderdetail',
+                    query:{
+                        id:1,
+                        status:10
+                    }
+                })
             },
             // 点击按钮提交函数
             submit(num){
@@ -360,15 +370,55 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                     }
                 }
             },
+            // 直接提交创建订单
             directlyOrder(){
                 console.log('创建订单')
                 this.$router.push('/storeresult');
             },
-            // 锁价提交
+            // 输完验证码后关闭支付弹窗
+            closeVerifi(){
+                this.popupVisible1 = false;
+                this.popupVisible2 = true;
+
+            },
+            // 锁价提交创建订单
             lockPriceOrder(){
                 //创建订单
-                // 显示支付弹窗
-                // 显示处理中动画
+
+                // 创建成功后显示支付弹窗
+                this.popupVisible1 = true;
+                // 请求发送验证码函数
+
+                // 输入6位后关闭验证码弹窗，显示处理中动画
+                // this.popupVisible1 = false;
+                // this.popupVisible2 = true;
+                var res = 200;
+
+                // if(res==200){
+                //
+                // }
+                // 输入验证码后验证（验证码错误显示弹窗）
+                var html = '<div style="color:000;font-size:.32rem;font-family:PingFangSC-Medium;text-align:center">支付密码错误，请重试</div>'
+                // MessageBox({
+                //     title:'',
+                //     message:html,
+                //     showCancelButton: true,
+                //     confirmButtonText:'重试'
+                // }).then(action => {
+                //     if(action=='confirm'){
+                //         this.this.popupVisible1 = true;
+                //         console.log('重新发送验证码')
+                //     }else{
+                //         this.$router.push({ // 跳转待支付订单详情页
+                //             path:'/storeorderdetail',
+                //             query:{
+                //                 id:1,
+                //                 status:10
+                //             }
+                //         })
+                //     }
+                // })
+
             },
             //各类提示弹窗
             showMessage(num){
@@ -435,14 +485,24 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
 
         },
         mounted(){
-
+            //处理键盘弹出的沉底按钮顶上去的兼容问题
+            window.onresize = () => {
+                var h=document.documentElement.clientHeight
+		    	if((this.screenHeight-h)>50){
+					document.querySelector('.opration-wrap').style.position = 'relative'
+		    	}else{
+					document.querySelector('.opration-wrap').style.position = 'fixed'
+		    	}
+            }
         },
     }
 
 </script>
 
 <style media="screen">
-
+.mint-popup{
+    border-radius: .2rem;
+}
 </style>
 
 <style scoped lang="scss">
@@ -936,7 +996,7 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                 width: 100%;
                 color: #666;
                 font-size: .28rem;
-                padding:.35rem 0;
+                padding:.35rem 0 .4rem;
                 @include flex-box();
                 @include justify-content();
                 span{

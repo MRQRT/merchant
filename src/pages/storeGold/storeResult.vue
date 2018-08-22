@@ -32,23 +32,23 @@
                     <div class="detail-info">
                         <div class="info-item">
                             <span>订单编号</span>
-                            <span>CJ20180305001</span>
+                            <span>{{orderInfo.code}}</span>
                         </div>
                         <div class="info-item">
                             <span>存金类型</span>
-                            <span>首饰</span>
+                            <span>{{typeJson[orderInfo.productType]}}</span>
                         </div>
                         <div class="info-item">
                             <span>存金重量</span>
-                            <span>{{200.000}}克</span>
+                            <span>{{orderInfo.applyWeight}}克</span>
                         </div>
                         <div class="info-item">
                             <span>锁价保证金</span>
-                            <span class="special-color">{{123.456 | formatPriceTwo}}元</span>
+                            <span class="special-color">{{orderInfo.ensure_cash | formatPriceTwo}}元</span>
                         </div>
                         <div class="info-item">
                             <span>锁定金价</span>
-                            <span class="special-color">{{123.456 | formatPriceTwo}}元</span>
+                            <span class="special-color">{{orderInfo.lockPrice | formatPriceTwo}}元</span>
                         </div>
                     </div>
                 </div>
@@ -61,7 +61,7 @@
                 <div class="tip">工作人员会尽快联系您核实订单</div>
                 <!-- 按钮部分 -->
                 <div class="btn-opration">
-                    <div class="go-detail" @click="$router.push('/storeOrderDetail')">查看订单</div>
+                    <div class="go-detail" @click="$router.push({path:'/storeOrderDetail',query:{id:1}})">查看订单</div>
                     <div class="go-index" @click="$router.push('/index')">返回首页</div>
                 </div>
             </div>
@@ -78,7 +78,7 @@
                 <div class="reason">失败原因：根据三方回调结果展示</div>
                 <!-- 按钮部分 -->
                 <div class="btn-opration">
-                    <div class="go-detail" @click="$router.push('/storeOrderDetail')">查看订单</div>
+                    <div class="go-detail" @click="$router.push({path:'/storeOrderDetail',query:{id:1}})">查看订单</div>
                     <div class="go-index" @click="$router.push('/index')">返回首页</div>
                 </div>
             </div>
@@ -93,6 +93,22 @@ import headTop from '@/components/header/head.vue'
         data(){
             return{
                 orderstatus:true, // 订单是否成功
+                typeJson:{
+                    '0':'投资金',
+                    '1':'首饰',
+                },
+                orderInfo:{
+                    code:'57467288374467332677',
+                    createTime:'2018-08-20 12:20:34',
+                    status:0,
+                    productType:0,
+                    applyWeight:3.23,
+                    isLockprice:1,
+                    cash:0,
+                    lockPrice:256.34,
+                    ensure_cash:3452.234,
+                    applyQuantity:3,
+                },
             }
         },
         components:{
