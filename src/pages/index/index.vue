@@ -220,6 +220,7 @@ import { Popup } from 'mint-ui';
         },
         beforeRouteLeave (to, from, next) {
             this.popupVisible = false;
+            this.fixed(false)
             next()
         },
     }

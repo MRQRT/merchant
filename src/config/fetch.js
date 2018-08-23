@@ -1,4 +1,4 @@
-import router from '@/main.js'
+import router from '@/router'
 import {a} from '@/main.js'//将vue实例引入
 // import apiConfig from '../../config/api.config' // 请求接口时判断环境
 import axios from 'axios'
