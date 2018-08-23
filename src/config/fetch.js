@@ -6,6 +6,9 @@ import qs from 'qs'
 import { Toast, MessageBox,Indicator} from 'mint-ui'
 import store from '../store'
 
+
+// axios.defaults.baseURL = process.env.API_ROOT   //配置接口地址
+
 axios.defaults.baseURL = '/api'   //配置接口地址
 // axios.defaults.timeout = 5000; //配置请求的超时时间，超时将被中断
 
