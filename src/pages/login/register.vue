@@ -15,7 +15,7 @@
             <section class="line"></section>
             <div class="ver_code">
                 <input type="text" maxlength="6" placeholder="请输入验证码" v-model="vercode" pattern="[0-9]*" @input="checkInput(vercode,'vercode')">
-                <span class="text_click" @click="get_vercode">{{clickText}}</span>
+                <span class="text_click" @click="get_vercode" ref="send_smscode">{{clickText}}</span>
             </div>
             <section class="line"></section> 
             <div class="password">
@@ -41,6 +41,8 @@ import store_readed from 'static/images/store-readed.png'
 import store_read from 'static/images/store-read.png'
 import {MessageBox,Toast} from 'mint-ui'
 import { isNumber,isNumberOrenleter } from '@/config/mUtils.js'
+import {sendsms,checkexist,registry} from '@/service/getData.js'
+import {mapMutations,mapState} from 'vuex'
 
     export default {
         data(){
@@ -57,6 +59,9 @@ import { isNumber,isNumberOrenleter } from '@/config/mUtils.js'
                 clear:false,
                 texorpas: 'password',//密码框的类型
                 isSubmit: false,
+                iNow: true,//解决重复点击问题
+                second: 60,//获取验证码的毫秒数
+                arg:true,//存金通用户协议是否勾选
             }
         },
         components:{
@@ -80,7 +85,7 @@ import { isNumber,isNumberOrenleter } from '@/config/mUtils.js'
                 }else{
                     this.check_tel=false
                 }
-                if(this.check_tel&&this.check_vercode&&this.check_password){
+                if(this.check_tel&&this.check_vercode&&this.check_password&&this.arg){
                     this.isSubmit=true
                 }else{
                     this.isSubmit=false
@@ -89,7 +94,7 @@ import { isNumber,isNumberOrenleter } from '@/config/mUtils.js'
             //验证码
             vercode(val){
                val.length==6?this.check_vercode=true:this.check_vercode=false;
-               if(this.check_vercode&&this.check_tel&&this.check_password){
+               if(this.check_vercode&&this.check_tel&&this.check_password&&this.arg){
                     this.isSubmit=true
                 }else{
                     this.isSubmit=false
@@ -98,13 +103,20 @@ import { isNumber,isNumberOrenleter } from '@/config/mUtils.js'
             //密码
             password(val){
                 let d = this.check_passwords(val);
-                if(this.check_vercode&&this.check_tel&&this.check_password){
+                if(this.check_vercode&&this.check_tel&&this.check_password&&this.arg){
                     this.isSubmit=true
                 }else{
                     this.isSubmit=false
                 }
             },
-            //是否能提交
+            //阅读协议
+            arg(){
+                if(this.check_vercode&&this.check_tel&&this.check_password&&this.arg){
+                    this.isSubmit=true
+                }else{
+                    this.isSubmit=false
+                }
+            }
         },
         methods: {
             check_eye(){
@@ -112,29 +124,79 @@ import { isNumber,isNumberOrenleter } from '@/config/mUtils.js'
                 this.eye==clo_eye?this.texorpas='password':this.texorpas='text'
             },
             isread(){
-                this.readicon==store_readed?this.readicon=store_read:this.readicon=store_readed;
+                if(this.readicon==store_readed){
+                    this.readicon=store_read;
+                    this.arg=0
+                }else{
+                    this.readicon=store_readed;
+                    this.arg=1
+                }
             },
             //提交信息
-            commit(){
-                // MessageBox({
-                //     title: '提示',
-                //     message: '手机号已注册' ,
-                //     confirmButtonText: '去登录',
-                //     showCancelButton: '我知道了'
-                // })
+            async commit(){
+                if(!this.isSubmit)return
+                const res = await checkexist(this.tel);
+                if(res.code=="000000"&&(res.data&&res.data.isExist)){//请求成功且没有注册
+                    const res = await registry(this.tel,this.vercode,this.password);
+                    if(res.code=='300111'){
+                        Toast('验证码错误')
+                        return
+                    }else if(res.code=='000000'){
+                        this.$router.push('/login');
+                    }
+                }else if(res.code=="000000"&&(res.data&&!res.data.isExist)){//请求成功且已经注册
+                    MessageBox({
+                        title: '提示',
+                        message: '手机号已注册',
+                        confirmButtonText: '去登录',
+                        cancelButtonText: '我知道了'
+                    }).then((action)=>{
+                        if(action=='confirm'){
+                            this.$router.push('/login')
+                        }
+                    })
+                    return
+                }
             },
             //清除输入框
             clears(){
                 this.tel='';
             },
             //点击获取验证码
-            get_vercode(){
+            async get_vercode(){
+                if(this.iNow==false)return//还在读秒不能点击
+                let send_smscode = this.$refs.send_smscode;
                 let a = this.check_tels(this.tel);//检查手机号
-                let b = this.checkout_passwords(this.password);//检查密码格式
-                if(a&&this.check_vercode){
-                    
-                }else{
-                    return false
+                if(!a)return
+                const res = await checkexist(this.tel);//检验是否已注册
+                if(res.code=="000000"&&(res.data&&res.data.isExist)){//请求成功且没有注册
+                    var that=this;
+                    this.iNow = false;
+                    let timer = setInterval(function(){
+                        send_smscode.style.color="#666";
+                        that.second--;
+                        that.clickText = that.second+'s';
+                        if(that.second==-1){
+                            clearInterval(timer);
+                            that.iNow=true;
+                            send_smscode.style.color="#C09C60";
+                            that.clickText = '获取验证码';
+                            that.second = 60;
+                        }
+                    },1000)
+                    let res = await sendsms(this.tel);
+                }else if(res.code=="000000"&&(res.data&&!res.data.isExist)){//请求成功且已经注册
+                    MessageBox({
+                        title: '提示',
+                        message: '手机号已注册' ,
+                        confirmButtonText: '去登录',
+                        showCancelButton: '我知道了'
+                    }).then((action)=>{
+                        if(action=='confirm'){
+                            this.$router.push('/login')
+                        }
+                    })
+                    return
                 }
             },
             //检查输入是否为数字
@@ -180,6 +242,7 @@ import { isNumber,isNumberOrenleter } from '@/config/mUtils.js'
                     this.check_tel=false
                     return false
                 }else{
+                    Toast('手机号格式不正确')
                     this.check_tel=false
                     this.vercode=''
                     return false
@@ -208,7 +271,7 @@ import { isNumber,isNumberOrenleter } from '@/config/mUtils.js'
 
         },
         mounted(){
-
+            
         },
     }
 

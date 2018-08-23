@@ -6,7 +6,6 @@ import qs from 'qs'
 import { Toast, MessageBox,Indicator} from 'mint-ui'
 import store from '../store'
 
-
 // axios.defaults.baseURL = process.env.API_ROOT   //配置接口地址
 
 axios.defaults.baseURL = '/api'   //配置接口地址
@@ -18,6 +17,7 @@ axios.interceptors.request.use((config) => {
     if(config.method  === 'post' || config.method === 'put') {
         config.data = qs.stringify(config.data);
         config.params = qs.stringify(config.url)
+        config.headers['Accept'] = 'application/json'
     }
     if(config.method === 'get') {
         config.params = qs.stringify(config.data)
@@ -84,7 +84,7 @@ export function fetch(url, params, method) {
         .then(response => {
             resolve(response.data)
         }, err => {
-            reject(error)
+            reject(err)
         })
         .catch((error) => {
            reject(error)

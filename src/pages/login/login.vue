@@ -23,9 +23,8 @@
            <!--账号密码登录-->
            <div class="pwdContent" ref="pwdContent" v-show="pwd">
                <div class="account">
-                   <input type="number" id="inputAcc" placeholder="请输入手机号/商户号/营业执照号" v-model="account" @focus="inputAcc" style="width:90%;" pattern="[0-9]*" maxlength="11">
-                   <span class="wrongAcc" ref="wrongAccount" v-show="accWrong">手机号码格式错误</span>
-                  
+                   <input type="text" id="inputAcc" placeholder="请输入手机号/商户号" v-model="account" @focus="inputAcc" style="width:90%;">
+                   <span class="wrongAcc" ref="wrongAccount" v-show="accWrong">号码格式错误</span>
                    <img src="static/images/clearinput.png" class="clear accIpt" v-show="hasShow" @click="clearAccIpt">
                </div>
                <div class="password">
@@ -36,7 +35,7 @@
                    <span class="wrongPwd" ref="wrongPassword" v-show="pwdWrong">密码格式错误</span>
                </div>
                <p class="forgetPwd">
-                    <span @click="$router.push('/getBackPwd')" style="float:right">忘记密码?</span>
+                    <span @click="$router.push('/findPassword')" style="float:right">忘记密码?</span>
                </p>
            </div>
            <!--手机号快捷登录-->
@@ -71,7 +70,7 @@
 <script>
     import {setCookie,getCookie} from '@/config/mUtils.js'
     // import {mapMutations,mapState} from 'vuex'
-    // import {sendSms,quickLogin,login,picCheck,queryMyProfil} from '@/service/getData.js'
+    import {} from '@/service/getData.js'
     import { Toast,Button } from 'mint-ui'
     import md5 from 'js-md5'
 	export default {
@@ -148,18 +147,21 @@
                     this.highLight=false;this.dark=true;
                 }
             },
-            account(val){  //控制账号登录之账号长度
-                let reg = /^(0|86|17951)?(13[0-9]|15[0-9]|17[0-9]|18[0-9]|14[0-9]|19[0-9])[0-9]{8}$/;
+            account(val){  //控制账号登录
+                let reg = /^[a-z0-9]+$/i;//手机或者是商户号
                 this.account?this.hasShow=true:this.hasShow=false
-                if(val.length>11){
-                    this.account = val.slice(0,11)
+                if(val.length>30){
+                    this.account = val.slice(0,30)
                 }
                 if(val.match(reg)){
                     this.rightShow_2 = 1;
+                    this.accWrong=false
                 }else if(val ==''){
-                    this.rightShow_2 = 0
+                    this.rightShow_2 = 0;
+                    this.accWrong=true
                 }else{
-                    this.rightShow_2 = 0
+                    this.accWrong=true
+                    this.rightShow_2 = 0;
                 }
                 if(this.rightShow_2==1&&this.password!=''){
                     this.highLight=true;this.dark=false;
@@ -180,12 +182,10 @@
             backWard(){
                 var from=this.$route.query && this.$route.query.from
                 if(this.params){
-                    window.toApp();
                     this.$router.push('/buyGold');
                 }else if(from=='register' || from=='ranking' || from=='/productDetail'){
                     this.$router.back(-1);
                 }else{
-                    window.toApp();
                     this.$router.back(-1);
                 }
             },
@@ -428,7 +428,7 @@
             clear(){   //清除输入框
                 this.num='';
             },
-            inputAcc(){   //账号登录输入时手机号格式错误提示窗消失
+            inputAcc(){   //账号登录输入时账号格式错误提示窗消失
                 this.accWrong=false;
             },
             startPwd(){
