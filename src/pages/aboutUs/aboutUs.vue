@@ -60,7 +60,10 @@ import headTop from '@/components/header/head.vue'
 }
 .logo{
     width: 100%;
-    height: 3.25rem;
+    height: 4.13rem;
+    @include bg-image('/static/images/aicon.png');
+    background-size: 37%;
+    background-position: 62% 95%;
 }
 .title{
     font-size: .4rem;

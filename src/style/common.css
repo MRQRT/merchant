@@ -114,21 +114,21 @@ html,body{
     white-space: nowrap;
 }
 #click_btn{
-    background-color: #F2B643;
+    background-color: #DDC899;
     display: block;
     text-decoration: none;
 }
 #click_btn:link{
-    background-color: #F2B643;
+    background-color: #DDC899;
 }
 #click_btn:hover{
-    background-color: #F2B643;
+    background-color: #DDC899;
 }
 #click_btn:active{
-    background-color: #eda835;
+    background-color: #DDC899;
 }
 #click_btn:visited{
-    background-color: #F2B643;
+    background-color: #DDC899;
 }
 /*弹出框样式*/
 .mint-msgbox-wrapper>.mint-msgbox{
@@ -158,7 +158,7 @@ html,body{
     color: #ccc;
 }
 .mint-msgbox-wrapper .mint-msgbox-confirm:active,.mint-msgbox-wrapper .mint-msgbox-cancel:active{
-    color: #EDA835;
+    color: #DDC899;
 }
 /*placeholder颜色*/
 input::-webkit-input-placeholder{

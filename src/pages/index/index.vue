@@ -162,7 +162,7 @@
                         <span class="icon3"></span>
                         <span>帐户管理</span>
                     </li>
-                    <li @click="$router.push('/aboutUs')">
+                    <li @click="$router.push('/aboutus')">
                         <span class="icon4"></span>
                         <span>关于我们</span>
                     </li>

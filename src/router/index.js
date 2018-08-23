@@ -51,7 +51,7 @@ const changeMobile = r => require.ensure([], () => r(require('../pages/login/cha
 const aboutus = r => require.ensure([], () => r(require('../pages/aboutUs/aboutus')), 'changeMobile')
 
 
-const router = new Router({
+export const router = new Router({
     mode: 'history',
     routes: [
         {
@@ -163,7 +163,7 @@ const router = new Router({
             component: login
         },
         {
-            path: '/findPassword', //找回密码
+            path: '/findpassword', //找回密码
             component: findPassword
         },
         {
