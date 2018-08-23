@@ -3,6 +3,11 @@ import Router from 'vue-router'
 
 Vue.use(Router)
 
+/* 404、500页面 */
+const notFound = r => require.ensure([], () => r(require('../pages/error/404')), 'notFound')
+const systemError = r => require.ensure([], () => r(require('../pages/error/500')), 'systemError')
+
+
 /* 首页 */
 const index = r => require.ensure([], () => r(require('../pages/index/index')), 'index')
 
@@ -54,6 +59,14 @@ const aboutus = r => require.ensure([], () => r(require('../pages/aboutUs/aboutu
 const router = new Router({
     mode: 'history',
     routes: [
+        {
+            path:'*',
+            component:notFound,
+        },
+        {
+            path:'/systemError',
+            component:systemError,
+        },
         {
             path: '/',  // 重定向
             redirect: '/index',

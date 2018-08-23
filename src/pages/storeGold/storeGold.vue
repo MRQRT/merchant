@@ -197,7 +197,7 @@
             </div>
         </div>
         <!-- 输入验证码弹窗 -->
-        <mt-popup v-model="popupVisible1" popup-transition="popup-fade" closeOnClickModal="false">
+        <mt-popup v-model="popupVisible1" popup-transition="popup-fade" :closeOnClickModal="false">
             <div class="verifi-wrap">
                 <span class="close-btn" @click="closeVerifi()">×</span>
                 <!-- 顶部信息 -->
@@ -219,13 +219,13 @@
                         <span>{{verifiCode[3]}}</span>
                         <span>{{verifiCode[4]}}</span>
                         <span>{{verifiCode[5]}}</span>
-                        <input type="number" maxlength="6" v-model="verifiCode" @blur='closeVerifi'>
+                        <input type="tel" ref="verifiInput" maxlength="6" v-model="verifiCode" autofocus="autofocus" v-on:input="checkVerifi()">
                     </div>
                 </div>
             </div>
         </mt-popup>
         <!-- 正在支付中弹窗 -->
-        <mt-popup v-model="popupVisible2" popup-transition="popup-fade" closeOnClickModal="false">
+        <mt-popup v-model="popupVisible2" popup-transition="popup-fade" :closeOnClickModal="false">
             <div class="pay-wrap">
                 <div class="top-img">
                     <img src="static/images/pay-inner.png" alt="">
@@ -287,7 +287,7 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
         watch:{
             popupVisible1(val){
                 val ? this.fixed(true): this.fixed(false)
-            }
+            },
         },
         methods: {
             //存金说明弹框
@@ -300,7 +300,7 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
             },
             // 输入内容保留4位小数
 			checkInput: function (val) {
-				this.weight = clearNoNum(val,4);
+				this.weight = clearNoNum(val,1);
             },
             decreaseCount(){  //提金数量减1
                 if(this.extractNum==1){
@@ -375,50 +375,65 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                 console.log('创建订单')
                 this.$router.push('/storeresult');
             },
-            // 输完验证码后关闭支付弹窗
-            closeVerifi(){
-                this.popupVisible1 = false;
-                this.popupVisible2 = true;
+            // 检测输入的支付验证码
+            checkVerifi(){
+                var res = /^[0-9]*$/g;
+                if(this.verifiCode.length==6){
+                    this.popupVisible1 = false;     // 关闭验证码弹窗
+                    this.$refs.verifiInput.blur();  // 隐藏键盘
+                    this.popupVisible2 = true;      // 显示正在支付动画
+                    this.checkoutVerifi();          // 校验验证码是否正确
+                }
+            },
+            // 后台校验验证码是否正确
+            checkoutVerifi(){
+                console.log(this.verifiCode)
+                // var res = checkVerifi(this.verifiCode);
+                if(this.verifiCode==111111){ // 验证码正确跳转存金结果页
+                    this.popupVisible2 = false; // 关闭处理中动画
+                    this.$router.push({
+                        path:'/storeresult',
+                        query:{
+                            id:'',
+                        }
+                    })
+                }else{ // 验证码错误显示重试对话框
+                    this.popupVisible2 = false; // 关闭处理中动画
+                    var html = '<div style="color:000;font-size:.32rem;font-family:PingFangSC-Medium;text-align:center">支付密码错误，请重试</div>'
+                    MessageBox({
+                        title:'',
+                        message:html,
+                        showCancelButton: true,
+                        confirmButtonText:'重试'
+                    }).then(action => {
+                        if(action=='confirm'){ // 重新发送验证码函数
+                            this.popupVisible1 = true;
+                            this.verifiCode = []; // 将之前验证码清除
+                            console.log('重新发送验证码')
+                        }else{
+                            this.$router.push({ // 跳转待支付订单详情页
+                                path:'/storeorderdetail',
+                                query:{
+                                    id:1,
+                                    status:10
+                                }
+                            })
+                        }
+                    })
+                }
+            },
+            // 发送验证码函数
+            requestVerifi(){
 
             },
             // 锁价提交创建订单
             lockPriceOrder(){
-                //创建订单
-
-                // 创建成功后显示支付弹窗
+                // 创建订单
+                // 创建成功后调用支付函数
+                // 调用发送验证码函数
+                // 支付函数成功后显示支付弹窗（将锁价保证金等回填）
                 this.popupVisible1 = true;
-                // 请求发送验证码函数
-
-                // 输入6位后关闭验证码弹窗，显示处理中动画
-                // this.popupVisible1 = false;
-                // this.popupVisible2 = true;
-                var res = 200;
-
-                // if(res==200){
-                //
-                // }
-                // 输入验证码后验证（验证码错误显示弹窗）
-                var html = '<div style="color:000;font-size:.32rem;font-family:PingFangSC-Medium;text-align:center">支付密码错误，请重试</div>'
-                // MessageBox({
-                //     title:'',
-                //     message:html,
-                //     showCancelButton: true,
-                //     confirmButtonText:'重试'
-                // }).then(action => {
-                //     if(action=='confirm'){
-                //         this.this.popupVisible1 = true;
-                //         console.log('重新发送验证码')
-                //     }else{
-                //         this.$router.push({ // 跳转待支付订单详情页
-                //             path:'/storeorderdetail',
-                //             query:{
-                //                 id:1,
-                //                 status:10
-                //             }
-                //         })
-                //     }
-                // })
-
+                this.$refs.verifiInput.focus();
             },
             //各类提示弹窗
             showMessage(num){
@@ -1026,14 +1041,19 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                     // @include flex-grow(1);
                 }
                 > input {
-                    position: absolute;
-                    width: 100%;
-                    letter-spacing: 1rem;
-                    padding-left: 0.3rem;
-                    color: #fff;
-                    opacity: 0;
-                    left: 0;
+                    width: 150%;
                     height: 100%;
+                    position: absolute;
+                    left: 0;
+                    top:0;
+                    // letter-spacing: 1rem;
+                    padding-left: 0.3rem;
+                    color: transparent;
+                    text-shadow: 0 0 0 #000;
+                    opacity: 0;
+                    margin-left: -50%;
+                    text-indent: -999em;
+                    z-index:999;
                 }
             }
         }

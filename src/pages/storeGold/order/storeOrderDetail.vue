@@ -12,7 +12,7 @@
                 <p class="clock-icon"></p>
                 <p class="clock-text">
                     <span>待支付</span>
-                    <span>请在13分25秒内完成支付</span>
+                    <span>请在{{minu}}分{{secd}}秒内完成支付</span>
                 </p>
             </div>
             <!-- 已失效提示 -->
@@ -28,10 +28,10 @@
                 <div class="left-icon"></div>
                 <div class="right-text">
                     <p class="name-tel">
-                        <span class="name">张艺兴</span>
-                        <span class="tel">{{13520842445 | hideMible}}</span>
+                        <span class="name">{{orderInfo.contact}}</span>
+                        <span class="tel">{{orderInfo.telephone | hideMible}}</span>
                     </p>
-                    <p class="add">北京市丰台区嘉和人家翠庭园3号楼1501和人家翠庭园楼1501</p>
+                    <p class="add">{{orderInfo.address}}</p>
                 </div>
             </div>
             <div class="distans"></div>
@@ -41,28 +41,30 @@
                 <div class="order-info">
                     <p>
                         <span>存金类型</span>
-                        <span>投资金</span>
+                        <span>{{typeJson[orderInfo.productType]}}</span>
                     </p>
                     <p>
                         <span>总克重</span>
-                        <span>200克</span>
+                        <span>{{orderInfo.applyWeight}}克</span>
                     </p>
                     <p>
                         <span>数量</span>
-                        <span>4件</span>
+                        <span>{{orderInfo.applyQuantity}}件</span>
                     </p>
                     <p>
                         <span>存金方式</span>
-                        <span>直接变现</span>
+                        <span>{{cashJson[orderInfo.cash]}}</span>
                     </p>
-                    <p>
-                        <span>锁价保证金</span>
-                        <span>1500.00元</span>
-                    </p>
-                    <p>
-                        <span>锁定金价<b @click="lockPricePopup"></b></span>
-                        <span class="special-color">276.15元/克</span>
-                    </p>
+                    <div class="" v-if="orderInfo.isLockprice==0">
+                        <p>
+                            <span>锁价保证金</span>
+                            <span>{{orderInfo.ensure_cash}}元</span>
+                        </p>
+                        <p>
+                            <span>锁定金价<b @click="lockPricePopup"></b></span>
+                            <span class="special-color">{{orderInfo.lockPrice}}元/克</span>
+                        </p>
+                    </div>
                 </div>
             </div>
             <div class="distans"></div>
@@ -75,7 +77,7 @@
             <div class="pay-btn" v-if="status==10">
                 <div class="left-price">
                     <span>锁价保证金</span>
-                    <span>15679.00元</span>
+                    <span>{{orderInfo.ensure_cash}}元</span>
                 </div>
                 <div class="right-btn">支付</div>
             </div>
@@ -125,10 +127,10 @@
                 <div class="left-icon"></div>
                 <div class="right-text">
                     <p class="name-tel">
-                        <span class="name">张艺兴</span>
-                        <span class="tel">{{13520842445 | hideMible}}</span>
+                        <span class="name">{{orderInfo.contact}}</span>
+                        <span class="tel">{{orderInfo.telephone | hideMible}}</span>
                     </p>
-                    <p class="add">北京市丰台区嘉和人家翠庭园3号楼1501和人家翠庭园楼1501</p>
+                    <p class="add">{{orderInfo.address}}</p>
                 </div>
             </div>
             <div class="distans"></div>
@@ -187,9 +189,9 @@
             <div class="distans"></div>
             <!-- 订单追踪 -->
             <div class="order-tracking">
-                <div class="title">
+                <div class="title" @click="showList">
                     <span>订单追踪</span>
-                    <span @click="showList" :class="{'rotate':trackingStatus}"></span>
+                    <span :class="{'rotate':trackingStatus}"></span>
                 </div>
                 <ul class="tracking-list" :class="{'showList':trackingStatus}">
                     <div class="line"></div>
@@ -302,6 +304,8 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                 popupNum:'',           // 哪个弹窗显示
                 trackingStatus:false,  // 订单追踪显示、隐藏
                 stepTipText:'',        // 进度提示文字
+                minu:'--',               // 倒计时分
+                secd:'--',               // 倒计时秒
                 typeJson:{
                     '0':'投资金',
                     '1':'首饰',
@@ -349,6 +353,9 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                     lockPrice:256.34,
                     ensure_cash:3452.234,
                     applyQuantity:3,
+                    contact:'小可爱',
+                    telephone:13520842445,
+                    address:'内蒙古呼和浩特市赛罕区7号楼602罕区7号楼602'
                 },
                 orderTrackJson:{
                     '1':{name:'订单已提交'},
@@ -491,6 +498,31 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                 this.popupVisible = false;
                 this.fixed(false);
             },
+            // 倒计时
+            countDown(){
+                var countdownMinute = 7;//10分钟倒计时
+                var startTimes = new Date('2018-8-23 18:52');//开始时间 new Date('2016-11-16 15:21');
+                var endTimes = new Date(startTimes.setMinutes(startTimes.getMinutes()+countdownMinute));//结束时间
+                var curTimes = new Date();//当前时间
+                var surplusTimes = endTimes.getTime()/1000 - curTimes.getTime()/1000;//结束毫秒-开始毫秒=剩余倒计时间
+
+                // 进入倒计时
+                var that = this;
+                var countdowns =  window.setInterval(function(){
+                    surplusTimes--;
+                    that.minu = Math.floor(surplusTimes/60);
+                    that.secd = Math.round(surplusTimes%60);
+                    console.log(that.minu+':'+that.secd);
+                    if(surplusTimes<=0){
+                        console.log('时间到！');
+                        that.minu = '--';
+                        that.secd = '--';
+                        clearInterval(countdowns);
+                        // 重新调用订单详情函数
+                    }
+                },1000);
+
+            },
             // 订单追踪显示、隐藏
             showList(){
                 this.trackingStatus = !this.trackingStatus;
@@ -571,6 +603,7 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
             this.status = this.$route.query.status;
         },
         mounted(){
+            // this.countDown();
             this.showTips(this.isClick,this.iconJson[this.status].iconType,'',this.status,this.isLockOrder);
         },
     }
