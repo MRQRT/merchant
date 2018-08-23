@@ -5,20 +5,31 @@ import {getStore} from '../config/mUtils.js'
  * 发送验证码
  */
 
-export const sendsms = (mobile) => fetch('/user/sms/send?mobile='+mobile+'&'+'type=0',{},'post')
+export const sendsms = (mobile,type) => fetch('/user/sms/send',{'mobile':mobile,'type':type},'post')
 
 /**
  * 检测是否已注册
  */
 
-export const checkexist = (mobile) => fetch('user/check/exist?mobile='+mobile,{},'post')
+export const checkexist = (mobile) => fetch('user/check/exist',{'mobile':mobile},'post')
 
 /**
  * 用户进行注册
  */
 
-export const registry = (mobile,smsCode,password) => fetch('/user/registry?mobile='+mobile+'&smsCode='+smsCode+'&password='+password,{},'post')
+export const registry = (mobile,smsCode,password) => fetch('/user/registry',{'mobile':mobile,'smsCode':smsCode,'password':password},'post')
 
+/**
+* 用户进行登录
+*/
+
+export const login = (userName,password) => fetch('/user/login',{'userName':userName,'password':password},'post')
+
+/**
+* 用户进行登录
+*/
+
+export const quicklogin = (mobile,smsCode) => fetch('/user/quick/login',{'mobile':mobile,'smsCode':smsCode},'post')
 
 /**
  * 获取当前时间

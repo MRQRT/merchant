@@ -40,10 +40,10 @@ import clo_eye from 'static/images/close_eye.png'
 import store_readed from 'static/images/store-readed.png'
 import store_read from 'static/images/store-read.png'
 import {MessageBox,Toast} from 'mint-ui'
-import { isNumber,isNumberOrenleter } from '@/config/mUtils.js'
+import { isNumber } from '@/config/mUtils.js'
 import {sendsms,checkexist,registry} from '@/service/getData.js'
 import {mapMutations,mapState} from 'vuex'
-
+ import md5 from 'js-md5'
     export default {
         data(){
             return{
@@ -119,6 +119,9 @@ import {mapMutations,mapState} from 'vuex'
             }
         },
         methods: {
+            ...mapMutations([
+                'RECORD_USERID','RECORD_MOBILE','RECORD_MERCHANTID','RECORD_ACCESSTOKEN'
+            ]),
             check_eye(){
                 this.eye==clo_eye?this.eye=op_eye:this.eye=clo_eye
                 this.eye==clo_eye?this.texorpas='password':this.texorpas='text'
@@ -137,11 +140,16 @@ import {mapMutations,mapState} from 'vuex'
                 if(!this.isSubmit)return
                 const res = await checkexist(this.tel);
                 if(res.code=="000000"&&(res.data&&res.data.isExist)){//请求成功且没有注册
-                    const res = await registry(this.tel,this.vercode,this.password);
+                    let md5password=md5(this.password) 
+                    const res = await registry(this.tel,this.vercode,this.md5password);
                     if(res.code=='300111'){
                         Toast('验证码错误')
                         return
                     }else if(res.code=='000000'){
+                        this.RECORD_USERID(res.data.userId)
+                        this.RECORD_ACCESSTOKEN(res.data.accessToken)
+                        this.RECORD_MOBILE(res.data.mobile)
+                        this.RECORD_MERCHANTID(res.data.merchantId)
                         this.$router.push('/login');
                     }
                 }else if(res.code=="000000"&&(res.data&&!res.data.isExist)){//请求成功且已经注册
@@ -184,7 +192,7 @@ import {mapMutations,mapState} from 'vuex'
                             that.second = 60;
                         }
                     },1000)
-                    let res = await sendsms(this.tel);
+                    let res = await sendsms(this.tel,0);
                 }else if(res.code=="000000"&&(res.data&&!res.data.isExist)){//请求成功且已经注册
                     MessageBox({
                         title: '提示',
@@ -197,6 +205,12 @@ import {mapMutations,mapState} from 'vuex'
                         }
                     })
                     return
+                }else{
+                    Toast({
+                        message: res.message,
+                        position: 'bottom',
+                        duration: 3000
+                    });
                 }
             },
             //检查输入是否为数字

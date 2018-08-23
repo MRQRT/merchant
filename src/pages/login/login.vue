@@ -23,16 +23,13 @@
            <!--账号密码登录-->
            <div class="pwdContent" ref="pwdContent" v-show="pwd">
                <div class="account">
-                   <input type="text" id="inputAcc" placeholder="请输入手机号/商户号" v-model="account" @focus="inputAcc" style="width:90%;">
+                   <input type="text" id="inputAcc" placeholder="请输入手机号/商户号" v-model="account" style="width:90%;">
                    <span class="wrongAcc" ref="wrongAccount" v-show="accWrong">号码格式错误</span>
-                   <img src="static/images/clearinput.png" class="clear accIpt" v-show="hasShow" @click="clearAccIpt">
+                   <img src="static/images/clearinput.png" class="clear accIpt" v-show="account" @click="clearAccIpt">
                </div>
                <div class="password">
-                   <input type="password" v-if="close" id="inputPwd" @focus="startPwd" placeholder="请输入密码"  v-model="password" ref="inputPwd" maxlength="20" style="width:90%;">
-                   <input v-else type="text"   placeholder="请输入密码" id="inputPwd" v-model="password" ref="inputPwd" @focus="startPwd"  maxlength="20">
-                   <span class="visible" v-show="close"><img src="static/images/close_eye.png" style="width:.44rem;height:.55rem;margin-top:.1rem;"  @click="toggleClose"></span>
-                   <span class="visible" v-show="!close"><img src="static/images/open_eye.png" style="width:.44rem;height:.45rem;"  @click="toggleOpen"></span>
-                   <span class="wrongPwd" ref="wrongPassword" v-show="pwdWrong">密码格式错误</span>
+                   <input :type="texorpas" id="inputPwd" placeholder="请输入密码"  v-model="password" ref="inputPwd" maxlength="20" style="width:90%;">
+                   <span class="visible"><img :src="eye" style="width:.44rem;height:.55rem;margin-top:.1rem;"  @click="toggle"></span>
                </div>
                <p class="forgetPwd">
                     <span @click="$router.push('/findPassword')" style="float:right">忘记密码?</span>
@@ -41,20 +38,19 @@
            <!--手机号快捷登录-->
            <div class="fastContent" ref="fastContent" v-show="fast">
                <div class="telephone">
-                   <input type="number" id="inputTel" placeholder="请输入手机号" v-model="num" @focus="startInput" style="width:90%;" pattern="[0-9]*" maxlength="11">
-                   <span class="wrongNumber" ref="wrongNumber" v-show="numWrong">手机号码格式错误</span>
+                   <input type="number" id="inputTel" placeholder="请输入手机号" v-model="num" style="width:90%;" pattern="[0-9]*" maxlength="11">
+                   <img src="static/images/clearinput.png" class="clear accIpt" v-show="num" @click="clearAccIpt">
                </div>
                <div class="identify">
-                   <input type="number" id="identifyCode" placeholder="请输入验证码" @focus="iptCode" v-model="code" style="width:100%;" pattern="[0-9]*">
-                   <span class="wrongIdenCode" ref="wrongIdenCode" v-show="codeWrong">请输入6位数字</span>
+                   <input type="text" id="identifyCode" placeholder="请输入验证码" v-model="code" style="width:100%;" maxlength="6" @input="checkInput(code,'code')">
                    <span class="getIdenCode" @click="getCode" ref="send_smscode">获取验证码</span>
                </div>
            </div>
          </div>
     </section>
     <!--登录按钮-->
-    <div class="login" ref="login">
-        <section @click="goToNext" class="login_click" type="default" :class="{'hasActived':highLight,'noActived':dark}">立即登录</section>
+    <div class="login">
+        <section ref="login" @click="goToNext" class="login_click" type="default" :class="{'hasActived':highLight,'noActived':dark}">立即登录</section>
     </div>
     <!-- 注册按钮 -->
     <div class="register">
@@ -68,33 +64,32 @@
 	</div>
 </template>
 <script>
-    import {setCookie,getCookie} from '@/config/mUtils.js'
-    // import {mapMutations,mapState} from 'vuex'
-    import {} from '@/service/getData.js'
-    import { Toast,Button } from 'mint-ui'
+    import {setCookie,getCookie,isNumber} from '@/config/mUtils.js'
+    import {mapMutations,mapState} from 'vuex'
+    import {login,quicklogin,checkexist,sendsms} from '@/service/getData.js'
+    import { Toast,Button,MessageBox } from 'mint-ui'
     import md5 from 'js-md5'
+    import op_eye from 'static/images/open_eye.png'
+    import clo_eye from 'static/images/close_eye.png'
 	export default {
 		data(){
 			return {
+                eye:clo_eye,//
+                texorpas: 'password',//密码框的类型
                 fast:false,//快捷登录
                 pwd:true,//密码登录
-                withStyle1:false,
-                withStyle2:true,
-                numWrong:false,//控制快捷登录校验手机号
-                codeWrong:false,//控制快捷登录校验验证码
-                num:'',//手机号登录之手机号
-                code:'',//手机号登录之验证码
-                rightShow_1:0,//手机号验证正确图标显示开关(快捷登录)
-                rightShow_2:0,//手机号验证正确图标显示开关(账号密码登录)
+                withStyle1:false,//快捷登录加粗
+                withStyle2:true,//密码登录加粗
+                num:'',//手机号登录
+                code:'',//手机号登录的验证码
+                rightShow_1:0,//(快捷登录-手机号正确与否标志)
+                rightShow_2:0,//(账号登录-账号的正确与否标志)
                 account:'',//账号登录之账号
                 password:'',//账号登录之密码
                 highLight:false,//按钮高亮
                 dark:true,   //默认登录按钮置灰
                 accWrong:false,//控制账号登录校验账号
                 pwdWrong:false,//控制账号登录校验密码
-                hasShow:false,//密码登录手机号清除输录框之按钮显示与否
-                close:true, //默认密码不可见眼睛睁开或闭合
-                errTimes:0,//登录错误次数图片验证码需要
                 iNow: true,//解决重复点击问题
                 second: 60,//获取验证码的毫秒数
                 isWeixin: false,//是否是微信环境
@@ -130,9 +125,6 @@
             },
             //控制验证码长度
             code(val){
-                if(val>6){
-                    this.code=this.code.slice(0,6);
-                }
                 //按钮高亮
                 if(val!=''&&val.length==6&&this.rightShow_1==1){
                     this.highLight=true;this.dark=false;
@@ -140,16 +132,17 @@
                     this.highLight=false;this.dark=true;
                 }
             },
-            password(val){ //控制登录按钮高亮显示
+            //控制登录按钮高亮显示
+            password(val){
                 if(val!='' && this.rightShow_2==1 && val.length>=6){
                     this.highLight=true;this.dark=false;
                 }else{
                     this.highLight=false;this.dark=true;
                 }
             },
-            account(val){  //控制账号登录
+            //控制账号登录
+            account(val){
                 let reg = /^[a-z0-9]+$/i;//手机或者是商户号
-                this.account?this.hasShow=true:this.hasShow=false
                 if(val.length>30){
                     this.account = val.slice(0,30)
                 }
@@ -158,7 +151,7 @@
                     this.accWrong=false
                 }else if(val ==''){
                     this.rightShow_2 = 0;
-                    this.accWrong=true
+                    this.accWrong=false
                 }else{
                     this.accWrong=true
                     this.rightShow_2 = 0;
@@ -171,9 +164,9 @@
             }
         },
 		methods:{
-            // ...mapMutations([
-            //     'RECORD_TOKEN','RECORD_USERINFO'
-            // ]),
+            ...mapMutations([
+                'RECORD_USERID','RECORD_MOBILE','RECORD_MERCHANTID','RECORD_ACCESSTOKEN'
+            ]),
             //微信登录
             weixinLogin(){
                 window.openWeChat()
@@ -189,6 +182,7 @@
                     this.$router.back(-1);
                 }
             },
+            //登录方式切换选择
 			chooseMethod($event){
                 this.highLight=false;this.dark=true;
                 if($event.target==this.$refs.fastLogin){
@@ -200,7 +194,6 @@
                     this.formetTel='';
                     this.fast=true;
                     this.pwd=false;
-                    this.errTimes=0;
                     this.password='';
                     this.code='';
                 }else{
@@ -212,39 +205,25 @@
                     this.formetTel='';
                     this.fast=false;
                     this.pwd=true;
-                    this.errTimes=0;
                     this.password='';
                     this.code='';
                 }
             },
-            resetPicCaptcha(){  //判断登录错误次数
-
-            },
-            async goToNext(){   //点击登录
-                if(this.$refs.login.classList.contains('noActived')) {return;}//登录按钮未高亮不能进行下一步
-                if(this.errTimes>=3){
-                    this.resetPicCaptcha();
-                    return;
-                }
+            //点击登录
+            async goToNext(){
+                //登录按钮未高亮不能进行下一步
+                if(this.$refs.login.classList.contains('noActived'))return;
                 if(this.fast){  //快捷登录
-                    var reg=/\d{6}/;
-                    var code=this.code,
-                        phone=this.num;
-                    if(!reg.test(code)){
-                        this.codeWrong=true;
-                        return;
-                    }
                     if(this.params){
-                        var reObj = await quickLogin(phone,code,this.params);
+                        var reObj = await quickLogin(this.num,code,this.params);
                     }else if(this.activityId){
-                        var reObj = await quickLogin(phone,code,this.inviteCode,this.activityId);
+                        var reObj = await quickLogin(this.num,code,this.inviteCode,this.activityId);
                     }else{
-                        var reObj = await quickLogin(phone,code);
+                        var reObj = await quickLogin(this.num,code);
                     }
                     if(reObj.code=='-1005'){//用户未设置登录密码
                         this.RECORD_TOKEN(reObj.content)
                         localStorage.setItem('needRender',true)  //依据此变量判断生金需不需要初始化数据
-                        window.sendUserId(reObj.content.userId,reObj.content.token);//给APP传userId和token
                         if(this.$route.query.from){
                             var path=this.$route.query.from
                         }
@@ -271,10 +250,6 @@
                             position: 'bottom',
                             duration: 3000
                         });
-                        this.errTimes++;//验证码错误次数加1
-                        if(this.errTimes>=3){
-                            this.resetPicCaptcha();
-                        }
                     }else if(reObj.code=='-1006'){ //手机号格式错误
                         Toast({
                             message: reObj.message,
@@ -282,13 +257,10 @@
                             duration: 3000
                         });
                     }else if(reObj.code=='100'){
-                        localStorage.setItem('needRender',true)  //依据此变量判断生金需不需要初始化数据
                         //登录成功后获取用户基本概况
-                        this.userInforma();
+                        // this.userInforma();
                         //登录成功后去获取登录页的上一页,再跳转回去(带上对应的参数)
                         this.RECORD_TOKEN(reObj.content)
-                        //调用与app交互的传userid方法
-                        window.sendUserId(reObj.content.userId,reObj.content.token);//给APP传userId和token
                         var path="", id="";
                         if(this.$route.query.redirect){
                             path=this.$route.query.redirect
@@ -322,7 +294,7 @@
                             duration: 3000
                         });
                     }
-                }else{  //密码登录
+                }else{//密码登录
                     var regPwd=/^[0-9a-zA-Z]{6,20}$/;
                     if(this.rightShow_2!=1){
                         this.accWrong=true;
@@ -333,14 +305,14 @@
                         return;
                     }
                     const res=await login(this.account,this.password)
-                    if(res.code==100){
-                        localStorage.setItem('needRender',true)  //依据此变量判断生金需不需要初始化数据
+                    if(res.code=="000000"){
                         //登录成功后获取用户基本概况
-                        this.userInforma();
+                        // this.userInforma();
+                        this.RECORD_USERID(res.data.userId)
+                        this.RECORD_ACCESSTOKEN(res.data.accessToken)
+                        this.RECORD_MOBILE(res.data.mobile)
+                        this.RECORD_MERCHANTID(res.data.merchantId)
                         //登录成功后去获取进入登录页的上一页,再跳转回去(带上对应的参数)
-                        this.RECORD_TOKEN(res.content)
-                        //调用与app交互的传userid方法
-                        window.sendUserId(res.content.userId,res.content.token);//给APP传userId和token
                         var path="",id="";
                         if(this.$route.query.redirect){
                             path=this.$route.query.redirect
@@ -365,7 +337,7 @@
                             })
                             return
                         }else{
-                            this.$router.push('/buyGold');
+                            this.$router.push('/index');
                         }
                     }else{
                         Toast({
@@ -373,35 +345,23 @@
                             position: 'bottom',
                             duration: 3000
                         });
-                        this.errTimes++;//验证码错误次数加1
-                        if(this.errTimes>=3){
-                            this.resetPicCaptcha();
-                        }
                     }
                 }
             },
-            startInput(){
-                this.numWrong=false;  //输入手机号时手机号错误提示窗消失
-            },
-            iptCode($event){  //控制是否可输入验证码
-                this.codeWrong=false;
-            },
             //获取短信验证码
             async getCode(){
+                if(this.iNow==false)return//还在读秒不能点击
                 this.code=''
-                if(this.errTimes>=3){
-                    this.resetPicCaptcha();
-                    return;
-                }
-                var send_smscode = this.$refs.send_smscode;
-                if(send_smscode.innerHTML != '获取验证码') return;
                 //获取验证码之前先验证手机号格式是否正确
                 if(!this.rightShow_1){
-                    this.numWrong=true;
+                    Toast('请输入正确的手机号')
                     return;
                 }
-                var that=this;
-                if(this.iNow==true){
+                //验证手机号是否注册
+                const res = await checkexist(this.num);//检验是否已注册
+                if(res.code=="000000"&&(res.data&&!res.data.isExist)){//请求成功且注册
+                    var send_smscode = this.$refs.send_smscode;
+                    var that=this;
                     this.iNow = false;
                     let timer = setInterval(function(){
                         send_smscode.style.color="#666";
@@ -415,7 +375,25 @@
                             that.second = 60;
                         }
                     },1000)
-                    const res=await sendSms(this.num);
+                    let res = await sendsms(this.num,1);
+                }else if(res.code=="000000"&&(res.data&&res.data.isExist)){//请求成功且未注册
+                    MessageBox({
+                        title: '提示',
+                        message: '手机号未注册' ,
+                        confirmButtonText: '去注册',
+                        showCancelButton: '我知道了'
+                    }).then((action)=>{
+                        if(action=='confirm'){
+                            this.$router.push('/register')
+                        }
+                    })
+                    return
+                }else{
+                    Toast({
+                        message: res.message,
+                        position: 'bottom',
+                        duration: 3000
+                    });
                 }
             },
             //获取用户基本概况
@@ -428,20 +406,32 @@
             clear(){   //清除输入框
                 this.num='';
             },
-            inputAcc(){   //账号登录输入时账号格式错误提示窗消失
-                this.accWrong=false;
-            },
-            startPwd(){
-                this.pwdWrong=false;
-            },
-            clearAccIpt(){  //清除输入框
+            //清除账户或手机号输入框
+            clearAccIpt(val){
                 this.account='';
+                this.num='';
             },
-            toggleClose(){
-                this.close=false;
+            //眼睛切换
+            toggle(){
+                this.eye==clo_eye?this.eye=op_eye:this.eye=clo_eye
+                this.eye==clo_eye?this.texorpas='password':this.texorpas='text'
             },
-            toggleOpen(){
-                this.close=true;
+            //检查输入是否为数字
+            checkInput(val,val2){
+                var str = isNumber(val);
+                var ss = '';
+                if(str==null){
+                    if(val2=="code"){
+                        this.code=''
+                    }
+                }else{
+                    str.forEach(item => {
+                        ss = ss + item
+                    });
+                    if(val2=="code"){
+                        this.code=ss
+                    }
+                }
             },
         },
 		
@@ -472,13 +462,7 @@ input{
 }
 .loginPart .tabPart{
     height:.55rem;
-    display: -webkit-flex;
-    display: -moz-flex;
-    display: -o-flex;
     display: flex;
-    -webkit-justify-content:center;
-    -moz-justify-content:center;
-    -o-justify-content:center;
     justify-content: center;
     font-size:.3rem;
     color:#333333;
@@ -522,26 +506,18 @@ input{
 .accIpt{
     right:0.2rem;
 }
-.wrongNumber,.wrongIdenCode,.wrongAcc,.wrongPwd{
-    height:.3rem;
-    line-height: .3rem;
-    color:red;
-    font-size:.24rem;
-    position: absolute;
-    left: 0.22rem;
-    bottom:0;
-}
 .telephone,.identify,.account,.password{
     height:1.1rem;
     border-bottom: 1px solid #EFEFEF;
     line-height:1.1rem;
     position: relative;
 }
+.password input{
+    font-size:.28rem;
+    padding-left: .22rem;
+}
 .telephone{
     display: flex;
-    display: -webkit-flex;
-    display: -moz-flex;
-    display: -o-flex;
 }
 .telephone #inputTel{
     flex:2.5;
@@ -558,12 +534,13 @@ input{
     right: 0;
     top: 0;
 }
-.telephone #inputTel,.identify #identifyCode,.account #inputAcc,.password #inputPwd{
+#inputTel,#identifyCode,#inputAcc{
     border:none;
     font-size:.3rem;
     color:#333333;
     outline-style: none;
     padding-left:.22rem;
+    width: 88%;
 }
 #inputPwd.visibleYN{
     background-color: transparent;
@@ -595,7 +572,7 @@ input{
     background-color: #DDC899;
  }
 .hasActived:active{
-    background-color: #eda835;
+    background-color: rgb(199, 178, 130);
  }
 .hasActived:visited{
     background-color: #DDC899;
@@ -645,5 +622,22 @@ input{
     line-height: .88rem;
     text-align: center;
     font-size: .34rem;
+}
+/*placeholder颜色*/
+input::-webkit-input-placeholder{
+    color:#BCBCBC;
+    font-size: .32rem;
+}
+input::-moz-placeholder{   /* Mozilla Firefox 19+ */
+    color:#BCBCBC;
+    font-size: .32rem;
+}
+input:-moz-placeholder{    /* Mozilla Firefox 4 to 18 */
+    color:#BCBCBC;
+    font-size: .32rem;
+}
+input:-ms-input-placeholder{  /* Internet Explorer 10-11 */ 
+    color:#BCBCBC;
+    font-size: .32rem;
 }
 </style>
