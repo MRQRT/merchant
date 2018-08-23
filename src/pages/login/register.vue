@@ -140,7 +140,7 @@ import {mapMutations,mapState} from 'vuex'
                 if(!this.isSubmit)return
                 const res = await checkexist(this.tel);
                 if(res.code=="000000"&&(res.data&&res.data.isExist)){//请求成功且没有注册
-                    let md5password=md5(this.password) 
+                    let md5password=md5(this.password); 
                     const res = await registry(this.tel,this.vercode,this.md5password);
                     if(res.code=='300111'){
                         Toast('验证码错误')

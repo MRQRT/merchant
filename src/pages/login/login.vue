@@ -119,8 +119,10 @@
                     this.rightShow_1 = 1
                 }else if(val ==''){
                     this.rightShow_1 = 0
+                    this.highLight=false;this.dark=true;
                 }else{
                     this.rightShow_1 = 0
+                    this.highLight=false;this.dark=true;
                 }
             },
             //控制验证码长度
@@ -213,83 +215,21 @@
             async goToNext(){
                 //登录按钮未高亮不能进行下一步
                 if(this.$refs.login.classList.contains('noActived'))return;
-                if(this.fast){  //快捷登录
-                    if(this.params){
-                        var reObj = await quickLogin(this.num,code,this.params);
-                    }else if(this.activityId){
-                        var reObj = await quickLogin(this.num,code,this.inviteCode,this.activityId);
-                    }else{
-                        var reObj = await quickLogin(this.num,code);
-                    }
-                    if(reObj.code=='-1005'){//用户未设置登录密码
-                        this.RECORD_TOKEN(reObj.content)
-                        localStorage.setItem('needRender',true)  //依据此变量判断生金需不需要初始化数据
-                        if(this.$route.query.from){
-                            var path=this.$route.query.from
-                        }
-                        if(path=='register'){ //该用户是经由世界杯活动注册的新用户
-                            this.$router.push({
-                                path:'/makePwd',
-                                query:{
-                                    from:'register'
-                                }
-                            })
-                        }else if(path=='ranking'){
-                            this.$router.push({
-                                path:'/makePwd',
-                                query:{
-                                    from:'ranking'
-                                }
-                            })
-                        }else{
-                             this.$router.push({path:'/makePwd'})
-                        }
-                    }else if(reObj.code=='-1004'){
-                        Toast({
-                            message: reObj.message,
-                            position: 'bottom',
-                            duration: 3000
-                        });
-                    }else if(reObj.code=='-1006'){ //手机号格式错误
-                        Toast({
-                            message: reObj.message,
-                            position: 'bottom',
-                            duration: 3000
-                        });
-                    }else if(reObj.code=='100'){
+                //快捷登录
+                if(this.fast){
+                    var res = await quicklogin(this.num,this.code);
+                    if(res.code=='000000'){
                         //登录成功后获取用户基本概况
                         // this.userInforma();
                         //登录成功后去获取登录页的上一页,再跳转回去(带上对应的参数)
-                        this.RECORD_TOKEN(reObj.content)
-                        var path="", id="";
-                        if(this.$route.query.redirect){
-                            path=this.$route.query.redirect
-                        }
-                        if(this.$route.query.from){
-                            path=this.$route.query.from
-                        }
-                        if(this.$route.query.id){
-                            id=this.$route.query.id
-                        }
-                        if(path!='' && id==''){
-                            this.$router.replace({
-                                path:path
-                            })
-                            return;
-                        }
-                        if(path!='' && id!=''){
-                            this.$router.replace({
-                                path:path,
-                                query: {
-                                    id: id
-                                }
-                            })
-                            return
-                        }
-                        this.$router.push('/buyGold');
+                        this.RECORD_USERID(res.data.userId)
+                        this.RECORD_ACCESSTOKEN(res.data.accessToken)
+                        this.RECORD_MOBILE(res.data.mobile)
+                        this.RECORD_MERCHANTID(res.data.merchantId)
+                        this.toNext();
                     }else{
                         Toast({
-                            message: reObj.message,
+                            message: res.message,
                             position: 'bottom',
                             duration: 3000
                         });
@@ -304,7 +244,8 @@
                         this.pwdWrong=true;
                         return;
                     }
-                    const res=await login(this.account,this.password)
+                    let md5password=md5(this.password);
+                    const res=await login(this.account,md5password)
                     if(res.code=="000000"){
                         //登录成功后获取用户基本概况
                         // this.userInforma();
@@ -312,33 +253,7 @@
                         this.RECORD_ACCESSTOKEN(res.data.accessToken)
                         this.RECORD_MOBILE(res.data.mobile)
                         this.RECORD_MERCHANTID(res.data.merchantId)
-                        //登录成功后去获取进入登录页的上一页,再跳转回去(带上对应的参数)
-                        var path="",id="";
-                        if(this.$route.query.redirect){
-                            path=this.$route.query.redirect
-                        }
-                        if(this.$route.query.from){
-                            path=this.$route.query.from
-                        }
-                        if(this.$route.query.id){
-                            id=this.$route.query.id
-                        }
-                        if(path!=''&&id==''){
-                            this.$router.replace({
-                                path:path
-                            })
-                            return;
-                        }else if(path!=''&&id!=''){
-                            this.$router.replace({
-                                path:path,
-                                query: {
-                                    id: id
-                                }
-                            })
-                            return
-                        }else{
-                            this.$router.push('/index');
-                        }
+                        this.toNext();
                     }else{
                         Toast({
                             message: res.message,
@@ -370,7 +285,7 @@
                         if(that.second==-1){
                             clearInterval(timer);
                             that.iNow=true;
-                            send_smscode.style.color="#eda835";
+                            send_smscode.style.color="#C09C60";
                             send_smscode.innerHTML = '获取验证码';
                             that.second = 60;
                         }
@@ -403,9 +318,6 @@
                     this.RECORD_USERINFO(res.content)
                 }
             },
-            clear(){   //清除输入框
-                this.num='';
-            },
             //清除账户或手机号输入框
             clearAccIpt(val){
                 this.account='';
@@ -433,6 +345,36 @@
                     }
                 }
             },
+            //登录完成后进行页面跳转
+            toNext(){
+                //登录成功后去获取进入登录页的上一页,再跳转回去(带上对应的参数)
+                var path="",id="";
+                if(this.$route.query.redirect){
+                    path=this.$route.query.redirect
+                }
+                if(this.$route.query.from){
+                    path=this.$route.query.from
+                }
+                if(this.$route.query.id){
+                    id=this.$route.query.id
+                }
+                if(path!=''&&id==''){
+                    this.$router.replace({
+                        path:path
+                    })
+                    return;
+                }else if(path!=''&&id!=''){
+                    this.$router.replace({
+                        path:path,
+                        query: {
+                            id: id
+                        }
+                    })
+                    return
+                }else{
+                    this.$router.push('/index');
+                }
+            }
         },
 		
 	}
