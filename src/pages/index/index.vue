@@ -19,7 +19,7 @@
 		</div>
 		<!-- 成交数量 -->
 		<section class="dealNum" v-if="loginStatus && shopCheckStatus">
-            <p class="title">店铺近一月成交量</p>
+            <p class="title">近一月成交量</p>
             <div class="deal-num">
                 <div class="total-price">
                     <p>累计成交金额(元)</p>
@@ -40,79 +40,81 @@
 		<!--存金流程-->
 		<div class="store_flow">
 			<section class="subtitle">黄金回收流程</section>
-			<p class="resume">我们承诺，随时接受退换</p>
-			<!-- <h4>存金流程</h4> -->
-			<section class="flow_container">
-				<div class="each_flow_container">
-					<img src="static/images/flow1.png">
-					<p>在线预约</p>
-				</div>
-				<p class="store_join_line"></p>
-				<div class="each_flow_container">
-					<img src="static/images/flow2.png">
-					<p>顺丰上门</p>
-				</div>
-				<p class="store_join_line"></p>
-				<div class="each_flow_container">
-					<img src="static/images/flow3.png">
-					<p>检测变现</p>
-				</div>
-			</section>
+            <div class="store_flow-wrap">
+                <p class="resume">我们承诺，随时接受退换</p>
+    			<section class="flow_container">
+    				<div class="each_flow_container">
+    					<img src="static/images/store-1.png">
+    					<p>在线预约</p>
+    				</div>
+    				<p class="store_join_line"></p>
+    				<div class="each_flow_container">
+    					<img src="static/images/store-2.png">
+    					<p>顺丰上门</p>
+    				</div>
+    				<p class="store_join_line"></p>
+    				<div class="each_flow_container">
+    					<img src="static/images/store-3.png">
+    					<p>检测变现</p>
+    				</div>
+    			</section>
+            </div>
 		</div>
 		<!--选择原因-->
 		<section class="reason">
-			<section class="subtitle">为什么选择存金通</section>
-			<p class="resume">黄金管家旗下品牌，央企背景，回收黄金我们是专业的</p>
-			<div class="reason_top">
-				<div>
-					<img src="static/images/pr.png" alt="">
-					<p>实时金价卖出</p>
-					<p>透明安全有保障</p>
-				</div>
-				<div>
-					<img src="static/images/jl.png" alt="">
-					<p>直达精炼厂</p>
-					<p>没有中间商赚取差价</p>
-				</div>
-			</div>
-			<div class="reason_bottom">
-				<div>
-					<img src="static/images/bao2.png" alt="">
-					<p>免费上门取货</p>
-					<p>5000万高额保费</p>
-				</div>
-				<div>
-					<img src="static/images/bao4.png" alt="">
-					<p>先称重估价</p>
-					<p>客户满意再成交</p>
-				</div>
-			</div>
+			<section class="subtitle">存金通服务保障</section>
+            <div class="reason-wrap">
+                <div>
+    				<p>实时金价卖出</p>
+    				<p>透明安全有保障</p>
+    			</div>
+    			<div>
+    				<p>直达精炼厂</p>
+    				<p>没有中间商赚取差价</p>
+    			</div>
+    			<div>
+    				<p>免费上门取货</p>
+    				<p>5000万高额保费</p>
+    			</div>
+    			<div>
+    				<p>先称重估价</p>
+    				<p>客户满意再成交</p>
+    			</div>
+            </div>
+            <p class="resume">黄金管家旗下品牌，央企背景，回收黄金我们是专业的</p>
 		</section>
 		<!-- 股东背景 -->
-		<section class="subtitle">股东背景</section>
-		<div class="gudong">
-			<div style="overflow: scroll;width: 10rem;">
-				<div class="pe">
-				<img src="static/images/zhongx.png" alt="">
-				</div>
-				<div class="pe">
-					<img src="static/images/lan.png" alt="">
-				</div>
-				<div class="pe">
-					<img src="static/images/yi.png" alt="">
-				</div>
-				<div class="pe">
-					<img src="static/images/zhong2.png" alt="">
-				</div>
-				<div class="pe">
-					<img src="static/images/bai.png" alt="">
-				</div>
-			</div>
-		</div>
+        <div class="gudong-wrap">
+            <section class="subtitle">股东背景</section>
+            <div class="gudong">
+                <div class="pe">
+                    <img src="static/images/company-1.png" alt="">
+                </div>
+                <div class="pe">
+                    <img src="static/images/company-2.png" alt="">
+                </div>
+                <div class="pe">
+                    <img src="static/images/company-3.png" alt="">
+                </div>
+                <div class="pe">
+                    <img src="static/images/company-4.png" alt="">
+                </div>
+                <div class="pe">
+                    <img src="static/images/company-5.png" alt="">
+                </div>
+                <div class="pe">
+                    <img src="static/images/company-6.png" alt="">
+                </div>
+            </div>
+        </div>
 		<!-- 公司介绍 -->
 		<section class="jieshao">
 			<section class="subtitle">公司介绍</section>
-			<div style="background-color: #fff;text-align:center;">
+            <div class="jieshao-img">
+                <img src="static/images/company-bg.png" alt="">
+                <span>我们是谁</span>
+            </div>
+			<div class="jieshao-text">
 				<div style="text-align: left;">"存金通"隶属于北京黄金管家科技发展有限公司，总部位于北京，是拥有央企背景的黄金回购平台。上海黄金交易所综合类会员“众恒隆”作为股东为“存金通”保驾护航。经由“存金通”回收来的所有黄金将直达精炼厂，为上海黄金交易所指定的黄金回收机构。</div>
 				<p>微信公众号：hjgjdyh</p>
 				<p>黄金管家QQ群：673646474</p>
@@ -121,18 +123,6 @@
 				<p>公司地址：北京市海淀区中关村SOHO B座 1209室</p>
 			</div>
 		</section>
-        <!-- 主体内容 -->
-        <div class="main-cont">
-            <div class="" @click="$router.push('/openshopguide')">开店引导页</div>
-            <div class="" @click="$router.push('/applicationresults')">资质审核结果</div>
-            <div class="" @click="$router.push('/qcmscommitresult')">资信结</div>
-            <div class="" @click="$router.push('/confirminfo')">资质信息核对</div>
-            <div class="" @click="$router.push('/uploadcertificate')">上传资质信息</div>
-            <div class="" @click="$router.push('/editshopinfo')">编辑商铺</div>
-            <div class="" @click="$router.push('/myshop')">我的店铺</div>
-            <div class="" @click="$router.push('/addressList')">我的地址</div>
-            <div class="" @click="$router.push('/addAddress')">添加地址</div>
-        </div>
         <!-- 左侧导航 -->
         <mt-popup v-model="popupVisible" position="left">
             <div class="nav-wrap">
@@ -337,19 +327,20 @@ import { Popup } from 'mint-ui';
     }
     .price_container{
     	width:100%;
+        padding:0 .4rem;
     	bottom:-2.1rem;
     	position: absolute;
     	display: flex;
     	justify-content: center;
     }
     .price_container>div{
-    	height: 3.8rem;
+        width:100%;
+        height: 3.8rem;
     	display: inline-block;
-    	width: 6.7rem;
     	padding-top:.5rem;
     	background-color: #fff;
     	text-align: center;
-        @include box-shadow(0px 10px 12px -1px #ebebeb);
+        @include box-shadow(0px 10px 12px -1px rgba(0,0,0,0.06));
         .price_in{
         	text-align: center;
             span{
@@ -392,8 +383,10 @@ import { Popup } from 'mint-ui';
         padding:0 .4rem;
         margin-top: 2.7rem;
         .title{
-            color: #666;
-            font-size: .26rem;
+            color: #333;
+            font-size: .34rem;
+            // font-weight: bold;
+            font-family:PingFangSC-Medium;
             margin-bottom: .3rem;
         }
         .deal-num{
@@ -405,14 +398,14 @@ import { Popup } from 'mint-ui';
             .total-price{
                 margin-bottom: .5rem;
                 .price{
-                    color: #333;
+                    color: #C09C60;
                     font-size: .6rem;
                     margin-top:.15rem;
                     font-family:DINAlternate-Bold;
                 }
             }
             .bottom-num{
-                color: #999;
+                color: #666;
                 text-align: left;
                 @include flex-box();
                 @include justify-content();
@@ -420,7 +413,7 @@ import { Popup } from 'mint-ui';
                     @include flex-grow(1);
                 }
                 .weight,.price{
-                    color: #333;
+                    color: #C09C60;
                     font-size: .4rem;
                     margin-top:.1rem;
                     font-family:DINAlternate-Bold;
@@ -435,7 +428,7 @@ import { Popup } from 'mint-ui';
     /*存金流程*/
     .resume{
         font-size: .24rem;
-        color: #C09C60;
+        color: #666;
         text-align: center;
         h4{
             font-size: .34rem;
@@ -446,150 +439,185 @@ import { Popup } from 'mint-ui';
     }
     .store_flow{
     	background-color: #fff;
-    	width: 6.9rem;
+    	width: 100%;
     	height: 4rem;
+        padding:0 .4rem;
     	margin-top: .6rem;
     	display: inline-block;
+        .store_flow-wrap{
+            width:100%;
+            padding:.4rem .5rem;
+            background:rgba(249,245,239,1);
+        }
         .flow_container{
-        	-webkit-justify-content: center;
-        	-o-justify-content: center;
-        	-moz-justify-content: center;
-        	justify-content: center;
-        	margin-top:.7rem;
+        	margin-top:.3rem;
             @include flex-box();
+            @include justify-content();
             img{
-            	width:.6rem;
+            	width:.8rem;
+                height:.8rem;
             }
             .each_flow_container{
             	text-align: center;
             	position: relative;
                 p{
                     font-size:.28rem;
-                	color:#666666;
+                	color:#333;
                 	padding-top:.14rem;
                 }
             }
             .store_join_line{
-            	width: 1.2rem;
-            	height: .02rem;
+            	width: .12rem;
+            	height: .16rem;
             	background-color: #E1E1E1;
             	margin-left: .1rem;
             	margin-right: .1rem;
             	margin-top: .3rem;
+                @include bg-image('/static/images/store-arrow.png');
+
             }
         }
     }
     /*reason*/
     .reason{
-    	width: 6.9rem;
-    	// height: 8.18rem;
-        padding:.2rem 0 .4rem;
+    	width: 100%;
+        padding:.2rem .4rem;
+        margin-top:.3rem;
     	background-color: #fff;
     	display: inline-block;
-        .reason_top,.reason_bottom{
-        	display: flex;
-        	justify-content: center;
-        	flex-direction: row;
-        	margin-top: .45rem;
+        .reason-wrap{
+            flex-wrap: wrap;
+            @include flex-box();
+            @include justify-content();
             div{
-                width: 3.35rem;
-            }
-            p:nth-of-type(1){
-                color:#333;
-            	font-size: .28rem;
-            	line-height: .4rem;
-            }
-            p:nth-of-type(2){
-                font-size: .25rem;
-            	color: #999999;
-            	line-height: .4rem;
-            }
-            img{
-                width: 1.2rem;
-            	height: 1.2rem;
+                width:48.5%;
+                height: 1.5rem;
+                color:#fff;
+                text-align: center;
+                font-size: .24rem;
+                padding:.35rem 0 .4rem;
                 margin-bottom: .2rem;
+                &:nth-of-type(1){
+                    @include bg-image('/static/images/service-1.png');
+                }
+                &:nth-of-type(2){
+                    @include bg-image('/static/images/service-2.png');
+                }
+                &:nth-of-type(3){
+                    @include bg-image('/static/images/service-3.png');
+                }
+                &:nth-of-type(4){
+                    @include bg-image('/static/images/service-4.png');
+                }
+                p{
+                    &:nth-of-type(1){
+                        font-size: .3rem;
+                    }
+                }
             }
-
         }
+        .resume{
+            text-align: left;
+        }
+
     }
     .subtitle{
     	height: .8rem;
     	font-size: .34rem;
     	color: #333333;
     	line-height: .8rem;
-    	text-align: center;
-    	font-weight: bold;
-    	margin-top: .5rem;
+    	text-align: left;
+    	// font-weight: bold;
+        margin-bottom: .2rem;
+        font-family:PingFangSC-Medium;
     }
-    .subtitle:before{
-    	display: inline-block;
-    	content:'';
-    	width: 1rem;
-    	height: .25rem;
-        @include bg-image('/static/images/r.png');
-    	background-size: 90%;
-    	background-position: center;
-    	margin-right: .2rem;
-    }
-    .subtitle:after{
-    	display: inline-block;
-    	content:'';
-    	width: 1rem;
-    	height: .25rem;
-        @include bg-image('/static/images/l.png');
-    	background-size: 90%;
-    	background-position: center;
-    	margin-left: .2rem;
-    }
+    // .subtitle:before{
+    // 	display: inline-block;
+    // 	content:'';
+    // 	width: 1rem;
+    // 	height: .25rem;
+    //     @include bg-image('/static/images/r.png');
+    // 	background-size: 90%;
+    // 	background-position: center;
+    // 	margin-right: .2rem;
+    // }
+    // .subtitle:after{
+    // 	display: inline-block;
+    // 	content:'';
+    // 	width: 1rem;
+    // 	height: .25rem;
+    //     @include bg-image('/static/images/l.png');
+    // 	background-size: 90%;
+    // 	background-position: center;
+    // 	margin-left: .2rem;
+    // }
     /**/
-    .gudong{
-    	width: 100%;
-    	height: 4.33rem;
-    	margin-top: .2rem;
-        @include bg-image('/static/images/hgdBg.jpg')
-    	background-color: #fff;
-    	display: inline-block;
-    	padding: 1.26rem .15rem 0rem .41rem;
-    	overflow: hidden;
-    	overflow-x: scroll;
-    	white-space: nowrap;
-        .pe{
-        	width: 1.8rem;
-        	height: 1.8rem;
-        	background-color: rgba(239,239,239,	.8);
-        	float: left;
-        	margin-right: .2rem;
-            img{
-            	width: 1.5rem;
-                height: .63rem;
-                float: left;
-                margin-top: .55rem;
-            	margin-left: .18rem;
+    .gudong-wrap{
+        width:100%;
+        padding:0 .4rem;
+        margin-top:.4rem;
+        .gudong{
+        	width: 100%;
+        	margin-top: .2rem;
+        	background-color: #fff;
+            flex-wrap: wrap;
+            @include flex-box();
+            @include justify-content();
+            .pe{
+            	width: 32%;
+            	height: 1.2rem;
+            	border:1px solid #eee;
+                margin-bottom: .2rem;
+                padding:.28rem .3rem;
+                position: relative;
+                img{
+                    width: 1.5rem;
+                    height: .64rem;
+                }
             }
         }
     }
+
     .jieshao{
-    	width: 6.9rem;
-    	padding: 0 .3rem 0 .3rem;
-    	margin-bottom: .3rem;
+    	width: 100%;
+    	padding: 0 .4rem;
+    	margin-bottom: .8rem;
     	display: inline-block;
     	background-color: #fff;
-    	margin-top: .3rem;
-        &>div{
-        	background-color: rgba(248, 248, 248, 1);
+    	margin-top: .4rem;
+        .jieshao-img{
+            width:100%;
+            // height: 2rem;
+            position: relative;
+            padding-bottom: 0 !important;
+            img{
+                width: 100%;
+            }
+            span{
+                color: #fff;
+                font-size: .34rem;
+                position: absolute;
+                left:.3rem;
+                top:.75rem;
+                font-family:PingFangSC-Medium;
+            }
+        }
+        .jieshao-text{
         	font-size: .24rem;
         	color: #999;
-        	padding: .38rem 0;
         	line-height: .45rem;
+            padding-bottom: .4rem;
+            @include box-shadow(0px 10px 12px -1px rgba(0,0,0,0.06));
             &>div{
             	font-size: .28rem;
             	color: #333;
                 line-height: .5rem;
-                margin-bottom: .5rem;
+                padding:.3rem .3rem .4rem;
                 font-family:PingFangSC-Regular;
             }
             p{
             	text-align: left;
+                padding-left:.3rem;
             }
         }
     }

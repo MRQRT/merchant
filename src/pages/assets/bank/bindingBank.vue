@@ -387,7 +387,7 @@ import { Toast } from 'mint-ui'
         }
 
         .store-btn{
-            width:92%;
+            width:89%;
             height: .88rem;
             color: #fff;
             font-size: .34rem;
