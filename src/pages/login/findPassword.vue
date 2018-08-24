@@ -10,19 +10,15 @@
         <section class="backPwd">
             <div class="tele">
                 <input type="number" id="iptTel" placeholder="请输入手机号" v-model="tel" pattern="[0-9]*" @focus="telWrong=false;" maxlength="11">
-                <span class="getIdenCode" @click="identifyTele" ref="send_smscode" style="font-size:.26rem;">获取验证码</span>
-                <span class="wrongTel" ref="wrongTel" v-show="telWrong">手机号格式错误</span>
+                <span class="clear" v-show="tel"><img src="static/images/clearinput.png" alt="" @click="clears"></span>
             </div>
             <div class="idenCode">
                 <input type="number" id="iptCode" ref="iptCode" placeholder="请输入验证码" v-model="code" style="width:100%;">
-                <span class="wrongCode" ref="wrongCode" v-show="codeWrong">验证码格式错误</span>
+                <span class="getIdenCode" @click="identifyTele" ref="send_smscode" style="font-size:.26rem;">获取验证码</span>
             </div>
             <div class="newPwd">
-                
-                <input type="password" v-if="close" id="iptPwd" placeholder="请设置密码(6-20位数字、字母或组合)"  v-model="pwd"  ref="iptPwd" maxlength="20">
-                <input v-else type="text"   placeholder="请设置密码(6-20位数字、字母或组合)" id="iptPwd" v-model="pwd"  ref="iptPwd" maxlength="20">
-                <span class="visible" v-show="close" @click="toggleOpen"><img src="static/images/close_eye.png" style="width:.44rem;height:.55rem;"></span>
-                <span class="visible" v-show="open" @click="toggleClose"><img src="static/images/open_eye.png" style="width:.44rem;height:.44rem;"></span>
+                <input :type="texorpas" id="iptPwd" placeholder="请设置密码(6-20位数字、字母或组合)"  v-model="password"  ref="iptPwd" maxlength="20">
+                <span class="visible" @click="toggle"><img :src="eye" style="width:.44rem;height:.55rem;"></span>
             </div>
         </section>
         <a class="confirmBtn" :class="{'noActived':dark,'hasActived':highLight}" @click="confirm">确定</a>
@@ -30,28 +26,29 @@
 </template>
 
 <script>
+    import op_eye from 'static/images/open_eye.png';
+    import clo_eye from 'static/images/close_eye.png';
   import headTop from '../../components/header/head.vue';
   import { Toast } from 'mint-ui';
-//   import { mapMutations } from 'vuex'
-//   import {sendSms,checkSms,updatePwd,login} from '@/service/getData.js'
+  import { mapMutations,mapState } from 'vuex'
+  import {findpassword,sendsms} from '@/service/getData.js'
 	export default {
 		data(){
 			return {
-                     tel: '', 
-                    code: '', 
-                     pwd: '',
+                     eye: clo_eye,//眼睛 
+                     tel: '',//手机号 
+                    code: '',//验证码
+                password: '',//密码
                     dark: true,
                highLight: false,
-                   close: true,
-                    open: false ,
-                telWrong: false,
-               codeWrong: false,//将图片验证码初始值设置为
+                telWrong: false,//手机号不正确标志
+               codeWrong: false,//验证码不正确标志
                telAccess: 1,
-                errTimes: 0,
                      pic: '',//图片验证码区域
                     iNow: true,//解决重复点击问题
                   second: 60,//获取验证码的毫秒数	
                rightShow: 0,//手机号验证正确图标显示开关
+                texorpas: 'password',
 		    }
 		},
 		mounted() {
@@ -102,16 +99,12 @@
 			
 		},
 		methods:{
-            // ...mapMutations([
-            //     'RECORD_TOKEN'
-            // ]),
-			toggleOpen(){
-                this.open=true;
-                this.close=false;
-            },
-            toggleClose(){
-                this.close=true;
-                this.open=false;
+            ...mapMutations([
+
+            ]),
+            toggle(){
+                this.eye==clo_eye?this.eye=op_eye:this.eye=clo_eye
+                this.eye==clo_eye?this.texorpas='password':this.texorpas='text'
             },
             myToast(message){
                 Toast({
@@ -120,14 +113,8 @@
                     duration: 3000
                 });
             },
-            resetPicCaptcha(){  //判断登入错误次数
-            },
              //点击获取验证码符合条件开始倒计时
             async identifyTele(){ 
-                if(this.errTimes>=3){
-                    this.resetPicCaptcha();
-                    return;
-                }
                 var send_smscode = this.$refs.send_smscode
                 if(send_smscode.innerHTML != '获取验证码') return;
                 if(!this.rightShow){
@@ -157,10 +144,6 @@
                 if(this.dark==true){
                     return;
                 }
-                if(this.errTimes>=3){
-                    this.resetPicCaptcha();
-                    return;
-                }
                 var regCode=/\d{6}/;
                 var regPwd=/^[0-9a-zA-Z]{6,20}$/;
                 if(!regCode.test(this.code)){
@@ -174,10 +157,6 @@
                 var res=await checkSms(this.tel,this.code)//手机验证码校验，根据返回状态码去判断验证码是否错误，错误则toast提示
                 if(res.code!=100){
                     this.myToast('验证码错误');
-                    this.errTimes++;
-                    if(this.errTimes>=3){
-                        this.resetPicCaptcha();
-                    }
                 }else{
                     var res=await updatePwd(this.tel,this.pwd,this.code);
                     if(res.code==100){
@@ -201,7 +180,11 @@
                 }else{
                     this.myToast(result.message);
                 }
-            }
+            },
+            //清除输入框
+            clears(){
+                this.tel='';
+            },
 		},
 		components:{
 			headTop
@@ -235,11 +218,8 @@
         -moz-flex:2.5;
         -o-flex:2.5;
     }
-    .tele .getIdenCode{
+    .getIdenCode{
         flex:1;
-        -webkit-flex:1;
-        -moz-flex:1;
-        -o-flex:1;
         color:#C09C60;
         text-align: center;
     }
@@ -285,15 +265,6 @@
     .noActived{
         background-color: #DDC899;
         color:#FEFCF9;
-    }
-    .wrongTel,.wrongCode{
-        height:.3rem;
-        line-height: .3rem;
-        color:red;
-        font-size:.24rem;
-        position: absolute;
-        left: 0.22rem;
-        bottom:0;
     }
     .logoPart{
     height: 2.3rem;

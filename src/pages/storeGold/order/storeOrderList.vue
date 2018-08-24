@@ -55,6 +55,8 @@
 
 <script>
 import headTop from '@/components/header/head.vue'
+import { query_list } from '@/service/getData.js'
+
 
     export default {
         data(){

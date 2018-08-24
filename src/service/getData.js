@@ -26,187 +26,101 @@ export const registry = (mobile,smsCode,password) => fetch('/user/registry',{'mo
 export const login = (userName,password) => fetch('/user/login',{'userName':userName,'password':password},'post')
 
 /**
-* 用户进行登录
+* 用户进行快捷登录
 */
 
 export const quicklogin = (mobile,smsCode) => fetch('/user/quick/login',{'mobile':mobile,'smsCode':smsCode},'post')
 
 /**
- * 获取当前时间
- */
-
-export const queryNow = () => fetch('/wap/sys/now',{},'get')
-
-/**
- * 获取实时金价
- */
-
-export const queryGoldPrice = () => fetch('/wap/price/current',{},'get')
-
-/**
- * 交易规则详情(限制条件)
- */
-
-export const queryTradeConfig = () => fetch('/wap/trade/limit',{},'get')
-
-/**
- * 查询当日价格曲线图
- */
-
-export const queryPriceTo24h = () => fetch('/wap/price/history',{},'get')
-
-/**
- * 查询历史收盘价
- */
-
-export const queryClosePriceToDay = (month) => fetch('/wap/price/closing?month='+month,{},'get')
-
-
-/**
- * 查询我的持仓克重
- */
-
-export const queryMyProfil = (userId) => fetch('/wap/user/stock?userId='+userId,{},'get')
-
-
-/**
- * 新闻资讯列表
- */
-
-export const queryNewsPager = (lastModifiedTime,pageNum,pageSize) => fetch('/wap/news/page?lastModifiedTime='+lastModifiedTime+'&pageNum='+pageNum+'&pageSize='+pageSize,{},'get')
-
-/**
- * 新闻资讯详情
- */
-
-export const queryNewsDetail = (id) => fetch('/wap/news/detail?id='+id,{},'get')
-
-/**
- * 创建活期金买入订单
- */
-
-export const demandBuyOrder = (userId,tradeAmount,maxBuyPrice,tradeWeight) => fetch('/wap/trade/buy',{'userId':userId,'tradeAmount':tradeAmount,'maxBuyPrice':maxBuyPrice,'tradeWeight':tradeWeight},'post')
-
-
-/**
- * 买入订单支付
- */
-
-export const payOrder = (userId,orderNo,mobile) => fetch('/wap/trade/payOrder',{'userId':userId,'orderNo':orderNo,'mobile':mobile},'post')
-
-
-/**
- * 创建活期金卖出订单
- */
-
-export const demandSellOrder = (userId,tradeWeight,minSellPrice,mobile) => fetch('/wap/trade/sell',{'userId':userId,'tradeWeight':tradeWeight,'minSellPrice':minSellPrice,'mobile':mobile},'post')
-
-
-/**
- * 交易状态查询
- */
-
-export const dealState = (orderNo) => fetch('/wap/order/state?orderNo='+orderNo,{},'get')
-
-
-/**
-* 查询用户交易列表
+* 用户进行快捷登录
 */
 
-export const queryOrderList = (months,beginDate,endDate,userId,tradeType) => fetch('/wap/order/list?months='+months+'&beginDate='+beginDate+'&endDate='+endDate+'&userId='+userId+'&tradeType='+tradeType,{},'get')
+export const findpassword = (mobile,smsCode,password) => fetch('/user/find/password',{'mobile':mobile,'smsCode':smsCode,'password':password},'post')
+
+
 
 
 /**
-* 查询用户交易详情
-*/
-
-export const tradeInfoDetail = (orderNo) => fetch('/wap/order/detail?orderNo='+orderNo,{},'get')
-
-
-/********实物金部分*******/
-
-/**
- * 商品列表
+ * 实时金价
  */
 
-export const queryGoods = (lastTime, hotGoodsPageNum, hotGoodsPageSize,moreGoodsPageNum, moreGoodsPageSize) => fetch('/xiamen/goods/goodsIndexList?lastTime=' + lastTime + '&hotGoodsPageNum=' + hotGoodsPageNum + '&hotGoodsPageSize=' + hotGoodsPageSize + '&moreGoodsPageNum=' + moreGoodsPageNum + '&moreGoodsPageSize=' + moreGoodsPageSize,{},'get')
+export const query_gold_price = () => fetch('/price/query',{},'get');
+
+/**
+ * 绑卡回显信息
+ */
+
+export const return_card_info = (code) => fetch('/bank_card?code='+code,{},'get');
+
+/**
+ * 查看银行卡
+ */
+
+export const query_card_info = () => fetch('/bank_card',{},'get');
+
+/**
+ * 绑定银行卡
+ */
+
+export const bind_card = (code,mobile,captcha) => fetch('/bank_card',{'code':code,'mobile':mobile,'captcha':captcha},'post');
 
 
 /**
- * 商品基本详情
+ * 创建订单验证接口(验证店铺是否存在或是否通过审核)
  */
 
-export const queryGoodsBasicDetail = (id) => fetch('/xiamen/goods/queryGoodsInfo?id=' + id,{},'get')
+export const check_shop_staus = (orderId) => fetch('/order/add_recycle_order_check',{},'post');
 
 /**
- * 商品更多详情
+ * 创建订单
  */
 
-
-export const queryGoodsMoreDetail = (id) => fetch('/xiamen/goods/goodsDetailList?id=' + id,{},'get')
+export const add_recycle_order = (applyQuantity,applyWeight,productType,isLockPrice,isCashshopId) => fetch('/order/add_recycle_order',{'applyQuantity':applyQuantity,'applyWeight':applyWeight,'productType':productType,'isLockPrice':isLockPrice,'isCash':isCash,'shopId':shopId},'post');
 
 /**
- *  查询用户地址
+ * 支付预下单(发送短信验证码)
  */
 
-export const queryAddress = (userSerialNo) => fetch('/xiamen/address/query?userSerialNo=' + userSerialNo,{},'get')
+export const pay_beforehand_order = (orderId) => fetch('/order/pay_beforehand_order',{'orderId':orderId},'post');
 
 /**
- *  新增地址
+ * 查看订单列表
  */
 
-export const addAddress = (userSerialNo,name,mobile,address,isDefault) => fetch('/xiamen/address/add',{'userSerialNo':userSerialNo, 'name':name, 'mobile':mobile, 'address':address,'isDefault':isDefault},'post')
+export const query_list = (shopId,page,size) => fetch('/order/query_list?orderId='+orderId+'&page='+page+'&size='+size,{},'get');
 
 /**
- *  设置默认地址
+ * 查看订单详情
  */
 
-export const putDefault = (id) => fetch('/xiamen/address/isDefault',{'id':id},'post')
+export const query_detail = (orderId) => fetch('/order/query_detail?orderId='+orderId,{},'get');
 
 /**
- *  删除地址
+ * 查询物流信息(快递单号、编码)
  */
 
-export const delAddress = (id) => fetch('/xiamen/address/delete/',{'id':id},'post')
+export const query_logistics_mess = (orderId,type) => fetch('/logistics/query_logistics_mess?orderId='+orderId+'&type='+type,{},'get');
 
 /**
- *  修改地址
+ * 查询快递信息
  */
 
-export const putAddress = (id, name, mobile, address, isDefault) => fetch('/xiamen/address/edit',{'id':id, 'name':name, 'mobile':mobile, 'address':address, 'isDefault':isDefault},'post')
+export const query_express_mess = (expressNo,expressCode) => fetch('/logistics/query_express_mess?expressNo='+expressNo+'&expressCode='+expressCode,{},'get');
 
 /**
- *  创建订单
+ * 查询订单追踪
  */
 
-export const addGoodsOrder = (goodsId, addressId, accountCode,accountSerialCode,userSerialNo,count,totalPrice) => fetch('/xiamen/order/add',{'goodsId':goodsId, 'addressId':addressId, 'accountCode':accountCode,'accountSerialCode':accountSerialCode,'userSerialNo':userSerialNo,'count':count,'totalPrice':totalPrice},'post')
+export const query_status_flow_mess = (orderId) => fetch('/order_flow/query_status_flow_mess?orderId='+orderId,{},'get');
 
 /**
- *  查询订单列表
+ * 确认订单(用户确认检测报告)
  */
 
-export const queryOrderlist = (lastTime, userSerialNo, stateCode, pageNum, pageSize) => fetch('/xiamen/order/list?lastTime=' + lastTime + '&userSerialNo=' + userSerialNo + '&stateCode=' + stateCode +'&pageNum=' + pageNum + '&pageSize=' + pageSize,{},'get')
-
+export const confirm_order = (orderId) => fetch('/order/confirm_order',{'orderId':orderId},'post');
 
 /**
- *  查询订单详情
- */
-export const queryOrderDetail = (id, stateCode) => fetch('/xiamen/order/detail?id=' + id + '&stateCode=' + stateCode,{},'get')
-
-
-/**
- *  取消订单
- */
-export const cancelOrder = (id) => fetch('/xiamen/order/cancel',{'id':id},'post')
-
-/**
- *  确认收货
+ * 修改订单(为支付订单超时)
  */
 
-export const receiveGoods = (id) => fetch('/xiamen/order/receive',{'id':id},'post')
-
-/**
- *  物流信息
- */
-
-export const queryExpressInfo = (code) => fetch('/xiamen/order/queryExpressInfo?code=' + code,{},'get')
+export const update_status = (orderId) => fetch('/order/update_status',{'orderId':orderId},'post');

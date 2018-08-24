@@ -241,7 +241,7 @@
 import headTop from '@/components/header/head.vue'
 import { clearNoNum } from '../../config/mUtils.js';
 import { MessageBox,Toast,Popup } from 'mint-ui';
-import {query_card_info,} from '@/service/index.js'
+import {query_card_info,check_shop_staus,add_recycle_order,pay_beforehand_order} from '@/service/getData.js'
 
 
     export default {

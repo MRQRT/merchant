@@ -40,7 +40,7 @@
 
 <script>
 import headTop from '@/components/header/head.vue'
-import {query_card_info,} from '@/service/index.js'
+import {query_card_info,} from '@/service/getData.js'
 
     export default {
         data(){

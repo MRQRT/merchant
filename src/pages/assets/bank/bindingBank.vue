@@ -64,6 +64,8 @@
 import headTop from '@/components/header/head.vue'
 import	delImg from 'static/images/clearinput.png'
 import { Toast } from 'mint-ui'
+import { return_card_info, bind_card, } from '@/service/getData.js'
+
 
     export default {
         data(){
@@ -180,7 +182,7 @@ import { Toast } from 'mint-ui'
 
 				if(num.test(newValue)){
 					this.tipShow = false;
-					// this.checkBankCard(newValue)
+					this.checkBankCard(newValue)
 				}else if(newValue.length!=''){
 					this.errorTipStatus=true;
 					this.bankTypeStatus=false;
@@ -192,7 +194,7 @@ import { Toast } from 'mint-ui'
 			},
             //判断银行卡类型
             async checkBankCard(val){
-                const res = await bankCardBin(value);
+                const res = await return_card_info(val);
                 if(res.code==200){
                     this.bankName=res.content.bankName
                 }else{
@@ -245,7 +247,7 @@ import { Toast } from 'mint-ui'
 			async stor(){
 				if(this.clickstatus){
 					const formatBankN = this.bankNum.replace(/\s/g, "")
-					const res = await boundBankCard(formatBankN, this.telNum, this.validNum)
+					const res = await bind_card(formatBankN, this.telNum, this.validNum)
 					if(res.code==200){
 						Toast('银行卡绑定成功')
 						if(this.$route.query.from=='storegold'){

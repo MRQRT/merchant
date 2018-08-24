@@ -195,12 +195,12 @@
                 </div>
                 <ul class="tracking-list" :class="{'showList':trackingStatus}">
                     <div class="line"></div>
-                    <li class="tracking-item" v-for="(item,index) in orderTracking">
+                    <li class="tracking-item" v-for="(item,index) in newList">
                         <div class="left-line">
                             <span class="dot" :class="{'recent-icon':index==0}"></span>
                         </div>
                         <div class="right-text" :class="{'recent':index==0}">
-                            <p class="progress">{{item.status}}</p>
+                            <p class="progress">{{item.name}}</p>
                             <p class="time">{{item.time}}</p>
                         </div>
                     </li>
@@ -290,6 +290,9 @@
 <script>
 import headTop from '@/components/header/head.vue'
 import { MessageBox,Toast,Popup } from 'mint-ui';
+/* 请求详情、物流单号、物流信息、订单追踪、确认订单、修改订单 */
+import { query_detail, query_logistics_mess, query_express_mess, query_status_flow_mes,confirm_order,update_status,} from '@/service/getData.js'
+
 
     export default {
         data(){
@@ -359,35 +362,69 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                 },
                 orderTrackJson:{
                     '0':{name:'订单已提交'},
-                    '1':{name:'已支付锁价保证金'},
+                    '1':{name:'订单审核未通过'},
                     '2':{name:'订单审核通过'},
-                    '3':{name:'订单审核未通过'},
                     '4':{name:'平台已签收'},
-                    '5':{name:'存金检测完毕-检测通过'},
-                    '6':{name:'存金检测完毕-检测未通过'},
+                    '5':{name:'存金检测完毕-检测未通过'},
+                    '6':{name:'存金检测完毕-检测通过'},
                     '7':{name:'已确认检测报告'},
-                    '8':{name:'平台已退货'},
+                    '8':{name:'订单已取消'},
                     '9':{name:'保证金已退还'},
-                    '10':{name:'订单完成'},
-                    '11':{name:'订单已取消'},
-                },
-                list:[
-                    {
-                        addSort:0,
-                        orderStatus:0,  // 订单已提交
-                        createTime:'2018-08-20',
-                    },
-                    {
-                        addSort:1,
-                        orderStatus:2,  // 订单审核通过
-                        createTime:'2018-08-20',
-                    },
-                    {
-                        addSort:2,
-                        orderStatus:4,  // 平台已签收
-                        createTime:'2018-08-20',
-                    },
+                    '13':{name:'平台已退货'},
+                    '14':{name:'订单完成'},
+                    '15':{name:'已支付锁价保证金'},
 
+                },
+                list: [
+                    {
+                        "id": null,
+                        "orderId": "123",
+                        "addSort": 6,
+                        "orderStatus": 1,
+                        "createTime": 1535095430000
+                    },
+                    {
+                        "id": null,
+                        "orderId": "123",
+                        "addSort": 5,
+                        "orderStatus":7,
+                        "createTime": 1535095430000
+                    },
+                    {
+                        "id": null,
+                        "orderId": "123",
+                        "addSort": 4,
+                        "orderStatus": 6,
+                        "createTime": 1535095378000
+                    },
+                    {
+                        "id": null,
+                        "orderId": "123",
+                        "addSort": 3,
+                        "orderStatus": 4,
+                        "createTime": 1535095371000
+                    },
+                    {
+                        "id": null,
+                        "orderId": "123",
+                        "addSort": 2,
+                        "orderStatus": 2,
+                        "createTime": 1535095365000
+                    },
+                    {
+                        "id": null,
+                        "orderId": "123",
+                        "addSort": 1,
+                        "orderStatus": 0, // 已支付保证金
+                        "createTime": 1535095362000
+                    },
+                    {
+                        "id": null,
+                        "orderId": "123",
+                        "addSort": 0,
+                        "orderStatus": 0,  // 订单已提交
+                        "createTime": 1535095362000
+                    }
                 ],
                 orderTracking:[
                     {
@@ -448,8 +485,9 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                         time:'2018-08-20 12:23:00',
                         status:'浙江省金华市义务中转站公司  已发出，下一站 北京运转中心'
                     },
-                ]
-
+                ],
+                orderTrackText:'',
+                newList:[],
             }
         },
         components:{
@@ -618,13 +656,22 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
             },
             // 订单追踪数据
             trackingText(){
-                var text;
-                var map = new Map();
-                // var text = this.orderTrackJson[num]
-                map.forEach(function(item){
-                    console.log(item)
-
+                var that = this;
+                this.list.forEach(function(item){
+                    if(item.orderStatus==0 && item.addSort!=0){ // 状态都为0时，判断已锁价
+                        that.orderTrackText = that.orderTrackJson[15].name
+                    }else if(item.orderStatus==1 && (item.addSort!=1 || item.addSort!=2)){ // 状态都为1时，判断显示审核未通过 or 退换保证金
+                        that.orderTrackText = that.orderTrackJson[9].name
+                    }
+                    else{
+                        that.orderTrackText = that.orderTrackJson[item.orderStatus].name
+                    }
+                    that.newList.push({
+                        time:item.createTime,
+                        name:that.orderTrackText
+                    })
                 })
+                console.log(this.newList)
 
             }
         },
@@ -1089,7 +1136,7 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                 }
                 .line{
                     width: 1px;
-                    height:140%;
+                    min-height:140%;
                     background-color:#E1E1E1;
                     position: absolute;
                     left:.2rem;
