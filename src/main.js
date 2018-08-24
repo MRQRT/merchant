@@ -12,7 +12,7 @@ import './config/rem'
 import './style/common.css'
 import 'swiper/dist/css/swiper.css'
 import 'mint-ui/lib/style.css'
-
+// import './config/vconsole.min.js'
 Vue.use(VueAwesomeSwiper)
 Vue.use(MintUI)
 Vue.config.productionTip = false

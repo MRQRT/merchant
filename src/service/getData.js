@@ -32,12 +32,17 @@ export const login = (userName,password) => fetch('/user/login',{'userName':user
 export const quicklogin = (mobile,smsCode) => fetch('/user/quick/login',{'mobile':mobile,'smsCode':smsCode},'post')
 
 /**
-* 用户进行快捷登录
+* 找回密码
 */
 
 export const findpassword = (mobile,smsCode,password) => fetch('/user/find/password',{'mobile':mobile,'smsCode':smsCode,'password':password},'post')
 
 
+/**
+* 微信等录
+*/
+
+export const wechatlogin = (redirectUrl) => fetch('/user/auth/login?redirectUrl='+redirectUrl,{},'get')
 
 
 /**
