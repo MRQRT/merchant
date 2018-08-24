@@ -6,7 +6,6 @@
         </div>
 		<!--存金banner-->
 		<div class="storBanner">
-			<!-- <img src="static/images/index-bg.jpeg"> -->
 			<div class="price_container">
 				<div>
 					<p class="price_in">
@@ -126,15 +125,22 @@
         <!-- 左侧导航 -->
         <mt-popup v-model="popupVisible" position="left">
             <div class="nav-wrap">
-                <!-- 店铺图标名称 -->
-                <div class="top-info" @click="goShop()">
-                    <div class="shop-logo">
-                        <img src="static/images/shop-logo.png" alt="">
+                <!-- 未登录情况 -->
+                <div class="top-info" v-if="loginStatus">
+                    <div class="cjt-logo">
+                        <img src="static/images/cjt-logo.png" alt="">
                     </div>
-                    <!-- 未登录显示 -->
-                    <p v-if="!loginStatus">请登录</p>
+                    <!-- 登录注册按钮 -->
+                    <div class="login-btn"  @click="$router.push({path:'/login',query:{redirect:'/index'}})">登录/注册</div>
+                </div>
+                <!-- 店铺图标名称 -->
+                <div class="top-info" @click="goShop()" v-else>
+                    <div class="shop-logo">
+                        <img src="static/images/shop-logo.png" alt="" v-if="!shopCheckStatus">
+                        <img src="" alt="" v-else>
+                    </div>
                     <!-- 登录且审核通过提示 -->
-                    <p v-if="loginStatus && shopCheckStatus">我的店铺啦啦啦啦啦啦啦啦啦啦</p>
+                    <p v-if="shopCheckStatus">我的店铺啦啦啦啦啦啦啦啦啦啦</p>
                     <!-- 未开店/店铺正在审核中显示 -->
                     <p v-else>我的店铺</p>
                 </div>
@@ -155,6 +161,10 @@
                     <li @click="$router.push('/aboutus')">
                         <span class="icon4"></span>
                         <span>关于我们</span>
+                    </li>
+                    <li @click="quitLogin()" v-if="!loginStatus">
+                        <span class="icon5"></span>
+                        <span>退出登录</span>
                     </li>
                 </ul>
             </div>
@@ -187,6 +197,7 @@ import { Popup } from 'mint-ui';
             }
         },
         methods: {
+            // 显示导航
             navPopup(){
                 this.popupVisible = true;
             },
@@ -197,6 +208,10 @@ import { Popup } from 'mint-ui';
                 }else{
                     this.$router.push('/openshopguide') // 开店引导页
                 }
+            },
+            // 退出登录
+            quitLogin(){
+
             }
         },
         created(){
@@ -256,9 +271,28 @@ import { Popup } from 'mint-ui';
         height: 100vh;
         padding:1.4rem .5rem 0 .6rem;
         background-color: #fff;
-        overflow: hidden;
+        overflow:scroll;
         .top-info{
             margin-bottom: 1.3rem;
+            .cjt-logo{
+                width: 2.1rem;
+                height: .58rem;
+
+                img{
+                    width: 100%;
+                }
+            }
+            .login-btn{
+                width: 3rem;
+                height: .7rem;
+                line-height: .7rem;
+                text-align: center;
+                color: #fff;
+                font-size: .3rem;
+                margin-top:.3rem;
+                background: -webkit-linear-gradient(left, #C09C60, #DDC899);
+                @include border-radius(.35rem);
+            }
             .shop-logo{
                 width: 1.6rem;
                 height: 1.6rem;
@@ -305,6 +339,9 @@ import { Popup } from 'mint-ui';
                 }
                 .icon4{
                     @include bg-image('/static/images/us-icon.png');
+                }
+                .icon5{
+                    @include bg-image('/static/images/quit-login.png');
                 }
 
             }

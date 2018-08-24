@@ -1,7 +1,7 @@
 import {fetch} from '../config/fetch.js'
 import {openAPI,checkAndroAgent,iosVersion} from '../config/mUtils.js'
-const andVerson = checkAndroAgent();
-const iosVerson = iosVersion();
+// const andVerson = checkAndroAgent();
+// const iosVerson = iosVersion();
 
 /**
  * 发送短信验证码
@@ -45,7 +45,7 @@ export const check_shop_staus = (orderId) => fetch('/order/add_recycle_order_che
  * 创建订单
  */
 
-export const add_recycle_order = (applyQuantity,applyWeight,productType,isLockPrice,isCashshopId) => fetch('/order/add_recycle_order',{'applyQuantity':applyQuantity,'applyWeight':applyWeight,'productType':productType,'isLockPrice':isLockPrice,'isCash':isCash,'shopId',shopId},'post');
+export const add_recycle_order = (applyQuantity,applyWeight,productType,isLockPrice,isCashshopId) => fetch('/order/add_recycle_order',{'applyQuantity':applyQuantity,'applyWeight':applyWeight,'productType':productType,'isLockPrice':isLockPrice,'isCash':isCash,'shopId':shopId},'post');
 
 /**
  * 支付预下单(发送短信验证码)

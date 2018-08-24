@@ -358,19 +358,37 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                     address:'内蒙古呼和浩特市赛罕区7号楼602罕区7号楼602'
                 },
                 orderTrackJson:{
-                    '1':{name:'订单已提交'},
-                    '2':{name:'已支付锁价保证金'},
-                    '3':{name:'订单审核通过'},
-                    '4':{name:'订单审核未通过'},
-                    '5':{name:'平台已签收'},
-                    '6':{name:'存金检测完毕-检测通过'},
-                    '7':{name:'存金检测完毕-检测未通过'},
-                    '8':{name:'已确认检测报告'},
-                    '9':{name:'平台已退货'},
-                    '10':{name:'保证金已退还'},
-                    '11':{name:'订单完成'},
-                    '12':{name:'订单已取消'},
+                    '0':{name:'订单已提交'},
+                    '1':{name:'已支付锁价保证金'},
+                    '2':{name:'订单审核通过'},
+                    '3':{name:'订单审核未通过'},
+                    '4':{name:'平台已签收'},
+                    '5':{name:'存金检测完毕-检测通过'},
+                    '6':{name:'存金检测完毕-检测未通过'},
+                    '7':{name:'已确认检测报告'},
+                    '8':{name:'平台已退货'},
+                    '9':{name:'保证金已退还'},
+                    '10':{name:'订单完成'},
+                    '11':{name:'订单已取消'},
                 },
+                list:[
+                    {
+                        addSort:0,
+                        orderStatus:0,  // 订单已提交
+                        createTime:'2018-08-20',
+                    },
+                    {
+                        addSort:1,
+                        orderStatus:2,  // 订单审核通过
+                        createTime:'2018-08-20',
+                    },
+                    {
+                        addSort:2,
+                        orderStatus:4,  // 平台已签收
+                        createTime:'2018-08-20',
+                    },
+
+                ],
                 orderTracking:[
                     {
                         time:'2018-08-20 12:23:00',
@@ -597,6 +615,17 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                         this.stepTipText = textJson[status]
                     }
                 }
+            },
+            // 订单追踪数据
+            trackingText(){
+                var text;
+                var map = new Map();
+                // var text = this.orderTrackJson[num]
+                map.forEach(function(item){
+                    console.log(item)
+
+                })
+
             }
         },
         created(){
@@ -604,6 +633,7 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
         },
         mounted(){
             // this.countDown();
+            this.trackingText();
             this.showTips(this.isClick,this.iconJson[this.status].iconType,'',this.status,this.isLockOrder);
         },
     }
@@ -828,7 +858,7 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                             width: .74rem;
                             height: .4rem;
                             position: absolute;
-                            left:-.6rem;
+                            left:-.65rem;
                             top:.3rem;
                             @include bg-image('/static/images/step-nomal.png');
                         }

@@ -19,18 +19,18 @@
                 <div class="card">
                     <div class="top-part">
                         <div class="left-icon">
-                            <img src="" alt="">
+                            <img :src="bankInfo.logo" alt="">
                         </div>
                         <div class="right-text">
-                            <p>中国工商银行</p>
-                            <p class="card-type">储蓄卡（单笔限额5W，单日限额5W）</p>
+                            <p>{{bankInfo.name}}</p>
+                            <p class="card-type">{{bankInfo.type}}（单笔限额{{bankInfo.singleLimit}}W，单日限额{{bankInfo.totalLimit}}W）</p>
                         </div>
                     </div>
                     <div class="bottom-part">
                         <span>****</span>
                         <span>****</span>
                         <span>****</span>
-                        <span>0820</span>
+                        <span>{{bankInfo.code}}</span>
                     </div>
                 </div>
             </div>
@@ -40,11 +40,20 @@
 
 <script>
 import headTop from '@/components/header/head.vue'
+import {query_card_info,} from '@/service/index.js'
 
     export default {
         data(){
             return{
                 // bindingStatus:false,
+                bankInfo:{
+                    code:'0820',
+                    logo:'',
+                    name:'招商银行',
+                    type:'储蓄卡',
+                    singleLimit:5,
+                    totalLimit:10
+                }
             }
         },
         components:{
@@ -57,13 +66,18 @@ import headTop from '@/components/header/head.vue'
 
         },
         methods: {
-
+            async request(){
+            	const res = await query_card_info();
+            	if(res.code==200){
+					this.bankInfo = res.data;
+				}
+            },
         },
         created(){
 
         },
         mounted(){
-
+            // this.request();
         },
     }
 

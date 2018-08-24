@@ -72,18 +72,18 @@
                     <div class="bank-card has-bank" v-else>
                         <div class="top-part">
                             <div class="left-icon">
-                                <img src="" alt="">
+                                <img :src="bankInfo.logo" alt="">
                             </div>
                             <div class="right-text">
-                                <p>中国工商银行</p>
-                                <p class="card-type">储蓄卡</p>
+                                <p>{{bankInfo.name}}</p>
+                                <p class="card-type">{{bankInfo.type}}</p>
                             </div>
                         </div>
                         <div class="bottom-part">
                             <span>****</span>
                             <span>****</span>
                             <span>****</span>
-                            <span>0820</span>
+                            <span>{{bankInfo.code}}</span>
                         </div>
                     </div>
                 </div>
@@ -101,10 +101,10 @@
                     <div class="address-card has-address" v-else @click="$router.push('/addressList')">
                         <div class="left-part">
                             <p class="name-tel">
-                                <span class="name">张艺兴</span>
-                                <span class="tel">{{13520842445 | hideMible}}</span>
+                                <span class="name">{{receiverInfo.contact}}</span>
+                                <span class="tel">{{receiverInfo.telephone | hideMible}}</span>
                             </p>
-                            <p class="add">北京市丰台区嘉和人家翠庭园3号楼1501京市丰台区嘉和人</p>
+                            <p class="add">{{receiverInfo.address}}</p>
                         </div>
                         <div class="right-arrow"></div>
                     </div>
@@ -241,26 +241,42 @@
 import headTop from '@/components/header/head.vue'
 import { clearNoNum } from '../../config/mUtils.js';
 import { MessageBox,Toast,Popup } from 'mint-ui';
+import {query_card_info,} from '@/service/index.js'
+
 
     export default {
         data(){
             return{
                 currentPrice:287.54,
-                loginStatus:true,   // 是否登录
-                bankStatus:true,    // 是否绑定银行卡
-                addressStatus:true, // 是否选择地址
-                typeNum:null,         // 存金类型选择样式
-                weight:'',          // 存金克重
-                extractNum:1,       // 存金数量
-                bg:true,            // 协议是否已读
-                popupNum:'',        // 控制哪个弹窗显示
-                popupVisible:false, // 全屏弹窗
-                btnCtroller:true,   // 按钮是否可以点击
+                loginStatus:true,    // 是否登录
+                bankStatus:true,     // 是否绑定银行卡
+                addressStatus:true,  // 是否选择地址
+                typeNum:null,        // 存金类型选择样式
+                weight:'',           // 存金克重
+                extractNum:1,        // 存金数量
+                bg:true,             // 协议是否已读
+                popupNum:'',         // 控制哪个弹窗显示
+                popupVisible:false,  // 全屏弹窗
+                btnCtroller:true,    // 按钮是否可以点击
                 shopCheckStatus:true,// 店铺审核状态
-                popupVisible1:false,   // 验证码弹窗
-                popupVisible2:false,   // 支付中弹窗
+                popupVisible1:false, // 验证码弹窗
+                popupVisible2:false, // 支付中弹窗
                 verifiCode:[],       // 验证码
                 screenHeight: document.documentElement.clientHeight,//记录高度值(这里是给到了一个默认值)
+                bankInfo:{
+                    code:'0820',
+                    logo:'',
+                    name:'招商银行',
+                    type:'储蓄卡',
+                    singleLimit:5,
+                    totalLimit:10
+                },
+                receiverInfo:{     // 收货人信息
+                    contact:'小可爱',
+                    telephone:17600568656,
+                    address:'北京市朝阳区小官吏街道惠新里社区7号楼603室'
+                },
+                addressId:'',      // 地址id
             }
         },
         components:{
@@ -342,6 +358,40 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                             from:'/storegold'
                         }
                     })
+                }
+            },
+            // 获取银行卡信息
+            async queryBank(){
+            	var res = await query_card_info();
+            	if(res.code==200){
+                    this.bankStatus = true;
+					this.bankInfo = res.data;
+				}else{
+                    this.bankStatus = false;
+                }
+            },
+            // 获取地址信息
+            async queryAddress(){
+                var res = await queryAddress(this.shopId);
+                if(res.code == 200){
+                    var addressArray = res.content;
+
+                    if(addressArray.length == 0){
+                        this.addressStatus = false;
+                        return;
+                    }else{
+                        this.addressStatus = true;
+                        // 如果有默认地址取默认，没有的话取第一个
+                        for(let i=0; i<addressArray.length;i++){
+                            if(addressArray[i].defaults){
+                                this.receiverInfo = addressArray[i];
+                                this.addressId = addressArray[i].id;
+                            }else{
+                                this.receiverInfo = addressArray[0];
+                                this.addressId = addressArray[0].id;
+                            }
+                        }
+                    }
                 }
             },
             //关闭验证码弹窗(取消订单)
@@ -500,6 +550,11 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
 
         },
         mounted(){
+            //登录情况下请求银行卡信息和地址
+            if(!this.loginStatus){
+                this.queryBank();
+                this.queryAddress();
+            }
             //处理键盘弹出的沉底按钮顶上去的兼容问题
             window.onresize = () => {
                 var h=document.documentElement.clientHeight
@@ -785,6 +840,8 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                         }
                     }
                     .bottom-part{
+                        font-size: .38rem;
+                        padding-left:.1rem;
                         span{
                             display: inline-block;
                             margin-right:.3rem;
@@ -876,6 +933,7 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
         .opration-wrap{
             width: 100%;
             height: .98rem;
+            font-size: .34rem;
             position: fixed;
             bottom: 0;
 
