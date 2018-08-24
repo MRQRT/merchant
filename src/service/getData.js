@@ -26,10 +26,16 @@ export const registry = (mobile,smsCode,password) => fetch('/user/registry',{'mo
 export const login = (userName,password) => fetch('/user/login',{'userName':userName,'password':password},'post')
 
 /**
-* 用户进行登录
+* 用户进行快捷登录
 */
 
 export const quicklogin = (mobile,smsCode) => fetch('/user/quick/login',{'mobile':mobile,'smsCode':smsCode},'post')
+
+/**
+* 用户进行快捷登录
+*/
+
+export const findpassword = (mobile,smsCode,password) => fetch('/user/find/password',{'mobile':mobile,'smsCode':smsCode,'password':password},'post')
 
 /**
  * 获取当前时间

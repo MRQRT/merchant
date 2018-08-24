@@ -10,14 +10,14 @@
         <div class="message">
             <div class="tel">
                 <input type="text" maxlength="11" placeholder="请输入手机号" v-model="tel" pattern="[0-9]*" @input="checkInput(tel,'telphone')">
-                <span v-show="clear"><img src="static/images/clearinput.png" alt="" @click="clears"></span>
+                <span v-show="tel" style="z-index:3"><img src="static/images/clearinput.png" alt="" @click="clears"></span>
             </div>
             <section class="line"></section>
             <div class="ver_code">
                 <input type="text" maxlength="6" placeholder="请输入验证码" v-model="vercode" pattern="[0-9]*" @input="checkInput(vercode,'vercode')">
                 <span class="text_click" @click="get_vercode" ref="send_smscode">{{clickText}}</span>
             </div>
-            <section class="line"></section> 
+            <section class="line"></section>
             <div class="password">
                 <input :type="texorpas" minlength="6" maxlength="20" placeholder="6~20位字母、数字组合" ref="password" class="passwords" v-model="password">
                 <span class="eye" @click="check_eye"><img :src="eye" alt="a"></span>
@@ -56,7 +56,6 @@ import {mapMutations,mapState} from 'vuex'
                 check_password: false,//密码是否满足条件
                 readicon: store_readed,
                 clickText: '获取验证码',
-                clear:false,
                 texorpas: 'password',//密码框的类型
                 isSubmit: false,
                 iNow: true,//解决重复点击问题
@@ -73,7 +72,6 @@ import {mapMutations,mapState} from 'vuex'
         watch:{
             //手机号
             tel(val){
-                val?this.clear=true:this.clear=false
                 let reg = /^(0|86|17951)?(13[0-9]|15[0-9]|17[0-9]|18[0-9]|14[0-9]|19[0-9])[0-9]{8}$/;
                 if(val.length<11&&val.length>0){
                     this.check_tel=false
