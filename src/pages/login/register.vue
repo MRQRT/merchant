@@ -10,7 +10,7 @@
         <div class="message">
             <div class="tel">
                 <input type="text" maxlength="11" placeholder="请输入手机号" v-model="tel" pattern="[0-9]*" @input="checkInput(tel,'telphone')">
-                <span v-show="tel" style="z-index:3"><img src="static/images/clearinput.png" alt="" @click="clears"></span>
+                <span class="clear" v-show="tel" style="z-index:3"><img src="static/images/clearinput.png" alt="" @click="clears"></span>
             </div>
             <section class="line"></section>
             <div class="ver_code">
@@ -401,4 +401,8 @@ import {mapMutations,mapState} from 'vuex'
 .hasActived{
     background-color: #C09C60;
 }
+.clear img{
+    width: .36rem;
+    height: .36rem;
+}   
 </style>
