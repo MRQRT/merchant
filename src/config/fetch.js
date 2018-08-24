@@ -22,7 +22,6 @@ axios.interceptors.request.use((config) => {
     if(config.method === 'get') {
         config.params = qs.stringify(config.data)
     }
-    console.log(store.getters)
     if(store.getters.token) {
         config.headers['accessToken'] = store.getters.token// 让每个请求携带token
     }
