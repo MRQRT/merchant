@@ -291,6 +291,13 @@
                         }
                     },1000)
                     let res = await sendsms(this.num,1);
+                    if(res1.code!='000000'){
+                        Toast({
+                            message: res1.message,
+                            position: 'bottom',
+                            duration: 3000
+                        });
+                    }
                 }else if(res.code=="000000"&&(res.data&&res.data.isExist)){//请求成功且未注册
                     MessageBox({
                         title: '提示',
