@@ -141,7 +141,7 @@ import {mapMutations,mapState} from 'vuex'
                 const res = await checkexist(this.tel);
                 if(res.code=="000000"&&(res.data&&res.data.isExist)){//请求成功且没有注册
                     let md5password=md5(this.password); 
-                    const res = await registry(this.tel,this.vercode,this.md5password);
+                    const res = await registry(this.tel,this.vercode,md5password);
                     if(res.code=='300111'){
                         Toast('验证码错误')
                         return
@@ -157,12 +157,19 @@ import {mapMutations,mapState} from 'vuex'
                         title: '提示',
                         message: '手机号已注册',
                         confirmButtonText: '去登录',
-                        cancelButtonText: '我知道了'
+                        showCancelButton: '我知道了',
                     }).then((action)=>{
                         if(action=='confirm'){
                             this.$router.push('/login')
                         }
                     })
+                    return
+                }else{
+                    Toast({
+                        message: res.message,
+                        position: 'bottom',
+                        duration: 3000
+                    });
                     return
                 }
             },
