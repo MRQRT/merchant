@@ -11,20 +11,20 @@
         <!-- input-message -->
         <div class="message">
             <div class="tel">
-                <input type="text" maxlength="11" placeholder="请输入手机号" v-model="tel">
+                <input type="text" maxlength="11" placeholder="请输入手机号" v-model="tel" @input="checkInput(tel,'telphone')">
             </div>
             <section class="line"></section>
             <div class="ver_code">
-                <input type="text" maxlength="6" placeholder="请输入验证码" v-model="vercode">
-                <span class="text_click">获取验证码</span>
+                <input type="text" maxlength="6" placeholder="请输入验证码" v-model="vercode" @input="checkInput(vercode,'vercode')">
+                <span class="text_click" @click="get_vercode" ref="send_smscode">{{clickText}}</span>
             </div>
-            <section class="line"></section> 
+            <section class="line"></section>
         </div>
         <!-- 注册协议 -->
         <div class="agr"><img :src="readicon" alt="" @click="isread">我已阅读并接受<span @click="$router.push('/registerArg')">《存金通商户版用户协议》</span></div>
         <!-- 按钮 -->
         <div class="create_acount">
-            <section :class="{'hasActived':highLight,'noActived':dark}" @click="commit">立即绑定</section>
+            <section class="noActived" :class="{'hasActived':isSubmit==true}" @click="commit">立即绑定</section>
         </div>
     </div>
 </template>
@@ -33,15 +33,21 @@
 import headTop from '@/components/header/head.vue'
 import store_readed from 'static/images/store-readed.png'
 import store_read from 'static/images/store-read.png'
-
+import {sendsms} from '@/service/getData.js'
+import {mapMutations,mapState} from 'vuex'
+import { isNumber } from '@/config/mUtils.js'
+import md5 from 'js-md5'
     export default {
         data(){
             return{
                 tel: '',//手机号
+                check_tel: false,//手机号正确与否
                 vercode: '',//验证码
+                check_vercode: false,//验证码正确与否
                 readicon: store_readed,
-                highLight: false,
-                dark: true,
+                arg:true,//存金通用户协议是否勾选
+                isSubmit: false,
+                clickText: '获取验证码',
             }
         },
         components:{
@@ -51,11 +57,118 @@ import store_read from 'static/images/store-read.png'
 
         },
         watch:{
-
+            //手机号
+            tel(val){
+                let reg = /^(0|86|17951)?(13[0-9]|15[0-9]|17[0-9]|18[0-9]|14[0-9]|19[0-9])[0-9]{8}$/;
+                if(val.length<11&&val.length>0){
+                    this.check_tel=false
+                }
+                if(val.match(reg)){
+                    this.check_tel=true
+                }else if(val ==''){
+                    this.check_tel=false
+                }else{
+                    this.check_tel=false
+                }
+                if(this.check_tel&&this.check_vercode&&this.arg){
+                    this.isSubmit=true
+                }else{
+                    this.isSubmit=false
+                }
+            },
+            //验证码
+            vercode(val){
+               val.length==6?this.check_vercode=true:this.check_vercode=false;
+               if(this.check_vercode&&this.check_tel&&this.arg){
+                    this.isSubmit=true
+                }else{
+                    this.isSubmit=false
+                }
+            },
         },
         methods: {
             isread(){
-                this.readicon==store_readed?this.readicon=store_read:this.readicon=store_readed;
+                if(this.readicon==store_readed){
+                    this.readicon=store_read;
+                    this.arg=0
+                }else{
+                    this.readicon=store_readed;
+                    this.arg=1
+                }
+            },
+            async get_vercode(){
+                if(this.iNow==false)return//还在读秒不能点击
+                let send_smscode = this.$refs.send_smscode;
+                let a = this.check_tels(this.tel);//检查手机号
+                if(!a)return
+                const res = await checkexist(this.tel);//检验是否已注册
+                if(res.code=="000000"&&(res.data&&res.data.isExist)){//请求成功且没有注册
+                    var that=this;
+                    this.iNow = false;
+                    let timer = setInterval(function(){
+                        send_smscode.style.color="#666";
+                        that.second--;
+                        that.clickText = that.second+'s';
+                        if(that.second==-1){
+                            clearInterval(timer);
+                            that.iNow=true;
+                            send_smscode.style.color="#C09C60";
+                            that.clickText = '获取验证码';
+                            that.second = 60;
+                        }
+                    },1000)
+                    let res = await sendsms(this.tel,0);
+                    if(res1.code!='000000'){
+                        Toast({
+                            message: res1.message,
+                            position: 'bottom',
+                            duration: 3000
+                        });
+                    }
+                }else if(res.code=="000000"&&(res.data&&!res.data.isExist)){//请求成功且已经注册
+                    MessageBox({
+                        title: '提示',
+                        message: '手机号已注册' ,
+                        confirmButtonText: '去登录',
+                        showCancelButton: '我知道了'
+                    }).then((action)=>{
+                        if(action=='confirm'){
+                            this.$router.push('/login')
+                        }
+                    })
+                    return
+                }else{
+                    Toast({
+                        message: res.message,
+                        position: 'bottom',
+                        duration: 3000
+                    });
+                }
+            },
+            //检查输入是否为数字
+            checkInput(val,val2){
+                var str = isNumber(val);
+                var ss = '';
+                if(str==null){
+                    if(val2=="bankCard"){
+                        this.bankCard=''
+                    }else if(val2=="telphone"){
+                        this.tel=''
+                    }else if(val2=="vercode"){
+                        this.vercode=''
+                    }
+                }else{
+                    str.forEach(item => {
+                        ss = ss + item
+                    });
+                    if(val2=="bankCard"){
+                        this.bankCard=ss
+                    }else if(val2=="telphone"){
+                        this.tel=ss
+                    }else if(val2=="vercode"){
+                        this.vercode=ss
+                    }
+                }
             },
             //提交信息
             commit(){
@@ -108,7 +221,7 @@ import store_read from 'static/images/store-read.png'
 }
 .message{
     width: 100%;
-    height: 3.3rem;
+    height: 2.2rem;
     padding: 0 .4rem 0 .4rem;
 }
 .message div{
@@ -165,10 +278,10 @@ import store_read from 'static/images/store-read.png'
     text-align: center;
     border-radius: 4px;
 }
-.hasActived{
-    background-color: #C09C60;
-}
 .noActived{
     background-color: #e8ddc4;
+}
+.hasActived{
+    background-color: #C09C60;
 }
 </style>

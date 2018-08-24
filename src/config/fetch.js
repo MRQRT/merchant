@@ -6,9 +6,9 @@ import qs from 'qs'
 import { Toast, MessageBox,Indicator} from 'mint-ui'
 import store from '../store'
 
-axios.defaults.baseURL = process.env.API_ROOT   //配置接口地址
+// axios.defaults.baseURL = process.env.API_ROOT   //配置接口地址
 
-// axios.defaults.baseURL = '/api'   //配置接口地址
+axios.defaults.baseURL = '/api'   //配置接口地址
 // axios.defaults.timeout = 5000; //配置请求的超时时间，超时将被中断
 
 //POST传参序列化(添加请求拦截器)
@@ -23,7 +23,7 @@ axios.interceptors.request.use((config) => {
         config.params = qs.stringify(config.data)
     }
     if(store.getters.token) {
-        config.headers['Authorization'] = store.getters.token// 让每个请求携带token
+        config.headers['accessToken'] = store.getters.accessToken// 让每个请求携带token
     }
     if(config.url.indexOf('checkCaptcha')!=-1){
         config.withCredentials = true
