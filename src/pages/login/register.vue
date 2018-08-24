@@ -403,6 +403,5 @@ import {mapMutations,mapState} from 'vuex'
 }
 .clear img{
     width: .36rem;
-    height: .36rem;
 }   
 </style>
