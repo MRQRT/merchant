@@ -133,7 +133,7 @@
                     <!-- 登录注册按钮 -->
                     <div class="login-btn"  @click="$router.push({path:'/login',query:{redirect:'/index'}})">登录/注册</div>
                 </div>
-                <!-- 店铺图标名称 -->
+                <!-- 已登录：店铺图标名称 -->
                 <div class="top-info" @click="goShop()" v-else>
                     <div class="shop-logo">
                         <img src="static/images/shop-logo.png" alt="" v-if="!shopCheckStatus">
