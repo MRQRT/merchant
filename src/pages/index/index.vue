@@ -354,6 +354,7 @@ import { mapState,mapMutations } from 'vuex'
     .storBanner{
     	width:100%;
         height: 6.2rem;
+        margin-bottom: 2.7rem;
     	position: relative;
         @include bg-image('/static/images/index-bg.png');
         img{
@@ -422,7 +423,7 @@ import { mapState,mapMutations } from 'vuex'
         width:100%;
         text-align: left;
         padding:0 .4rem;
-        margin-top: 2.7rem;
+        margin-bottom: .6rem;
         .title{
             color: #333;
             font-size: .34rem;
@@ -483,7 +484,6 @@ import { mapState,mapMutations } from 'vuex'
     	width: 100%;
     	height: 4rem;
         padding:0 .4rem;
-    	margin-top: .6rem;
     	display: inline-block;
         .store_flow-wrap{
             width:100%;
