@@ -174,9 +174,9 @@
 
 <script>
 import headTop from '@/components/header/head.vue'
-import { Popup } from 'mint-ui';
+import { Popup,Toast } from 'mint-ui';
 import { mapState,mapMutations } from 'vuex'
-
+import {logout} from '@/service/getData.js'
 
     export default {
         data(){
@@ -201,6 +201,9 @@ import { mapState,mapMutations } from 'vuex'
             }
         },
         methods: {
+            ...mapMutations([
+                'RECORD_ACCESSTOKEN'
+            ]),
             // 显示导航
             navPopup(){
                 this.popupVisible = true;
@@ -214,8 +217,20 @@ import { mapState,mapMutations } from 'vuex'
                 }
             },
             // 退出登录
-            quitLogin(){
-
+            async quitLogin(){
+                const res = await logout();
+                if(res.code=='000000'){
+                    Toast('退出登录成功');
+                    this.popupVisible=false;
+                    this.loginStatus=false;
+                    this.RECORD_ACCESSTOKEN('');
+                }else{
+                    Toast({
+                        message: res.message,
+                        position: 'bottom',
+                        duration: 3000
+                    });
+                }
             }
         },
         created(){
