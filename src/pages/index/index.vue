@@ -126,7 +126,7 @@
         <mt-popup v-model="popupVisible" position="left">
             <div class="nav-wrap">
                 <!-- 未登录情况 -->
-                <div class="top-info" v-if="loginStatus">
+                <div class="top-info" v-if="!loginStatus">
                     <div class="cjt-logo">
                         <img src="static/images/cjt-logo.png" alt="">
                     </div>
@@ -162,7 +162,7 @@
                         <span class="icon4"></span>
                         <span>关于我们</span>
                     </li>
-                    <li @click="quitLogin()" v-if="!loginStatus">
+                    <li @click="quitLogin()" v-if="loginStatus">
                         <span class="icon5"></span>
                         <span>退出登录</span>
                     </li>
@@ -175,12 +175,14 @@
 <script>
 import headTop from '@/components/header/head.vue'
 import { Popup } from 'mint-ui';
+import { mapState,mapMutations } from 'vuex'
+
 
     export default {
         data(){
             return{
                 popupVisible:false,   // 左侧导航显示
-                loginStatus:true,     // 是否登录
+                loginStatus:false,     // 是否登录
                 shopCheckStatus:true, // 店铺审核是否通过
             }
         },
@@ -189,7 +191,9 @@ import { Popup } from 'mint-ui';
             Popup
         },
         computed: {
-
+            ...mapState([
+                'userId'
+            ]),
         },
         watch:{
             popupVisible:function(val){
@@ -221,7 +225,7 @@ import { Popup } from 'mint-ui';
             }
         },
         mounted(){
-
+            this.loginStatus = this.userId == '' ? false : true;
         },
         beforeRouteLeave (to, from, next) {
             this.popupVisible = false;
