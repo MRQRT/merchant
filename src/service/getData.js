@@ -37,13 +37,17 @@ export const quicklogin = (mobile,smsCode) => fetch('/user/quick/login',{'mobile
 
 export const findpassword = (mobile,smsCode,password) => fetch('/user/find/password',{'mobile':mobile,'smsCode':smsCode,'password':password},'post')
 
-
 /**
 * 微信等录
 */
 
 export const wechatlogin = (redirectUrl) => fetch('/user/auth/login?redirectUrl='+redirectUrl,{},'get')
 
+/**
+* 退出登录
+*/
+
+export const logout = () => fetch('/user/logout',{},'post')
 
 /**
 * 查询地址列表

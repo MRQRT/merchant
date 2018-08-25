@@ -123,7 +123,7 @@
                 <!-- 未登录按钮 -->
                 <div class="login" v-if="!loginStatus" @click="$router.push({path:'/login',query:{redirect:'/storegold'}})">立即登录</div>
                 <!-- 已登录按钮 -->
-                <div class="other-btn">
+                <div class="other-btn" v-else>
                     <div class="directly-submit" :class="{'submitNo':!submitStatus}" @click="submit(1)">直接提交</div>
                     <div class="lock-price" :class="{'lockNo':!submitStatus}"  @click="submit(2)">
                         <span><b>保证金:</b>{{guaranteeCash | formatPriceTwo}}<b>元</b></span>
@@ -601,9 +601,11 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
             },
         },
         created(){
-            this.loginStatus = this.userId == '' ? false : true;
+
         },
         mounted(){
+            console.log(this.userId)
+            this.loginStatus = this.userId == null ? false : true;
             //登录情况下请求银行卡信息和地址
             if(this.loginStatus){
                 this.queryBank();

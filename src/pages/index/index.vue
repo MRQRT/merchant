@@ -174,9 +174,9 @@
 
 <script>
 import headTop from '@/components/header/head.vue'
-import { Popup } from 'mint-ui';
+import { Popup,Toast } from 'mint-ui';
 import { mapState,mapMutations } from 'vuex'
-import { query_index_statistics,shop } from '@/service/getData.js'
+import { query_index_statistics,shop,logout } from '@/service/getData.js'
 
 
     export default {
@@ -212,6 +212,9 @@ import { query_index_statistics,shop } from '@/service/getData.js'
             }
         },
         methods: {
+            ...mapMutations([
+                'RECORD_ACCESSTOKEN'
+            ]),
             // 显示导航
             navPopup(){
                 this.popupVisible = true;
@@ -225,9 +228,7 @@ import { query_index_statistics,shop } from '@/service/getData.js'
                 }
             },
             // 退出登录
-            quitLogin(){
 
-            },
             // 近一月统计数据
             async query_index_statistics(){
                 var res = query_index_statistics();
@@ -247,6 +248,21 @@ import { query_index_statistics,shop } from '@/service/getData.js'
                         this.shopCheckStatus = false;
                     }
                 }
+            },
+            async quitLogin(){
+                const res = await logout();
+                if(res.code=='000000'){
+                    Toast('退出登录成功');
+                    this.popupVisible=false;
+                    this.loginStatus=false;
+                    this.RECORD_ACCESSTOKEN('');
+                }else{
+                    Toast({
+                        message: res.message,
+                        position: 'bottom',
+                        duration: 3000
+                    });
+                }
             }
         },
         created(){
@@ -256,7 +272,8 @@ import { query_index_statistics,shop } from '@/service/getData.js'
             }
         },
         mounted(){
-            this.loginStatus = this.userId == '' ? false : true;
+            console.log(this.userId)
+            this.loginStatus = this.userId == null ? false : true;
             if(this.loginStatus){
                 this.query_index_statistics();
                 this.checkShopStatus();
