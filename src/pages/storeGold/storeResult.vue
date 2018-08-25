@@ -20,10 +20,10 @@
                     <div class="left-icon"></div>
                     <div class="right-text">
                         <p class="name-tel">
-                            <span class="name">张艺兴</span>
-                            <span class="tel">{{13520842445 | hideMible}}</span>
+                            <span class="name">{{orderInfo.contact}}</span>
+                            <span class="tel">{{orderInfo.telephone | hideMible}}</span>
                         </p>
-                        <p class="add">北京市丰台区嘉和人家翠庭园3号楼1501和人家翠庭园楼1501</p>
+                        <p class="add">{{orderInfo.address}}</p>
                     </div>
                 </div>
                 <!-- 订单信息 -->
@@ -42,20 +42,22 @@
                             <span>存金重量</span>
                             <span>{{orderInfo.applyWeight}}克</span>
                         </div>
-                        <div class="info-item">
-                            <span>锁价保证金</span>
-                            <span class="special-color">{{orderInfo.ensure_cash | formatPriceTwo}}元</span>
-                        </div>
-                        <div class="info-item">
-                            <span>锁定金价</span>
-                            <span class="special-color">{{orderInfo.lockPrice | formatPriceTwo}}元</span>
+                        <div class="" v-if="orderInfo.isLockprice==1">
+                            <div class="info-item">
+                                <span>锁价保证金</span>
+                                <span class="special-color">{{orderInfo.ensure_cash | formatPriceTwo}}元</span>
+                            </div>
+                            <div class="info-item">
+                                <span>锁定金价</span>
+                                <span class="special-color">{{orderInfo.lockPrice | formatPriceTwo}}元</span>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <!-- 银行卡 -->
                 <div class="bank-info">
                     <span>银行卡</span>
-                    <span>工商银行(尾号1234)</span>
+                    <span>{{bankInfo.name}}(尾号{{bankInfo.code}})</span>
                 </div>
                 <!-- 提示 -->
                 <div class="tip">工作人员会尽快联系您核实订单</div>
@@ -88,10 +90,12 @@
 
 <script>
 import headTop from '@/components/header/head.vue'
+import { query_detail, query_card_info} from '@/service/getData.js'
 
     export default {
         data(){
             return{
+                orderId:'',       // 订单ID
                 orderstatus:true, // 订单是否成功
                 typeJson:{
                     '0':'投资金',
@@ -108,6 +112,13 @@ import headTop from '@/components/header/head.vue'
                     lockPrice:256.34,
                     ensure_cash:3452.234,
                     applyQuantity:3,
+                    contact:'小可爱',
+                    telephone:13520842445,
+                    address:'内蒙古呼和浩特市赛罕区7号楼602罕区7号楼602'
+                },
+                bankInfo:{
+                    code:'0820',
+                    name:'招商银行'
                 },
             }
         },
@@ -121,10 +132,26 @@ import headTop from '@/components/header/head.vue'
 
         },
         methods: {
-
+            // 请求订单详情数据
+            async query_detail(){
+                var res = query_detail(this.orderId);
+                if(res.code=='000000'){
+                    this.orderInfo = res.data;
+                    this.status = res.data.status;
+                }else{
+                    Toast(res.message)
+                }
+            },
+            // 请求银行卡信息
+            async query_card_info(){
+                var res = query_card_info();
+                if(res.code=='000000'){
+                    this.bankInfo = res.data;
+                }
+            }
         },
         created(){
-
+            this.orderId = this.$route.query.id;
         },
         mounted(){
 

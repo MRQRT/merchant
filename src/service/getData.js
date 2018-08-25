@@ -46,13 +46,41 @@ export const wechatlogin = (redirectUrl) => fetch('/user/auth/login?redirectUrl=
 
 
 /**
+* 查询地址列表
+*/
+
+export const query_shop_address_list = (shopId) => fetch('/address/query_shop_address_list?shopId='+shopId,{},'get')
+
+/**
+ * 查询店铺信息
+ */
+
+export const shop = () => fetch('/shop',{},'get');
+
+
+
+/**
  * 实时金价
  */
 
 export const query_gold_price = () => fetch('/price/query',{},'get');
 
 /**
- * 绑卡回显信息
+ * 首页近一月交易量
+ */
+
+export const query_index_statistics = (orderId) => fetch('/order/query_index_statistics',{},'get');
+
+
+/**
+ * 绑卡获取商户信息
+ */
+
+export const merchant = () => fetch('/merchant',{},'get');
+
+
+/**
+ * 绑卡回显信息（卡类型）
  */
 
 export const return_card_info = (code) => fetch('/bank_card?code='+code,{},'get');
@@ -74,13 +102,13 @@ export const bind_card = (code,mobile,captcha) => fetch('/bank_card',{'code':cod
  * 创建订单验证接口(验证店铺是否存在或是否通过审核)
  */
 
-export const check_shop_staus = (orderId) => fetch('/order/add_recycle_order_check',{},'post');
+export const add_recycle_order_check = (orderId) => fetch('/order/add_recycle_order_check',{},'post');
 
 /**
  * 创建订单
  */
 
-export const add_recycle_order = (applyQuantity,applyWeight,productType,isLockPrice,isCashshopId) => fetch('/order/add_recycle_order',{'applyQuantity':applyQuantity,'applyWeight':applyWeight,'productType':productType,'isLockPrice':isLockPrice,'isCash':isCash,'shopId':shopId},'post');
+export const add_recycle_order = (applyQuantity,applyWeight,productType,isLockPrice,isCash,shopId,contact,telephone,address) => fetch('/order/add_recycle_order',{'applyQuantity':applyQuantity,'applyWeight':applyWeight,'productType':productType,'isLockPrice':isLockPrice,'isCash':isCash,'shopId':shopId,'contact':contact,'telephone':telephone,'address':address},'post');
 
 /**
  * 支付预下单(发送短信验证码)
@@ -89,10 +117,23 @@ export const add_recycle_order = (applyQuantity,applyWeight,productType,isLockPr
 export const pay_beforehand_order = (orderId) => fetch('/order/pay_beforehand_order',{'orderId':orderId},'post');
 
 /**
+ * 支付正式下单(判断验证码是否正确及继续走支付流程)
+ */
+
+export const pay_formal_order = (orderId,smsNo) => fetch('/order/pay_formal_order',{'orderId':orderId,'smsNo':smsNo},'post');
+
+/**
+ * 定时查看订单状态
+ */
+
+export const query_status = (orderId) => fetch('/order/query_status?orderId='+orderId,{},'get');
+
+
+/**
  * 查看订单列表
  */
 
-export const query_list = (shopId,page,size) => fetch('/order/query_list?orderId='+orderId+'&page='+page+'&size='+size,{},'get');
+export const query_list = (shopId,page,size) => fetch('/order/query_list?shopId='+shopId+'&page='+page+'&size='+size,{},'get');
 
 /**
  * 查看订单详情

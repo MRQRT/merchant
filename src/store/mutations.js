@@ -13,11 +13,11 @@ import {setStore, getStore, setCookie ,getCookie, removeCookie, removeStore} fro
 export default {
 	//记录会话值
 	[RECORD_ACCESSTOKEN](state,accessToken){
-		state.accessToken=accessToken
+		setStore('accessToken',accessToken,'local')
 	},
 	//记录用户的userId
 	[RECORD_USERID](state,userId){
-		state.userId=userId
+		setStore('userId',userId,'local')
 	},
 	//记录用户的的登录手机号
 	[RECORD_MOBILE](state,mobile){

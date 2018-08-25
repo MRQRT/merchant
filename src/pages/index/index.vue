@@ -22,16 +22,16 @@
             <div class="deal-num">
                 <div class="total-price">
                     <p>累计成交金额(元)</p>
-                    <p class="price">{{123456.78 | formatPriceTwo}}</p>
+                    <p class="price">{{dealObject.totalCashAmount | formatPriceTwo}}</p>
                 </div>
                 <div class="bottom-num">
                     <div class="left-weight">
                         <p>累计成交克重(克)</p>
-                        <p class="weight">1354.654</p>
+                        <p class="weight">{{dealObject.totalWeight}}</p>
                     </div>
                     <div class="right-count">
                         <p>累计成交笔数(笔)</p>
-                        <p class="price">78</p>
+                        <p class="price">{{dealObject.totalCount}}</p>
                     </div>
                 </div>
             </div>
@@ -137,10 +137,10 @@
                 <div class="top-info" @click="goShop()" v-else>
                     <div class="shop-logo">
                         <img src="static/images/shop-logo.png" alt="" v-if="!shopCheckStatus">
-                        <img src="" alt="" v-else>
+                        <img :src="shopInfo.logoPath" alt="" v-else>
                     </div>
                     <!-- 登录且审核通过提示 -->
-                    <p v-if="shopCheckStatus">我的店铺啦啦啦啦啦啦啦啦啦啦</p>
+                    <p v-if="shopCheckStatus">{{shopInfo.name}}</p>
                     <!-- 未开店/店铺正在审核中显示 -->
                     <p v-else>我的店铺</p>
                 </div>
@@ -176,6 +176,7 @@
 import headTop from '@/components/header/head.vue'
 import { Popup } from 'mint-ui';
 import { mapState,mapMutations } from 'vuex'
+import { query_index_statistics,shop } from '@/service/getData.js'
 
 
     export default {
@@ -184,6 +185,16 @@ import { mapState,mapMutations } from 'vuex'
                 popupVisible:false,   // 左侧导航显示
                 loginStatus:false,     // 是否登录
                 shopCheckStatus:true, // 店铺审核是否通过
+                dealObject:{
+                    totalCashAmount:2345.3444,
+                    totalWeight:23.43,
+                    totalCount:88
+                },
+                shopInfo:{
+                    shopId:'',
+                    logoPath:'',
+                    name:'周大福周生生'
+                },
             }
         },
         components:{
@@ -216,6 +227,26 @@ import { mapState,mapMutations } from 'vuex'
             // 退出登录
             quitLogin(){
 
+            },
+            // 近一月统计数据
+            async query_index_statistics(){
+                var res = query_index_statistics();
+                if(res.code=='000000'){
+                    this.dealObject=res.data;
+                }else if(res.code=='200206'){
+                    this.shopCheckStatus = false;
+                }
+            },
+            // 获取店铺信息
+            async checkShopStatus(){
+                var res = await shop();
+                if(res.code=='000000'){
+                    if(res.data){
+                        this.shopInfo = res.data;
+                    }else{
+                        this.shopCheckStatus = false;
+                    }
+                }
             }
         },
         created(){
@@ -226,6 +257,10 @@ import { mapState,mapMutations } from 'vuex'
         },
         mounted(){
             this.loginStatus = this.userId == '' ? false : true;
+            if(this.loginStatus){
+                this.query_index_statistics();
+                this.checkShopStatus();
+            }
         },
         beforeRouteLeave (to, from, next) {
             this.popupVisible = false;

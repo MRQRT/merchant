@@ -248,7 +248,7 @@ import { query_list } from '@/service/getData.js'
         methods: {
             // 首次进入请求数据
             async requestList(){
-                var res=await query_list(this.searchCondition.pageNo,this.searchCondition.pageSize);
+                var res=await query_list(shopId,this.searchCondition.pageNo,this.searchCondition.pageSize);
                 if(res.code==200){
                     this.orderList = res.data.list;
                     this.pages=res.data.pages;
@@ -256,12 +256,11 @@ import { query_list } from '@/service/getData.js'
                        this.allLoaded=true;  //数据加载完，bottomMethod则不再执行
                     }
                 }
-                return timestamp1;
             },
             // 加载更多
             // loadMore(){
             //     this.searchCondition.pageNo=this.searchCondition.pageNo+1;
-            //     var res=await query_list(this.searchCondition.pageNo,this.searchCondition.pageSize);
+            //     var res=await query_list(shopId,this.searchCondition.pageNo,this.searchCondition.pageSize);
             //     if(res.code==200){
             //       this.orderList=this.orderList.concat(res.data.list);
             //       if(this.searchCondition.pageNo>=this.pages){
@@ -300,6 +299,7 @@ import { query_list } from '@/service/getData.js'
 
         },
         mounted(){
+            this.requestList();
             // 计算滚动内容的高度
     		this.wrapperHeight = document.documentElement.clientHeight - this.$refs.wrapper.getBoundingClientRect().top;
         },
