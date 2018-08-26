@@ -12,10 +12,10 @@ const systemError = r => require.ensure([], () => r(require('../pages/error/500'
 const index = r => require.ensure([], () => r(require('../pages/index/index')), 'index')
 
 /* 商铺相关 */
-const openshopguide = r => require.ensure([], () => r(require('../pages/merchants/openshopguide')), 'openshopguide')
-const uploadcertificate = r => require.ensure([], () => r(require('../pages/merchants/uploadcertificate')), 'uploadcertificate')
-const confirminfo = r => require.ensure([], () => r(require('../pages/merchants/confirminfo')), 'confirminfo')
-const applicationresults = r => require.ensure([], () => r(require('../pages/merchants/applicationresults')), 'applicationresults')
+const openshopguide = r => require.ensure([], () => r(require('../pages/merchants/openShopguide')), 'openshopguide')
+const uploadcertificate = r => require.ensure([], () => r(require('../pages/merchants/uploadCertificate')), 'uploadcertificate')
+const confirminfo = r => require.ensure([], () => r(require('../pages/merchants/confirmInfo')), 'confirminfo')
+const applicationresults = r => require.ensure([], () => r(require('../pages/merchants/applicationResults')), 'applicationresults')
 const qcmscommitresult = r => require.ensure([], () => r(require('../pages/merchants/qcmscommitresult')), 'qcmscommitresult')
 
 /* 店铺相关 */
@@ -53,7 +53,7 @@ const changePassword = r => require.ensure([], () => r(require('../pages/login/c
 const changeMobile = r => require.ensure([], () => r(require('../pages/login/changeMobile')), 'changeMobile')
 
 /* 关于我们 */
-const aboutus = r => require.ensure([], () => r(require('../pages/aboutUs/aboutus')), 'changeMobile')
+const aboutus = r => require.ensure([], () => r(require('../pages/aboutUs/aboutUs')), 'changeMobile')
 
 
 export const router = new Router({
