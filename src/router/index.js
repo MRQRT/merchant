@@ -12,7 +12,7 @@ const systemError = r => require.ensure([], () => r(require('../pages/error/500'
 const index = r => require.ensure([], () => r(require('../pages/index/index')), 'index')
 
 /* 商铺相关 */
-const openshopguide = r => require.ensure([], () => r(require('../pages/merchants/openShopguide')), 'openshopguide')
+const openshopguide = r => require.ensure([], () => r(require('../pages/merchants/openShopGuide')), 'openshopguide')
 const uploadcertificate = r => require.ensure([], () => r(require('../pages/merchants/uploadCertificate')), 'uploadcertificate')
 const confirminfo = r => require.ensure([], () => r(require('../pages/merchants/confirmInfo')), 'confirminfo')
 const applicationresults = r => require.ensure([], () => r(require('../pages/merchants/applicationResults')), 'applicationresults')
