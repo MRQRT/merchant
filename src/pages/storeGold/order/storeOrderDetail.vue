@@ -154,7 +154,7 @@
                         <span>存金方式</span>
                         <span>{{cashJson[orderInfo.cash]}}</span>
                     </p>
-                    <div class="" v-if="orderInfo.isLockprice==0">
+                    <div class="" v-if="orderInfo.isLockprice==1">
                         <p>
                             <span>锁价保证金</span>
                             <span>{{orderInfo.ensure_cash}}元</span>
@@ -276,8 +276,8 @@
                         <div class="report-btn" v-if="status==5 || status==9 || status==13"><a href="tel:4001689999">联系客服</a></div>
                         <!-- 待确认、已完成情况 -->
                         <div class="report-btn" v-else>
-                            <span v-if="status==7" style="color:#999">已确认</span>
-                            <span v-else>确认订单</span>
+                            <span v-if="status==7 || !reportClick" style="color:#999">已确认</span>
+                            <span v-else @click="confirm_order()">确认订单</span>
                             <span><a href="tel:4001689999">联系客服</a></span>
                         </div>
                     </div>
@@ -290,14 +290,16 @@
 <script>
 import headTop from '@/components/header/head.vue'
 import { MessageBox,Toast,Popup } from 'mint-ui';
-/* 请求详情、物流单号、物流信息、订单追踪、确认订单、修改订单 */
-import { query_detail, query_logistics_mess, query_express_mess, query_status_flow_mes,confirm_order,update_status,} from '@/service/getData.js'
+/* 请求详情、物流单号、物流信息、订单追踪、确认订单、修改订单 、银行卡信息*/
+import { query_detail, query_logistics_mess, query_express_mess, query_status_flow_mes,confirm_order,update_status,query_card_info} from '@/service/getData.js'
 
 
     export default {
         data(){
             return{
-                deliveryNo:238487737766,
+                orderId:'',            // 订单id
+                expressNo:238487737766,// 快递单号
+                expressCode:'',        // 物流公司编码
                 isLockOrder:0,         // 是否是锁价订单
                 isClick:0,             // 进度提示是否是点击显示
                 squreNum:null,         // 提示三角显示隐藏
@@ -305,10 +307,11 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 timeOut:false,         // 订单是否超时
                 popupVisible:false,    // 信息弹窗显示隐藏
                 popupNum:'',           // 哪个弹窗显示
+                reportClick:true,      // 确认检测报告按钮状态
                 trackingStatus:false,  // 订单追踪显示、隐藏
                 stepTipText:'',        // 进度提示文字
-                minu:'--',               // 倒计时分
-                secd:'--',               // 倒计时秒
+                minu:'--',             // 倒计时分
+                secd:'--',             // 倒计时秒
                 typeJson:{
                     '0':'投资金',
                     '1':'首饰',
@@ -373,7 +376,6 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     '13':{name:'平台已退货'},
                     '14':{name:'订单完成'},
                     '15':{name:'已支付锁价保证金'},
-
                 },
                 list: [
                     {
@@ -424,24 +426,6 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                         "addSort": 0,
                         "orderStatus": 0,  // 订单已提交
                         "createTime": 1535095362000
-                    }
-                ],
-                orderTracking:[
-                    {
-                        time:'2018-08-20 12:23:00',
-                        status:'订单已完成'
-                    },
-                    {
-                        time:'2018-08-20 12:23:00',
-                        status:'锁价保证金已退还'
-                    },
-                    {
-                        time:'2018-08-20 12:23:00',
-                        status:'已确认检测报告'
-                    },
-                    {
-                        time:'2018-08-20 12:23:00',
-                        status:'存金检测完毕-检测通过'
                     }
                 ],
                 deliveryList:[
@@ -532,7 +516,8 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             showDelivery(){
                 var that = this;
                 document.getElementById('delivery').onclick=function(){
-                    that.lookPopup(0)
+                    that.lookPopup(0);
+                    that.query_express_mess(); // 调用物流信息
                 }
             },
             // 锁价解释弹窗
@@ -575,6 +560,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                         that.secd = '--';
                         clearInterval(countdowns);
                         // 重新调用订单详情函数
+                        that.update_status();
                     }
                 },1000);
 
@@ -590,9 +576,9 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                              <p>我们已经安排快递小哥上门取件啦，请留意接听取件电话</p>`;
                 var text2 = '<p>订单审核未通过，您可以重新填写订单，风里雨里我们在这里等您！</p>';
                 var text3 = '<p>订单审核未通过，锁价定金将在3个工作日内退回至绑定银行卡，您可以重新填写订单，风里雨里我们在这里等您！</p>'
-                var text4 = `<p>快递小哥正在用心传递速度，物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">${this.deliveryNo}</span></p>`;
+                var text4 = `<p>快递小哥正在用心传递速度，物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">${this.expressNo}</span></p>`;
                 var text5 = `<p>亲爱的用户，您的宝贝我们收到啦~</p>
-                             <p>物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">${this.deliveryNo}<span></p>`;
+                             <p>物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">${this.expressNo}<span></p>`;
                 var text6 = '<p>亲，专业检测师紧锣密鼓地开工啦！1个工作日内就会有结果哦！</p>'
                 var text7 = '<p>您的订单检测完毕！请尽快查看并确认<span id="report" style="color:#C09C60;border-bottom:1px solid #C09C60">检测报告</span>哦！</p>'
                 var text8 = `<p>亲，只差最后一步啦，快来看看您的<span id="report" style="color:#C09C60;border-bottom:1px solid #C09C60">检测报告</span>吧~三个工作日后将自动确认，如您对检测结果有任何疑问，请联系客服：4008-196-199</p>`
@@ -673,13 +659,78 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 })
                 console.log(this.newList)
 
+            },
+
+            // 请求订单详情数据
+            async query_detail(){
+                var res = query_detail(this.orderId);
+                if(res.code=='000000'){
+                    this.orderInfo = res.data;
+                    this.status = res.data.status;
+                    // 未支付状态调用倒计时函数
+                    if(this.orderInfo.status==10){
+                        this.countDown();
+                    }
+                }else{
+                    Toast(res.message)
+                }
+            },
+            // 请求物流单号
+            async query_logistics_mess(){
+                var res = query_logistics_mess(this.orderId,type) // type:0-取货；1-退货
+                if(res.code=='000000'){
+                    this.expressNo = res.data.expressNo;
+                    this.expressCode = res.data.expressCode;
+                }else{
+                    Toast(res.message)
+                }
+            },
+            // 查询具体物流信息
+            async query_express_mess(){
+                var res = query_express_mess(this.expressNo,this.expressCode)
+                if(res.code=='000000'){
+                    this.deliveryList = res.data;
+                }else{
+                    Toast(res.message)
+                }
+            },
+            // 订单追踪
+            async query_status_flow_mes(){
+                var res = query_status_flow_mes(this.orderId);
+                if(res.code=='000000'){
+                    this.list = res.data;
+                }else{
+                    Toast(rs.message)
+                }
+            },
+            // 确认订单(用户点击确认检测报告调用)
+            async confirm_order(){
+                var res = confirm_order(this.orderId);
+                if(rs.code=='000000'){
+                    this.reportClick = false; // 确认订单 => 已确认
+                    this.popupVisible = false;
+                }
+            },
+            // 修改订单状态(未支付倒计时结束)
+            async update_status(){
+                var res = update_status(this.orderId);
+                if(res.code=='000000'){
+                    this.query_detail(); // 取消成功后再次调用详情数据
+                }
+            },
+            // 请求银行卡信息
+            async query_card_info(){
+                var res = query_card_info();
+                if(res.code=='000000'){
+
+                }
             }
         },
         created(){
+            this.orderId = this.$route.query.id;
             this.status = this.$route.query.status;
         },
         mounted(){
-            // this.countDown();
             this.trackingText();
             this.showTips(this.isClick,this.iconJson[this.status].iconType,'',this.status,this.isLockOrder);
         },
@@ -1136,7 +1187,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 }
                 .line{
                     width: 1px;
-                    min-height:140%;
+                    min-height:165%;
                     background-color:#E1E1E1;
                     position: absolute;
                     left:.2rem;

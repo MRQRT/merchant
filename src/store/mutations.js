@@ -14,11 +14,11 @@ export default {
 	//记录会话值
 	[RECORD_ACCESSTOKEN](state,accessToken){
 		state.accessToken=accessToken
-		setStore('accessToken',accessToken,'session')
+		setStore('accessToken',accessToken,'local')
 	},
 	//记录用户的userId
 	[RECORD_USERID](state,userId){
-		setStore('userId',userId,'session')
+		setStore('userId',userId,'local')
 		state.userId=userId
 	},
 	//记录用户的的登录手机号

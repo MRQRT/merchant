@@ -19,11 +19,11 @@
                 <div class="card">
                     <div class="top-part">
                         <div class="left-icon">
-                            <img :src="bankInfo.logo" alt="">
+                            <img :src="bankInfo.icon" alt="">
                         </div>
                         <div class="right-text">
                             <p>{{bankInfo.name}}</p>
-                            <p class="card-type">{{bankInfo.type}}（单笔限额{{bankInfo.singleLimit}}W，单日限额{{bankInfo.totalLimit}}W）</p>
+                            <p class="card-type">{{bankInfo.type}}（单笔限额{{bankInfo.maxAmount}}W，单日限额{{bankInfo.dayMaxAmount}}W）</p>
                         </div>
                     </div>
                     <div class="bottom-part">
@@ -48,11 +48,11 @@ import {query_card_info,} from '@/service/getData.js'
                 // bindingStatus:false,
                 bankInfo:{
                     code:'0820',
-                    logo:'',
+                    icon:'',
                     name:'招商银行',
                     type:'储蓄卡',
-                    singleLimit:5,
-                    totalLimit:10
+                    maxAmount:5,
+                    dayMaxAmount:10
                 }
             }
         },
@@ -77,7 +77,7 @@ import {query_card_info,} from '@/service/getData.js'
 
         },
         mounted(){
-            // this.request();
+            this.request();
         },
     }
 

@@ -21,7 +21,7 @@ axios.interceptors.request.use((config) => {
         var a = isFormData(config.data);
         if(!a){
             config.data = qs.stringify(config.data);
-            config.params = qs.stringify(config.url)
+            config.params = qs.stringify(config.url);
         }   
         config.headers['Accept'] = 'application/json'
     }

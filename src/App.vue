@@ -9,6 +9,7 @@ import {query_gold_price} from './service/getData.js'
 
 export default {
         name: 'App',
+
         data(){
             return{
 

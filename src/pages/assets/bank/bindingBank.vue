@@ -18,7 +18,7 @@
                     <p>12345687899900900</p>
     			</section>
                 <!-- 银行卡 -->
-                <section>
+                <section :class="{'no-border':(errorTipStatus || bankTypeStatus)}">
     				<input type="text" name="bankNum" placeholder="请输入有效银行卡号" ref="bankNum_input" pattern="[0-9]*"
                     v-model="bankNum" maxlength="23" @input="redSec()" v-on:blur="check(bankNum)">
                     <img :src="delImg" v-show="clear1" @click="del('b')">
@@ -30,8 +30,7 @@
                         <span>{{errorTip}}</span>
                     </div>
                     <div class="cardType" v-show="bankTypeStatus">
-                        <span>{{cardType}}/</span>
-                        <span>{{bankName}}</span>
+                        <span>{{cardType}}/</span><span>{{bankName}}</span>
                     </div>
                 </section>
                 <!-- 手机号 -->
@@ -64,7 +63,7 @@
 import headTop from '@/components/header/head.vue'
 import	delImg from 'static/images/clearinput.png'
 import { Toast } from 'mint-ui'
-import { return_card_info, bind_card, } from '@/service/getData.js'
+import { merchant, return_card_info, bind_card, } from '@/service/getData.js'
 
 
     export default {
@@ -113,6 +112,7 @@ import { return_card_info, bind_card, } from '@/service/getData.js'
 					this.clear1=1
 				}else{
 					this.clear1=0
+                    this.errorTipStatus=false;
 					this.bankTypeStatus=false
 				}
 				if(val.length<19){
@@ -174,6 +174,14 @@ import { return_card_info, bind_card, } from '@/service/getData.js'
                     textRange.select()
                 }
             },
+            // 获取默认商户信息
+            async getMerchant(){
+                var res = await merchant();
+                if(res.code == 200){
+                    this.name = res.data.personName;
+                    this.userID = res.data.personCode;
+                }
+            },
             //校验银行卡号
 			check(value){
                 this.bankTypeStatus=true;
@@ -195,8 +203,9 @@ import { return_card_info, bind_card, } from '@/service/getData.js'
             //判断银行卡类型
             async checkBankCard(val){
                 const res = await return_card_info(val);
-                if(res.code==200){
-                    this.bankName=res.content.bankName
+                if(res.code=='000000'){
+                    this.cardType=res.data.type;
+                    this.bankName=res.data.name;
                 }else{
                     this.bankTypeStatus=false
 					this.errorTipStatus=true
@@ -288,7 +297,7 @@ import { return_card_info, bind_card, } from '@/service/getData.js'
 
         },
         mounted(){
-
+            this.getMerchant(); // 获取商户默认信息
         },
     }
 
@@ -306,7 +315,9 @@ import { return_card_info, bind_card, } from '@/service/getData.js'
             background-color: #fff;
             .cardType{
                 width: 100%;
-                padding:.25rem 0;
+                height: .8rem;
+                line-height: .8rem;
+                // padding:.25rem 0;
                 background-color: #f8f8f8;
                 span{
                     color: #333;
@@ -331,6 +342,11 @@ import { return_card_info, bind_card, } from '@/service/getData.js'
                         color: #999;
                         font-size: .24rem;
                     }
+                }
+            }
+            .no-border{
+                input{
+                    border-bottom: none !important;
                 }
             }
             section{
