@@ -2,7 +2,7 @@
     <div class="storeResult">
         <!-- 头部标题部分 -->
         <head-top headTitle='存金结果' class="head-top nomal-font" ref="topHead">
-            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
+            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.push('/index')">
         </head-top>
         <!-- 主体部分 -->
         <div class="main-cont">
@@ -55,7 +55,7 @@
                     </div>
                 </div>
                 <!-- 银行卡 -->
-                <div class="bank-info">
+                <div class="bank-info"  v-if="orderInfo.isLockprice==1">
                     <span>银行卡</span>
                     <span>{{bankInfo.name}}(尾号{{bankInfo.code}})</span>
                 </div>
@@ -63,7 +63,7 @@
                 <div class="tip">工作人员会尽快联系您核实订单</div>
                 <!-- 按钮部分 -->
                 <div class="btn-opration">
-                    <div class="go-detail" @click="$router.push({path:'/storeOrderDetail',query:{id:1}})">查看订单</div>
+                    <div class="go-detail" @click="$router.push({path:'/storeorderdetail',query:{id:orderId}})">查看订单</div>
                     <div class="go-index" @click="$router.push('/index')">返回首页</div>
                 </div>
             </div>
@@ -72,7 +72,7 @@
                 <!-- 顶部图标部分 -->
                 <div class="top-info">
                     <div class="top-img">
-                        <img src="static/images/store-success.png" alt="">
+                        <img src="static/images/shopmsnopass.png" alt="">
                     </div>
                     <p>订单支付失败</p>
                 </div>
@@ -80,7 +80,7 @@
                 <div class="reason">失败原因：根据三方回调结果展示</div>
                 <!-- 按钮部分 -->
                 <div class="btn-opration">
-                    <div class="go-detail" @click="$router.push({path:'/storeOrderDetail',query:{id:1}})">查看订单</div>
+                    <div class="go-detail" @click="$router.push({path:'/storeorderdetail',query:{id:orderId}})">查看订单</div>
                     <div class="go-index" @click="$router.push('/index')">返回首页</div>
                 </div>
             </div>
@@ -96,7 +96,7 @@ import { query_detail, query_card_info} from '@/service/getData.js'
         data(){
             return{
                 orderId:'',       // 订单ID
-                orderstatus:true, // 订单是否成功
+                orderstatus:'', // 订单是否成功
                 typeJson:{
                     '0':'投资金',
                     '1':'首饰',
@@ -137,7 +137,6 @@ import { query_detail, query_card_info} from '@/service/getData.js'
                 var res = query_detail(this.orderId);
                 if(res.code=='000000'){
                     this.orderInfo = res.data;
-                    this.status = res.data.status;
                 }else{
                     Toast(res.message)
                 }
@@ -152,6 +151,8 @@ import { query_detail, query_card_info} from '@/service/getData.js'
         },
         created(){
             this.orderId = this.$route.query.id;
+            this.orderstatus = this.$route.query.status; // 支付成功 or 失败
+            // console.log(this.orderstatus)
         },
         mounted(){
 

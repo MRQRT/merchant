@@ -203,7 +203,7 @@ import { query_index_statistics,shop,logout } from '@/service/getData.js'
         },
         computed: {
             ...mapState([
-                'userId'
+                'accessToken'
             ]),
         },
         watch:{
@@ -213,7 +213,7 @@ import { query_index_statistics,shop,logout } from '@/service/getData.js'
         },
         methods: {
             ...mapMutations([
-                'RECORD_ACCESSTOKEN'
+                'RECORD_ACCESSTOKEN','RECORD_SHOPID'
             ]),
             // 显示导航
             navPopup(){
@@ -227,8 +227,6 @@ import { query_index_statistics,shop,logout } from '@/service/getData.js'
                     this.$router.push('/openshopguide') // 开店引导页
                 }
             },
-            // 退出登录
-
             // 近一月统计数据
             async query_index_statistics(){
                 var res = query_index_statistics();
@@ -244,11 +242,13 @@ import { query_index_statistics,shop,logout } from '@/service/getData.js'
                 if(res.code=='000000'){
                     if(res.data){
                         this.shopInfo = res.data;
+                        this.RECORD_SHOPID(res.data.id); // 保存店铺ID
                     }else{
                         this.shopCheckStatus = false;
                     }
                 }
             },
+            // 退出登录
             async quitLogin(){
                 const res = await logout();
                 if(res.code=='000000'){
@@ -272,11 +272,10 @@ import { query_index_statistics,shop,logout } from '@/service/getData.js'
             }
         },
         mounted(){
-            console.log(this.userId)
-            this.loginStatus = this.userId == null ? false : true;
+            this.loginStatus = this.accessToken ? true : false;
             if(this.loginStatus){
-                this.query_index_statistics();
-                this.checkShopStatus();
+                this.query_index_statistics(); // 首页统计数据
+                this.checkShopStatus();        // 店铺信息
             }
         },
         beforeRouteLeave (to, from, next) {
@@ -355,6 +354,7 @@ import { query_index_statistics,shop,logout } from '@/service/getData.js'
                 background-color: #eee;
                 img{
                     width: 100%;
+                    height:100%;
                 }
             }
             p{

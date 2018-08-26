@@ -5,6 +5,7 @@ import {
 	RECORD_USERID,
 	RECORD_MOBILE,
 	RECORD_MERCHANTID,
+	RECORD_SHOPID,
 } from './mutation-types.js'
 
 import {setStore, getStore, setCookie ,getCookie, removeCookie, removeStore} from '../config/mUtils'
@@ -13,10 +14,12 @@ import {setStore, getStore, setCookie ,getCookie, removeCookie, removeStore} fro
 export default {
 	//记录会话值
 	[RECORD_ACCESSTOKEN](state,accessToken){
+		state.accessToken = accessToken;
 		setStore('accessToken',accessToken,'local')
 	},
 	//记录用户的userId
 	[RECORD_USERID](state,userId){
+		state.userId = userId;
 		setStore('userId',userId,'local')
 	},
 	//记录用户的的登录手机号
@@ -26,6 +29,11 @@ export default {
 	//记录用户的商户号
 	[RECORD_MERCHANTID](state,merchantId){
 		state.merchantId=merchantId
+	},
+	//记录店铺ID
+	[RECORD_SHOPID](state,shopId){
+		state.shopId = shopId
+		setStore('shopId',shopId,'local')
 	},
 	// 记录当前时间
 	[RECORD_CURRENTIME](state,now){

@@ -23,7 +23,7 @@
                         </div>
                         <div class="right-text">
                             <p>{{bankInfo.name}}</p>
-                            <p class="card-type">{{bankInfo.type}}（单笔限额{{bankInfo.maxAmount}}W，单日限额{{bankInfo.dayMaxAmount}}W）</p>
+                            <p class="card-type">{{'储蓄卡'}}（单笔限额{{bankInfo.maxAmount}}W，单日限额{{bankInfo.dayMaxAmount}}W）</p>
                         </div>
                     </div>
                     <div class="bottom-part">
@@ -68,7 +68,7 @@ import {query_card_info,} from '@/service/getData.js'
         methods: {
             async request(){
             	const res = await query_card_info();
-            	if(res.code==200){
+            	if(res.code=='000000'){
 					this.bankInfo = res.data;
 				}
             },
@@ -137,14 +137,14 @@ import {query_card_info,} from '@/service/getData.js'
                     .left-icon{
                         width: .7rem;
                         height: .7rem;
-                        background-color: #fff;
+                        // background-color: #fff;
                         position: relative;
                         @include border-radius(50%);
                         img{
-                            display: inline-block;
-                            border:1px solid #eee;
-                            @include border-radius(50%);
-                            @include center(.55rem,.55rem);
+                            width:100%;
+                            // display: inline-block;
+                            // @include border-radius(50%);
+                            // @include center(.7rem,.7rem);
                         }
                     }
                     .right-text{

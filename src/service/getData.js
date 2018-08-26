@@ -89,6 +89,15 @@ export const merchant = () => fetch('/merchant',{},'get');
 
 export const return_card_info = (code) => fetch('/bank_card?code='+code,{},'get');
 
+
+/**
+ * 绑卡发送短信验证码
+ */
+
+export const captcha = (code,mobile,id) => fetch('/bank_card/captcha',{'code':code,'mobile':mobile,'id':id},'post');
+// export const captcha = (code,mobile) => fetch('/bank_card/captcha',{'code':code,'mobile':mobile},'post');
+
+
 /**
  * 查看银行卡
  */
@@ -99,7 +108,7 @@ export const query_card_info = () => fetch('/bank_card',{},'get');
  * 绑定银行卡
  */
 
-export const bind_card = (code,mobile,captcha) => fetch('/bank_card',{'code':code,'mobile':mobile,'captcha':captcha},'post');
+export const bind_card = (id,code,mobile,captcha) => fetch('/bank_card',{'id':id,'code':code,'mobile':mobile,'captcha':captcha},'post');
 
 
 /**

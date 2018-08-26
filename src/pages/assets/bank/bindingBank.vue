@@ -10,12 +10,12 @@
                 <!-- 姓名 -->
                 <section>
     				<!-- <input type="text" name="name" placeholder="请输入真实姓名" v-model="name" readonly="readonly"> -->
-                    <p>小可爱</p>
+                    <p>{{name}}</p>
     			</section>
                 <!-- 身份证 -->
                 <section>
     				<!-- <input type="number" name="userID" placeholder="请输入身份证号" v-model="userID" readonly="readonly"> -->
-                    <p>12345687899900900</p>
+                    <p>{{userID}}</p>
     			</section>
                 <!-- 银行卡 -->
                 <section :class="{'no-border':(errorTipStatus || bankTypeStatus)}">
@@ -54,7 +54,7 @@
     			</section>
             </div>
             <!-- 确认按钮 -->
-            <div class="store-btn" :class="{'sureYes':clickstatus}">确认</div>
+            <div class="store-btn" :class="{'sureYes':clickstatus}" @click="stor()">确认</div>
         </div>
     </div>
 </template>
@@ -63,14 +63,14 @@
 import headTop from '@/components/header/head.vue'
 import	delImg from 'static/images/clearinput.png'
 import { Toast } from 'mint-ui'
-import { merchant, return_card_info, bind_card, } from '@/service/getData.js'
+import { merchant, return_card_info, bind_card,captcha } from '@/service/getData.js'
 
 
     export default {
         data(){
             return{
-                name:'小可爱',                // 姓名
-                userID:'12345687899900900', // 身份证号
+                name:'***',                // 姓名
+                userID:'**************', // 身份证号
                 delImg: delImg,         // 删除按钮
                 clear1:0,               // 银行卡清除按钮
                 clear2:0,               // 手机号清除按钮
@@ -78,11 +78,12 @@ import { merchant, return_card_info, bind_card, } from '@/service/getData.js'
                 bankNum:'',             // 银行卡号
                 telNum:'',              // 预留手机号
                 verifiCode:'',          // 短信验证码
+                verifiNo:null,            // 第二次发送验证码需要的编号
                 errorTipStatus:false,   // 银行卡错误是否显示
                 bankTypeStatus:false,   // 银行卡类型提示
                 telErrorStatus:false,   // 手机号错误提示
                 errorTip:'',            // 银行卡错误提示文字
-                cardType:'借记卡',       // 银行卡类型
+                cardType:'储蓄卡',       // 银行卡类型
                 bankName:'工商银行',     // 银行类型
                 iNow: true,             // 状态变量,解决重复点击问题
                 second: 60,             // 验证码倒计时
@@ -152,7 +153,7 @@ import { merchant, return_card_info, bind_card, } from '@/service/getData.js'
 				}
             },
             //格式化银行卡号
-            redSec: function(){
+            redSec(){
                 let num = 0;
                 const str = this.bankNum;
                 const elem = this.$refs.bankNum_input;
@@ -177,7 +178,7 @@ import { merchant, return_card_info, bind_card, } from '@/service/getData.js'
             // 获取默认商户信息
             async getMerchant(){
                 var res = await merchant();
-                if(res.code == 200){
+                if(res.code == '000000'){
                     this.name = res.data.personName;
                     this.userID = res.data.personCode;
                 }
@@ -204,8 +205,14 @@ import { merchant, return_card_info, bind_card, } from '@/service/getData.js'
             async checkBankCard(val){
                 const res = await return_card_info(val);
                 if(res.code=='000000'){
-                    this.cardType=res.data.type;
-                    this.bankName=res.data.name;
+                    // this.cardType=res.data.type;
+                    if(res.data){
+                        this.bankName=res.data.name;
+                    }else{
+                        this.bankTypeStatus=false
+    					this.errorTipStatus=true
+    					this.errorTip='暂不支持该卡'
+                    }
                 }else{
                     this.bankTypeStatus=false
 					this.errorTipStatus=true
@@ -223,7 +230,12 @@ import { merchant, return_card_info, bind_card, } from '@/service/getData.js'
 					if(this.rightShow==1){
 						if(this.iNow==true && this.second==60 && this.bankTypeStatus==1){
                 			that.iNow = false;
-                			const res=await sendSms(this.telNum)
+                			const res=await captcha(this.bankNum,this.telNum,this.verifiNo)
+                            if(res.code=='000000'){
+                                this.verifiNo = res.data;
+                            }else if(res.code=='100030'){
+                                Toast(res.message)
+                            }
                 			that.timer = setInterval(function(){
                     			send_smscode.style.color="#666"
                     			i--
@@ -256,8 +268,8 @@ import { merchant, return_card_info, bind_card, } from '@/service/getData.js'
 			async stor(){
 				if(this.clickstatus){
 					const formatBankN = this.bankNum.replace(/\s/g, "")
-					const res = await bind_card(formatBankN, this.telNum, this.validNum)
-					if(res.code==200){
+					const res = await bind_card(this.verifiNo,formatBankN, this.telNum, this.verifiCode)
+					if(res.code=='000000'){
 						Toast('银行卡绑定成功')
 						if(this.$route.query.from=='storegold'){
                             this.$router.replace('/storegold')
@@ -267,8 +279,9 @@ import { merchant, return_card_info, bind_card, } from '@/service/getData.js'
 					}else{
 						MessageBox({
 							title: '提示',
-							message: res.message+',请重新输入',
-							confirmButtonText: '我知道了'
+							message: res.message+',请核实后重新输入',
+                            confirmButtonText: '确认',
+                            showCancelButton:true,
 						})
 						this.verifiCode=''
 						let send_smscode = this.$refs.send_smscode

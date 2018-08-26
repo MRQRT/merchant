@@ -15,8 +15,8 @@ axios.defaults.baseURL = '/api'   //配置接口地址
 axios.interceptors.request.use((config) => {
     //在发送请求之前将参数序列化
     if(config.method  === 'post' || config.method === 'put') {
-        config.data = qs.stringify(config.data);
-        config.params = qs.stringify(config.url)
+        config.data = qs.stringify(config.data,{ skipNulls: true });
+        config.params = qs.stringify(config.url,{ skipNulls: true })
         config.headers['Accept'] = 'application/json'
     }
     if(config.method === 'get') {
@@ -41,15 +41,7 @@ axios.interceptors.response.use(
     response => {
     /*通过response自定义code来标示请求状态*/
         const res = response;
-        if(a.$route.path!='/buy' && a.$route.path!='/sell'){ //买金页500特殊处理
-            if(res.data.code == 500){
-                Toast ({
-                    message:res.message,
-                    position: 'bottom',
-                    duration: 1500,
-                })
-            }
-        }
+
         return Promise.resolve(response)
     },error => {
         if (error.response) {
@@ -67,7 +59,7 @@ axios.interceptors.response.use(
                         position:'bottom',
                         duration:3000,
                     })
-                case 500:
+                case '000001':
                     Indicator.close();
                     router.replace({path:'/systemError'})  //跳转到500页面
                     break;

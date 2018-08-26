@@ -17,20 +17,20 @@
                 <h3>银行卡</h3>
                 <div class="bank">
                     <!-- 已绑卡状态 -->
-                    <div class="has-bank" v-if="!bankStatus" @click="$router.push('/mybank')">
+                    <div class="has-bank" v-if="bankStatus" @click="$router.push('/mybank')">
                         <div class="left-part">
                             <div class="icon">
-                                <img src="" alt="">
+                                <img :src="bankInfo.icon" alt="">
                             </div>
                             <div class="text">
-                                <p class="bank-name">中国工商银行</p>
-                                <p class="bank-num">尾号3232</p>
+                                <p class="bank-name">{{bankInfo.name}}</p>
+                                <p class="bank-num">尾号{{bankInfo.code}}</p>
                             </div>
                         </div>
                         <div class="right-part"></div>
                     </div>
                     <!-- 未绑卡状态 -->
-                    <div class="no-bank" v-else @click="$router.push({path:'/bindingbank',query:{from:'assets'}})">
+                    <div class="no-bank" v-else @click="goBind()">
                         <div class="left-part">
                             <div class="icon">
                                 <img src="static/images/add-bank.png" alt="">
@@ -49,30 +49,66 @@
 
 <script>
 import headTop from '@/components/header/head.vue'
+import { mapState,mapMutations } from 'vuex'
+import { MessageBox,Toast} from 'mint-ui';
+import { query_card_info, } from '@/service/getData.js'
 
     export default {
         data(){
             return{
-                bankStatus:true,  // 是否绑卡
+                bankStatus:false,  // 是否绑卡
+                bankInfo:'',      // 银行卡信息
             }
         },
         components:{
             headTop,
         },
         computed: {
-
+            ...mapState([
+                'shopId'
+            ])
         },
         watch:{
 
         },
         methods: {
-
+            async query_card_info(){
+                var res = await query_card_info();
+                if(res.code=='000000'){
+                    if(res.data){
+                        this.bankInfo = res.data;
+                        this.bankStatus = true
+                    }else{
+                        this.bankStatus = false;
+                    }
+                }else{
+                    Toast(res.message)
+                }
+            },
+            goBind(){
+                if(this.shopId){
+                    this.$router.push({
+                        path:'/bindingbank',
+                        query:{
+                            from:'assets'
+                        }
+                    })
+                }else{
+                    var text = `<div style="text-align:center">店铺审核通过后，再进行绑卡操作</div>`;
+                    MessageBox({
+                      title: '温馨提示',
+                      message:text,
+                      confirmButtonText: '我知道了'
+                    })
+                }
+            }
         },
         created(){
 
         },
         mounted(){
-
+            this.query_card_info();
+            console.log(this.shopId)
         },
     }
 
@@ -150,7 +186,6 @@ import headTop from '@/components/header/head.vue'
                         width: .55rem;
                         height: .55rem;
                         margin-right:.25rem;
-                        border:1px solid #eee;
                         @include border-radius(50%);
                         img{
                             width: 100%;

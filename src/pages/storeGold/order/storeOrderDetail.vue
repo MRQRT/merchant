@@ -291,7 +291,7 @@
 import headTop from '@/components/header/head.vue'
 import { MessageBox,Toast,Popup } from 'mint-ui';
 /* 请求详情、物流单号、物流信息、订单追踪、确认订单、修改订单 、银行卡信息*/
-import { query_detail, query_logistics_mess, query_express_mess, query_status_flow_mes,confirm_order,update_status,query_card_info} from '@/service/getData.js'
+import { query_detail, query_logistics_mess, query_express_mess, query_status_flow_mess,confirm_order,update_status,query_card_info} from '@/service/getData.js'
 
 
     export default {
@@ -695,8 +695,8 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 }
             },
             // 订单追踪
-            async query_status_flow_mes(){
-                var res = query_status_flow_mes(this.orderId);
+            async query_status_flow_mess(){
+                var res = query_status_flow_mess(this.orderId);
                 if(res.code=='000000'){
                     this.list = res.data;
                 }else{
