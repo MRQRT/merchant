@@ -64,9 +64,9 @@
 	</div>
 </template>
 <script>
-    import {setCookie,getCookie,isNumber} from '@/config/mUtils.js'
+    import {setCookie,getCookie,isNumber,isweixin} from '@/config/mUtils.js'
     import {mapMutations,mapState} from 'vuex'
-    import {login,quicklogin,checkexist,sendsms} from '@/service/getData.js'
+    import {login,quicklogin,checkexist,sendsms,wechatlogin} from '@/service/getData.js'
     import { Toast,Button,MessageBox } from 'mint-ui'
     import md5 from 'js-md5'
     import op_eye from 'static/images/open_eye.png'
@@ -99,6 +99,8 @@
             
         },
 		mounted() {
+            let a = isweixin();
+            a?this.isWeixin=true:false
             // if(localStorage.getItem('isWebview')){
             //     document.querySelector('.weixin_login').style.display="block"
             // }
@@ -170,8 +172,9 @@
                 'RECORD_USERID','RECORD_MOBILE','RECORD_MERCHANTID','RECORD_ACCESSTOKEN'
             ]),
             //微信登录
-            weixinLogin(){
-                window.openWeChat()
+            async weixinLogin(){
+                const url = 'http://192.168.1.114:8080/bindingwechat'
+                const res = await wechatlogin(url);
             },
             //点击左上角关闭按钮
             backWard(){
@@ -291,6 +294,13 @@
                         }
                     },1000)
                     let res = await sendsms(this.num,1);
+                    if(res1.code!='000000'){
+                        Toast({
+                            message: res1.message,
+                            position: 'bottom',
+                            duration: 3000
+                        });
+                    }
                 }else if(res.code=="000000"&&(res.data&&res.data.isExist)){//请求成功且未注册
                     MessageBox({
                         title: '提示',
@@ -537,7 +547,7 @@ input{
     font-size:.28rem;
 }
 .weixin_login{
-    margin-top:1rem;
+    margin-top:.2rem;
     text-align:center;
     text-align: center;
 }

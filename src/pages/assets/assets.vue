@@ -30,7 +30,7 @@
                         <div class="right-part"></div>
                     </div>
                     <!-- 未绑卡状态 -->
-                    <div class="no-bank" v-else @click="$router.push({path:'/bindingBank',query:{from:'assets'}})">
+                    <div class="no-bank" v-else @click="$router.push({path:'/bindingbank',query:{from:'assets'}})">
                         <div class="left-part">
                             <div class="icon">
                                 <img src="static/images/add-bank.png" alt="">

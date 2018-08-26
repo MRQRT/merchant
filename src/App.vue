@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import {queryGoldPrice} from './service/getData.js'
+import {query_gold_price} from './service/getData.js'
 
 export default {
         name: 'App',
@@ -23,7 +23,7 @@ export default {
         methods: {
             /*请求实时金价*/
             async getCurrent(){
-                var res=await queryGoldPrice();
+                var res=await query_gold_price();
                 if(res.code==200){
                     var price=res.data.goldPrice
                     this.RECORD_CURRENPRICE(price) // 将获取到的金价储存在session中

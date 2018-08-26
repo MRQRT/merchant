@@ -6,7 +6,6 @@
         </div>
 		<!--存金banner-->
 		<div class="storBanner">
-			<!-- <img src="static/images/index-bg.jpeg"> -->
 			<div class="price_container">
 				<div>
 					<p class="price_in">
@@ -23,16 +22,16 @@
             <div class="deal-num">
                 <div class="total-price">
                     <p>累计成交金额(元)</p>
-                    <p class="price">{{123456.78 | formatPriceTwo}}</p>
+                    <p class="price">{{dealObject.totalCashAmount | formatPriceTwo}}</p>
                 </div>
                 <div class="bottom-num">
                     <div class="left-weight">
                         <p>累计成交克重(克)</p>
-                        <p class="weight">1354.654</p>
+                        <p class="weight">{{dealObject.totalWeight}}</p>
                     </div>
                     <div class="right-count">
                         <p>累计成交笔数(笔)</p>
-                        <p class="price">78</p>
+                        <p class="price">{{dealObject.totalCount}}</p>
                     </div>
                 </div>
             </div>
@@ -126,15 +125,22 @@
         <!-- 左侧导航 -->
         <mt-popup v-model="popupVisible" position="left">
             <div class="nav-wrap">
-                <!-- 店铺图标名称 -->
-                <div class="top-info" @click="goShop()">
-                    <div class="shop-logo">
-                        <img src="static/images/shop-logo.png" alt="">
+                <!-- 未登录情况 -->
+                <div class="top-info" v-if="!loginStatus">
+                    <div class="cjt-logo">
+                        <img src="static/images/cjt-logo.png" alt="">
                     </div>
-                    <!-- 未登录显示 -->
-                    <p v-if="!loginStatus">请登录</p>
+                    <!-- 登录注册按钮 -->
+                    <div class="login-btn"  @click="$router.push({path:'/login',query:{redirect:'/index'}})">登录/注册</div>
+                </div>
+                <!-- 已登录：店铺图标名称 -->
+                <div class="top-info" @click="goShop()" v-else>
+                    <div class="shop-logo">
+                        <img src="static/images/shop-logo.png" alt="" v-if="!shopCheckStatus">
+                        <img :src="shopInfo.logoPath" alt="" v-else>
+                    </div>
                     <!-- 登录且审核通过提示 -->
-                    <p v-if="loginStatus && shopCheckStatus">我的店铺啦啦啦啦啦啦啦啦啦啦</p>
+                    <p v-if="shopCheckStatus">{{shopInfo.name}}</p>
                     <!-- 未开店/店铺正在审核中显示 -->
                     <p v-else>我的店铺</p>
                 </div>
@@ -156,6 +162,10 @@
                         <span class="icon4"></span>
                         <span>关于我们</span>
                     </li>
+                    <li @click="quitLogin()" v-if="loginStatus">
+                        <span class="icon5"></span>
+                        <span>退出登录</span>
+                    </li>
                 </ul>
             </div>
         </mt-popup>
@@ -164,14 +174,27 @@
 
 <script>
 import headTop from '@/components/header/head.vue'
-import { Popup } from 'mint-ui';
+import { Popup,Toast } from 'mint-ui';
+import { mapState,mapMutations } from 'vuex'
+import { query_index_statistics,shop,logout } from '@/service/getData.js'
+
 
     export default {
         data(){
             return{
                 popupVisible:false,   // 左侧导航显示
-                loginStatus:true,     // 是否登录
+                loginStatus:false,     // 是否登录
                 shopCheckStatus:true, // 店铺审核是否通过
+                dealObject:{
+                    totalCashAmount:2345.3444,
+                    totalWeight:23.43,
+                    totalCount:88
+                },
+                shopInfo:{
+                    shopId:'',
+                    logoPath:'',
+                    name:'周大福周生生'
+                },
             }
         },
         components:{
@@ -179,7 +202,9 @@ import { Popup } from 'mint-ui';
             Popup
         },
         computed: {
-
+            ...mapState([
+                'userId'
+            ]),
         },
         watch:{
             popupVisible:function(val){
@@ -187,6 +212,10 @@ import { Popup } from 'mint-ui';
             }
         },
         methods: {
+            ...mapMutations([
+                'RECORD_ACCESSTOKEN'
+            ]),
+            // 显示导航
             navPopup(){
                 this.popupVisible = true;
             },
@@ -197,6 +226,43 @@ import { Popup } from 'mint-ui';
                 }else{
                     this.$router.push('/openshopguide') // 开店引导页
                 }
+            },
+            // 退出登录
+
+            // 近一月统计数据
+            async query_index_statistics(){
+                var res = query_index_statistics();
+                if(res.code=='000000'){
+                    this.dealObject=res.data;
+                }else if(res.code=='200206'){
+                    this.shopCheckStatus = false;
+                }
+            },
+            // 获取店铺信息
+            async checkShopStatus(){
+                var res = await shop();
+                if(res.code=='000000'){
+                    if(res.data){
+                        this.shopInfo = res.data;
+                    }else{
+                        this.shopCheckStatus = false;
+                    }
+                }
+            },
+            async quitLogin(){
+                const res = await logout();
+                if(res.code=='000000'){
+                    Toast('退出登录成功');
+                    this.popupVisible=false;
+                    this.loginStatus=false;
+                    this.RECORD_ACCESSTOKEN('');
+                }else{
+                    Toast({
+                        message: res.message,
+                        position: 'bottom',
+                        duration: 3000
+                    });
+                }
             }
         },
         created(){
@@ -206,7 +272,12 @@ import { Popup } from 'mint-ui';
             }
         },
         mounted(){
-
+            console.log(this.userId)
+            this.loginStatus = this.userId == null ? false : true;
+            if(this.loginStatus){
+                this.query_index_statistics();
+                this.checkShopStatus();
+            }
         },
         beforeRouteLeave (to, from, next) {
             this.popupVisible = false;
@@ -256,9 +327,28 @@ import { Popup } from 'mint-ui';
         height: 100vh;
         padding:1.4rem .5rem 0 .6rem;
         background-color: #fff;
-        overflow: hidden;
+        overflow:scroll;
         .top-info{
             margin-bottom: 1.3rem;
+            .cjt-logo{
+                width: 2.1rem;
+                height: .58rem;
+
+                img{
+                    width: 100%;
+                }
+            }
+            .login-btn{
+                width: 3rem;
+                height: .7rem;
+                line-height: .7rem;
+                text-align: center;
+                color: #fff;
+                font-size: .3rem;
+                margin-top:.3rem;
+                background: -webkit-linear-gradient(left, #C09C60, #DDC899);
+                @include border-radius(.35rem);
+            }
             .shop-logo{
                 width: 1.6rem;
                 height: 1.6rem;
@@ -306,6 +396,9 @@ import { Popup } from 'mint-ui';
                 .icon4{
                     @include bg-image('/static/images/us-icon.png');
                 }
+                .icon5{
+                    @include bg-image('/static/images/quit-login.png');
+                }
 
             }
         }
@@ -313,6 +406,7 @@ import { Popup } from 'mint-ui';
     .storBanner{
     	width:100%;
         height: 6.2rem;
+        margin-bottom: 2.7rem;
     	position: relative;
         @include bg-image('/static/images/index-bg.png');
         img{
@@ -381,7 +475,7 @@ import { Popup } from 'mint-ui';
         width:100%;
         text-align: left;
         padding:0 .4rem;
-        margin-top: 2.7rem;
+        margin-bottom: .6rem;
         .title{
             color: #333;
             font-size: .34rem;
@@ -442,7 +536,6 @@ import { Popup } from 'mint-ui';
     	width: 100%;
     	height: 4rem;
         padding:0 .4rem;
-    	margin-top: .6rem;
     	display: inline-block;
         .store_flow-wrap{
             width:100%;

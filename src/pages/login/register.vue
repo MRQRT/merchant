@@ -19,7 +19,7 @@
             </div>
             <section class="line"></section>
             <div class="password">
-                <input :type="texorpas" minlength="6" maxlength="20" placeholder="6~20位字母、数字组合" ref="password" class="passwords" v-model="password">
+                <input :type="texorpas" minlength="6" maxlength="20" placeholder="6~20位字母、数字或组合" ref="password" class="passwords" v-model="password">
                 <span class="eye" @click="check_eye"><img :src="eye" alt="a"></span>
             </div>
             <section class="line"></section> 
@@ -198,6 +198,13 @@ import {mapMutations,mapState} from 'vuex'
                         }
                     },1000)
                     let res = await sendsms(this.tel,0);
+                    if(res1.code!='000000'){
+                        Toast({
+                            message: res1.message,
+                            position: 'bottom',
+                            duration: 3000
+                        });
+                    }
                 }else if(res.code=="000000"&&(res.data&&!res.data.isExist)){//请求成功且已经注册
                     MessageBox({
                         title: '提示',

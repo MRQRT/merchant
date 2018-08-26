@@ -12,7 +12,7 @@ import './config/rem'
 import './style/common.css'
 import 'swiper/dist/css/swiper.css'
 import 'mint-ui/lib/style.css'
-
+// import './config/vconsole.min.js'
 Vue.use(VueAwesomeSwiper)
 Vue.use(MintUI)
 Vue.config.productionTip = false
@@ -62,7 +62,7 @@ export let a = new Vue({
 
 router.beforeEach((to, from, next) => {
 	if (to.matched.some(r => r.meta.requireAuth)) {
-        if (1) {    // 已登录
+        if (store.state.userId) {    // 已登录
             next(true);
         } else {   // 未登录
             if(from.fullPath == '/storegold'){ //存金页点击绑卡和新增地址后仍跳转回存金页

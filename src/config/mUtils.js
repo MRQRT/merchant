@@ -416,3 +416,13 @@ export function checkAgent(){
     if(isAndroid) return 'And';
     else return 'IOS';
 }
+export function isweixin(){
+    var ua = navigator.userAgent.toLowerCase();
+    var isWeixin = ua.indexOf('micromessenger') != -1;
+    if (isWeixin) {
+        return true;
+    }else{
+        return false;
+    }
+}
+

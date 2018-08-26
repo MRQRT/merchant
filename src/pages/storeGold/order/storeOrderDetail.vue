@@ -154,7 +154,7 @@
                         <span>存金方式</span>
                         <span>{{cashJson[orderInfo.cash]}}</span>
                     </p>
-                    <div class="" v-if="orderInfo.isLockprice==0">
+                    <div class="" v-if="orderInfo.isLockprice==1">
                         <p>
                             <span>锁价保证金</span>
                             <span>{{orderInfo.ensure_cash}}元</span>
@@ -195,12 +195,12 @@
                 </div>
                 <ul class="tracking-list" :class="{'showList':trackingStatus}">
                     <div class="line"></div>
-                    <li class="tracking-item" v-for="(item,index) in orderTracking">
+                    <li class="tracking-item" v-for="(item,index) in newList">
                         <div class="left-line">
                             <span class="dot" :class="{'recent-icon':index==0}"></span>
                         </div>
                         <div class="right-text" :class="{'recent':index==0}">
-                            <p class="progress">{{item.status}}</p>
+                            <p class="progress">{{item.name}}</p>
                             <p class="time">{{item.time}}</p>
                         </div>
                     </li>
@@ -276,8 +276,8 @@
                         <div class="report-btn" v-if="status==5 || status==9 || status==13"><a href="tel:4001689999">联系客服</a></div>
                         <!-- 待确认、已完成情况 -->
                         <div class="report-btn" v-else>
-                            <span v-if="status==7" style="color:#999">已确认</span>
-                            <span v-else>确认订单</span>
+                            <span v-if="status==7 || !reportClick" style="color:#999">已确认</span>
+                            <span v-else @click="confirm_order()">确认订单</span>
                             <span><a href="tel:4001689999">联系客服</a></span>
                         </div>
                     </div>
@@ -290,11 +290,16 @@
 <script>
 import headTop from '@/components/header/head.vue'
 import { MessageBox,Toast,Popup } from 'mint-ui';
+/* 请求详情、物流单号、物流信息、订单追踪、确认订单、修改订单 、银行卡信息*/
+import { query_detail, query_logistics_mess, query_express_mess, query_status_flow_mes,confirm_order,update_status,query_card_info} from '@/service/getData.js'
+
 
     export default {
         data(){
             return{
-                deliveryNo:238487737766,
+                orderId:'',            // 订单id
+                expressNo:238487737766,// 快递单号
+                expressCode:'',        // 物流公司编码
                 isLockOrder:0,         // 是否是锁价订单
                 isClick:0,             // 进度提示是否是点击显示
                 squreNum:null,         // 提示三角显示隐藏
@@ -302,10 +307,11 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                 timeOut:false,         // 订单是否超时
                 popupVisible:false,    // 信息弹窗显示隐藏
                 popupNum:'',           // 哪个弹窗显示
+                reportClick:true,      // 确认检测报告按钮状态
                 trackingStatus:false,  // 订单追踪显示、隐藏
                 stepTipText:'',        // 进度提示文字
-                minu:'--',               // 倒计时分
-                secd:'--',               // 倒计时秒
+                minu:'--',             // 倒计时分
+                secd:'--',             // 倒计时秒
                 typeJson:{
                     '0':'投资金',
                     '1':'首饰',
@@ -358,35 +364,68 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                     address:'内蒙古呼和浩特市赛罕区7号楼602罕区7号楼602'
                 },
                 orderTrackJson:{
-                    '1':{name:'订单已提交'},
-                    '2':{name:'已支付锁价保证金'},
-                    '3':{name:'订单审核通过'},
-                    '4':{name:'订单审核未通过'},
-                    '5':{name:'平台已签收'},
+                    '0':{name:'订单已提交'},
+                    '1':{name:'订单审核未通过'},
+                    '2':{name:'订单审核通过'},
+                    '4':{name:'平台已签收'},
+                    '5':{name:'存金检测完毕-检测未通过'},
                     '6':{name:'存金检测完毕-检测通过'},
-                    '7':{name:'存金检测完毕-检测未通过'},
-                    '8':{name:'已确认检测报告'},
-                    '9':{name:'平台已退货'},
-                    '10':{name:'保证金已退还'},
-                    '11':{name:'订单完成'},
-                    '12':{name:'订单已取消'},
+                    '7':{name:'已确认检测报告'},
+                    '8':{name:'订单已取消'},
+                    '9':{name:'保证金已退还'},
+                    '13':{name:'平台已退货'},
+                    '14':{name:'订单完成'},
+                    '15':{name:'已支付锁价保证金'},
                 },
-                orderTracking:[
+                list: [
                     {
-                        time:'2018-08-20 12:23:00',
-                        status:'订单已完成'
+                        "id": null,
+                        "orderId": "123",
+                        "addSort": 6,
+                        "orderStatus": 1,
+                        "createTime": 1535095430000
                     },
                     {
-                        time:'2018-08-20 12:23:00',
-                        status:'锁价保证金已退还'
+                        "id": null,
+                        "orderId": "123",
+                        "addSort": 5,
+                        "orderStatus":7,
+                        "createTime": 1535095430000
                     },
                     {
-                        time:'2018-08-20 12:23:00',
-                        status:'已确认检测报告'
+                        "id": null,
+                        "orderId": "123",
+                        "addSort": 4,
+                        "orderStatus": 6,
+                        "createTime": 1535095378000
                     },
                     {
-                        time:'2018-08-20 12:23:00',
-                        status:'存金检测完毕-检测通过'
+                        "id": null,
+                        "orderId": "123",
+                        "addSort": 3,
+                        "orderStatus": 4,
+                        "createTime": 1535095371000
+                    },
+                    {
+                        "id": null,
+                        "orderId": "123",
+                        "addSort": 2,
+                        "orderStatus": 2,
+                        "createTime": 1535095365000
+                    },
+                    {
+                        "id": null,
+                        "orderId": "123",
+                        "addSort": 1,
+                        "orderStatus": 0, // 已支付保证金
+                        "createTime": 1535095362000
+                    },
+                    {
+                        "id": null,
+                        "orderId": "123",
+                        "addSort": 0,
+                        "orderStatus": 0,  // 订单已提交
+                        "createTime": 1535095362000
                     }
                 ],
                 deliveryList:[
@@ -430,8 +469,9 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                         time:'2018-08-20 12:23:00',
                         status:'浙江省金华市义务中转站公司  已发出，下一站 北京运转中心'
                     },
-                ]
-
+                ],
+                orderTrackText:'',
+                newList:[],
             }
         },
         components:{
@@ -476,7 +516,8 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
             showDelivery(){
                 var that = this;
                 document.getElementById('delivery').onclick=function(){
-                    that.lookPopup(0)
+                    that.lookPopup(0);
+                    that.query_express_mess(); // 调用物流信息
                 }
             },
             // 锁价解释弹窗
@@ -519,6 +560,7 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                         that.secd = '--';
                         clearInterval(countdowns);
                         // 重新调用订单详情函数
+                        that.update_status();
                     }
                 },1000);
 
@@ -534,9 +576,9 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                              <p>我们已经安排快递小哥上门取件啦，请留意接听取件电话</p>`;
                 var text2 = '<p>订单审核未通过，您可以重新填写订单，风里雨里我们在这里等您！</p>';
                 var text3 = '<p>订单审核未通过，锁价定金将在3个工作日内退回至绑定银行卡，您可以重新填写订单，风里雨里我们在这里等您！</p>'
-                var text4 = `<p>快递小哥正在用心传递速度，物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">${this.deliveryNo}</span></p>`;
+                var text4 = `<p>快递小哥正在用心传递速度，物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">${this.expressNo}</span></p>`;
                 var text5 = `<p>亲爱的用户，您的宝贝我们收到啦~</p>
-                             <p>物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">${this.deliveryNo}<span></p>`;
+                             <p>物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">${this.expressNo}<span></p>`;
                 var text6 = '<p>亲，专业检测师紧锣密鼓地开工啦！1个工作日内就会有结果哦！</p>'
                 var text7 = '<p>您的订单检测完毕！请尽快查看并确认<span id="report" style="color:#C09C60;border-bottom:1px solid #C09C60">检测报告</span>哦！</p>'
                 var text8 = `<p>亲，只差最后一步啦，快来看看您的<span id="report" style="color:#C09C60;border-bottom:1px solid #C09C60">检测报告</span>吧~三个工作日后将自动确认，如您对检测结果有任何疑问，请联系客服：4008-196-199</p>`
@@ -597,13 +639,99 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                         this.stepTipText = textJson[status]
                     }
                 }
+            },
+            // 订单追踪数据
+            trackingText(){
+                var that = this;
+                this.list.forEach(function(item){
+                    if(item.orderStatus==0 && item.addSort!=0){ // 状态都为0时，判断已锁价
+                        that.orderTrackText = that.orderTrackJson[15].name
+                    }else if(item.orderStatus==1 && (item.addSort!=1 || item.addSort!=2)){ // 状态都为1时，判断显示审核未通过 or 退换保证金
+                        that.orderTrackText = that.orderTrackJson[9].name
+                    }
+                    else{
+                        that.orderTrackText = that.orderTrackJson[item.orderStatus].name
+                    }
+                    that.newList.push({
+                        time:item.createTime,
+                        name:that.orderTrackText
+                    })
+                })
+                console.log(this.newList)
+
+            },
+
+            // 请求订单详情数据
+            async query_detail(){
+                var res = query_detail(this.orderId);
+                if(res.code=='000000'){
+                    this.orderInfo = res.data;
+                    this.status = res.data.status;
+                    // 未支付状态调用倒计时函数
+                    if(this.orderInfo.status==10){
+                        this.countDown();
+                    }
+                }else{
+                    Toast(res.message)
+                }
+            },
+            // 请求物流单号
+            async query_logistics_mess(){
+                var res = query_logistics_mess(this.orderId,type) // type:0-取货；1-退货
+                if(res.code=='000000'){
+                    this.expressNo = res.data.expressNo;
+                    this.expressCode = res.data.expressCode;
+                }else{
+                    Toast(res.message)
+                }
+            },
+            // 查询具体物流信息
+            async query_express_mess(){
+                var res = query_express_mess(this.expressNo,this.expressCode)
+                if(res.code=='000000'){
+                    this.deliveryList = res.data;
+                }else{
+                    Toast(res.message)
+                }
+            },
+            // 订单追踪
+            async query_status_flow_mes(){
+                var res = query_status_flow_mes(this.orderId);
+                if(res.code=='000000'){
+                    this.list = res.data;
+                }else{
+                    Toast(rs.message)
+                }
+            },
+            // 确认订单(用户点击确认检测报告调用)
+            async confirm_order(){
+                var res = confirm_order(this.orderId);
+                if(rs.code=='000000'){
+                    this.reportClick = false; // 确认订单 => 已确认
+                    this.popupVisible = false;
+                }
+            },
+            // 修改订单状态(未支付倒计时结束)
+            async update_status(){
+                var res = update_status(this.orderId);
+                if(res.code=='000000'){
+                    this.query_detail(); // 取消成功后再次调用详情数据
+                }
+            },
+            // 请求银行卡信息
+            async query_card_info(){
+                var res = query_card_info();
+                if(res.code=='000000'){
+
+                }
             }
         },
         created(){
+            this.orderId = this.$route.query.id;
             this.status = this.$route.query.status;
         },
         mounted(){
-            // this.countDown();
+            this.trackingText();
             this.showTips(this.isClick,this.iconJson[this.status].iconType,'',this.status,this.isLockOrder);
         },
     }
@@ -828,7 +956,7 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                             width: .74rem;
                             height: .4rem;
                             position: absolute;
-                            left:-.6rem;
+                            left:-.65rem;
                             top:.3rem;
                             @include bg-image('/static/images/step-nomal.png');
                         }
@@ -1059,7 +1187,7 @@ import { MessageBox,Toast,Popup } from 'mint-ui';
                 }
                 .line{
                     width: 1px;
-                    height:140%;
+                    min-height:165%;
                     background-color:#E1E1E1;
                     position: absolute;
                     left:.2rem;

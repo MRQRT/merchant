@@ -1,278 +1,390 @@
 <template>
-	<div class="loginIn">
-		<head-top class="head-top" id="head_top" headTitle='找回密码'>
-			<img slot='head_goback' class="head_goback" src='static/images/back.png' @click="$router.back(-1)">
+    <div class="register">
+        <!-- 头部标题部分 -->
+        <head-top headTitle='找回密码' class="head-top nomal-font" ref="topHead">
+            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
         </head-top>
-        <section class="logoPart">
-            <img src="static/images/logo.png">
-        </section>
-        <!--设置密码区-->
-        <section class="backPwd">
-            <div class="tele">
-                <input type="number" id="iptTel" placeholder="请输入手机号" v-model="tel" pattern="[0-9]*" @focus="telWrong=false;" maxlength="11">
-                <span class="clear" v-show="tel"><img src="static/images/clearinput.png" alt="" @click="clears"></span>
+        <!-- logo -->
+        <div class="logo"></div>
+        <!-- input-message -->
+        <div class="message">
+            <div class="tel">
+                <input type="text" maxlength="11" placeholder="请输入手机号" v-model="tel" pattern="[0-9]*" @input="checkInput(tel,'telphone')">
+                <span class="clear" v-show="tel" style="z-index:3"><img src="static/images/clearinput.png" alt="" @click="clears"></span>
             </div>
-            <div class="idenCode">
-                <input type="number" id="iptCode" ref="iptCode" placeholder="请输入验证码" v-model="code" style="width:100%;">
-                <span class="getIdenCode" @click="identifyTele" ref="send_smscode" style="font-size:.26rem;">获取验证码</span>
+            <section class="line"></section>
+            <div class="ver_code">
+                <input type="text" maxlength="6" placeholder="请输入验证码" v-model="vercode" pattern="[0-9]*" @input="checkInput(vercode,'vercode')">
+                <span class="text_click" @click="get_vercode" ref="send_smscode">{{clickText}}</span>
             </div>
-            <div class="newPwd">
-                <input :type="texorpas" id="iptPwd" placeholder="请设置密码(6-20位数字、字母或组合)"  v-model="password"  ref="iptPwd" maxlength="20">
-                <span class="visible" @click="toggle"><img :src="eye" style="width:.44rem;height:.55rem;"></span>
+            <section class="line"></section>
+            <div class="password">
+                <input :type="texorpas" minlength="6" maxlength="20" placeholder="6~20位字母、数字或组合" ref="password" class="passwords" v-model="password">
+                <span class="eye" @click="check_eye"><img :src="eye" alt="a"></span>
             </div>
-        </section>
-        <a class="confirmBtn" :class="{'noActived':dark,'hasActived':highLight}" @click="confirm">确定</a>
+            <section class="line"></section>
+        </div>
+        <!-- 按钮 -->
+        <div class="create_acount">
+            <section class="noActived" :class="{'hasActived':isSubmit==true}" @click="commit">确定</section>
+        </div>
     </div>
 </template>
 
 <script>
-    import op_eye from 'static/images/open_eye.png';
-    import clo_eye from 'static/images/close_eye.png';
-  import headTop from '../../components/header/head.vue';
-  import { Toast } from 'mint-ui';
-  import { mapMutations,mapState } from 'vuex'
-  import {findpassword,sendsms} from '@/service/getData.js'
-	export default {
-		data(){
-			return {
-                     eye: clo_eye,//眼睛 
-                     tel: '',//手机号 
-                    code: '',//验证码
+import headTop from '@/components/header/head.vue'
+import op_eye from 'static/images/open_eye.png'
+import clo_eye from 'static/images/close_eye.png'
+import {MessageBox,Toast} from 'mint-ui'
+import { isNumber } from '@/config/mUtils.js'
+import {sendsms,checkexist,findpassword} from '@/service/getData.js'
+ import md5 from 'js-md5'
+    export default {
+        data(){
+            return{
+                eye: clo_eye,//眼睛 
+                tel: '',//手机号
+                check_tel: false,//手机号正确与否
+                vercode: '',//验证码
+                check_vercode: false,//验证码正确与否
                 password: '',//密码
-                    dark: true,
-               highLight: false,
-                telWrong: false,//手机号不正确标志
-               codeWrong: false,//验证码不正确标志
-               telAccess: 1,
-                     pic: '',//图片验证码区域
-                    iNow: true,//解决重复点击问题
-                  second: 60,//获取验证码的毫秒数	
-               rightShow: 0,//手机号验证正确图标显示开关
-                texorpas: 'password',
-		    }
-		},
-		mounted() {
-			
-		},
-        watch:{
-            tel(value){
-                let reg = /^(0|86|17951)?(13[0-9]|15[012356789]|17[0134678]|18[0-9]|14[57])[0-9]{8}$/;
-                if(value.length>11){
-                    this.tel = value.slice(0,11)
-                }
-                if(value.match(reg)){
-                    this.rightShow = 1
-                }else{
-                    this.rightShow = 0
-                }
-                if(this.rightShow&&this.pwd.length>=6&&this.code.length==6){
-                    this.dark=false
-                    this.highLight=true
-                }else{
-                    this.dark=true
-                    this.highLight=false
-                }
-            },
-            code(value){
-                if(this.code.length>6){
-                    this.code=this.code.slice(0,6)
-                }
-                if(value.length==6&&this.rightShow&&this.pwd.length>=6){
-                    this.dark=false
-                    this.highLight=true
-                }else{
-                    this.dark=true
-                    this.highLight=false
-                }
-            },
-            pwd(value){
-                if(value.length>=6&&this.rightShow&&this.code.length==6){
-                    this.dark=false
-                    this.highLight=true
-                }else{
-                    this.dark=true
-                    this.highLight=false
-                }
+                check_password: false,//密码是否满足条件
+                clickText: '获取验证码',
+                texorpas: 'password',//密码框的类型
+                isSubmit: false,
+                iNow: true,//解决重复点击问题
+                second: 60,//获取验证码的毫秒数
             }
         },
-		computed:{
-			
-		},
-		methods:{
-            ...mapMutations([
+        components:{
+            headTop,
+        },
+        computed: {
 
-            ]),
-            toggle(){
+        },
+        watch:{
+            //手机号
+            tel(val){
+                let reg = /^(0|86|17951)?(13[0-9]|15[0-9]|17[0-9]|18[0-9]|14[0-9]|19[0-9])[0-9]{8}$/;
+                if(val.length<11&&val.length>0){
+                    this.check_tel=false
+                }
+                if(val.match(reg)){
+                    this.check_tel=true
+                }else if(val ==''){
+                    this.check_tel=false
+                }else{
+                    this.check_tel=false
+                }
+                if(this.check_tel&&this.check_vercode&&this.check_password){
+                    this.isSubmit=true
+                }else{
+                    this.isSubmit=false
+                }
+            },
+            //验证码
+            vercode(val){
+               val.length==6?this.check_vercode=true:this.check_vercode=false;
+               if(this.check_vercode&&this.check_tel&&this.check_password){
+                    this.isSubmit=true
+                }else{
+                    this.isSubmit=false
+                }
+            },
+            //密码
+            password(val){
+                let d = this.check_passwords(val);
+                if(this.check_vercode&&this.check_tel&&this.check_password){
+                    this.isSubmit=true
+                }else{
+                    this.isSubmit=false
+                }
+            },
+        },
+        methods: {
+            check_eye(){
                 this.eye==clo_eye?this.eye=op_eye:this.eye=clo_eye
                 this.eye==clo_eye?this.texorpas='password':this.texorpas='text'
             },
-            myToast(message){
-                Toast({
-                    message: message,
-                    position: 'bottom',
-                    duration: 3000
-                });
-            },
-             //点击获取验证码符合条件开始倒计时
-            async identifyTele(){ 
-                var send_smscode = this.$refs.send_smscode
-                if(send_smscode.innerHTML != '获取验证码') return;
-                if(!this.rightShow){
-                    this.telWrong=true;
-                    return;
-                }
-                let that = this
-                let i = this.second;
-                if(this.iNow==true){
-                    that.iNow = false;
-                    let timer = setInterval(function(){
-                        send_smscode.style.color="#666"
-                        i--;
-                        send_smscode.innerHTML = i+'s';
-                        if(i==-1){
-                            clearInterval(timer);
-                            that.iNow=true;
-                            send_smscode.style.color="#eda835"
-                            send_smscode.innerHTML = '获取验证码'
-                            that.second = 60;
+            //提交信息
+            async commit(){
+                if(!this.isSubmit)return
+                const res = await checkexist(this.tel);
+                if(res.code=="000000"&&(res.data&&res.data.isExist)){//请求成功且没有注册
+                     MessageBox({
+                        title: '提示',
+                        message: '手机号未注册',
+                        confirmButtonText: '去注册',
+                        showCancelButton: '我知道了',
+                    }).then((action)=>{
+                        if(action=='confirm'){
+                            this.$router.push('/register')
                         }
-                    },1000)
-                    const res=await sendSms(this.tel);
-                }
-            },
-            async confirm(){
-                if(this.dark==true){
-                    return;
-                }
-                var regCode=/\d{6}/;
-                var regPwd=/^[0-9a-zA-Z]{6,20}$/;
-                if(!regCode.test(this.code)){
-                    this.codeWrong=true;
-                    return;  //验证码基础校验
-                }   
-                if(!regPwd.test(this.pwd)){
-                    this.myToast('密码格式错误');  //密码基础校验
-                    return;
-                }
-                var res=await checkSms(this.tel,this.code)//手机验证码校验，根据返回状态码去判断验证码是否错误，错误则toast提示
-                if(res.code!=100){
-                    this.myToast('验证码错误');
-                }else{
-                    var res=await updatePwd(this.tel,this.pwd,this.code);
-                    if(res.code==100){
-                        this.errTimes=0;
-                        // this.myToast('密码重设成功')
-                        // 密码找回成功则跳登入
-                        this.login(this.tel,this.pwd)
-                    }else{
-                        this.myToast(res.message);
+                    })
+                    return 
+                }else if(res.code=="000000"&&(res.data&&!res.data.isExist)){//请求成功且已经注册
+                   let md5password=md5(this.password); 
+                    const res = await findpassword(this.tel,this.vercode,md5password);
+                    if(res.code=='300111'){
+                        Toast('验证码错误')
+                        return
+                    }else if(res.code=='000000'){
+                        MessageBox({
+                            title: '找回成功',
+                            message: '登录密码已更新' ,
+                            confirmButtonText: '我知道了',
+                        }).then((action)=>{
+                            this.$router.push('/login')
+                        })
                     }
-                }
-            },
-            async login(tel,pwd){
-                var result=await login(tel,pwd);
-                if(result.code==100){
-                    this.RECORD_TOKEN(result.content)
-                    //调用与app交互的传userid方法
-                    sendUserId(result.content.userId);
-                    window.toApp();//回app
-                    this.$router.push({path:'/buyGold'})
                 }else{
-                    this.myToast(result.message);
+                    Toast({
+                        message: res.message,
+                        position: 'bottom',
+                        duration: 3000
+                    });
+                    return
                 }
             },
             //清除输入框
             clears(){
                 this.tel='';
             },
-		},
-		components:{
-			headTop
-		}
-	}
-</script>
+            //点击获取验证码
+            async get_vercode(){
+                if(this.iNow==false)return//还在读秒不能点击
+                let send_smscode = this.$refs.send_smscode;
+                let a = this.check_tels(this.tel);//检查手机号
+                if(!a)return
+                const res = await checkexist(this.tel);//检验是否已注册
+                if(res.code=="000000"&&(res.data&&res.data.isExist)){//请求成功且没有注册
+                    MessageBox({
+                        title: '提示',
+                        message: '手机号未注册' ,
+                        confirmButtonText: '去注册',
+                        showCancelButton: '我知道了'
+                    }).then((action)=>{
+                        if(action=='confirm'){
+                            this.$router.push('/register')
+                        }
+                    })
+                    return
+                }else if(res.code=="000000"&&(res.data&&!res.data.isExist)){//请求成功且已经注册
+                    var that=this;
+                    this.iNow = false;
+                    let timer = setInterval(function(){
+                        send_smscode.style.color="#666";
+                        that.second--;
+                        that.clickText = that.second+'s';
+                        if(that.second==-1){
+                            clearInterval(timer);
+                            that.iNow=true;
+                            send_smscode.style.color="#C09C60";
+                            that.clickText = '获取验证码';
+                            that.second = 60;
+                        }
+                    },1000)
+                    let res1 = await sendsms(this.tel,2);
+                    if(res1.code!='000000'){
+                        Toast({
+                            message: res1.message,
+                            position: 'bottom',
+                            duration: 3000
+                        });
+                    }
+                }else{
+                    Toast({
+                        message: res.message,
+                        position: 'bottom',
+                        duration: 3000
+                    });
+                }
+            },
+            //检查输入是否为数字
+            checkInput(val,val2){
+                var str = isNumber(val);
+                var ss = '';
+                if(str==null){
+                    if(val2=="bankCard"){
+                        this.bankCard=''
+                    }else if(val2=="telphone"){
+                        this.tel=''
+                    }else if(val2=="vercode"){
+                        this.vercode=''
+                    }
+                }else{
+                    str.forEach(item => {
+                        ss = ss + item
+                    });
+                    if(val2=="bankCard"){
+                        this.bankCard=ss
+                    }else if(val2=="telphone"){
+                        this.tel=ss
+                    }else if(val2=="vercode"){
+                        this.vercode=ss
+                    }
+                }
+            },
+            //校验手机号是否正确
+            check_tels(val){
+                let reg = /^(0|86|17951)?(13[0-9]|15[0-9]|17[0-9]|18[0-9]|14[0-9]|19[0-9])[0-9]{8}$/;
+                if(val.length<11&&val.length>0){
+                    Toast('手机号格式不正确')
+                    this.check_tel=false
+                    this.vercode=''
+                    return false
+                }
+                if(val.match(reg)){
+                    this.check_tel=true
+                    return true
+                }else if(val ==''){
+                    Toast('请输入手机号')
+                    this.vercode=''
+                    this.check_tel=false
+                    return false
+                }else{
+                    Toast('手机号格式不正确')
+                    this.check_tel=false
+                    this.vercode=''
+                    return false
+                }
+            },
+            //校验密码格式是否正确
+            check_passwords(val){
+                let reg = /^[a-z0-9]+$/i;
+                if(val.length<6||val.length>20){
+                    this.check_password=false
+                    return
+                }
+                if(val.match(reg)){
+                    this.check_password=true
+                    return
+                }else if(val ==''){
+                    this.check_password=false
+                    return
+                }else{
+                    this.check_password=false
+                    return
+                }
+            }
+        },
+        created(){
 
-<style scoped>
-    .backPwd{
-        height:8.1rem;
-        padding-left:.4rem;
-        padding-right:.4rem;
+        },
+        mounted(){
+            
+        },
     }
-    .tele,.idenCode,.newPwd{
-        height:1.1rem;
-        border-bottom: 1px solid #EFEFEF;
-        line-height:1.1rem;
+
+</script>
+<style media="screen">
+    .mint-msgbox-wrapper>.mint-msgbox{
+        width:5rem;
+        border-radius: 0;
     }
-    .tele,.newPwd,.idenCode{
-        position: relative;
+    .mint-msgbox-wrapper .mint-msgbox-message{
+        font-size: .26rem;
     }
-    .tele{
-        display: flex;
-        display: -webkit-flex;
-        display: -moz-flex;
-        display: -o-flex;
-    }
-    .tele #iptTel{
-        flex:2.5;
-        -webkit-flex:2.5;
-        -moz-flex:2.5;
-        -o-flex:2.5;
-    }
-    .getIdenCode{
-        flex:1;
+    .mint-msgbox-wrapper .mint-msgbox-confirm, .mint-msgbox .mint-msgbox-btns .mint-msgbox-cancel{
         color:#C09C60;
-        text-align: center;
     }
-    .tele #iptTel,.idenCode #iptCode,.newPwd #iptPwd{
-        border:none;
-        font-size:.3rem;
-        color:#999999;
-        outline-style: none;
-        width:5.5rem;
-        padding-left:.22rem;
+    .mint-msgbox-wrapper .mint-msgbox-message{
+        text-align: left;
     }
-    .confirmBtn{
-        width:6.93rem;
-        height:0.9rem;
-        line-height:0.9rem;
-        font-size:.36rem;
-        text-align: center;
-        margin:0 auto;
-        border-radius: 5px;
-        display: block;
+    .mint-msgbox-wrapper .mint-msgbox-message{
+        padding:.1rem .2rem;
     }
-    .visible{
-        position: absolute;
-        right:0.2rem;
-        padding-top:.15rem;
-    }
-    .hasActived{
-        background-color: #C09C60;
-        color: #fff;
-    }
-    .hasActived:link{
-        background-color: #C09C60;
-    }
-    .hasActived:hover{
-        background-color: #C09C60;
-    }
-    .hasActived:active{
-        background-color: #C09C60;
-    }
-    .hasActived:visited{
-        background-color: #C09C60;
-    }
-    .noActived{
-        background-color: #DDC899;
-        color:#FEFCF9;
-    }
-    .logoPart{
-    height: 2.3rem;
-    padding-top: .82rem;
-    margin-top: .88rem;
+</style>
+<style scoped lang="scss">
+@import '../../sass/mixin';
+.logo{
+    width: 100%;
+    height: 2.48rem;
+    padding-top: .88rem;
+    @include bg-image('/static/images/logo.png');
+    background-size: 1.83rem;
+    background-position: center 1.4rem;
+}
+.message{
+    width: 100%;
+    height: 3.3rem;
+    padding: 0 .4rem 0 .4rem;
+}
+.message div{
+    width: 100%;
+    height: 1.1rem;
+    padding-top: .3rem;
+    position: relative;
+}
+.tel input,.ver_code input,.password input{
+    width: 100%;
+    height: .35rem;
+    font-size: .28rem;
+}
+.tel{
+    position: relative;
+}
+.tel>span>img{
+    width: .3rem;
+}
+.tel span{
+    width: .4rem;
+    height: .4rem;
+    position: absolute;
+    right: 0;
+    top: .34rem;
+}
+.text_click{
+   color: #C09C60;
+   font-size: .26rem;
+   position: absolute;
+   right: 0;
+   top: 35%; 
+}
+.eye{
+    position: absolute;
+    right: 0;
+    top: .35rem;
+    width: .44rem;
+}
+.agr{
+    width: 100%;
+    height: 2rem;
+    padding: 1.4rem .4rem 0 .4rem;
+    font-size: .24rem;
+    color: #999999; 
+}
+.agr img{
+    width: .24rem;
+    margin-right: .1rem;
+    vertical-align: middle; 
+}
+.agr span{
+    color: #C09C60;
+}
+.create_acount{
+    width: 100%;
+    height: .88rem;
+    padding-left: .4rem;
+    padding-right: .4rem;
+}
+.create_acount section{
+    width: 100%;
+    height: .88rem;
+    line-height: .88rem;
+    color: #fff;
+    font-size: .34rem;
     text-align: center;
-    }
-    .logoPart img{
-        width: 2rem;
-    }
+    border-radius: 4px;
+    margin-top: 2rem;
+}
+.noActived{
+    background-color: #e8ddc4;
+}
+.hasActived{
+    background-color: #C09C60;
+}
+.clear img{
+    width: .36rem;
+}   
 </style>
