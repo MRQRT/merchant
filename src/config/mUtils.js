@@ -20,6 +20,12 @@ export function urlParse(){
     return obj;
 }
 
+export function imgip(){
+    let imgip="http://cjtshrestest.au32.cn/";
+    // let imgip="https://wap.au32.cn";
+    return imgip
+}
+
 /**
  * 图片压缩
  */

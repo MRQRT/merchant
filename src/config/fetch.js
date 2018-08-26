@@ -6,17 +6,23 @@ import qs from 'qs'
 import { Toast, MessageBox,Indicator} from 'mint-ui'
 import store from '../store'
 
-// axios.defaults.baseURL = process.env.API_ROOT   //配置接口地址
+axios.defaults.baseURL = process.env.API_ROOT   //配置接口地址
 
-axios.defaults.baseURL = '/api'   //配置接口地址
+// axios.defaults.baseURL = '/api'   //配置接口地址
 // axios.defaults.timeout = 5000; //配置请求的超时时间，超时将被中断
 
 //POST传参序列化(添加请求拦截器)
 axios.interceptors.request.use((config) => {
     //在发送请求之前将参数序列化
     if(config.method  === 'post' || config.method === 'put') {
-        config.data = qs.stringify(config.data);
-        config.params = qs.stringify(config.url)
+        let isFormData = (v) => {
+            return Object.prototype.toString.call(v) === '[object FormData]';
+        }
+        var a = isFormData(config.data);
+        if(!a){
+            config.data = qs.stringify(config.data);
+            config.params = qs.stringify(config.url);
+        }   
         config.headers['Accept'] = 'application/json'
     }
     if(config.method === 'get') {

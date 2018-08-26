@@ -7,9 +7,9 @@ Vue.use(Vuex)
 
 const state = {
 	accessToken: getStore('accessToken','local'),//用户会话
-	userId:getStore('userId','local'),			 //用户userId
-	mobile:'',//用户登录手机号
-	merchantId:'',//商户号
+	userId:getStore('userId','local'),//用户userId
+	mobile:getStore('mobile','session'),//用户登录手机号
+	merchantId:getStore('merchantId','session'),//商户号
 	now:'',// 当前时间
 	currentPrice:getStore('currentPrice','session'),// 当前实时金价
 }
