@@ -224,6 +224,11 @@ import {logout} from '@/service/getData.js'
                     this.popupVisible=false;
                     this.loginStatus=false;
                     this.RECORD_ACCESSTOKEN('');
+                }else if(res.code=='000004'){
+                    Toast('退出登录成功');
+                    this.popupVisible=false;
+                    this.loginStatus=false;
+                    this.RECORD_ACCESSTOKEN('');
                 }else{
                     Toast({
                         message: res.message,

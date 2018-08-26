@@ -39,15 +39,18 @@ import headTop from '@/components/header/head.vue'
 import license from 'static/images/license.png'
 import idcard1 from 'static/images/idcard1.png'
 import idcard2 from 'static/images/idcard2.png'
-import {Indicator} from 'mint-ui'
-import { compress } from '@/config/mUtils.js'
-
+import {Indicator,Toast} from 'mint-ui'
+import {compress,imgip,setStore,getStore} from '@/config/mUtils.js'
+import {business_license,person_card_back,person_card_front} from '@/service/getData.js'
     export default {
         data(){
             return{
                 license: license,
+                back_license_url: '',//上传完返回的地址(营业执照号)
                 idcard1: idcard1,
+                back_idcard1_url: '',//上传完返回的地址(正面)
                 idcard2: idcard2,
+                back_idcard2_url: '',//上传完返回的地址(反面)
             }
         },
         components:{
@@ -80,8 +83,8 @@ import { compress } from '@/config/mUtils.js'
                             compress(reader,e.target.files[0].size,that)
                         }else{
                             let formData = new FormData();
-                            formData.append('files',lic[0]);//lic[0]如果获取不到文件，就用e.target.files[0]
-                            that.uploadimg(formData);
+                            formData.append('file',lic[0]);//lic[0]如果获取不到文件，就用e.target.files[0]
+                            that.uploadimg(formData,'lic');
                         }
                     }else if(val=='idcard1'){
                         that.idcard1 = evt.target.result;
@@ -91,8 +94,8 @@ import { compress } from '@/config/mUtils.js'
                             compress(reader,e.target.files[0].size,that)
                         }else{
                             let formData = new FormData();
-                            formData.append('files',id1[0]);//lic[0]如果获取不到文件，就用e.target.files[0]
-                            that.uploadimg(formData);
+                            formData.append('file',id1[0]);//lic[0]如果获取不到文件，就用e.target.files[0]
+                            that.uploadimg(formData,'id1');
                         }
                     }else if(val=='idcard2'){
                         that.idcard2 = evt.target.result;
@@ -102,26 +105,92 @@ import { compress } from '@/config/mUtils.js'
                             compress(reader,e.target.files[0].size,that)
                         }else{
                             let formData = new FormData();
-                            formData.append('files',id2[0]);//lic[0]如果获取不到文件，就用e.target.files[0]
-                            that.uploadimg(formData);
+                            formData.append('file',id2[0]);//lic[0]如果获取不到文件，就用e.target.files[0]
+                            that.uploadimg(formData,'id2');
                         }
                     }
                 }
             },
             //图片上传
-            uploadimg(val){
-                console.log(val)
+            async uploadimg(val,type){
+                Indicator.open();
+                if(type=='lic'){
+                    const res = await business_license(val);//上传营业执照
+                    if(res.code=='000000'){
+                        Indicator.close();
+                        this.back_license_url=imgip()+res.data;
+                    }else{
+                        Indicator.close();
+                        Toast({
+                            message: res.message,
+                            position: 'bottom',
+                            duration: 3000
+                        });
+                    }
+                }else if(type=='id1'){
+                    const res = await person_card_front(val);//上传身份证正面
+                    if(res.code=='000000'){
+                        Indicator.close();
+                        this.back_idcard1_url=imgip()+res.data;
+                    }else{
+                        Indicator.close();
+                        Toast({
+                            message: res.message,
+                            position: 'bottom',
+                            duration: 3000
+                        });
+                    }
+                }else if(type=='id2'){
+                    const res = await person_card_back(val);//上传身份证反面
+                    if(res.code=='000000'){
+                        Indicator.close();
+                        this.back_idcard2_url=imgip()+res.data;
+                    }else{
+                        Indicator.close();
+                        Toast({
+                            message: res.message,
+                            position: 'bottom',
+                            duration: 3000
+                        });
+                    }
+                }
             },
             //下一步
             next(){
-                this.$router.push('/qcmscommitresult');
+                if(this.back_license_url==''){
+                    Toast('请上传营业执照')
+                    return
+                }else if(this.back_idcard1_url==''){
+                    Toast('请上传身份证正面')
+                    return
+                    }else if(this.back_idcard2_url==''){
+                    Toast('请上传身份证反面')
+                    return
+                }else{
+                    var qc_imgobj = {
+                        'license':this.back_license_url,
+                        'idcard1':this.back_idcard1_url,
+                        'idcard2':this.back_idcard2_url,
+                    }
+                    setStore('qc_imgobj',qc_imgobj,'session');
+                    this.$router.push('/confirminfo');
+                }
             }
         },
         created(){
 
         },
         mounted(){
-
+            //如果内存中有地址，进行返显
+            if(getStore('qc_imgobj','session')){
+                var a = getStore('qc_imgobj','session');
+                this.license=a.license;
+                this.back_license_url=a.license;//上传完返回的地址(营业执照号)
+                this.idcard1=a.idcard1;
+                this.back_idcard1_url=a.idcard1;//上传完返回的地址(正面)
+                this.idcard2=a.idcard2;
+                this.back_idcard2_url=a.idcard2;//上传完返回的地址(反面)
+            }
         },
     }
 

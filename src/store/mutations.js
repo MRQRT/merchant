@@ -14,17 +14,21 @@ export default {
 	//记录会话值
 	[RECORD_ACCESSTOKEN](state,accessToken){
 		state.accessToken=accessToken
+		setStore('accessToken',accessToken,'session')
 	},
 	//记录用户的userId
 	[RECORD_USERID](state,userId){
+		setStore('userId',userId,'session')
 		state.userId=userId
 	},
 	//记录用户的的登录手机号
 	[RECORD_MOBILE](state,mobile){
+		setStore('mobile',mobile,'session')
 		state.mobile=mobile
 	},
 	//记录用户的商户号
 	[RECORD_MERCHANTID](state,merchantId){
+		setStore('merchantId',merchantId,'session')
 		state.merchantId=merchantId
 	},
 	// 记录当前时间

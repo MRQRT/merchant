@@ -50,6 +50,24 @@ export const wechatlogin = (redirectUrl) => fetch('/user/auth/login?redirectUrl=
 export const logout = () => fetch('/user/logout',{},'post')
 
 /**
+* 上传营业执照
+*/
+
+export const business_license = (file) => fetch('/merchant_open_apply/business_license',file,'post')
+
+/**
+* 上传法人身份证正面
+*/
+
+export const person_card_front = (file) => fetch('/merchant_open_apply/person_card_front',file,'post')
+
+/**
+* 上传法人身份证反面
+*/
+
+export const person_card_back = (file) => fetch('/merchant_open_apply/person_card_back',file,'post')
+
+/**
  * 实时金价
  */
 

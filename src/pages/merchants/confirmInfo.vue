@@ -13,12 +13,12 @@
         <section class="msbody">
             <div class="inputms">
                 <span class="left_name">公司名称</span>
-                <input type="text" v-model="ms.name">
+                <input type="text" v-model="ms.companyName">
             </div>
             <div class="line" style="width: 100%;"></div>
                 <div class="inputms">
                 <span class="left_name">营业执照号</span>
-                <input type="text" v-model="ms.zhizhaohao">
+                <input type="text" v-model="ms.businessLicenseCode">
             </div>
             <div class="line" style="width: 100%;"></div>
                 <div class="inputms">
@@ -28,17 +28,17 @@
             <div class="line" style="width: 100%;"></div>
                 <div class="inputms">
                 <span class="left_name">法人姓名</span>
-                <input type="text" v-model="ms.fname">
+                <input type="text" v-model="ms.personName">
             </div>
             <div class="line" style="width: 100%;"></div>
                 <div class="inputms">
                 <span class="left_name">法人身份证号</span>
-                <input type="text" v-model="ms.fid">
+                <input type="text" v-model="ms.personCode">
             </div>
             <div class="line" style="width: 100%;"></div>
                 <div class="inputms">
                 <span class="left_name">证件有效期</span>
-                <input type="text" v-model="ms.dateend">
+                <input type="text" v-model="ms.personCardEndDate">
             </div>
         </section>
         <!-- button -->
@@ -55,12 +55,12 @@ import headTop from '@/components/header/head.vue'
         data(){
             return{
                 ms:{
-                    name: '北京盈吉通电子商务有限公司',
-                    zhizhaohao: "91110 0105 MA12 3817 J9",
+                    companyName: '北京盈吉通电子商务有限公司',
+                    businessLicenseCode: "91110 0105 MA12 3817 J9",
                     date: "2025-15-13 至 2015-12-13",
-                    fname: "张爱过",
-                    fid: "140300 1223 4511 2116",
-                    dateend: "2025-12-13",
+                    personName: "张爱过",
+                    personCode: "140300 1223 4511 2116",
+                    personCardEndDate: "2025-12-13",
                 }
             }
         },
