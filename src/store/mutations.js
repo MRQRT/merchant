@@ -14,18 +14,13 @@ import {setStore, getStore, setCookie ,getCookie, removeCookie, removeStore} fro
 export default {
 	//记录会话值
 	[RECORD_ACCESSTOKEN](state,accessToken){
-<<<<<<< HEAD
 		state.accessToken = accessToken;
-=======
-		state.accessToken=accessToken
->>>>>>> 46f9b820915b21a4b1ade3ad21b3037d3a2240ef
 		setStore('accessToken',accessToken,'local')
 	},
 	//记录用户的userId
 	[RECORD_USERID](state,userId){
 		state.userId = userId;
 		setStore('userId',userId,'local')
-		state.userId=userId
 	},
 	//记录用户的的登录手机号
 	[RECORD_MOBILE](state,mobile){
