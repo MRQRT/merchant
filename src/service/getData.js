@@ -81,6 +81,18 @@ export const merchant_open_apply = (companyName,businessLicenseCode,businessLice
 :businessLicenseBeginDate,'businessLicenseEndDate':businessLicenseEndDate,'personName':personName,'personCode':personCode,'personCardEndDate':personCardEndDate},'post')
 
 /*
+* 获取最新的商户申请信息
+*/
+
+export const merchant_open_apply_status = () => fetch('/merchant_open_apply/latest',{},'get')
+
+/*
+* 获取最新的店铺申请信息
+*/
+
+export const shop_open_apply_status = () => fetch('/shop_open_apply/latest',{},'get')
+
+/*
 * 查询地址列表
 */
 

@@ -37,7 +37,7 @@
                 <h4 style="margin-top:.42rem;">店铺资料已提交</h4>
                 <p>审核信息将在3个工作日内发送到您的</p>
                 <p>手机上，请留意查收短信</p>
-        </section>
+            </section>
         </div>
         <div class="model" v-show="qcnopass">
             <p>商家入驻</p>
@@ -55,21 +55,30 @@
                 <h4 style="margin-top:.0rem;">店铺资料未通过审核</h4>
                 <p>失败原因：根据后台审核选择理由展示</p>
                 <button class="button">重新申请</button>
-        </section>
+            </section>
+        </div>
+        <div class="model" v-show="shoppass">
+            <p>开通店铺</p>
+            <section class="squ">
+                <img src="static/images/store-success.png" alt="">
+                 <h4>店铺审核通过</h4>
+                 <!-- <p>恭喜您，店铺审核已通过！</p> -->
+                <button style="margin-top:0" class="button" @click="$router.push('/myshop')">进入店铺</button>
+            </section>
         </div>
     </div>
 </template>
 
 <script>
 import headTop from '@/components/header/head.vue'
-
+import {merchant_open_apply_status,shop_open_apply_status} from '@/service/getData.js'
     export default {
         data(){
             return{
-               qcadd: true,
+               qcadd: false,
                qcpass: false,
                qcnopass: false,
-               noshop: true,
+               noshop: false,
                shopadd: false,
                shoppass: false,
                shopnopass: false,
@@ -85,13 +94,60 @@ import headTop from '@/components/header/head.vue'
 
         },
         methods: {
-
+            async merhcant_status(){
+                const res = await merchant_open_apply_status();
+                if(res.code=='000000'){
+                    if(res.data.status=='1'){ // 1、待审核
+                        this.qcadd=1;
+                        this.qcpass=0;
+                        this.qcnopass=0;
+                    }else if(res.data.status=='2'){//2、审核通过
+                        this.qcadd=0;
+                        this.qcpass=1;
+                        this.qcnopass=0;
+                    }else if(res.data.status=='9'){//3、未通过
+                        this.qcadd=0;
+                        this.qcpass=0;
+                        this.qcnopass=1;
+                    }
+                }
+                this.shop_status();
+            },
+            async shop_status(){
+                const res = await shop_open_apply_status();
+                // console.log(res)
+                if(res.code=='000000'){
+                    if(res.data.status=='1'){ // 1、待审核
+                        if(this.qcadd){//
+                            this.noshop=1;
+                            this.shopadd=0;
+                            this.shoppass=0;
+                            this.shopnopass=0;
+                        }else{
+                            this.noshop=0;
+                            this.shopadd=1;
+                            this.shoppass=0;
+                            this.shopnopass=0;
+                        }
+                    }else if(res.data.status=='2'){//2、审核通过
+                        this.noshop=0;
+                        this.shopadd=0;
+                        this.shoppass=1;
+                        this.shopnopass=0;
+                    }else if(res.data.status=='9'){//3、未通过
+                        this.noshop=0;
+                        this.shopadd=0;
+                        this.shopass=0;
+                        this.shopnopass=1;
+                    }
+                }
+            }
         },
         created(){
 
         },
         mounted(){
-
+            this.merhcant_status();
         },
     }
 
