@@ -76,7 +76,8 @@
                             </div>
                             <div class="right-text">
                                 <p>{{bankInfo.name}}</p>
-                                <p class="card-type">{{bankInfo.type}}</p>
+                                <!-- <p class="card-type">{{bankInfo.type}}</p> -->
+                                <p class="card-type">储蓄卡</p>
                             </div>
                         </div>
                         <div class="bottom-part">
@@ -286,7 +287,7 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
         },
         computed: {
             ...mapState([
-                'userId'
+                'accessToken','shopId',
             ]),
             // 预估金额
             estimatePrice(){
@@ -344,6 +345,7 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
             },
             // 点击绑卡操作
             bindingBank(){
+                console.log(this.shopCheckStatus)
                 if(!this.shopCheckStatus){
                     this.showMessage(1)
                 }else{
@@ -375,8 +377,11 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
                     if(res.data){
                         this.bankStatus = true;
     					this.bankInfo = res.data;
+                        this.shopCheckStatus = true;
+                        this.queryAddress();
                     }else{
                         this.bankStatus = false;
+                        this.shopCheckStatus = false;
                     }
 				}else{
                     Toast(res.message)
@@ -425,16 +430,15 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
             },
             // 点击按钮提交函数
             submit(num){
-                if(this.submitStatus){ // 按钮可点击状态
-                    if(!this.shopCheckStatus){  // 店铺未通过审核
-                        this.showMessage(3);
+                if(!this.shopCheckStatus){  // 店铺未通过审核
+                    this.showMessage(3);
+                }
+                if(this.submitStatus){     // 按钮可点击状态
+                    if(this.btnCtroller){
+                        this.btnCtroller=false
+                        num == 1 ? this.showMessage(4) : this.showMessage(5);
                     }else{
-                        if(this.btnCtroller){
-                            this.btnCtroller=false
-                            num == 1 ? this.showMessage(4) : this.showMessage(5);
-                        }else{
-                            Toast('频繁操作～')
-                        }
+                        Toast('频繁操作～')
                     }
                 }
             },
@@ -443,8 +447,9 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
                 var text1 = `<div style="text-align:center">店铺审核通过后，再进行绑卡操作</div>`;
                 var text2 = `<div style="text-align:center">店铺审核通过后，再进行新增地址操作</div>`;
                 var text3 = `<div style="text-align:center">店铺审核通过后，方可存金</div>`;
-                var text4 = '订单提交后，我们将通知顺丰配送人员上门收件，请提前准备好您要寄出的货品。运费由黄金管家承担。'
-                var text5 = '锁价后，我们将收取预估价的10%作为定金；定金将在成后，退还至您的付款银行卡；订单提交后，我们将通知顺丰配送人员上门收件'
+                var text4 = '订单提交后，我们将通知顺丰小哥上门收件，运费将由黄金管家承担，且运输过程中全额保价。'
+                var text5 = `<div>订单提交后，我们将通知顺丰小哥上门收件，运费将由黄金管家承担，且运输过程中全额保价。</div>
+                             <div>锁价后，将收取预估金价的10%作为订金，订金会在成交后退还至您的付款银行卡。</div>`
                 switch(num){
                     case 1:
                         MessageBox({
@@ -500,17 +505,18 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
             },
             // 直接提交创建订单
             async directlyOrder(){
-                var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,false,true,shopId,this.receiverInfo.concat,this.receiverInfo.telephone,this.receiverInfo.address)
+                var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,false,true,this.shopId,this.receiverInfo.concat,this.receiverInfo.telephone,this.receiverInfo.address)
                 if(res.code=='000000'){
                     this.orderId = rea.data.id;
                     this.$router.push({
                         path:'/storeresult',
                         query:{
-                            id:this.orderId
+                            id:this.orderId,
+                            status:true,
                         }
                     });
                 }else{
-
+                    Toast(res.message);
                 }
             },
             // 检测输入的支付验证码
@@ -556,17 +562,17 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
                     })
                 }
             },
-            // 查询订单状态
+            // 间隔查询订单状态
             async query_status(){
                 var res = await query_status(this.orderId);
                 if(res.code=='000000'){
-                    if(res.data.status==1){  // 存金支付成功
+                    if(res.data.pays){          // 存金支付成功
                         this.popupVisible2 = false; // 关闭处理中动画
                         this.$router.push({
                             path:'/storeresult',
                             query:{
                                 id:this.orderId,
-                                status:1
+                                status:true
                             }
                         })
                     }else{     // 存金支付失败
@@ -575,7 +581,7 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
                             path:'/storeresult',
                             query:{
                                 id:this.orderId,
-                                status:0
+                                status:false
                             }
                         })
                     }
@@ -588,7 +594,7 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
             // 锁价提交创建订单
             async lockPriceOrder(){
                 // 创建订单
-                var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,true,true,shopId,this.receiverInfo.concat,this.receiverInfo.telephone,this.receiverInfo.address)
+                var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,true,true,this.shopId,this.receiverInfo.concat,this.receiverInfo.telephone,this.receiverInfo.address)
                 if(res.code=='000000'){
                     this.orderId = res.data.id;
                     this.guaranteeCash = res.data.ensureCash;
@@ -604,12 +610,11 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
 
         },
         mounted(){
-            console.log(this.userId)
-            this.loginStatus = this.userId == null ? false : true;
+            this.loginStatus = this.accessToken ? true : false;
             //登录情况下请求银行卡信息和地址
             if(this.loginStatus){
+                this.shopCheckStatus = this.shopId == '' ? false : true;
                 this.queryBank();
-                this.queryAddress();
             }
             //处理键盘弹出的沉底按钮顶上去的兼容问题
             window.onresize = () => {
@@ -640,6 +645,7 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
     border-radius: 0;
 }
 .mint-msgbox-wrapper .mint-msgbox-message{
+    color: #333;
     font-size: .26rem;
 }
 .mint-msgbox-wrapper .mint-msgbox-confirm, .mint-msgbox .mint-msgbox-btns .mint-msgbox-cancel{
@@ -651,8 +657,8 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
 .mint-msgbox-wrapper .mint-msgbox-message{
     padding:.1rem .2rem;
 }
-.mint-msgbox-cancel{
-    border-right:1px solid #eee;
+.mint-msgbox .mint-msgbox-btns .mint-msgbox-cancel{
+    border-right:1px solid #eee !important;
 }
 </style>
 
@@ -900,10 +906,11 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
                             position: relative;
                             @include border-radius(50%);
                             img{
-                                display: inline-block;
-                                border:1px solid #eee;
-                                @include border-radius(50%);
-                                @include center(.55rem,.55rem);
+                                width:100%;
+                                // display: inline-block;
+                                // border:1px solid #eee;
+                                // @include border-radius(50%);
+                                // @include center(.55rem,.55rem);
                             }
                         }
                         .right-text{
