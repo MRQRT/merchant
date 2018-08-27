@@ -13,34 +13,34 @@
         <section class="msbody">
             <div class="inputms">
                 <span class="left_name">公司名称</span>
-                <input type="text" v-model="ms.companyName">
+                <input type="text" v-model="ms.companyName" placeholder="请输入公司名称">
             </div>
             <div class="line" style="width: 100%;"></div>
                 <div class="inputms">
                 <span class="left_name">营业执照号</span>
-                <input type="text" v-model="ms.businessLicenseCode">
+                <input type="text" v-model="ms.businessLicenseCode" placeholder="请输入营业执照号">
             </div>
             <div class="line" style="width: 100%;"></div>
                 <div class="inputms">
                 <span class="left_name">营业期限</span>
-                <input id="start_date" type="text" v-model="ms.businessLicenseBeginDate" readonly="true" @click="startpicker">
+                <input id="start_date" type="text" v-model="ms.businessLicenseBeginDate" readonly="true" @click="startpicker" placeholder="营业开始时间">
                 <span id="middle">至</span>
-                <input id="end_date" type="text" v-model="ms.businessLicenseEndDate" readonly="true" @click="endpicker">
+                <input id="end_date" type="text" v-model="ms.businessLicenseEndDate" readonly="true" @click="endpicker" placeholder="营业结束时间">
             </div>
             <div class="line" style="width: 100%;"></div>
                 <div class="inputms">
                 <span class="left_name">法人姓名</span>
-                <input type="text" v-model="ms.personName">
+                <input type="text" v-model="ms.personName" placeholder="请输入法人姓名">
             </div>
             <div class="line" style="width: 100%;"></div>
                 <div class="inputms">
                 <span class="left_name">法人身份证号</span>
-                <input type="text" v-model="ms.personCode">
+                <input type="text" v-model="ms.personCode" placeholder="请输入法人身份证号">
             </div>
             <div class="line" style="width: 100%;"></div>
                 <div class="inputms">
                 <span class="left_name">证件有效期</span>
-                <input type="text" v-model="ms.personCardEndDate" readonly="true" @click="terms">
+                <input type="text" v-model="ms.personCardEndDate" readonly="true" @click="terms" placeholder="请输入证件有效期">
             </div>
         </section>
         <!-- button -->
@@ -63,19 +63,19 @@
 import headTop from '@/components/header/head.vue'
 import {business_qualification} from '@/service/getData.js'
 import {DatetimePicker,Toast} from 'mint-ui'
-import {formatDate,curentTime} from '@/config/mUtils.js'
+import {formatDate,curentTime,isEmptyObject,setStore} from '@/config/mUtils.js'
 import {merchant_open_apply} from '@/service/getData.js'
 export default {
     data(){
         return{
             ms:{
-                companyName: '北京盈吉通电子商务有限公司',
-                businessLicenseCode: "91110 0105 MA12 3817 J9",
+                companyName: '',
+                businessLicenseCode: "",
                 businessLicenseBeginDate: curentTime(),//营业期限开始时间
                 businessLicenseEndDate: curentTime(),//营业期限结束时间
-                personName: "张爱过",
-                personCode: "140300 1223 4511 2116",
-                personCardEndDate: "2025-12-13",
+                personName: "",
+                personCode: "",
+                personCardEndDate: "",
             }
         }
     },
@@ -93,9 +93,10 @@ export default {
         async business_qc(){
             const res = await business_qualification();
             //未获取营业资质
+            let isobj = isEmptyObject(res.data);
             if(res.code=='100001'){
                 return
-            }else if(res.code=='000000'){
+            }else if(res.code=='000000'&&!isobj){
                 this.ms = res.data
             }
         },
@@ -137,8 +138,10 @@ export default {
             this.ms.personCode=ss
             const res = await merchant_open_apply(this.ms.companyName,this.ms.businessLicenseCode,this.ms.businessLicenseBeginDate,this.ms.businessLicenseEndDate,this.ms.personName,this.ms.personCode,this.ms.personCardEndDate);
             if(res.code=='000000'){
+                 setStore('qc_imgobj','','session');
                 this.$router.push('/applicationresults');
             }else{
+                setStore('qc_imgobj','','session');
                 Toast({
                     message: res.message,
                     position: 'bottom',

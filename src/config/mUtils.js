@@ -27,6 +27,15 @@ export function imgip(){
 }
 
 /**
+ * 判断对象是否为空
+*/
+export function isEmptyObject(obj) {   
+    　　for (var key in obj){
+    　　　　return false;//返回false，不为空对象
+    　　}　　
+    　　return true;//返回true，为空对象
+    }
+/**
  * 图片压缩
  */
 export function compress(file,size,that){

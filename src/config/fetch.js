@@ -15,9 +15,16 @@ axios.defaults.baseURL = process.env.API_ROOT   //配置接口地址
 axios.interceptors.request.use((config) => {
     //在发送请求之前将参数序列化
     if(config.method  === 'post' || config.method === 'put') {
-        config.data = qs.stringify(config.data,{ skipNulls: true });
-        config.params = qs.stringify(config.url,{ skipNulls: true })
+        let isFormData = (v) => {
+            return Object.prototype.toString.call(v) === '[object FormData]';
+        }
+        var a = isFormData(config.data);
+        if(!a){
+            config.data = qs.stringify(config.data,{ skipNulls: true });
+            config.params = qs.stringify(config.url,{ skipNulls: true });
+        }
         config.headers['Accept'] = 'application/json'
+        // config.headers['Content-Type'] = 'application/x-www-form-urlencoded'
     }
     if(config.method === 'get') {
         config.params = qs.stringify(config.data)
