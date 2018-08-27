@@ -23,7 +23,9 @@
             <div class="line" style="width: 100%;"></div>
                 <div class="inputms">
                 <span class="left_name">营业期限</span>
-                <input type="text" v-model="ms.date">
+                <input id="start_date" type="text" v-model="ms.businessLicenseBeginDate" readonly="true" @click="startpicker">
+                <span id="middle">至</span>
+                <input id="end_date" type="text" v-model="ms.businessLicenseEndDate" readonly="true" @click="endpicker">
             </div>
             <div class="line" style="width: 100%;"></div>
                 <div class="inputms">
@@ -38,52 +40,121 @@
             <div class="line" style="width: 100%;"></div>
                 <div class="inputms">
                 <span class="left_name">证件有效期</span>
-                <input type="text" v-model="ms.personCardEndDate">
+                <input type="text" v-model="ms.personCardEndDate" readonly="true" @click="terms">
             </div>
         </section>
         <!-- button -->
         <div class="button">
-            <section>确认无误</section>
+            <section @click="submit()">确认无误</section>
         </div>
+        <!-- 时间选取框(开始时间) -->
+        <mt-datetime-picker @click="startpicker" ref="picker" type="date" :startDate="new Date('1990-01-01')" @confirm="handleConfirm">
+        </mt-datetime-picker>
+        <!-- 时间选取框(结束时间) -->
+        <mt-datetime-picker @click="endpicker" ref="picker2" type="date" :startDate="new Date('2018-01-01')" :endDate="new Date('2050-01-01')"  @confirm="handleConfirm2">
+        </mt-datetime-picker>
+        <!-- 时间选取框(身份证有效期) -->
+        <mt-datetime-picker @click="terms" ref="picker3" type="date" :startDate="new Date('2019-01-01')" :endDate="new Date('2050-01-01')"  @confirm="handleConfirm3">
+        </mt-datetime-picker>
     </div>
 </template>
 
 <script>
 import headTop from '@/components/header/head.vue'
+import {business_qualification} from '@/service/getData.js'
+import {DatetimePicker,Toast} from 'mint-ui'
+import {formatDate,curentTime} from '@/config/mUtils.js'
+import {merchant_open_apply} from '@/service/getData.js'
+export default {
+    data(){
+        return{
+            ms:{
+                companyName: '北京盈吉通电子商务有限公司',
+                businessLicenseCode: "91110 0105 MA12 3817 J9",
+                businessLicenseBeginDate: curentTime(),//营业期限开始时间
+                businessLicenseEndDate: curentTime(),//营业期限结束时间
+                personName: "张爱过",
+                personCode: "140300 1223 4511 2116",
+                personCardEndDate: "2025-12-13",
+            }
+        }
+    },
+    components:{
+        headTop,
+    },
+    computed: {
 
-    export default {
-        data(){
-            return{
-                ms:{
-                    companyName: '北京盈吉通电子商务有限公司',
-                    businessLicenseCode: "91110 0105 MA12 3817 J9",
-                    date: "2025-15-13 至 2015-12-13",
-                    personName: "张爱过",
-                    personCode: "140300 1223 4511 2116",
-                    personCardEndDate: "2025-12-13",
-                }
+    },
+    watch:{
+
+    },
+    methods: {
+        //获取营业资质
+        async business_qc(){
+            const res = await business_qualification();
+            //未获取营业资质
+            if(res.code=='100001'){
+                return
+            }else if(res.code=='000000'){
+                this.ms = res.data
             }
         },
-        components:{
-            headTop,
+        //打开开始时间选取框
+        startpicker(val){
+            this.$refs.picker.open();
         },
-        computed: {
-
+        //打开结束时间选取框
+        endpicker(){
+            this.$refs.picker2.open();
         },
-        watch:{
-
+        terms(){
+            this.$refs.picker3.open();
         },
-        methods: {
-
+        //确定选取的开始时间
+        handleConfirm(val){
+            var sta = new Date(val);
+            var formasta = formatDate(sta,'yyyy-MM-dd');
+            this.ms.businessLicenseBeginDate=formasta;
         },
-        created(){
-
+        //确定选取的开始时间
+        handleConfirm2(val){
+            var sta = new Date(val);
+            var formasta = formatDate(sta,'yyyy-MM-dd');
+            this.ms.businessLicenseEndDate=formasta;
         },
-        mounted(){
-
+        //身份证期限
+        handleConfirm3(val){
+            var sta = new Date(val);
+            var formasta = formatDate(sta,'yyyy-MM-dd');
+            this.ms.personCardEndDate=formasta;
         },
-    }
+        async submit(){
+            let arr = this.ms.personCode.split(' ');
+            var ss = '';
+            arr.forEach(item => {
+                ss = ss + item
+            });
+            this.ms.personCode=ss
+            const res = await merchant_open_apply(this.ms.companyName,this.ms.businessLicenseCode,this.ms.businessLicenseBeginDate,this.ms.businessLicenseEndDate,this.ms.personName,this.ms.personCode,this.ms.personCardEndDate);
+            if(res.code=='000000'){
+                this.$router.push('/applicationresults');
+            }else{
+                Toast({
+                    message: res.message,
+                    position: 'bottom',
+                    duration: 3000
+                })
+            }
+        }
+    },
+    created(){
 
+    },
+    mounted(){
+        //获取营业资质
+       this.business_qc();
+    },
+}
 </script>
 
 <style scoped lang="scss">
@@ -155,5 +226,24 @@ import headTop from '@/components/header/head.vue'
     font-size: .32rem;
     border-radius: 4px;
     text-align: center;
+}
+#start_date,#end_date{
+    float: left;
+    width: 26%;
+}
+#middle{
+    width: 10%;
+    float: left;
+    height: 1.1rem;
+    line-height: 1.1rem;
+    text-align: center;
+}
+#end_date{
+    padding-left: .09rem;
+}
+</style>
+<style lang="css">
+.mint-datetime-action{
+    color: #666666;
 }
 </style>

@@ -67,6 +67,19 @@ export const person_card_front = (file) => fetch('/merchant_open_apply/person_ca
 
 export const person_card_back = (file) => fetch('/merchant_open_apply/person_card_back',file,'post')
 
+/**
+* 获取营业资质
+*/
+
+export const business_qualification = () => fetch('/merchant_open_apply/business_qualification',{},'get')
+
+/**
+* 提交商户入驻申请
+*/
+
+export const merchant_open_apply = (companyName,businessLicenseCode,businessLicenseBeginDate,businessLicenseEndDate,personName,personCode,personCardEndDate) => fetch('/merchant_open_apply',{'companyName':companyName,'businessLicenseCode':businessLicenseCode,'businessLicenseBeginDate'
+:businessLicenseBeginDate,'businessLicenseEndDate':businessLicenseEndDate,'personName':personName,'personCode':personCode,'personCardEndDate':personCardEndDate},'post')
+
 /*
 * 查询地址列表
 */
