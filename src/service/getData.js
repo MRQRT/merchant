@@ -93,6 +93,13 @@ export const query_shop_address_list = (shopId) => fetch('/address/query_shop_ad
 export const shop = () => fetch('/shop',{},'get');
 
 /**
+ * 查询店铺状态
+ */
+
+export const shop_status = () => fetch('/shop/exists',{},'get');
+
+
+/**
  * 实时金价
  */
 
@@ -124,7 +131,13 @@ export const return_card_info = (code) => fetch('/bank_card?code='+code,{},'get'
  */
 
 export const captcha = (code,mobile,id) => fetch('/bank_card/captcha',{'code':code,'mobile':mobile,'id':id},'post');
-// export const captcha = (code,mobile) => fetch('/bank_card/captcha',{'code':code,'mobile':mobile},'post');
+
+
+/**
+ * 查看保证金
+ */
+
+export const query_ensure_cash = (shopId) => fetch('/order/query_ensure_cash',{'shopId':shopId},'get');
 
 
 /**
@@ -150,7 +163,7 @@ export const add_recycle_order_check = (orderId) => fetch('/order/add_recycle_or
  * 创建订单
  */
 
-export const add_recycle_order = (applyQuantity,applyWeight,productType,isLockPrice,isCash,shopId,contact,telephone,address) => fetch('/order/add_recycle_order',{'applyQuantity':applyQuantity,'applyWeight':applyWeight,'productType':productType,'isLockPrice':isLockPrice,'isCash':isCash,'shopId':shopId,'contact':contact,'telephone':telephone,'address':address},'post');
+export const add_recycle_order = (applyQuantity,applyWeight,productType,isLockPrice,isCash,shopId,contact,telephone,address,bankCardId) => fetch('/order/add_recycle_order',{'applyQuantity':applyQuantity,'applyWeight':applyWeight,'productType':productType,'isLockPrice':isLockPrice,'isCash':isCash,'shopId':shopId,'contact':contact,'telephone':telephone,'address':address,'bankCardId':bankCardId},'post');
 
 /**
  * 支付预下单(发送短信验证码)
@@ -163,6 +176,7 @@ export const pay_beforehand_order = (orderId) => fetch('/order/pay_beforehand_or
  */
 
 export const pay_formal_order = (orderId,smsNo) => fetch('/order/pay_formal_order',{'orderId':orderId,'smsNo':smsNo},'post');
+
 
 /**
  * 定时查看订单状态
@@ -194,6 +208,14 @@ export const query_logistics_mess = (orderId,type) => fetch('/logistics/query_lo
  */
 
 export const query_express_mess = (expressNo,expressCode) => fetch('/logistics/query_express_mess?expressNo='+expressNo+'&expressCode='+expressCode,{},'get');
+
+
+/**
+ * 查询检测报告
+ */
+
+export const query_process_mess = (orderId) => fetch('/order/query_process_mess?orderId='+orderId,{},'get');
+
 
 /**
  * 查询订单追踪

@@ -9,7 +9,7 @@
             <!-- 顶部保证金 -->
             <div class="top-cash">
                 <p class="title">保证金(元)</p>
-                <p class="price">{{1500.00 | formatPriceTwo}}</p>
+                <p class="price">{{ensureCash | formatPriceTwo}}</p>
                 <p class="tip">当前进行中订单保证总金额</p>
             </div>
             <!-- 银行卡 -->
@@ -51,13 +51,14 @@
 import headTop from '@/components/header/head.vue'
 import { mapState,mapMutations } from 'vuex'
 import { MessageBox,Toast} from 'mint-ui';
-import { query_card_info, } from '@/service/getData.js'
+import { query_card_info, query_ensure_cash} from '@/service/getData.js'
 
     export default {
         data(){
             return{
                 bankStatus:false,  // 是否绑卡
                 bankInfo:'',      // 银行卡信息
+                ensureCash:'',    // 保证金
             }
         },
         components:{
@@ -65,13 +66,21 @@ import { query_card_info, } from '@/service/getData.js'
         },
         computed: {
             ...mapState([
-                'shopId'
+                'shopStatus','shopId'
             ])
         },
         watch:{
 
         },
         methods: {
+            // 请求保证金信息
+            async query_ensure_cash(){
+                var res = await query_ensure_cash(this.shopId);
+                if (res.code=='000000'){
+                    this.ensureCash = res.data.ensureCash;
+                }
+            },
+            // 请求银行卡信息
             async query_card_info(){
                 var res = await query_card_info();
                 if(res.code=='000000'){
@@ -85,8 +94,9 @@ import { query_card_info, } from '@/service/getData.js'
                     Toast(res.message)
                 }
             },
+            // 点击绑卡操作
             goBind(){
-                if(this.shopId){
+                if(this.shopStatus){
                     this.$router.push({
                         path:'/bindingbank',
                         query:{
@@ -108,7 +118,9 @@ import { query_card_info, } from '@/service/getData.js'
         },
         mounted(){
             this.query_card_info();
-            console.log(this.shopId)
+            if(this.shopStatus){
+                this.query_ensure_cash();
+            }
         },
     }
 

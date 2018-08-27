@@ -12,3 +12,5 @@ export const RECORD_MOBILE = 'RECORD_MOBILE'
 export const RECORD_MERCHANTID = 'RECORD_MERCHANTID'
 /*记录店铺ID*/
 export const RECORD_SHOPID = 'RECORD_SHOPID'
+/*记录店铺存在或审核状态*/
+export const RECORD_SHOPSTATUS = 'RECORD_SHOPSTATUS'

@@ -11,13 +11,13 @@
 					<p class="price_in">
 						<span>实时金价&回收金价(元/克)</span>
 					</p>
-					<p class="price_amount">{{245.34 | formatPriceTwo}}</p>
+					<p class="price_amount">{{currentPrice | formatPriceTwo}}</p>
 					<button class="goStore" @click="$router.push('/storegold')">一键存金</button>
 				</div>
 			</div>
 		</div>
 		<!-- 成交数量 -->
-		<section class="dealNum" v-if="loginStatus && shopCheckStatus">
+		<section class="dealNum" v-if="loginStatus && shopStatus">
             <p class="title">近一月成交量</p>
             <div class="deal-num">
                 <div class="total-price">
@@ -136,11 +136,11 @@
                 <!-- 已登录：店铺图标名称 -->
                 <div class="top-info" @click="goShop()" v-else>
                     <div class="shop-logo">
-                        <img src="static/images/shop-logo.png" alt="" v-if="!shopCheckStatus">
+                        <img src="static/images/shop-logo.png" alt="" v-if="!shopStatus">
                         <img :src="shopInfo.logoPath" alt="" v-else>
                     </div>
                     <!-- 登录且审核通过提示 -->
-                    <p v-if="shopCheckStatus">{{shopInfo.name}}</p>
+                    <p v-if="shopStatus">{{shopInfo.name}}</p>
                     <!-- 未开店/店铺正在审核中显示 -->
                     <p v-else>我的店铺</p>
                 </div>
@@ -176,7 +176,7 @@
 import headTop from '@/components/header/head.vue'
 import { Popup,Toast } from 'mint-ui';
 import { mapState,mapMutations } from 'vuex'
-import { query_index_statistics,shop,logout } from '@/service/getData.js'
+import { shop_status, query_index_statistics, shop, logout } from '@/service/getData.js'
 
 
     export default {
@@ -184,7 +184,6 @@ import { query_index_statistics,shop,logout } from '@/service/getData.js'
             return{
                 popupVisible:false,   // 左侧导航显示
                 loginStatus:false,     // 是否登录
-                shopCheckStatus:true, // 店铺审核是否通过
                 dealObject:{
                     totalCashAmount:2345.3444,
                     totalWeight:23.43,
@@ -203,17 +202,21 @@ import { query_index_statistics,shop,logout } from '@/service/getData.js'
         },
         computed: {
             ...mapState([
-                'accessToken'
+                'currentPrice','accessToken','shopStatus',
             ]),
         },
         watch:{
+            /*实时金价*/
+			currentPrice(val){
+				return val
+			},
             popupVisible:function(val){
                 val ? this.fixed(true) : this.fixed(false)
             }
         },
         methods: {
             ...mapMutations([
-                'RECORD_ACCESSTOKEN','RECORD_SHOPID'
+                'RECORD_ACCESSTOKEN','RECORD_SHOPID','RECORD_SHOPSTATUS'
             ]),
             // 显示导航
             navPopup(){
@@ -221,10 +224,22 @@ import { query_index_statistics,shop,logout } from '@/service/getData.js'
             },
             // 点击我的店铺logo跳转操作
             goShop(){
-                if(this.shopCheckStatus){
+                if(this.shopStatus){
                     this.$router.push('/myshop') // 跳转我的店铺页
                 }else{
                     this.$router.push('/openshopguide') // 开店引导页
+                }
+            },
+            // 判断店铺状态
+            async shop_status(){
+                var res = await shop_status();
+                if(res.code=='000000'){
+                    this.RECORD_SHOPSTATUS(res.data)
+                }else if(res.code=='000004'){ // 用户未登录
+                    this.RECORD_ACCESSTOKEN('');
+                    this.RECORD_SHOPSTATUS(false);
+                }else{
+                    Toast(res.message);
                 }
             },
             // 近一月统计数据
@@ -233,7 +248,7 @@ import { query_index_statistics,shop,logout } from '@/service/getData.js'
                 if(res.code=='000000'){
                     this.dealObject=res.data;
                 }else if(res.code=='200206'){
-                    this.shopCheckStatus = false;
+                    this.RECORD_SHOPSTATUS(false); // 店铺不存在或未通过审核
                 }
             },
             // 获取店铺信息
@@ -244,7 +259,8 @@ import { query_index_statistics,shop,logout } from '@/service/getData.js'
                         this.shopInfo = res.data;
                         this.RECORD_SHOPID(res.data.id); // 保存店铺ID
                     }else{
-                        this.shopCheckStatus = false;
+                        this.RECORD_SHOPID('');        // 保存店铺ID
+                        this.RECORD_SHOPSTATUS(false); // 店铺不存在或未通过审核
                     }
                 }
             },
@@ -278,9 +294,12 @@ import { query_index_statistics,shop,logout } from '@/service/getData.js'
         },
         mounted(){
             this.loginStatus = this.accessToken ? true : false;
-            if(this.loginStatus){
-                this.query_index_statistics(); // 首页统计数据
+            if(this.loginStatus){              // 登录状态下请求
+                this.shop_status();            // 判断店铺状态
                 this.checkShopStatus();        // 店铺信息
+            }
+            if(this.shopStatus){
+                this.query_index_statistics(); // 首页统计数据
             }
         },
         beforeRouteLeave (to, from, next) {
