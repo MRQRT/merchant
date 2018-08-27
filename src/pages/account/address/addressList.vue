@@ -8,8 +8,8 @@
 				<p @click="selectAdd(item)"><span>{{item.contact}}</span><span>{{item.telephone}}</span></p>
 				<div @click="selectAdd(item)">{{item.address}}</div>
 				<p>
-					<input type="radio"  v-model="picked" :id="index" :value="index" @click="putDefault(item,item.id)">
-					<label :for="index" @click="putDefault(item,item.id)">{{setdeaddress}}</label>
+					<input type="radio" v-model="picked" :id="index" :value="index" @click="putDefault(item,item.id,index)">
+					<label :for="index" @click="putDefault(item,item.id,index)">{{setdeaddress}}</label>
 					<span class="del" @click="delAddress(item.id)">
 						<img :src="del">
 						<span>删除</span>
@@ -35,9 +35,10 @@
 <script type="text/javascript">
 	import headTop from "@/components/header/head"
 	import { Toast } from 'mint-ui'
-	// import { queryAddress, putDefault, delAddress, putAddress } from '@/service/getData.js'
+	// import { delAddress, putAddress } from '@/service/getData.js'
+	import { query_shop_address_list, update_default_address, del_shop_address, update_shop_address } from '@/service/getData.js'
 	import { setStore,getStore,getRem } from '@/config/mUtils.js'
-	// import { mapState, mapMutations } from 'vuex'
+	import { mapState, mapMutations } from 'vuex'
 
 	import del from "static/images/del.png"
 	import compile from "static/images/compile.png"
@@ -62,7 +63,7 @@
 			var from=this.$route.query.from;
 		},
 		mounted(){
-			this.getAddress();
+			this.getAddress(this.shopId);
 			const continer = document.getElementsByClassName('address')[0];
 			continer.style.minHeight=(document.documentElement.clientHeight)+'px';
 		},
@@ -75,9 +76,9 @@
 			// }
 		},
 		computed:{
-			// ...mapState([
-			// 	'address','fillExtractInfo'
-			// ])
+			...mapState([
+				'shopId',
+			])
 		},
 		methods:{
 			// ...mapMutations([
@@ -113,12 +114,21 @@
 			watchRouter(to, from){
 			},
 			//获取用户地址
-			async getAddress(){
-                this.picked=1
-                var res = {"code":100,"content":[{"address":"1212323323","contact":"郭佳伟","createTime":"2018-07-03 11:58:31","deleted":0,"id":"ff808081641c4f7e01645e4ab3ba1dc0","isDefault":0,"telephone":"18735312081","userId":"199869"},{"address":"打算减","contact":"giaojfa","createTime":"2018-07-03 12:00:29","deleted":0,"id":"ff808081641c4f7e01645e4c7e201dc6","isDefault":1,"telephone":"13120122211","updateTime":"2018-07-03 12:00:39","userId":"199869"},{"address":"郭佳伟","contact":"郭佳伟","createTime":"2018-07-02 20:13:05","deleted":0,"id":"ff808081641c51e201645ae922061c69","isDefault":0,"telephone":"18735312081","userId":"199869"},{"address":"hahhahhahahha","contact":"孙小贱","createTime":"2018-07-03 11:59:49","deleted":0,"id":"ff808081641c51e201645e4be2021e11","isDefault":0,"telephone":"13122291122","userId":"199869"}],"message":"成功"}
-                this.addre = res.content
+			async getAddress(val){
+				const res = await query_shop_address_list(val);
+				console.log(res)
+				if(res.code=='000000'){
+					this.addre = res.data.content
+					//遍历地址是否默认,如果没有默认地址，设置第一个地址为默认地址
+					for(var i=0; i<res.data.content.length;i++){
+						if(res.data.content[i].defaults==1){
+							this.picked=i
+							break;
+						}
+					}
+				}
 				// let res = await queryAddress()
-				this.picked=null
+				// this.picked=null
 				// if(res.code==100){
 				// 	this.addre = res.content
 				// 	if(res.content.length>0){
@@ -143,9 +153,10 @@
 				// }
 			},
 			//设置默认地址设置默认地址
-			async putDefault(item,val){
-                // console.log("设置默认")
-				// let res = await putDefault(val)
+			async putDefault(item,val,val2){
+				if(this.picked==val2)return
+				let res = await update_default_address(val,this.shopId);
+				console.log(res)
 				// this.RECORD_ADDRESS(item)
 			},
 			//删除地址
@@ -271,7 +282,7 @@
 .addressDe>p:first-child span{
 	margin-right: .4rem;
 }
-@media(-webkit-min-device-pixel-ratio:1.5),(min-device-pixel-ratio:1.5),(-o-min-device-pixel-ratio:1.5){
+@media(-webkit-min-device-pixel-ratio:1.5),(-moz-min-device-pixel-ratio:1.5),(-o-min-device-pixel-ratio:1.5){
 	.address_list>.addressDe>div:nth-child(2):after{
 		content: '';
 		display: inline-block;
@@ -283,7 +294,7 @@
 		transform:scaleY(0.7);
 	}
 }
-@media(-webkit-min-device-pixel-ratio:2),(min-device-pixel-ratio:2),(-o-min-device-pixel-ratio:1.5){
+@media(-webkit-min-device-pixel-ratio:2),(-moz-min-device-pixel-ratio:2),(-o-min-device-pixel-ratio:1.5){
 	.address_list>.addressDe>div:nth-child(2):after{
 		content: '';
 		display: inline-block;

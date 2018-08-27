@@ -34,16 +34,16 @@
 				<div class="line" stlye="margin-top:.1rem;"></div>
 				<div class="province" v-show="province_show">
 					<ul class="list" style="over-flow:auto;">
-						<li class="list_li" :class="{'has_checked':index==currprov}" v-for="(item,index) in provinces" @click="checkprov(item,index)" :key="index">
-							{{item}}
+						<li class="list_li" :class="{'has_checked':index==currprov}" v-for="(item,index) in provinces" @click="checkprov(item,item.id,index)" :key="index">
+							{{item.cityName}}
 							<img src="static/images/address_checked.png" class="haschecked_tip" v-show="index==currprov">
 						</li>
 					</ul>
 				</div>
 				<div class="citylist" v-show="city_show">
 					<ul class="list">
-						<li class="list_li" :class="{'has_checked':index==currcity}" v-for="(item,index) in citys" @click="checkcity(item,index)" :key="index">
-							{{item}}
+						<li class="list_li" :class="{'has_checked':index==currcity}" v-for="(item,index) in citys" @click="checkcity(item,item.id,index)" :key="index">
+							{{item.cityName}}
 							<img src="static/images/address_checked.png" class="haschecked_tip" v-show="index==currcity">
 						</li>
 					</ul>
@@ -51,7 +51,7 @@
 				<div class="town" v-show="town_show">
 					<ul class="list">
 						<li class="list_li" :class="{'has_checked':index==currtown}" v-for="(item,index) in towns" @click="checktown(item,index)" :key="index">
-							{{item}}
+							{{item.cityName}}
 							<img src="static/images/address_checked.png" class="haschecked_tip" v-show="index==currtown">
 						</li>
 					</ul>
@@ -61,43 +61,43 @@
 	</div>
 </template>
 <script type="text/javascript">
-	import headTop from "@/components/header/head"
-	import	delImg from 'static/images/delImg.png'
-	import	right from 'static/images/next.png'
-	import {Popup} from 'mint-ui'
+import headTop from "@/components/header/head"
+import	delImg from 'static/images/delImg.png'
+import	right from 'static/images/next.png'
+import {Popup} from 'mint-ui'
 
-	// import { addAddress, putAddress, putDefault } from '@/service/getData.js'
-	// import { getStore } from '@/config/mUtils.js'
-	// import { mapState,mapMutations } from 'vuex'
-	export default{
-		data(){
-			return {
-				delImg: delImg,//删除图片
-				 right: right,//对号
-			  realName: '',//真实姓名
-			    telNum: '',//电话号
-			      is_1: 0,//删除变量1
-			      is_2: 0,//删除变量2
-			 rightShow: 0,
-			      addr: '',
-			      stor: 0,//底部保存地址开关
-				 title: '添加地址',
-				  area: '',//地区 
-			 addressId: null,//修改地址的Id
-			  province: '',//省
-				  city: '',//市
-				  town: '',//区/县
-		  popupVisible: false,//地区弹出层控制
-			  currprov: '',//当前选中省份
-			  currcity: '', //当前选中市
-			  currtown: '',//当前选中县
-		 province_show: false,
-			 city_show: false,
-			 town_show: false,
-			 provinces:['广西','陕西','河北','黑龙江','宁夏','甘肃','青海','江西','长春','四川','河南','山东','安徽','广东','贵州','新疆','福建','辽宁','浙江','云南'],
-			     citys:['呼和浩特','拉萨','西安','朔州','厦门','临汾','海口','深圳','广州','安阳','齐齐哈尔','杭州','无锡','大同','忻州','石家庄','太原','上海','厦门','北京'],
-			     towns:['郊区','河底镇','西南舁乡','安在']
-
+// import { addAddress, putAddress, putDefault } from '@/service/getData.js'
+import { province_area_list } from '@/service/getData.js'
+// import { getStore } from '@/config/mUtils.js'
+// import { mapState,mapMutations } from 'vuex'
+export default{
+	data(){
+		return {
+			delImg: delImg,//删除图片
+			right: right,//对号
+			realName: '',//真实姓名
+			telNum: '',//电话号
+			is_1: 0,//删除变量1
+			is_2: 0,//删除变量2
+			rightShow: 0,
+			addr: '',
+			stor: 0,//底部保存地址开关
+			title: '添加地址',
+			area: '',//地区 
+			addressId: null,//修改地址的Id
+			province: '',//省
+			city: '',//市
+			town: '',//区/县
+		  	popupVisible: false,//地区弹出层控制
+			currprov: '',//当前选中省份
+			currcity: '', //当前选中市
+			currtown: '',//当前选中县
+		 	province_show: false,
+			city_show: false,
+			town_show: false,
+			provinces:[],//省数组
+				citys:[],//市数组
+				towns:[],//县数组
 			}
 		},
 		created(){
@@ -107,7 +107,7 @@
 			}
 		},
 		mounted(){
-			
+			this.province_list(100000);
 		},
 		watch:{
 			realName: function(val){
@@ -136,27 +136,50 @@
             // ])
 		},
 		methods:{
-			// ...mapMutations([
-            //     'RECORD_ADDRESS'
-			// ]),
+			//查询省市
+			async province_list(val,val2){
+				// ...mapMutations([
+				//     'RECORD_ADDRESS'
+				// ]),
+				if(val===100000){
+					const res = await province_area_list(val);//查询省
+					if(res.code=='000000'){
+						this.provinces=res.data
+					}
+				}else if(val2=='市'){
+					const res = await province_area_list(val);//查询市
+					if(res.code=='000000'){
+						this.citys=res.data
+					}
+				}else if(val2=='县'){
+					const res = await province_area_list(val);//查询市
+					if(res.code=='000000'){
+						this.towns=res.data
+					}
+				}
+			},
 			//选择省份
-			checkprov(val,val2){
-				this.currprov=val2
-				this.province=val
+			checkprov(val,val2,val3){//参数一：省份 参数二：ID 参数三：index
+				this.currprov=val3
+				this.province=val.cityName
+				this.city=''
 				this.province_show=false
 				this.city_show=true
+				this.province_list(val2,'市');
 			}, 
 			// 选择城市
-			checkcity(val,val2){
+			checkcity(val,val2,val3){//参数一：城市 参数二：ID 参数三：index
 				this.currcity=val2
-				this.city=val
+				this.city=val.cityName
+				this.town=''
 				this.city_show=false
 				this.town_show=true
+				this.province_list(val2,'县');
 			},
 			//选择县区
 			checktown(val,val2){
 				this.currtown=val2
-				this.town=val
+				this.town=val.cityName
 				this.popupVisible=false
 				this.area=this.province+this.city+this.town
 			},
