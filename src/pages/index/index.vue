@@ -644,7 +644,7 @@ import { shop_status, query_index_statistics, shop, logout } from '@/service/get
     	color: #333333;
     	line-height: .8rem;
     	text-align: left;
-    	// font-weight: bold;
+    	font-weight: bold;
         margin-bottom: .2rem;
         font-family:PingFangSC-Medium;
     }

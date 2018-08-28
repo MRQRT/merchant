@@ -231,10 +231,11 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
 					if(this.rightShow==1){
 						if(this.iNow==true && this.second==60 && this.bankTypeStatus==1){
                 			that.iNow = false;
-                			const res=await captcha(this.bankNum,this.telNum,this.verifiNo)
+                            const bankCode = this.bankNum.replace(/\s/g, "");
+                			const res=await captcha(bankCode,this.telNum,this.verifiNo)
                             if(res.code=='000000'){
                                 this.verifiNo = res.data;
-                            }else if(res.code=='100030'){
+                            }else{
                                 Toast(res.message)
                             }
                 			that.timer = setInterval(function(){
@@ -271,7 +272,11 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
 					const formatBankN = this.bankNum.replace(/\s/g, "")
 					const res = await bind_card(this.verifiNo,formatBankN, this.telNum, this.verifiCode)
 					if(res.code=='000000'){
-						Toast('银行卡绑定成功')
+                        Toast({
+                          message: '银行卡绑定成功',
+                          position: 'middle',
+                          duration: 1000
+                        });
                         setTimeout(() => {
                             if(this.$route.query.from=='storegold'){
                                 this.$router.replace('/storegold')

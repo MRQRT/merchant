@@ -191,7 +191,7 @@ export const captcha = (code,mobile,id) => fetch('/bank_card/captcha',{'code':co
  * 查看保证金
  */
 
-export const query_ensure_cash = (shopId) => fetch('/order/query_ensure_cash',{'shopId':shopId},'get');
+export const query_ensure_cash = (shopId) => fetch('/order/query_ensure_cash?shopId='+shopId,{},'get');
 
 
 /**
@@ -223,7 +223,7 @@ export const add_recycle_order = (applyQuantity,applyWeight,productType,isLockPr
  * 支付预下单(发送短信验证码)
  */
 
-export const pay_beforehand_order = (orderId) => fetch('/order/pay_beforehand_order',{'orderId':orderId},'post');
+export const pay_beforehand_order = (orderId,countType) => fetch('/order/pay_beforehand_order',{'orderId':orderId,'countType':countType},'post');
 
 /**
  * 支付正式下单(判断验证码是否正确及继续走支付流程)
