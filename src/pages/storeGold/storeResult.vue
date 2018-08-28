@@ -23,7 +23,7 @@
                             <span class="name">{{orderInfo.contact}}</span>
                             <span class="tel">{{orderInfo.telephone | hideMible}}</span>
                         </p>
-                        <p class="add">{{orderInfo.address}}</p>
+                        <p class="add">{{orderInfo.address | clearStr}}</p>
                     </div>
                 </div>
                 <!-- 订单信息 -->
@@ -90,6 +90,7 @@
 
 <script>
 import headTop from '@/components/header/head.vue'
+import { MessageBox,Toast, } from 'mint-ui';
 import { query_detail, query_card_info} from '@/service/getData.js'
 
     export default {
@@ -122,6 +123,11 @@ import { query_detail, query_card_info} from '@/service/getData.js'
                 },
             }
         },
+        filters:{
+            clearStr(val){
+                return val.replace(/,/g, "");
+            }
+        },
         components:{
             headTop,
         },
@@ -134,7 +140,7 @@ import { query_detail, query_card_info} from '@/service/getData.js'
         methods: {
             // 请求订单详情数据
             async query_detail(){
-                var res = query_detail(this.orderId);
+                var res = await query_detail(this.orderId);
                 if(res.code=='000000'){
                     this.orderInfo = res.data;
                     if(res.data.isLockPrice){  // 如果是锁价请求银行卡信息

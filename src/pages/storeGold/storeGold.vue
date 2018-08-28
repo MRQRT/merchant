@@ -105,7 +105,7 @@
                                 <span class="name">{{receiverInfo.contact}}</span>
                                 <span class="tel">{{receiverInfo.telephone | hideMible}}</span>
                             </p>
-                            <p class="add">{{receiverInfo.address}}</p>
+                            <p class="add">{{receiverInfo.address | clearStr}}</p>
                         </div>
                         <div class="right-arrow"></div>
                     </div>
@@ -305,7 +305,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                 }
             }
         },
-        fitles:{
+        filters:{
             clearStr(val){
                 return val.replace(/,/g, "");
             }
@@ -324,15 +324,16 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                 'RECORD_SHOPSTATUS','RECORD_ACCESSTOKEN'
             ]),
             //存金说明弹框
-			showPopup: function(num){
+			showPopup(num){
 				this.popupVisible = true;
                 this.popupNum = num;
 			},
+            //关闭弹窗
             closePop(){
                 this.popupVisible = false;
             },
-            // 输入内容保留4位小数
-			checkInput: function (val) {
+            //输入内容保留1位小数
+			checkInput(val){
 				this.weight = clearNoNum(val,1);
             },
             //提金数量减1
@@ -346,7 +347,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
             increaseCount(){
                 this.extractNum++;
             },
-            // 选择存金类型
+            //选择存金类型
             chooseType(num){
                 this.typeNum = num;
             },
@@ -354,7 +355,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
             changeBg(){
                 this.bg=!this.bg;
             },
-            // 点击绑卡操作
+            //点击绑卡操作
             bindingBank(){
                 if(this.loginStatus){
                     if(!this.shopStatus){
@@ -376,7 +377,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                     })
                 }
             },
-            // 点击新增地址
+            //点击新增地址
             addAddress(){
                 if(this.loginStatus){
                     if(!this.shopStatus){
@@ -398,7 +399,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                     })
                 }
             },
-            // 判断店铺状态
+            //判断店铺状态
             async shop_status(){
                 var res = await shop_status();
                 if(res.code=='000000'){
@@ -409,7 +410,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                     Toast(res.message);
                 }
             },
-            // 获取银行卡信息
+            //获取银行卡信息
             async queryBank(){
             	var res = await query_card_info();
                 this.queryAddress();
@@ -426,7 +427,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                     Toast(res.message)
                 }
             },
-            // 获取地址信息
+            //获取地址信息
             async queryAddress(){
                 var res = await query_shop_address_list(this.shopId);
                 if(res.code == '000000'){
@@ -462,12 +463,12 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                     }
                 })
             },
-            // 点击提交按钮前判断店铺状态
+            //点击提交按钮前判断店铺状态
             async add_recycle_order_check(){
                 var res = await add_recycle_order_check();
 
             },
-            // 点击按钮提交函数
+            //点击按钮提交函数
             submit(num){
                 if(!this.shopStatus){  // 店铺未通过审核
                     this.showMessage(3);
@@ -542,7 +543,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                 }
 
             },
-            // 直接提交创建订单
+            //直接提交创建订单
             async directlyOrder(){
                 var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,false,true,this.shopId,this.receiverInfo.contact,this.receiverInfo.telephone,this.receiverInfo.address,this.bankCardId)
                 if(res.code=='000000'){
@@ -558,7 +559,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                     Toast(res.message);
                 }
             },
-            // 检测输入的支付验证码
+            //检测输入的支付验证码
             checkVerifi(){
                 var res = /^[0-9]*$/g;
                 if(this.verifiCode.length==6){
@@ -568,7 +569,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                     this.checkoutVerifi();          // 校验验证码是否正确
                 }
             },
-            // 后台校验验证码是否正确
+            //后台校验验证码是否正确
             async checkoutVerifi(){
                 var that = this;
                 var res = await pay_formal_order(thia.orderId,this.verifiCode);
@@ -602,7 +603,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                     })
                 }
             },
-            // 间隔查询订单状态
+            //间隔查询订单状态
             async query_status(){
                 var res = await query_status(this.orderId);
                 if(res.code=='000000'){
@@ -627,11 +628,11 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                     }
                 }
             },
-            // 支付预下单（发送验证码函数）
+            //支付预下单（发送验证码函数）
             async requestVerifi(){
                 var res = pay_beforehand_order(this.orderId);
             },
-            // 锁价提交创建订单
+            //锁价提交创建订单
             async lockPriceOrder(){
                 // 创建订单
                 var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,true,true,this.shopId,this.receiverInfo.contact,this.receiverInfo.telephone,this.receiverInfo.address,this.bankCardId)
@@ -650,7 +651,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
 
         },
         mounted(){
-            console.log(this.shopStatus)
+            console.log('shopStatus',this.shopStatus)
             this.loginStatus = this.accessToken ? true : false;
             //登录情况下请求银行卡信息和地址
             if(this.loginStatus){
