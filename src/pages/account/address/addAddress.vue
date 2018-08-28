@@ -4,20 +4,19 @@
 			<img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
 		</head-top>
 		<section class="name_tel_addr" style="margin-top: .88rem;">
-			<input type="text" name="realName" placeholder="请输入联系人姓名" v-model="realName" maxlength="15" id="name">
+			<input type="text" name="contact" placeholder="请输入联系人姓名" v-model="contact" maxlength="15" id="name">
 			<img :src="delImg" @click="del('n')" v-show="is_1">
 		</section>
 		<section class="name_tel_addr">
-			<input type="number" name="telNum" placeholder="请输入手机号" pattern="[0-9]*" v-model="telNum" maxlength="11" id="tel">
+			<input type="number" name="telephone" placeholder="请输入手机号" pattern="[0-9]*" v-model="telephone" maxlength="11" id="tel">
 			<img :src="delImg" @click="del('t')" v-show="is_2">
-			<img :src="right" v-show="rightShow" style="margin-right: .2rem;">
 		</section>
 		<section class="name_tel_addr" @click="check_city">
 			<input type="text" name="area" placeholder="所在地区" v-model="area" readonly="value">
 			<img :src="right" style="width:.4rem;margin-top: .25rem;">
 		</section>
 		<section class="name_tel_addr last" style="height: 1.6rem">
-			<textarea name="addr" placeholder="请输入详细地址" v-model="addr" maxlength="50" id="area">
+			<textarea name="addr" placeholder="请输入详细地址" v-model="address" maxlength="50" id="area">
 			</textarea>
 		</section>
 		<div class="stor"><span class="storAdd" :class="stor?'isStor':'noStor'" @click="baocun()">保存</span></div>
@@ -34,7 +33,7 @@
 				<div class="line" stlye="margin-top:.1rem;"></div>
 				<div class="province" v-show="province_show">
 					<ul class="list" style="over-flow:auto;">
-						<li class="list_li" :class="{'has_checked':index==currprov}" v-for="(item,index) in provinces" @click="checkprov(item,item.id,index)" :key="index">
+						<li class="list_li" :class="{'has_checked':index==currprov}" v-for="(item,index) in provinces" @click="checkprov(item,index)" :key="index">
 							{{item.cityName}}
 							<img src="static/images/address_checked.png" class="haschecked_tip" v-show="index==currprov">
 						</li>
@@ -42,7 +41,7 @@
 				</div>
 				<div class="citylist" v-show="city_show">
 					<ul class="list">
-						<li class="list_li" :class="{'has_checked':index==currcity}" v-for="(item,index) in citys" @click="checkcity(item,item.id,index)" :key="index">
+						<li class="list_li" :class="{'has_checked':index==currcity}" v-for="(item,index) in citys" @click="checkcity(item,index)" :key="index">
 							{{item.cityName}}
 							<img src="static/images/address_checked.png" class="haschecked_tip" v-show="index==currcity">
 						</li>
@@ -67,27 +66,30 @@ import	right from 'static/images/next.png'
 import {Popup} from 'mint-ui'
 
 // import { addAddress, putAddress, putDefault } from '@/service/getData.js'
-import { province_area_list } from '@/service/getData.js'
+import { province_area_list,add_shop_address } from '@/service/getData.js'
 // import { getStore } from '@/config/mUtils.js'
-// import { mapState,mapMutations } from 'vuex'
+import { mapState,mapMutations } from 'vuex'
 export default{
 	data(){
 		return {
 			delImg: delImg,//删除图片
 			right: right,//对号
-			realName: '',//真实姓名
-			telNum: '',//电话号
+			contact: '',//真实姓名
+			telephone: '',//电话号
 			is_1: 0,//删除变量1
 			is_2: 0,//删除变量2
 			rightShow: 0,
-			addr: '',
+			address: '',
 			stor: 0,//底部保存地址开关
 			title: '添加地址',
 			area: '',//地区 
 			addressId: null,//修改地址的Id
 			province: '',//省
+			provinceId: '',//省Id
 			city: '',//市
+			cityId: '',//城市Id
 			town: '',//区/县
+			areaId: '',//地区Id
 		  	popupVisible: false,//地区弹出层控制
 			currprov: '',//当前选中省份
 			currcity: '', //当前选中市
@@ -110,30 +112,30 @@ export default{
 			this.province_list(100000);
 		},
 		watch:{
-			realName: function(val){
+			contact: function(val){
 				val!=''?this.is_1=1:this.is_1=0
 				val!=''&&this.rightShow==1&&this.addr!=''?this.stor=1:this.stor=0
 			},
-			telNum: function(val){
+			telephone: function(val){
 				val!=''?this.is_2=1:this.is_2=0;
 				let reg = /^(0|86|17951)?(13[0-9]|15[0-9]|17[0-9]|18[0-9]|14[0-9]|19[0-9])[0-9]{8}$/;
 				if(val.match(reg)){
 					this.rightShow = 1;
-				}else if(this.telNum ==''){
+				}else if(this.telephone ==''){
 					this.rightShow = 0
 				}else{
 					this.rightShow = 0
 				};
-				this.realName!=''&&this.rightShow==1&&this.addr!=''?this.stor=1:this.stor=0
+				this.contact!=''&&this.rightShow==1&&this.addr!=''?this.stor=1:this.stor=0
 			},
 			addr: function(val){
-				val!=''&&this.rightShow==1&&this.realName!=''?this.stor=1:this.stor=0
+				val!=''&&this.rightShow==1&&this.contact!=''?this.stor=1:this.stor=0
 			}
 		},
 		computed:{
-            // ...mapState([
-            // 	'updateAddress'
-            // ])
+            ...mapState([
+            	'shopId'
+            ])
 		},
 		methods:{
 			//查询省市
@@ -159,27 +161,31 @@ export default{
 				}
 			},
 			//选择省份
-			checkprov(val,val2,val3){//参数一：省份 参数二：ID 参数三：index
-				this.currprov=val3
+			checkprov(val,val2){//参数一：省份对象 参数二：index
+				this.currprov=val2
 				this.province=val.cityName
+				this.provinceId=val.id
 				this.city=''
+				this.town=''
 				this.province_show=false
 				this.city_show=true
-				this.province_list(val2,'市');
+				this.province_list(val.id,'市');
 			}, 
 			// 选择城市
-			checkcity(val,val2,val3){//参数一：城市 参数二：ID 参数三：index
+			checkcity(val,val2){//参数一：城市对象 参数二：index
 				this.currcity=val2
 				this.city=val.cityName
+				this.cityId=val.id
 				this.town=''
 				this.city_show=false
 				this.town_show=true
-				this.province_list(val2,'县');
+				this.province_list(val.id,'县');
 			},
 			//选择县区
 			checktown(val,val2){
 				this.currtown=val2
 				this.town=val.cityName
+				this.areaId=val.id
 				this.popupVisible=false
 				this.area=this.province+this.city+this.town
 			},
@@ -210,79 +216,98 @@ export default{
 				this.province_show=true;
 			},
 			del: function(val){
-				return val=='n'?this.realName='':this.telNum=''
+				return val=='n'?this.contact='':this.telephone=''
 			},
 			//保存地址
 			async baocun(){
-				if(this.$route.query.from){
-					var from=this.$route.query.from;
-					var that=this;
-					if(from==1){ //如果当前是提金业务，需要保存提金标志from 1
-						if(this.title=='添加地址' && this.stor){
-							const res_1 = await addAddress(this.realName, this.telNum, this.addr)
-							if(res_1.code==100){
-								//设置默认地址
-								this.putDefault(res_1.content)
-							}
-						}
-						if(this.title=='修改地址' && this.stor){
-							const res_2 = await putAddress(this.addressId, this.realName, this.telNum, this.addr)
-							res_2.code==100?this.$router.push({path:"/fillInOrder",query:{from:1}}):''
-						}
-						return;
-					}
-					if(from==2){ //如果当前是存金业务，需要保存存金标志from 2
-						let address = {
-								contact: this.realName,
-								address: this.addr,
-							  telephone: this.telNum
-						};
-						this.RECORD_ADDRESS(address)
-						if(this.title=='添加地址' && this.stor){
-							const res_1 = await addAddress(this.realName, this.telNum, this.addr)
-							if(res_1.code==100){
-								//设置默认地址
-								this.putDefault(res_1.content)
-							}
-						}
-						if(this.title=='修改地址' && this.stor){
-							const res_2 = await putAddress(this.addressId, this.realName, this.telNum, this.addr)
-							res_2.code==100?this.$router.push({path:"/storAddress"}):''
-						}
-						return;
-					}
-					if(from==3){ //如果当前是存金修改订单业务，需要保存存金标志from 3
-						let address = {
-								contact: this.realName,
-								address: this.addr,
-							  telephone: this.telNum
-						};
-						this.RECORD_ADDRESS(address)
-						if(this.title=='添加地址' && this.stor){
-							const res_1 = await addAddress(this.realName, this.telNum, this.addr)
-							if(res_1.code==100){
-								//设置默认地址
-								this.putDefault(res_1.content)
-							}
-						}
-						if(this.title=='修改地址' && this.stor){
-							const res_2 = await putAddress(this.addressId, this.realName, this.telNum, this.addr)
-							res_2.code==100?this.$router.push({path:"/modifiRecycleOrder",query:{from: 3}}):''
-						}
-						return;
-					}
-				}
+				console.log(1)
 				if(this.title=='添加地址' && this.stor){
-					const res_1 = await addAddress(this.realName, this.telNum, this.addr)
-					if(res_1.code==100){
-						//设置默认地址
-						this.putDefault(res_1.content)
+				console.log(2)
+					const res_1 = await add_shop_address(this.shopId,this.contact,this.telephone,this.address,this.provinceId,this.cityId,this.areaId);
+					if(res_1.code=='000000'){
+						this.$router.push('/addresslist')
 					}
 				}
-				if(this.title=='修改地址' && this.stor){
-					const res_2 = await putAddress(this.addressId, this.realName, this.telNum, this.addr)
-					res_2.code==100?this.$router.push("/personHomepage/address"):''
-				}
+				
+				
+				
+				
+				
+				
+				
+			
+			
+				
+				
+				// if(this.$route.query.from){
+				// 	var from=this.$route.query.from;
+				// 	var that=this;
+				// 	if(from==1){ //如果当前是提金业务，需要保存提金标志from 1
+				// 		if(this.title=='添加地址' && this.stor){
+				// 			const res_1 = await addAddress(this.realName, this.telNum, this.addr)
+				// 			if(res_1.code==100){
+				// 				//设置默认地址
+				// 				this.putDefault(res_1.content)
+				// 			}
+				// 		}
+				// 		if(this.title=='修改地址' && this.stor){
+				// 			const res_2 = await putAddress(this.addressId, this.realName, this.telNum, this.addr)
+				// 			res_2.code==100?this.$router.push({path:"/fillInOrder",query:{from:1}}):''
+				// 		}
+				// 		return;
+				// 	}
+				// 	if(from==2){ //如果当前是存金业务，需要保存存金标志from 2
+				// 		let address = {
+				// 				contact: this.realName,
+				// 				address: this.addr,
+				// 			  telephone: this.telNum
+				// 		};
+				// 		this.RECORD_ADDRESS(address)
+				// 		if(this.title=='添加地址' && this.stor){
+				// 			const res_1 = await addAddress(this.realName, this.telNum, this.addr)
+				// 			if(res_1.code==100){
+				// 				//设置默认地址
+				// 				this.putDefault(res_1.content)
+				// 			}
+				// 		}
+				// 		if(this.title=='修改地址' && this.stor){
+				// 			const res_2 = await putAddress(this.addressId, this.realName, this.telNum, this.addr)
+				// 			res_2.code==100?this.$router.push({path:"/storAddress"}):''
+				// 		}
+				// 		return;
+				// 	}
+				// 	if(from==3){ //如果当前是存金修改订单业务，需要保存存金标志from 3
+				// 		let address = {
+				// 				contact: this.realName,
+				// 				address: this.addr,
+				// 			  telephone: this.telNum
+				// 		};
+				// 		this.RECORD_ADDRESS(address)
+				// 		if(this.title=='添加地址' && this.stor){
+				// 			const res_1 = await addAddress(this.realName, this.telNum, this.addr)
+				// 			if(res_1.code==100){
+				// 				//设置默认地址
+				// 				this.putDefault(res_1.content)
+				// 			}
+				// 		}
+				// 		if(this.title=='修改地址' && this.stor){
+				// 			const res_2 = await putAddress(this.addressId, this.realName, this.telNum, this.addr)
+				// 			res_2.code==100?this.$router.push({path:"/modifiRecycleOrder",query:{from: 3}}):''
+				// 		}
+				// 		return;
+				// 	}
+				// }
+				// if(this.title=='添加地址' && this.stor){
+				// 	const res_1 = await addAddress(this.realName, this.telNum, this.addr)
+				// 	if(res_1.code==100){
+				// 		//设置默认地址
+				// 		this.putDefault(res_1.content)
+				// 	}
+				// }
+				// if(this.title=='修改地址' && this.stor){
+				// 	const res_2 = await putAddress(this.addressId, this.realName, this.telNum, this.addr)
+				// 	res_2.code==100?this.$router.push("/personHomepage/address"):''
+				// }
 			},
 			//设置默认地址
 			async putDefault(val){
@@ -306,8 +331,8 @@ export default{
 			//需要修改的地址渲染页面
 			modify(){
 				let a = this.updateAddress;
-				this.realName = a.contact
-				this.telNum = a.telephone
+				this.contact = a.contact
+				this.telephone = a.telephone
 				this.addr = a.address
 				this.addressId = a.id
 			},

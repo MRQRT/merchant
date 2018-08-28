@@ -116,8 +116,8 @@
 			//获取用户地址
 			async getAddress(val){
 				const res = await query_shop_address_list(val);
-				console.log(res)
-				if(res.code=='000000'){
+				console.log(res.data.content.length)
+				if(res.code=='000000'&&res.data.content.length>0){
 					this.addre = res.data.content
 					//遍历地址是否默认,如果没有默认地址，设置第一个地址为默认地址
 					for(var i=0; i<res.data.content.length;i++){
@@ -126,11 +126,12 @@
 							break;
 						}
 					}
+				}else{
+					this.addre = [];
+					this.empty=true
+					this.hasAddress=true
 				}
-				// let res = await queryAddress()
-				// this.picked=null
 				// if(res.code==100){
-				// 	this.addre = res.content
 				// 	if(res.content.length>0){
 				// 		this.hasAddress=true
 				// 		this.empty=false
@@ -161,8 +162,8 @@
 			},
 			//删除地址
 			async delAddress(val){
-				let res = await delAddress(val)
-				if(res.code==100){
+				let res = await del_shop_address(val)
+				if(res.code=='000000'){
 					this.getAddress();
 				}
 			},
