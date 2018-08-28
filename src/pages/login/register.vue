@@ -43,7 +43,7 @@ import {MessageBox,Toast} from 'mint-ui'
 import { isNumber } from '@/config/mUtils.js'
 import {sendsms,checkexist,registry} from '@/service/getData.js'
 import {mapMutations,mapState} from 'vuex'
- import md5 from 'js-md5'
+import md5 from 'js-md5'
     export default {
         data(){
             return{

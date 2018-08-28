@@ -1,6 +1,6 @@
 <template>
     <div class="tran">
-        登录成功，跳转中......
+        <p>{{message}}</p>
     </div>
 </template>
 
@@ -11,11 +11,11 @@ import {mapMutations,mapState} from 'vuex';
 export default {
     data(){
         return{
-            openid:'',
+            code:'',
+            message:'登录成功，跳转中......',
         }
     },
     components:{
-        headTop,
     },
     computed: {
 
@@ -24,16 +24,26 @@ export default {
 
     },
     methods: {
-
+        ...mapMutations([
+            'RECORD_USERID','RECORD_MOBILE','RECORD_MERCHANTID','RECORD_ACCESSTOKEN'
+        ]),
     },
     created(){
 
     },
     mounted(){
         let obj=urlParse();
-        console.log(obj);
         if(obj.code=='000000'){
-            console.log(100)
+            this.RECORD_USERID(obj.userId)
+            this.RECORD_ACCESSTOKEN(obj.accessToken)
+            this.RECORD_MOBILE(obj.mobile)
+            this.RECORD_MERCHANTID(obj.merchantId)
+            var v_this=this
+            setTimeout(function(){
+                v_this.$router.push('/index')
+            },3000)
+        }else if(obj.code=='000006'){
+            this.message='用户状态异常'
         }
     },
 }
@@ -41,5 +51,8 @@ export default {
 </script>
 
 <style scoped lang="scss">
-
+.tran p{
+    margin-top:.5rem;
+    margin-left:.8rem;
+}
 </style>

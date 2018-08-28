@@ -38,16 +38,34 @@ export const quicklogin = (mobile,smsCode) => fetch('/user/quick/login',{'mobile
 export const findpassword = (mobile,smsCode,password) => fetch('/user/find/password',{'mobile':mobile,'smsCode':smsCode,'password':password},'post')
 
 /**
-* 微信等录
+* 微信登录
 */
 
 export const wechatlogin = (redirectUrl) => fetch('/user/auth/login?redirectUrl='+redirectUrl,{},'get')
+
+/**
+* 微信手机绑定
+*/
+
+export const wechat_bind_mobile = (openid,mobile,smsCode) => fetch('/user/auth/bind',{'openid':openid,'mobile':mobile,'smsCode':smsCode},'post')
 
 /**
 * 退出登录
 */
 
 export const logout = () => fetch('/user/logout',{},'post')
+
+/**
+* 登录密码修改
+*/
+
+export const change_password = (oldPwd,newPwd) => fetch('/user/password/modify',{'oldPwd':oldPwd,'newPwd':newPwd},'post')
+
+/**
+* 修改绑定手机
+*/
+
+export const change_mobile = (mobile,smsCode,password) => fetch('/user/mobile/modify',{'mobile':mobile,'smsCode':smsCode,'password':password},'post')
 
 /**
 * 上传营业执照
