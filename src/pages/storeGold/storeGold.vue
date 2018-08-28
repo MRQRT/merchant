@@ -12,7 +12,7 @@
                 <!-- 实时金价 -->
                 <div class="current-price">
                     <div class="text">实时金价(元/克)<span class="question" @click="showPopup(1)"></span></div>
-                    <div class="price">287.54</div>
+                    <div class="price">{{currentPrice}}</div>
                 </div>
             </div>
             <!-- 填写信息部分 -->
@@ -64,7 +64,7 @@
                 <div class="binding-bank">
                     <p class="title">银行卡<span>按最终成交价汇款到银行卡</span></p>
                     <!-- 未绑卡状态 -->
-                    <div class="bank-card no-bank" v-if="!bankStatus || !loginStatus || !shopCheckStatus" @click="bindingBank()">
+                    <div class="bank-card no-bank" v-if="!bankStatus || !loginStatus || !shopStatus" @click="bindingBank()">
                         <p class="txt">暂无绑定银行卡</p>
                         <p class="btn"><span></span>添加银行卡</p>
                     </div>
@@ -94,7 +94,7 @@
                 <div class="select-address">
                     <p class="title">取件地址</p>
                     <!-- 无地址状态 -->
-                    <div class="address-card no-address" v-if="!addressStatus || !loginStatus || !shopCheckStatus" @click="addAddress()">
+                    <div class="address-card no-address" v-if="!addressStatus || !loginStatus || !shopStatus" @click="addAddress()">
                         <p class="txt">暂无取件地址</p>
                         <p class="btn"><span></span>创建地址</p>
                     </div>
@@ -243,13 +243,12 @@ import headTop from '@/components/header/head.vue'
 import { clearNoNum } from '../../config/mUtils.js';
 import { MessageBox,Toast,Popup } from 'mint-ui';
 import { mapState,mapMutations } from 'vuex'
-import { query_card_info, query_shop_address_list, add_recycle_order_check, add_recycle_order, pay_beforehand_order, pay_formal_order, query_status } from '@/service/getData.js'
+import { shop_status, query_card_info, query_shop_address_list, add_recycle_order_check, add_recycle_order, pay_beforehand_order, pay_formal_order, query_status } from '@/service/getData.js'
 
 
     export default {
         data(){
             return{
-                currentPrice:287.54,
                 loginStatus:true,    // 是否登录
                 bankStatus:true,     // 是否绑定银行卡
                 addressStatus:true,  // 是否选择地址
@@ -260,13 +259,13 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
                 popupNum:'',         // 控制哪个弹窗显示
                 popupVisible:false,  // 全屏弹窗
                 btnCtroller:true,    // 按钮是否可以点击
-                shopCheckStatus:true,// 店铺审核状态
                 popupVisible1:false, // 验证码弹窗
                 popupVisible2:false, // 支付中弹窗
                 orderId:'',          // 订单创建成功后的ID
                 ensureCash:'',       // 支付时的保证金
                 lockPrice:'',        // 支付时的锁定金价
                 verifiCode:[],       // 验证码
+                bankCardId:2,       // 银行卡ID
                 screenHeight: document.documentElement.clientHeight,//记录高度值(这里是给到了一个默认值)
                 bankInfo:{
                     code:'0820',
@@ -287,7 +286,7 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
         },
         computed: {
             ...mapState([
-                'accessToken','shopId',
+                'currentPrice','accessToken','shopId','shopStatus',
             ]),
             // 预估金额
             estimatePrice(){
@@ -306,12 +305,24 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
                 }
             }
         },
+        fitles:{
+            clearStr(val){
+                return val.replace(/,/g, "");
+            }
+        },
         watch:{
+            /*实时金价*/
+			currentPrice(val){
+				return val
+			},
             popupVisible1(val){
                 val ? this.fixed(true): this.fixed(false)
             },
         },
         methods: {
+            ...mapMutations([
+                'RECORD_SHOPSTATUS','RECORD_ACCESSTOKEN'
+            ]),
             //存金说明弹框
 			showPopup: function(num){
 				this.popupVisible = true;
@@ -345,43 +356,71 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
             },
             // 点击绑卡操作
             bindingBank(){
-                console.log(this.shopCheckStatus)
-                if(!this.shopCheckStatus){
-                    this.showMessage(1)
+                if(this.loginStatus){
+                    if(!this.shopStatus){
+                        this.showMessage(1)  // 提示审核未通过
+                    }else{
+                        this.$router.push({
+                            path:'/bindingbank',
+                            query:{
+                                from:'storegold'
+                            }
+                        })
+                    }
                 }else{
-                    this.$router.push({
-                        path:'/bindingbank',
+                    this.$router.push({  // 跳转登录页
+                        path:'/login',
                         query:{
-                            from:'storegold'
+                            redirect:'/storegold'
                         }
                     })
                 }
             },
             // 点击新增地址
             addAddress(){
-                if(!this.shopCheckStatus){
-                    this.showMessage(2)
+                if(this.loginStatus){
+                    if(!this.shopStatus){
+                        this.showMessage(2)
+                    }else{
+                        this.$router.push({
+                            path:'/addAddress',
+                            query:{
+                                from:'/storegold'
+                            }
+                        })
+                    }
                 }else{
-                    this.$router.push({
-                        path:'/addAddress',
+                    this.$router.push({  // 跳转登录页
+                        path:'/login',
                         query:{
-                            from:'/storegold'
+                            redirect:'/storegold'
                         }
                     })
+                }
+            },
+            // 判断店铺状态
+            async shop_status(){
+                var res = await shop_status();
+                if(res.code=='000000'){
+                    this.RECORD_SHOPSTATUS(res.data)
+                }else if(res.code=='000004'){ // 用户未登录
+                    this.RECORD_ACCESSTOKEN('');
+                }else{
+                    Toast(res.message);
                 }
             },
             // 获取银行卡信息
             async queryBank(){
             	var res = await query_card_info();
+                this.queryAddress();
             	if(res.code=='000000'){
                     if(res.data){
                         this.bankStatus = true;
     					this.bankInfo = res.data;
-                        this.shopCheckStatus = true;
-                        this.queryAddress();
+                        // this.bankCardId = res.data.id;
+                        this.RECORD_SHOPSTATUS(true);    // 店铺审核通过
                     }else{
-                        this.bankStatus = false;
-                        this.shopCheckStatus = false;
+                        this.bankStatus = false;         // 未绑卡
                     }
 				}else{
                     Toast(res.message)
@@ -391,7 +430,7 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
             async queryAddress(){
                 var res = await query_shop_address_list(this.shopId);
                 if(res.code == '000000'){
-                    var addressArray = res.data;
+                    var addressArray = res.data.content;
                     if(addressArray.length == 0){
                         this.addressStatus = false;
                         return;
@@ -409,7 +448,7 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
                         }
                     }
                 }else if(res.code=='200105'){ // 店铺审核未通过
-                    this.shopCheckStatus = false;
+                    this.RECORD_SHOPSTATUS(false);
                 }
             },
             //关闭验证码弹窗(取消订单)
@@ -430,7 +469,7 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
             },
             // 点击按钮提交函数
             submit(num){
-                if(!this.shopCheckStatus){  // 店铺未通过审核
+                if(!this.shopStatus){  // 店铺未通过审核
                     this.showMessage(3);
                 }
                 if(this.submitStatus){     // 按钮可点击状态
@@ -505,9 +544,9 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
             },
             // 直接提交创建订单
             async directlyOrder(){
-                var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,false,true,this.shopId,this.receiverInfo.concat,this.receiverInfo.telephone,this.receiverInfo.address)
+                var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,false,true,this.shopId,this.receiverInfo.contact,this.receiverInfo.telephone,this.receiverInfo.address,this.bankCardId)
                 if(res.code=='000000'){
-                    this.orderId = rea.data.id;
+                    this.orderId = res.data.id;
                     this.$router.push({
                         path:'/storeresult',
                         query:{
@@ -551,6 +590,7 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
                             this.verifiCode = []; // 将之前验证码清除
                             console.log('重新发送验证码') // 调用另一个获取短信验证码接口
                         }else{
+                            this.verifiCode = []; // 将之前验证码清除
                             this.$router.push({ // 跳转待支付订单详情页
                                 path:'/storeorderdetail',
                                 query:{
@@ -594,7 +634,7 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
             // 锁价提交创建订单
             async lockPriceOrder(){
                 // 创建订单
-                var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,true,true,this.shopId,this.receiverInfo.concat,this.receiverInfo.telephone,this.receiverInfo.address)
+                var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,true,true,this.shopId,this.receiverInfo.contact,this.receiverInfo.telephone,this.receiverInfo.address,this.bankCardId)
                 if(res.code=='000000'){
                     this.orderId = res.data.id;
                     this.guaranteeCash = res.data.ensureCash;
@@ -610,10 +650,11 @@ import { query_card_info, query_shop_address_list, add_recycle_order_check, add_
 
         },
         mounted(){
+            console.log(this.shopStatus)
             this.loginStatus = this.accessToken ? true : false;
             //登录情况下请求银行卡信息和地址
             if(this.loginStatus){
-                this.shopCheckStatus = this.shopId == '' ? false : true;
+                this.shop_status();
                 this.queryBank();
             }
             //处理键盘弹出的沉底按钮顶上去的兼容问题

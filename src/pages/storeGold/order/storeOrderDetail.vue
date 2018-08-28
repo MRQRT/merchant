@@ -71,15 +71,15 @@
             <!-- 银行卡 -->
             <div class="bank">
                 <span>银行卡</span>
-                <span>工商银行(尾号1234)</span>
+                <span>{{bankInfo.name}}(尾号{{bankInfo.code}})</span>
             </div>
             <!-- 底部按钮 -->
             <div class="pay-btn" v-if="status==10">
                 <div class="left-price">
                     <span>锁价保证金</span>
-                    <span>{{orderInfo.ensure_cash}}元</span>
+                    <span>{{orderInfo.ensure_cash | formatPriceTwo}}元</span>
                 </div>
-                <div class="right-btn">支付</div>
+                <div class="right-btn" @click="pay_beforehand_order()">支付</div>
             </div>
         </div>
         <!-- 其他状态订单 -->
@@ -234,43 +234,40 @@
                         <div class="report-text">
                             <p>
                                 <span>订单号：</span>
-                                <span>CJ20180305001</span>
+                                <span>{{reportInfo.code}}</span>
                             </p>
                             <p>
                                 <span>实测总毛重：</span>
-                                <span>32克</span>
+                                <span>{{reportInfo.realGrossWeight}}克</span>
                             </p>
                             <p>
-                                <span>实测总净重：31克</span>
-                                <span>31克</span>
+                                <span>实测总净重：</span>
+                                <span>{{reportInfo.realNetWeight}}克</span>
                             </p>
                             <p>
                                 <span>克重损耗：</span>
-                                <span>1克</span>
+                                <span>{{reportInfo.realLoss}}克</span>
                             </p>
                             <p>
                                 <span>检测人：</span>
-                                <span>小可爱</span>
-                            </p>
-                            <p>
-                                <span>克重损耗：</span>
-                                <span>1克</span>
+                                <span>{{reportInfo.operator}}</span>
                             </p>
                             <p>
                                 <span>检测时间：</span>
-                                <span>2018-03-12 13:38:00</span>
+                                <span>{{reportInfo.auditTime}}</span>
                             </p>
                             <p>
                                 <span>检测说明：</span>
-                                <span>——</span>
+                                <span>{{reportInfo.auditRemark}}</span>
                             </p>
                             <p>
                                 <span>检测结果：</span>
-                                <span>通过</span>
+                                <span>{{reportInfo.operationResult==0?'通过':'拒绝'}}</span>
                             </p>
                         </div>
                         <div class="report-img">
                             <img src="static/images/storeGold-banner.png" alt="">
+                            <!-- <img :src="reportInfo.attachmentPath" alt=""> -->
                         </div>
                         <!-- 异常情况 -->
                         <div class="report-btn" v-if="status==5 || status==9 || status==13"><a href="tel:4001689999">联系客服</a></div>
@@ -284,14 +281,52 @@
                 </div>
             </div>
         </mt-popup>
+        <!-- 输入验证码弹窗 -->
+        <mt-popup v-model="popupVisible1" v-if="status==10" popup-transition="popup-fade" :closeOnClickModal="false">
+            <div class="verifi-wrap">
+                <span class="close-btn" @click="closeVerifi()">×</span>
+                <!-- 顶部信息 -->
+                <div class="top-part">
+                    <h3>请输入短信验证码</h3>
+                    <p>锁价保证金</p>
+                    <p class="price">¥{{orderInfo.ensure_cash|formatPriceTwo}}</p>
+                </div>
+                <!-- 输入框 -->
+                <div class="bottom-part">
+                    <div class="lock-single-price">
+                        <span>锁定金价</span>
+                        <span>{{orderInfo.lockPrice|formatPriceTwo}}元/克</span>
+                    </div>
+                    <div class="input-wrap">
+                        <span>{{verifiCode[0]}}</span>
+                        <span>{{verifiCode[1]}}</span>
+                        <span>{{verifiCode[2]}}</span>
+                        <span>{{verifiCode[3]}}</span>
+                        <span>{{verifiCode[4]}}</span>
+                        <span>{{verifiCode[5]}}</span>
+                        <input type="tel" ref="verifiInput" maxlength="6" v-model="verifiCode" autofocus="autofocus" v-on:input="checkVerifi()">
+                    </div>
+                </div>
+            </div>
+        </mt-popup>
+        <!-- 正在支付中弹窗 -->
+        <mt-popup v-model="popupVisible2" v-if="status==10" popup-transition="popup-fade" :closeOnClickModal="false">
+            <div class="pay-wrap">
+                <div class="top-img">
+                    <img src="static/images/pay-inner.png" alt="">
+                    <img src="static/images/pay-outer.png" alt="">
+                </div>
+                <p>处理中，请稍候...</p>
+            </div>
+        </mt-popup>
     </div>
 </template>
 
 <script>
 import headTop from '@/components/header/head.vue'
 import { MessageBox,Toast,Popup } from 'mint-ui';
-/* 请求详情、物流单号、物流信息、订单追踪、确认订单、修改订单 、银行卡信息*/
-import { query_detail, query_logistics_mess, query_express_mess, query_status_flow_mess,confirm_order,update_status,query_card_info} from '@/service/getData.js'
+/* 请求详情、物流单号、物流信息、订单追踪、确认订单、修改订单 、银行卡信息、支付预下单、正式下单、查询支付状态、查询检测报告 */
+import { query_detail, query_logistics_mess, query_express_mess, query_status_flow_mess,confirm_order,update_status,query_card_info,pay_beforehand_order, pay_formal_order, query_status, query_process_mess} from '@/service/getData.js'
 
 
     export default {
@@ -306,12 +341,19 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 status:'',             // 订单状态
                 timeOut:false,         // 订单是否超时
                 popupVisible:false,    // 信息弹窗显示隐藏
+                popupVisible1:false,   // 支付验证码弹窗
+                popupVisible2:false,   // 正在支付中弹窗
                 popupNum:'',           // 哪个弹窗显示
                 reportClick:true,      // 确认检测报告按钮状态
                 trackingStatus:false,  // 订单追踪显示、隐藏
                 stepTipText:'',        // 进度提示文字
                 minu:'--',             // 倒计时分
                 secd:'--',             // 倒计时秒
+                verifiCode:[],         // 验证码
+                bankInfo:{             // 未支付银行卡信息
+                    code:'0820',
+                    name:'中国工商银行'
+                },
                 typeJson:{
                     '0':'投资金',
                     '1':'首饰',
@@ -381,14 +423,24 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     {
                         "id": null,
                         "orderId": "123",
+                        "addSort": 7,
+                        'lastOrderStatus':7,
+                        "orderStatus": 7,
+                        "createTime": 1535095430000
+                    },
+                    {
+                        "id": null,
+                        "orderId": "123",
                         "addSort": 6,
-                        "orderStatus": 1,
+                        'lastOrderStatus':7,
+                        "orderStatus": 7,
                         "createTime": 1535095430000
                     },
                     {
                         "id": null,
                         "orderId": "123",
                         "addSort": 5,
+                        'lastOrderStatus':6,
                         "orderStatus":7,
                         "createTime": 1535095430000
                     },
@@ -472,6 +524,17 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 ],
                 orderTrackText:'',
                 newList:[],
+                reportInfo:{
+                    attachmentPath:'',
+                    operator:'张艺兴',
+                    operationResult:0,
+                    auditTime:'2018-08-20 13:14',
+                    auditRemark:'检测啦检测啦',
+                    code:'283763662655',
+                    realGrossWeight:2.3,
+                    realNetWeight:24.2323,
+                    realLoss:0.2345,
+                }
             }
         },
         components:{
@@ -509,7 +572,8 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             showReport(){
                 var that = this;
                 document.getElementById('report').onclick=function(){
-                    that.lookPopup(1)
+                    that.lookPopup(1);
+                    that.query_process_mess();
                 }
             },
             // 物流信息弹窗
@@ -643,13 +707,17 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             // 订单追踪数据
             trackingText(){
                 var that = this;
-                this.list.forEach(function(item){
+                this.list.forEach(function(item,index){
+                    console.log(index)
+
                     if(item.orderStatus==0 && item.addSort!=0){ // 状态都为0时，判断已锁价
                         that.orderTrackText = that.orderTrackJson[15].name
-                    }else if(item.orderStatus==1 && (item.addSort!=1 || item.addSort!=2)){ // 状态都为1时，判断显示审核未通过 or 退换保证金
+                    }else if(item.orderStatus==7 && item.lastOrderStatus!=6){ // 状态为7时，对应3个状态(已退换保证金/已完成)
+                        // that.orderTrackText = item.addSort == index ? that.orderTrackJson[9].name : that.orderTrackJson[14].name;
+                        that.orderTrackText = that.orderTrackJson[14].name
+                    }else if(item.orderStatus == item.lastOrderStatus){ // 状态为1\8\13时，判断是否是退换保证金
                         that.orderTrackText = that.orderTrackJson[9].name
-                    }
-                    else{
+                    }else{
                         that.orderTrackText = that.orderTrackJson[item.orderStatus].name
                     }
                     that.newList.push({
@@ -657,8 +725,6 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                         name:that.orderTrackText
                     })
                 })
-                console.log(this.newList)
-
             },
 
             // 请求订单详情数据
@@ -694,6 +760,13 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     Toast(res.message)
                 }
             },
+            // 查询检测报告
+            async query_process_mess(){
+                var res = await query_process_mess(this.orderId);
+                if(res.code=='000000'){
+                    this.reportInfo = res.data;
+                }
+            },
             // 订单追踪
             async query_status_flow_mess(){
                 var res = query_status_flow_mess(this.orderId);
@@ -722,9 +795,82 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             async query_card_info(){
                 var res = query_card_info();
                 if(res.code=='000000'){
-
+                    this.bankInfo = res.data;
                 }
-            }
+            },
+
+            //关闭验证码弹窗
+            closeVerifi(){
+                this.popupVisible1 = false;
+                this.verifiCode = []; // 将之前验证码清除
+            },
+            // 检测输入的支付验证码
+            checkVerifi(){
+                var res = /^[0-9]*$/g;
+                if(this.verifiCode.length==6){
+                    this.popupVisible1 = false;     // 关闭验证码弹窗
+                    this.$refs.verifiInput.blur();  // 隐藏键盘
+                    this.popupVisible2 = true;      // 显示正在支付动画
+                    this.pay_formal_order();          // 校验验证码是否正确
+                }
+            },
+            // 支付预下单
+            async pay_beforehand_order(){
+                this.popupVisible1 = true;
+                var res = await pay_beforehand_order(this.orderId);
+            },
+            // 支付正式下单
+            async pay_formal_order(){
+                var that = this;
+                var res = pay_formal_order(this.orderId,this.verifiCode);
+                if(res.code=='000000'){         // 验证码正确跳转存金结果页
+                    window.timer = setInterval(function(){
+                        that.query_status()    // 隔一秒查询一次状态
+                    },1000)
+                }else{ // 验证码错误显示重试对话框
+                    this.popupVisible2 = false; // 关闭处理中动画
+                    var html = '<div style="color:000;font-size:.32rem;font-family:PingFangSC-Medium;text-align:center">支付密码错误，请重试</div>'
+                    MessageBox({
+                        title:'',
+                        message:html,
+                        showCancelButton: true,
+                        confirmButtonText:'重试'
+                    }).then(action => {
+                        if(action=='confirm'){ // 重新发送验证码函数
+                            this.popupVisible1 = true;
+                            this.verifiCode = []; // 将之前验证码清除
+                            console.log('重新发送验证码') // 调用另一个获取短信验证码接口
+                        }else{
+                            this.verifiCode = []; // 将之前验证码清除
+                        }
+                    })
+                }
+            },
+            // 间隔查询订单状态
+            async query_status(){
+                var res = await query_status(this.orderId);
+                if(res.code=='000000'){
+                    if(res.data.pays){          // 存金支付成功
+                        this.popupVisible2 = false; // 关闭处理中动画
+                        this.$router.push({
+                            path:'/storeresult',
+                            query:{
+                                id:this.orderId,
+                                status:true
+                            }
+                        })
+                    }else{     // 存金支付失败
+                        this.popupVisible2 = false; // 关闭处理中动画
+                        this.$router.push({
+                            path:'/storeresult',
+                            query:{
+                                id:this.orderId,
+                                status:false
+                            }
+                        })
+                    }
+                }
+            },
         },
         created(){
             this.orderId = this.$route.query.id;
@@ -734,6 +880,12 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             this.trackingText();
             this.showTips(this.isClick,this.iconJson[this.status].iconType,'',this.status,this.isLockOrder);
         },
+        beforeRouteLeave (to, from, next) { // 离开此路由时清除定时器
+            if(window.timer){
+                clearInterval(window.timer)
+            }
+            next()
+        }
     }
 
 </script>
@@ -1199,6 +1351,123 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 display: block;
                 @include transition(.3s);
             }
+        }
+    }
+    // 支付验证码弹窗
+    .verifi-wrap{
+        width: 6.7rem;
+        padding:.4rem .3rem;
+        text-align: center;
+        background-color: #fff;
+        position: relative;
+        @include border-radius(.2rem);
+        .close-btn{
+            font-size: .6rem;
+            position: absolute;
+            left:.25rem;
+            top:.05rem;
+        }
+        .top-part{
+            border-bottom: 1px solid #eee;
+            h3{
+                color: #000;
+                font-size: .32rem;
+                margin-bottom: .25rem;
+            }
+            p{
+                color: #999;
+                font-size: .24rem;
+            }
+            .price{
+                color: #333;
+                font-size: .6rem;
+                margin-bottom: .4rem;
+                font-family:DINAlternate-Bold;
+            }
+        }
+        .bottom-part{
+            .lock-single-price{
+                width: 100%;
+                color: #666;
+                font-size: .28rem;
+                padding:.35rem 0 .4rem;
+                @include flex-box();
+                @include justify-content();
+                span{
+                    &:nth-of-type(2){
+                        color: #C09C60;
+                    }
+                }
+            }
+            .input-wrap{
+                height: .98rem;
+                width: 6rem;
+                margin: 0 auto;
+                position: relative;
+                text-align: left;
+                align-items: center;
+                border:1px solid #E1E1E1;
+                border-left:none;
+                @include flex-box();
+                > span {
+                    width: 1rem;
+                    height: .98rem;
+                    line-height: .98rem;
+                    border-left: 1px solid #E1E1E1;
+                    display: inline-block;
+                    text-align: center;
+                    vertical-align: middle;
+                    // @include flex-grow(1);
+                }
+                > input {
+                    width: 150%;
+                    height: 100%;
+                    position: absolute;
+                    left: 0;
+                    top:0;
+                    // letter-spacing: 1rem;
+                    padding-left: 0.3rem;
+                    color: transparent;
+                    text-shadow: 0 0 0 #000;
+                    opacity: 0;
+                    margin-left: -50%;
+                    text-indent: -999em;
+                    z-index:999;
+                }
+            }
+        }
+    }
+    .pay-wrap{
+        width: 4.9rem;
+        height: 2.86rem;
+        padding-top:.6rem;
+        background-color: #fff;
+        @include border-radius(.2rem);
+        @keyframes roundLoop2{
+            0%{ transform: rotate(0deg); }
+            100%{ transform: rotate(360deg); }
+        }
+        .top-img{
+            width: 1.08rem;
+            height: 1.08rem;
+            margin:0 auto .3rem;
+            position: relative;
+            img{
+                &:nth-of-type(1){
+                    width:100%;
+                    position: absolute;
+                    top:0;
+                    left:0;
+                }
+                &:nth-of-type(2){
+                    animation: roundLoop2 1s linear infinite;
+                }
+            }
+        }
+        p{
+            color: #666;
+            font-size: .28rem;
+            text-align: center;
         }
     }
     // 物流弹窗

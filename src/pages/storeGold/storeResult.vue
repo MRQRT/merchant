@@ -137,13 +137,16 @@ import { query_detail, query_card_info} from '@/service/getData.js'
                 var res = query_detail(this.orderId);
                 if(res.code=='000000'){
                     this.orderInfo = res.data;
+                    if(res.data.isLockPrice){  // 如果是锁价请求银行卡信息
+                        this.query_card_info();
+                    }
                 }else{
                     Toast(res.message)
                 }
             },
             // 请求银行卡信息
             async query_card_info(){
-                var res = query_card_info();
+                var res = await query_card_info();
                 if(res.code=='000000'){
                     this.bankInfo = res.data;
                 }
@@ -152,10 +155,9 @@ import { query_detail, query_card_info} from '@/service/getData.js'
         created(){
             this.orderId = this.$route.query.id;
             this.orderstatus = this.$route.query.status; // 支付成功 or 失败
-            // console.log(this.orderstatus)
         },
         mounted(){
-
+            this.query_detail();
         },
     }
 

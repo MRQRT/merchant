@@ -62,7 +62,7 @@
 <script>
 import headTop from '@/components/header/head.vue'
 import	delImg from 'static/images/clearinput.png'
-import { Toast } from 'mint-ui'
+import { Toast,MessageBox } from 'mint-ui'
 import { merchant, return_card_info, bind_card,captcha } from '@/service/getData.js'
 
 
@@ -84,7 +84,7 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
                 telErrorStatus:false,   // 手机号错误提示
                 errorTip:'',            // 银行卡错误提示文字
                 cardType:'储蓄卡',       // 银行卡类型
-                bankName:'工商银行',     // 银行类型
+                bankName:'',     // 银行类型
                 iNow: true,             // 状态变量,解决重复点击问题
                 second: 60,             // 验证码倒计时
                 rightShow:0,            // 信息是否完善
@@ -207,6 +207,7 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
                 if(res.code=='000000'){
                     // this.cardType=res.data.type;
                     if(res.data){
+                        this.errorTipStatus=false;
                         this.bankName=res.data.name;
                     }else{
                         this.bankTypeStatus=false
@@ -271,11 +272,13 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
 					const res = await bind_card(this.verifiNo,formatBankN, this.telNum, this.verifiCode)
 					if(res.code=='000000'){
 						Toast('银行卡绑定成功')
-						if(this.$route.query.from=='storegold'){
-                            this.$router.replace('/storegold')
-						}else{
-							this.$router.replace('/assets')
-						}
+                        setTimeout(() => {
+                            if(this.$route.query.from=='storegold'){
+                                this.$router.replace('/storegold')
+    						}else{
+    							this.$router.replace('/assets')
+    						}
+                        }, 1000);
 					}else{
 						MessageBox({
 							title: '提示',
@@ -301,6 +304,7 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
 				}else if(val=='p'){
 					this.telNum = ''
                     this.telErrorStatus = false;
+                    this.rightShow = 0;
 				}else if(val=='v'){
 					this.verifiCode = ''
 				}
