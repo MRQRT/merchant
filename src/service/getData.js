@@ -108,7 +108,7 @@ export const city_area_list = (spell) => fetch('/area/city_list?spell='+spell,{}
 * 查询地址列表
 */
 
-export const query_shop_address_list = (shopId) => fetch('/address/query_shop_address_list?shopId='+shopId,{},'get')
+export const query_shop_address_list = () => fetch('/address/query_shop_address_list',{},'get')
 
 /*
 * 修改店铺地址
@@ -120,7 +120,7 @@ export const update_shop_address = (addressId,contact,telephone,address,province
 * 新增店铺地址
 */
 
-export const add_shop_address = (shopId,contact,telephone,address,provinceId,cityId,areaId) => fetch('/address/add_shop_address',{'shopId':shopId,'contact':contact,'telephone':telephone,'address':address,'provinceId':provinceId,'cityId':cityId,'areaId':areaId},'post')
+export const add_shop_address = (contact,telephone,address,provinceId,cityId,areaId) => fetch('/address/add_shop_address',{'contact':contact,'telephone':telephone,'address':address,'provinceId':provinceId,'cityId':cityId,'areaId':areaId},'post')
 
 /*
 * 删除店铺地址
@@ -132,13 +132,13 @@ export const del_shop_address = (addressId) => fetch('/address/del_shop_address'
 * 查询店铺地址详情
 */
 
-export const query_shop_address_detail = (addressId) => fetch('/address/query_shop_address_detail?addressId='+addressId,{},'post')
+export const query_shop_address_detail = (addressId) => fetch('/address/query_shop_address_detail?addressId='+addressId,{},'get')
 
 /*
 * 修改默认地址
 */
 
-export const update_default_address = (addressId,shopId) => fetch('/address/update_default_address',{'addressId':addressId,'shopId':shopId},'POST')
+export const update_default_address = (addressId) => fetch('/address/update_default_address',{'addressId':addressId},'POST')
 
 /**
  * 查询店铺信息

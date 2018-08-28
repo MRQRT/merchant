@@ -19,7 +19,6 @@ module.exports = {
             },
         }
     },
-
     // Various Dev Server settings
     // host: '192.168.1.182', // can be overwritten by process.env.HOST
     host:'192.168.1.114',//comp guo

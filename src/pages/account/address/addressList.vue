@@ -8,9 +8,9 @@
 				<p @click="selectAdd(item)"><span>{{item.contact}}</span><span>{{item.telephone}}</span></p>
 				<div @click="selectAdd(item)">{{item.address}}</div>
 				<p>
-					<input type="radio" v-model="picked" :id="index" :value="index" @click="putDefault(item,item.id,index)">
-					<label :for="index" @click="putDefault(item,item.id,index)">{{setdeaddress}}</label>
-					<span class="del" @click="delAddress(item.id)">
+					<input type="radio" v-model="picked" :id="index" :value="index" @click="putDefault(item.id,index)">
+					<label :for="index" @click="putDefault(item.id,index)">{{picked==index?'默认地址':'设为默认'}}</label>
+					<span class="del" @click="delAddress(item.id,index)">
 						<img :src="del">
 						<span>删除</span>
 					</span>
@@ -26,7 +26,7 @@
 		<div class="empty" v-show='empty'>
 			<img src="static/images/emptA.png">
 			<p>您的家在哪里？赶紧告诉我吧！</p>
-			<section @click.native="addNewAddr" class="toAdd" buttonText="添加地址">
+			<section @click="addNewAddr" class="toAdd" buttonText="添加地址">
 			</section>
 		</div>
 		<a class="add" @click="addNewAddr" v-show='hasAddress'><img :src="add3">新建地址</a>
@@ -35,7 +35,6 @@
 <script type="text/javascript">
 	import headTop from "@/components/header/head"
 	import { Toast } from 'mint-ui'
-	// import { delAddress, putAddress } from '@/service/getData.js'
 	import { query_shop_address_list, update_default_address, del_shop_address, update_shop_address } from '@/service/getData.js'
 	import { setStore,getStore,getRem } from '@/config/mUtils.js'
 	import { mapState, mapMutations } from 'vuex'
@@ -49,13 +48,12 @@
 		data(){
 			return {
 				picked: null,//和radio的值匹配，所匹配的值就是那个默认值
-				   del: del,//删除
-			   compile: compile,//编辑
+				   del: del,//删除icon
+			   compile: compile,//编辑icon
 				  add3: add3,
 			     addre: null,//地址
 				 empty: false, //无地址
                  hasAddress:true, //有地址
-				 setdeaddress: "设为默认",
 				 has_checked: '',//已经选中地址的id
 			}
 		},
@@ -63,60 +61,26 @@
 			var from=this.$route.query.from;
 		},
 		mounted(){
-			this.getAddress(this.shopId);
+			this.getAddress();
 			const continer = document.getElementsByClassName('address')[0];
 			continer.style.minHeight=(document.documentElement.clientHeight)+'px';
 		},
 		watch: {
-			// $route(to,from){
-			// 	this.watchRouter(to,from)
-			// },
-			// addre(val){
-			// 	(val==null || val.length=='0')?this.empty=1:this.empty=0
-			// }
+			
 		},
 		computed:{
-			...mapState([
-				'shopId',
-			])
+
 		},
 		methods:{
-			// ...mapMutations([
-            //     'RECORD_ADDRESS','RECORD_UPDATEADDRESS'
-            // ]),
 			//点击返回按钮
 			backWard(){
-				var from=this.$route.query.from;
-				//从填写提金订单处跳转过来的，则跳转回填写提金订单
-				if(this.fillExtractInfo){
-					this.$router.push({
-						path: '/fillInOrder',
-					});
-				}else if(from==2){//从存金订单提交页面跳转过来，跳回到存金订单提交的页面
-					this.$router.push({
-						path: '/storAddress',
-						query: {
-							from: 2
-						}
-					});
-				}else if(from==3){//从修改存金订单提交页面跳转过来，跳回到修改存金订单的页面
-					//获取用户的默认地址
-					this.$router.push({
-						path: '/modifiRecycleOrder',
-						query: {
-							from: 3
-						}
-					});
-				}else{
-					this.$router.push('/index');
-				}
+			
 			},
 			watchRouter(to, from){
 			},
 			//获取用户地址
-			async getAddress(val){
-				const res = await query_shop_address_list(val);
-				console.log(res.data.content.length)
+			async getAddress(){
+				const res = await query_shop_address_list();
 				if(res.code=='000000'&&res.data.content.length>0){
 					this.addre = res.data.content
 					//遍历地址是否默认,如果没有默认地址，设置第一个地址为默认地址
@@ -129,102 +93,35 @@
 				}else{
 					this.addre = [];
 					this.empty=true
-					this.hasAddress=true
+					this.hasAddress=false
 				}
-				// if(res.code==100){
-				// 	if(res.content.length>0){
-				// 		this.hasAddress=true
-				// 		this.empty=false
-				// 		//遍历地址是否默认,如果没有默认地址，设置第一个地址为默认地址
-				// 		for(var i=0; i<res.content.length;i++){
-				// 			if(res.content[i].isDefault==1){
-				// 				this.picked=i
-				// 				break;
-				// 			}
-				// 		}
-				// 		//如果add的值为0，说明没有默认地址，设置第一个地址为默认地址
-				// 		if(this.picked==null){
-				// 			this.picked=0
-				// 			await putDefault(res.content[0].id)
-				// 		}
-				// 	}else{
-				// 		this.empty=true
-				// 		this.hasAddress=false
-				// 	}
-				// }
 			},
 			//设置默认地址设置默认地址
-			async putDefault(item,val,val2){
+			async putDefault(val,val2){//参数一；地址id 参数二
 				if(this.picked==val2)return
-				let res = await update_default_address(val,this.shopId);
-				console.log(res)
+				let res = await update_default_address(val);
 				// this.RECORD_ADDRESS(item)
 			},
 			//删除地址
-			async delAddress(val){
-				let res = await del_shop_address(val)
-				if(res.code=='000000'){
-					this.getAddress();
-				}
+			async delAddress(val,val2){
+				let res = await del_shop_address(val);
+				this.getAddress();
+				(val2==this.picked)?this.picked='':'';
 			},
 			//编辑地址
 			putAddress(val){
-				this.RECORD_UPDATEADDRESS(val)
-				var from=this.$route.query.from;
-				if(from=='1') { //如果是由提金业务跳转过来，则保存参数from1
-					this.$router.push({path:'addAddress',  query: { modify: 'address',from:1}})
-				}else if(from=='2'){ //如果是由存金业务跳转过来，则保存参数from2
-					this.$router.push({path:'addAddress',  query: { modify: 'address',from:2}})
-				}else if(from=='3') {//如果是从修改订单业务跳转过来的，则保存参数from3
-					this.$router.push({path:'addAddress',  query: { modify: 'address',from:3}})
-				}else{
-					this.$router.push({path:'addAddress',  query: { modify: 'address'}})
-				}
+				this.$router.push({path:'addAddress',  query: { modify: val.id}})
 			},
 			//地址选择
 			selectAdd(value){
 				// this.RECORD_ADDRESS(value);
 				var from=this.$route.query.from;
 				this.has_checked=value.id
-				if(!from) return;
-				if(from=='1'){
-					var params=this.$route.query;
-					params.address=value
-					this.$router.push({
-						path:'/fillInOrder',
-						query: {
-							from: 1,
-							address:value
-						}
-					})
-				}else if(from=='2'){
-					this.$router.push({//从存金订单提交页面跳转过来
-						path:'/storAddress',
-						query: {
-							from: 2
-						}
-					})
-				}else if(from=='3'){//从修改存金订单页面跳转过来
-					this.$router.push({
-						path:'/modifiRecycleOrder',
-						query: {
-							from: 3
-						}
-					})
-				}
+				
 			},
 			//点击添加新地址
 			addNewAddr(){
-				var from=this.$route.query.from;
-				if(from=='1') { //如果是由提金业务跳转过来，则保存参数from:1  如果是由存金业务跳转过来，则保存参数from:2
-					this.$router.push({path:'/addAddress',query:{'from':1}})
-				}else if(from=='2'){
-					this.$router.push({path:'/addAddress',query:{'from':2}})
-				}else if(from=='3'){
-					this.$router.push({path:'/addAddress',query:{'from':3}})
-				}else{
-					this.$router.push({path:'/addAddress'})
-				}
+				this.$router.push({path:'/addAddress'})
 			},
 		},
 		components:{

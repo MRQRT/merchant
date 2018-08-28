@@ -173,7 +173,7 @@
             ]),
             //微信登录
             weixinLogin(){
-                const url = 'http://192.168.1.114:8080/bindingwechat'
+                const url = 'http://192.168.1.114:8080/tran'
                 window.location.href="http://cjtshmerchant.au32.cn/user/auth/login?redirectUrl="+url;
             },
             //点击左上角关闭按钮

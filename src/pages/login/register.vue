@@ -197,7 +197,7 @@ import {mapMutations,mapState} from 'vuex'
                             that.second = 60;
                         }
                     },1000)
-                    let res = await sendsms(this.tel,0);
+                    let res1 = await sendsms(this.tel,0);
                     if(res1.code!='000000'){
                         Toast({
                             message: res1.message,
