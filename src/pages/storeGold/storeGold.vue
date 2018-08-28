@@ -155,7 +155,7 @@
                 </div>
                  <div class="content" style="margin-top:.5rem">
                     <div class="mess">
-                        <p>4. 如提交的存金信息与实际检测结果不符，与用户协商未达成一致时导致交易失败，退回的运费及保价费（按实际发生）由用户承担。</p>
+                        <p>4.如提交的存金信息与实际鉴定信息有误导致交易失败，退回的运费及保价费（按实际发生）由用户承担。</p>
                     </div>
                 </div>
                  <div class="content" style="margin-top:.5rem">
@@ -418,7 +418,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                     if(res.data){
                         this.bankStatus = true;
     					this.bankInfo = res.data;
-                        // this.bankCardId = res.data.id;
+                        this.bankCardId = res.data.id;
                         this.RECORD_SHOPSTATUS(true);    // 店铺审核通过
                     }else{
                         this.bankStatus = false;         // 未绑卡
@@ -589,7 +589,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                         if(action=='confirm'){ // 重新发送验证码函数
                             this.popupVisible1 = true;
                             this.verifiCode = []; // 将之前验证码清除
-                            console.log('重新发送验证码') // 调用另一个获取短信验证码接口
+                            this.requestVerifi(1);// 调用另一个获取短信验证码接口
                         }else{
                             this.verifiCode = []; // 将之前验证码清除
                             this.$router.push({ // 跳转待支付订单详情页
@@ -629,8 +629,8 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                 }
             },
             //支付预下单（发送验证码函数）
-            async requestVerifi(){
-                var res = pay_beforehand_order(this.orderId);
+            async requestVerifi(countType){
+                var res = await pay_beforehand_order(this.orderId,countType);
             },
             //锁价提交创建订单
             async lockPriceOrder(){
@@ -638,10 +638,10 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                 var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,true,true,this.shopId,this.receiverInfo.contact,this.receiverInfo.telephone,this.receiverInfo.address,this.bankCardId)
                 if(res.code=='000000'){
                     this.orderId = res.data.id;
-                    this.guaranteeCash = res.data.ensureCash;
+                    this.ensureCash = res.data.ensureCash;
                     this.lockPrice = res.data.lockPrice;
-                    this.popupVisible1 = true;   // 显示验证码弹窗
-                    this.requestVerifi();        // 调用预下单函数，发送验证码函数
+                    this.popupVisible1 = true;    // 显示验证码弹窗
+                    this.requestVerifi(0);        // 调用预下单函数，发送验证码函数
                 }else{
                     Toast(res.message)
                 }
@@ -769,6 +769,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                     }
                     .price{
                         font-size: .5rem;
+                        font-weight: 500;
                         font-family:DINAlternate-Bold;
                     }
                     b{
@@ -794,6 +795,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                         .left{
                             color: #000;
                             font-size: .32rem;
+                            font-weight: 400;
                         }
                     }
                     .gold-type{
@@ -926,6 +928,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                 .title{
                     color: #333;
                     font-size: .34rem;
+                    font-weight: bold;
                     margin-bottom: .3rem;
                     font-family:PingFangSC-Medium;
                     @include flex-box();
@@ -988,6 +991,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
             .title{
                 color: #333;
                 font-size: .34rem;
+                font-weight: bold;
                 margin-bottom: .3rem;
                 font-family:PingFangSC-Medium;
             }

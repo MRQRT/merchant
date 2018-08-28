@@ -77,7 +77,7 @@ import { query_card_info, query_ensure_cash} from '@/service/getData.js'
             async query_ensure_cash(){
                 var res = await query_ensure_cash(this.shopId);
                 if (res.code=='000000'){
-                    this.ensureCash = res.data.ensureCash;
+                    this.ensureCash = res.data ? res.data.ensureCash : 0;
                 }
             },
             // 请求银行卡信息
@@ -117,6 +117,7 @@ import { query_card_info, query_ensure_cash} from '@/service/getData.js'
 
         },
         mounted(){
+            console.log(this.shopId)
             this.query_card_info();
             if(this.shopStatus){
                 this.query_ensure_cash();
