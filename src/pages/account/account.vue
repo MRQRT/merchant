@@ -2,7 +2,7 @@
     <div class="account">
         <!-- 头部标题部分 -->
         <head-top headTitle='帐户管理' class="head-top nomal-font" ref="topHead">
-            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
+            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.push({path:'/index',query:{navStatus:1}})">
         </head-top>
         <!-- 模块 -->
         <section class="model" @click="go_changemobile()">
@@ -66,9 +66,19 @@ export default {
         },
         go_address(){
             if(this.address_isset=='未设置'){
-                this.$router.push('/addaddress');
+                this.$router.push({
+                    path:'/addaddress',
+                    query:{
+                        from:'account'
+                    }
+                });
             }else if(this.address_isset=='已设置'){
-                this.$router.push('/addresslist')
+                this.$router.push({
+                    path:'/addresslist',
+                    query:{
+                        from:'account'
+                    }
+                })
             }
         },
         go_password(){

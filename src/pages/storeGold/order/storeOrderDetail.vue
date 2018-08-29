@@ -31,7 +31,7 @@
                         <span class="name">{{orderInfo.contact}}</span>
                         <span class="tel">{{orderInfo.telephone | hideMible}}</span>
                     </p>
-                    <p class="add">{{orderInfo.address | clearStr}}</p>
+                    <p class="add" v-if="orderInfo.address">{{orderInfo.address | clearStr}}</p>
                 </div>
             </div>
             <div class="distans"></div>
@@ -58,7 +58,7 @@
                     <div class="" v-if="orderInfo.lockprice">
                         <p>
                             <span>锁价保证金</span>
-                            <span>{{orderInfo.ensure_cash}}元</span>
+                            <span>{{orderInfo.ensureCash}}元</span>
                         </p>
                         <p>
                             <span>锁定金价<b @click="lockPricePopup"></b></span>
@@ -77,7 +77,7 @@
             <div class="pay-btn" v-if="status==10">
                 <div class="left-price">
                     <span>锁价保证金</span>
-                    <span>{{orderInfo.ensure_cash | formatPriceTwo}}元</span>
+                    <span>{{orderInfo.ensureCash | formatPriceTwo}}元</span>
                 </div>
                 <div class="right-btn" @click="pay_beforehand_order(0)">支付</div>
             </div>
@@ -97,7 +97,7 @@
                     <span>订单编号：{{orderInfo.code}}</span>
                     <span class="status" v-if="status!=8">{{iconJson[status].name}}</span>
                 </div>
-                <div class="create-time">提交时间：{{orderInfo.createTime}}</div>
+                <div class="create-time">提交时间：{{orderInfo.createTimeStr}}</div>
             </div>
             <div class="distans"></div>
             <!-- 中间进度显示 -->
@@ -130,7 +130,7 @@
                         <span class="name">{{orderInfo.contact}}</span>
                         <span class="tel">{{orderInfo.telephone | hideMible}}</span>
                     </p>
-                    <p class="add">{{orderInfo.address | clearStr}}</p>
+                    <p class="add" v-if="orderInfo.address">{{orderInfo.address | clearStr}}</p>
                 </div>
             </div>
             <div class="distans"></div>
@@ -604,7 +604,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             },
             // 倒计时
             countDown(time){
-                var countdownMinute = 10;//10分钟倒计时
+                var countdownMinute = 1;//10分钟倒计时
                 var startTimes = new Date(time);//开始时间 new Date('2016-11-16 15:21');
                 var endTimes = new Date(startTimes.setMinutes(startTimes.getMinutes()+countdownMinute));//结束时间
                 var curTimes = new Date();//当前时间
@@ -618,11 +618,10 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     that.secd = Math.round(surplusTimes%60);
                     console.log(that.minu+':'+that.secd);
                     if(surplusTimes<=0){
-                        console.log('时间到！');
                         that.minu = '--';
                         that.secd = '--';
                         clearInterval(countdowns);
-                        // 重新调用订单详情函数
+                        // 调用取消订单函数
                         that.update_status();
                     }
                 },1000);
@@ -633,7 +632,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 this.trackingStatus = !this.trackingStatus;
             },
             // 进度提示文字
-            showTips(isClick,index,event,status,islock){
+            showTips(isClick,index,event,status,islock,deliveryType){
                 var text0 = '<p>我们正在马不停蹄地审核您的订单哦，审核结果将在2个工作日内通知到您！请耐心等待～</p>';
                 var text1 = `<p>恭喜您，订单审核通过！</p>
                              <p>我们已经安排快递小哥上门取件啦，请留意接听取件电话</p>`;
@@ -646,7 +645,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 var text7 = '<p>您的订单检测完毕！请尽快查看并确认<span id="report" style="color:#C09C60;border-bottom:1px solid #C09C60">检测报告</span>哦！</p>'
                 var text8 = `<p>亲，只差最后一步啦，快来看看您的<span id="report" style="color:#C09C60;border-bottom:1px solid #C09C60">检测报告</span>吧~三个工作日后将自动确认，如您对检测结果有任何疑问，请联系客服：4008-196-199</p>`
                 var text9 = `<p>很抱歉，您的订单检测未通过，查看<span id="report" style="color:#C09C60;border-bottom:1px solid #C09C60">检测报告</span>
-                             <p>我们已安排您的宝贝回家，物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">SFXXXXXXXXXX</span></p>`
+                             <p>我们已安排您的宝贝回家，物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">${this.expressNo}</span></p>`
                 var text10 = '<p>恭喜啦，您的黄金成功卖出，T+1个工作日内到账，锁价保证金会同时返还至您的银行卡，具体以银行实际到账时间为准哦！</p>'
                 var text11 = '<p>恭喜啦，您的黄金成功卖出，T+1个工作日内到账，具体以银行实际到账时间为准哦！</p>'
                 var text12 = '<p>存金已退还，订单关闭</p>'
@@ -657,7 +656,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     '2':text1,  // 审核通过
                     '3':text4,  // 物流中
                     '4':text6,  // 检测中
-                    '5':text13,  // 检测不通过
+                    '5':text13, // 检测不通过
                     '6':text8,  // 待确认
                     '9':text9,  // 退货中
                     '13':text12,// 已关闭
@@ -665,11 +664,15 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 if(isClick){ // 如果是点击显示
                     if(event.currentTarget.classList.contains('stepSuccess')){ // 只有成功状态可点击
                         this.squreNum = index;
+                        this.deliveryType = index == 1 ? 0 : 1; // 判断是取货还是退货
                         if(index == 3){ // 第4个图标判断是确认还是退货
                             if(status==5){
                                 this.stepTipText=text13;
                             }else{
                                 this.stepTipText = (status==6 || status==7) ? text8 : text9;
+                                if(this.stepTipText==text9){ // 点击退货中，再次请求退货单号
+                                    this.query_logistics_mess()
+                                }
                             }
                         }else if(index == 4){ // 第5个图标判断是完成还是关闭
                             if(status==7){
@@ -684,13 +687,13 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                                     break;
                                 case 1:
                                     this.stepTipText = status==3?text4:text5;
+                                    this.query_logistics_mess();
                                     break;
                                 case 2:
                                     this.stepTipText = status==4?text6:text7;
                                     break;
                             }
                         }
-
                     }
                 }else{ // 初次进入页面直接显示
                     this.squreNum = index;
@@ -717,7 +720,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                         that.orderTrackText = that.orderTrackJson[item.orderStatus].name
                     }
                     that.newTrackList.push({
-                        time:item.createTime,
+                        time:item.createTimeStr,
                         name:that.orderTrackText
                     })
                 })
@@ -732,24 +735,21 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     this.isLockOrder = res.data.lockprice;
                     this.showTips(this.isClick,this.iconJson[this.status].iconType,'',this.status,this.isLockOrder);
 
-                    // 订单追踪
+                    // 订单追踪(除未支付、已失效)
                     if(this.status!=10 && this.status !=11){
                         this.query_status_flow_mess();
                     }
-                    // 未支付状态调用倒计时函数
+                    // 【未支付】状态调用倒计时函数
                     if(this.orderInfo.status==10){
-                        this.countDown(this.data.countDownTime);
+                        this.countDown(this.orderInfo.createTimeStr);
                     }
                     // 未支付、已失效、锁价订单请求银行卡信息
                     if(this.orderInfo.status==10 || this.orderInfo.status==11 || this.orderInfo.lockprice){
                         this.query_card_info();
                     }
-                    // 查看物流单号
-                    if(this.orderInfo.status==9){
-                        this.deliveryType = 1; // 退货
-                        this.query_logistics_mess();
-                    }else if(this.orderInfo.status==3){
-                        this.deliveryType = 0; // 取货
+                    // 从【物流中】状态就开始请求快递信息
+                    if(this.orderInfo.status>=2){
+                        this.deliveryType = this.orderInfo.status == 3 ? 0 : 1;
                         this.query_logistics_mess();
                     }
                 }else{
@@ -758,6 +758,8 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             },
             // 请求物流单号
             async query_logistics_mess(){
+                this.expressNo = '12345678';
+
                 var res = await query_logistics_mess(this.orderId,this.deliveryType) // type:0-取货；1-退货
                 if(res.code=='000000'){
                     this.expressNo = res.data.expressNo;
@@ -780,11 +782,6 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 var res = await query_process_mess(this.orderId,this.deliveryType);
                 if(res.code=='000000'){
                     this.reportInfo = res.data;
-                    if(this.deliveryType==0){
-                        this.expressNo1 = this.reportInfo
-                    }else{
-                        this.expressNo2 = this.reportInfo
-                    }
                 }else{
                     Toast(res.message)
                 }
@@ -805,6 +802,8 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 if(rs.code=='000000'){
                     this.reportClick = false; // 确认订单 => 已确认
                     this.popupVisible = false;
+                }else{
+                    Toast(res.message)
                 }
             },
             // 修改订单状态(未支付倒计时结束)
@@ -852,7 +851,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     window.timer = setInterval(function(){
                         that.query_status()    // 隔一秒查询一次状态
                     },1000)
-                }else{ // 验证码错误显示重试对话框
+                }else if(res.code=='200211'){ // 验证码错误显示重试对话框
                     this.popupVisible2 = false; // 关闭处理中动画
                     var html = '<div style="color:000;font-size:.32rem;font-family:PingFangSC-Medium;text-align:center">支付密码错误，请重试</div>'
                     MessageBox({
@@ -869,31 +868,36 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                             this.verifiCode = []; // 将之前验证码清除
                         }
                     })
+                }else{
+                    Toast(res.message)
                 }
             },
             // 间隔查询订单状态
             async query_status(){
                 var res = await query_status(this.orderId);
                 if(res.code=='000000'){
-                    if(res.data.pays){          // 存金支付成功
+                    if(res.data.pays==1){          // 存金支付成功
                         this.popupVisible2 = false; // 关闭处理中动画
                         this.$router.push({
                             path:'/storeresult',
                             query:{
                                 id:this.orderId,
-                                status:true
+                                status:1
                             }
                         })
-                    }else{     // 存金支付失败
+                    }else if(res.data.pays==2){     // 存金支付失败
                         this.popupVisible2 = false; // 关闭处理中动画
                         this.$router.push({
                             path:'/storeresult',
                             query:{
                                 id:this.orderId,
-                                status:false
+                                status:0,
+                                paysFailReason:res.data.paysFailReason
                             }
                         })
                     }
+                }else{
+                    Toast(res.message)
                 }
             },
         },
@@ -950,7 +954,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
 }
 .storeGoldDetail{
     width: 100%;
-    padding-bottom: .4rem;
+    // padding-bottom: .4rem;
     background-color: #f8f8f8;
     .main-cont{
         min-height: 100vh;

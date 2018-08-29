@@ -7,7 +7,7 @@
         <!-- 主体部分 -->
         <div class="main-cont">
             <!-- 订单成功 -->
-            <div class="success" v-if="orderStatus">
+            <div class="success" v-if="orderStatus==1">
                 <!-- 顶部图标部分 -->
                 <div class="top-info">
                     <div class="top-img">
@@ -77,7 +77,7 @@
                     <p>订单支付失败</p>
                 </div>
                 <!-- 失败原因 -->
-                <div class="reason">失败原因：根据三方回调结果展示</div>
+                <div class="reason">失败原因：{{paysFailReason}}</div>
                 <!-- 按钮部分 -->
                 <div class="btn-opration">
                     <div class="go-detail" @click="$router.push({path:'/storeorderdetail',query:{id:orderId,status:10}})">查看订单</div>
@@ -96,8 +96,9 @@ import { query_detail, query_card_info} from '@/service/getData.js'
     export default {
         data(){
             return{
-                orderId:'',       // 订单ID
-                orderStatus:false, // 订单是否成功
+                orderId:'',        // 订单ID
+                orderStatus:null,  // 订单是否成功
+                paysFailReason:'', // 失败原因
                 typeJson:{
                     '0':'投资金',
                     '1':'首饰',
@@ -161,6 +162,9 @@ import { query_detail, query_card_info} from '@/service/getData.js'
         },
         created(){
             this.orderId = this.$route.query.id;
+            if(this.$route.query.paysFailReason){
+                this.paysFailReason = this.$route.query.paysFailReason;
+            }
         },
         mounted(){
             this.orderStatus = this.$route.query.status; // 支付成功 or 失败

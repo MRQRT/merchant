@@ -50,7 +50,7 @@
                                 <span @touchstart="decreaseCount">
                                     <img src="static/images/minus-count.png" class="minusNum">
                                 </span>
-                                <input type="number" v-model="extractNum" style="flex:1;" pattern="[0-9]*">
+                                <input type="number" v-model="extractNum" pattern="[0-9]*">
                                 <span @touchstart="increaseCount">
                                     <img src="static/images/plus-count.png" class="plusNum">
                                 </span>
@@ -99,13 +99,14 @@
                         <p class="btn"><span></span>创建地址</p>
                     </div>
                     <!-- 有地址状态 -->
-                    <div class="address-card has-address" v-else @click="$router.push('/addressList')">
+                    <div class="address-card has-address" v-else @click="$router.push({path:'/addresslist',query:{from:'storegold'}})">
                         <div class="left-part">
                             <p class="name-tel">
                                 <span class="name">{{receiverInfo.contact}}</span>
                                 <span class="tel">{{receiverInfo.telephone | hideMible}}</span>
                             </p>
-                            <p class="add">{{receiverInfo.address | clearStr}}</p>
+                            <p class="add" v-if="addressId!=''&&receiverInfo.provinceCityAreaDetail">{{receiverInfo.provinceCityAreaDetail | clearStr}}<span>{{receiverInfo.address}}</span></p>
+                            <p class="add" v-else>{{receiverInfo.address | clearStr}}</p>
                         </div>
                         <div class="right-arrow"></div>
                     </div>
@@ -243,15 +244,15 @@ import headTop from '@/components/header/head.vue'
 import { clearNoNum } from '../../config/mUtils.js';
 import { MessageBox,Toast,Popup } from 'mint-ui';
 import { mapState,mapMutations } from 'vuex'
-import { shop_status, query_card_info, query_shop_address_list, add_recycle_order_check, add_recycle_order, pay_beforehand_order, pay_formal_order, query_status } from '@/service/getData.js'
+import { shop_status, query_card_info, query_shop_address_list, add_recycle_order_check, add_recycle_order, pay_beforehand_order, pay_formal_order, query_status,query_shop_address_detail } from '@/service/getData.js'
 
 
     export default {
         data(){
             return{
                 loginStatus:true,    // 是否登录
-                bankStatus:true,     // 是否绑定银行卡
-                addressStatus:true,  // 是否选择地址
+                bankStatus:false,    // 是否绑定银行卡
+                addressStatus:false, // 是否选择地址
                 typeNum:null,        // 存金类型选择样式
                 weight:'',           // 存金克重
                 extractNum:1,        // 存金数量
@@ -265,20 +266,12 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                 ensureCash:'',       // 支付时的保证金
                 lockPrice:'',        // 支付时的锁定金价
                 verifiCode:[],       // 验证码
-                bankCardId:2,       // 银行卡ID
+                bankCardId:2,        // 银行卡ID
+                addressId:'',        // 查询地址ID
                 screenHeight: document.documentElement.clientHeight,//记录高度值(这里是给到了一个默认值)
-                bankInfo:{
-                    code:'0820',
-                    icon:'',
-                    name:'招商银行',
-                    type:'储蓄卡',
-                },
-                receiverInfo:{     // 收货人信息
-                    contact:'小可爱',
-                    telephone:17600568656,
-                    address:'北京市朝阳区小官吏街道惠新里社区7号楼603室'
-                },
-                addressId:'',      // 地址id
+                bankInfo:'',         // 银行卡信息
+                receiverInfo:'',     // 收货人信息
+                addressId:'',        // 地址id
             }
         },
         components:{
@@ -303,11 +296,6 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                 }else{
                     return true;
                 }
-            }
-        },
-        filters:{
-            clearStr(val){
-                return val.replace(/,/g, "");
             }
         },
         watch:{
@@ -417,8 +405,6 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                     if(res.data){
                         this.bankStatus = true;
     					this.bankInfo = res.data;
-                        // this.bankCardId = res.data.id;
-                        this.bankCardId = '8ad8d894657f2e5801657f34f9ec0001';
                         this.RECORD_SHOPSTATUS(true);    // 店铺审核通过
                     }else{
                         this.bankStatus = false;         // 未绑卡
@@ -437,19 +423,16 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                         return;
                     }else{
                         this.addressStatus = true;
-                        // 如果有默认地址取默认，没有的话取第一个
+                        this.receiverInfo = addressArray[0];
+                        // 如果有默认地址取默认
                         for(let i=0; i<addressArray.length;i++){
                             if(addressArray[i].defaults){
                                 this.receiverInfo = addressArray[i];
                                 this.addressId = addressArray[i].id;
-                            }else{
-                                this.receiverInfo = addressArray[0];
-                                this.addressId = addressArray[0].id;
                             }
                         }
+
                     }
-                }else if(res.code=='200105'){ // 店铺审核未通过
-                    this.RECORD_SHOPSTATUS(false);
                 }
             },
             //关闭验证码弹窗(取消订单)
@@ -466,7 +449,14 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
             //点击提交按钮前判断店铺状态
             async add_recycle_order_check(){
                 var res = await add_recycle_order_check();
-
+            },
+            // 选择地址后回调
+            async query_shop_address_detail(){
+                var res = await query_shop_address_detail(this.addressId);
+                if(res.code=='000000'){
+                    this.addressStatus = true;
+                    this.receiverInfo = res.data;
+                }
             },
             //点击按钮提交函数
             submit(num){
@@ -545,16 +535,34 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
             },
             //直接提交创建订单
             async directlyOrder(){
-                var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,false,true,this.receiverInfo.contact,this.receiverInfo.telephone,this.receiverInfo.address,this.bankCardId)
+                var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,false,true,this.receiverInfo.contact,this.receiverInfo.telephone,this.receiverInfo.address)
                 if(res.code=='000000'){
                     this.orderId = res.data.id;
                     this.$router.push({
                         path:'/storeresult',
                         query:{
                             id:this.orderId,
-                            status:true,
+                            status:1,
                         }
                     });
+                }else{
+                    Toast(res.message);
+                    this.btnCtroller = true;  // 按钮恢复可点状态
+                }
+            },
+            //锁价提交创建订单
+            async lockPriceOrder(){
+                var that = this;
+                // 创建订单
+                var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,true,true,this.receiverInfo.contact,this.receiverInfo.telephone,this.receiverInfo.address)
+                if(res.code=='000000'){
+                    this.orderId = res.data.id;
+                    this.ensureCash = res.data.ensureCash;
+                    this.lockPrice = res.data.lockPrice;
+                    this.popupVisible1 = true;    // 显示验证码弹窗
+                    setTimeout(function(){
+                        that.requestVerifi(0);        // 调用预下单函数，发送验证码函数
+                    })
                 }else{
                     Toast(res.message);
                     this.btnCtroller = true;  // 按钮恢复可点状态
@@ -570,7 +578,11 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                     this.checkoutVerifi();          // 校验验证码是否正确
                 }
             },
-            //后台校验验证码是否正确
+            //支付预下单（发送验证码函数）
+            async requestVerifi(countType){
+                var res = await pay_beforehand_order(this.orderId,countType);
+            },
+            // 支付正式下单 (校验验证码)
             async checkoutVerifi(){
                 var that = this;
                 var res = await pay_formal_order(this.orderId,this.verifiCode);
@@ -578,7 +590,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                     window.timer = setInterval(function(){
                         that.query_status()    // 隔一秒查询一次状态
                     },1000)
-                }else{ // 验证码错误显示重试对话框
+                }else if(res.code=='200211'){ // 验证码错误显示重试对话框
                     this.popupVisible2 = false; // 关闭处理中动画
                     var html = '<div style="color:000;font-size:.32rem;font-family:PingFangSC-Medium;text-align:center">支付密码错误，请重试</div>'
                     MessageBox({
@@ -602,66 +614,52 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                             })
                         }
                     })
+                }else{
+                    Toast(res.message)
                 }
             },
             //间隔查询订单状态
             async query_status(){
                 var res = await query_status(this.orderId);
                 if(res.code=='000000'){
-                    if(res.data.pays){          // 存金支付成功
+                    if(res.data.pays==1){          // 存金支付成功
                         this.popupVisible2 = false; // 关闭处理中动画
                         this.$router.push({
                             path:'/storeresult',
                             query:{
                                 id:this.orderId,
-                                status:true
+                                status:1
                             }
                         })
-                    }else{     // 存金支付失败
+                    }else if(res.data.pays==2){     // 存金支付失败
                         this.popupVisible2 = false; // 关闭处理中动画
                         this.$router.push({
                             path:'/storeresult',
                             query:{
                                 id:this.orderId,
-                                status:false
+                                status:0,
+                                paysFailReason:res.data.paysFailReason
                             }
                         })
                     }
                 }
             },
-            //支付预下单（发送验证码函数）
-            async requestVerifi(countType){
-                var res = await pay_beforehand_order(this.orderId,countType);
-            },
-            //锁价提交创建订单
-            async lockPriceOrder(){
-                var that = this;
-                // 创建订单
-                var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,true,true,this.receiverInfo.contact,this.receiverInfo.telephone,this.receiverInfo.address,this.bankCardId)
-                if(res.code=='000000'){
-                    this.orderId = res.data.id;
-                    this.ensureCash = res.data.ensureCash;
-                    this.lockPrice = res.data.lockPrice;
-                    this.popupVisible1 = true;    // 显示验证码弹窗
-                    setTimeout(function(){
-                        that.requestVerifi(0);        // 调用预下单函数，发送验证码函数
-                    })
-                }else{
-                    Toast(res.message);
-                    this.btnCtroller = true;  // 按钮恢复可点状态
-                }
-            },
+
         },
         created(){
 
         },
         mounted(){
-            console.log('shopStatus',this.shopStatus)
             this.loginStatus = this.accessToken ? true : false;
             //登录情况下请求银行卡信息和地址
             if(this.loginStatus){
                 this.shop_status();
                 this.queryBank();
+            }
+            if(this.$route.query.addressId){
+                this.addressId = this.$route.query.addressId;
+                this.query_shop_address_detail()
+            }else{
                 this.queryAddress();
             }
             //处理键盘弹出的沉底按钮顶上去的兼容问题
@@ -869,12 +867,13 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                             align-items: center;
                             @include flex-box();
                             span{
+                                width:20%;
                                 text-align: center;
                                 line-height: .44rem;
                                 padding-top:.1rem;
-                                @include flex-grow(1);
                             }
                             input{
+                                width:60%;
                             	height:.5rem;
                             	line-height: .5rem;
                             	border:none;

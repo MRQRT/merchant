@@ -77,7 +77,7 @@ import { query_card_info, query_ensure_cash} from '@/service/getData.js'
             async query_ensure_cash(){
                 var res = await query_ensure_cash();
                 if (res.code=='000000'){
-                    this.ensureCash = res.data ? res.data.ensureCash : 0;
+                    this.ensureCash = res.data ? res.data : 0;
                 }
             },
             // 请求银行卡信息

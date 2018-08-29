@@ -235,7 +235,7 @@ export const add_recycle_order_check = (orderId) => fetch('/order/add_recycle_or
  * 创建订单
  */
 
-export const add_recycle_order = (applyQuantity,applyWeight,productType,isLockPrice,isCash,contact,telephone,address,bankCardId) => fetch('/order/add_recycle_order',{'applyQuantity':applyQuantity,'applyWeight':applyWeight,'productType':productType,'isLockPrice':isLockPrice,'isCash':isCash,'contact':contact,'telephone':telephone,'address':address,'bankCardId':bankCardId},'post');
+export const add_recycle_order = (applyQuantity,applyWeight,productType,isLockPrice,isCash,contact,telephone,address) => fetch('/order/add_recycle_order',{'applyQuantity':applyQuantity,'applyWeight':applyWeight,'productType':productType,'isLockPrice':isLockPrice,'isCash':isCash,'contact':contact,'telephone':telephone,'address':address},'post');
 
 /**
  * 支付预下单(发送短信验证码)
@@ -247,7 +247,7 @@ export const pay_beforehand_order = (orderId,countType) => fetch('/order/pay_bef
  * 支付正式下单(判断验证码是否正确及继续走支付流程)
  */
 
-export const pay_formal_order = (orderId,smsNo) => fetch('/order/pay_formal_order',{'orderId':orderId,'smsNo':smsNo},'post');
+export const pay_formal_order = (orderId,smsCode) => fetch('/order/pay_formal_order',{'orderId':orderId,'smsCode':smsCode},'post');
 
 
 /**
