@@ -230,9 +230,7 @@ import md5 from 'js-md5'
                 var str = isNumber(val);
                 var ss = '';
                 if(str==null){
-                    if(val2=="bankCard"){
-                        this.bankCard=''
-                    }else if(val2=="telphone"){
+                    if(val2=="telphone"){
                         this.tel=''
                     }else if(val2=="vercode"){
                         this.vercode=''
@@ -241,9 +239,7 @@ import md5 from 'js-md5'
                     str.forEach(item => {
                         ss = ss + item
                     });
-                    if(val2=="bankCard"){
-                        this.bankCard=ss
-                    }else if(val2=="telphone"){
+                    if(val2=="telphone"){
                         this.tel=ss
                     }else if(val2=="vercode"){
                         this.vercode=ss
