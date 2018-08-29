@@ -52,6 +52,7 @@ const bindingwechat = r => require.ensure([], () => r(require('../pages/login/bi
 const changepassword = r => require.ensure([], () => r(require('../pages/login/changepassword')), 'changepassword')
 const changemobile = r => require.ensure([], () => r(require('../pages/login/changemobile')), 'changemobile')
 const tran = r => require.ensure([], () => r(require('../pages/login/tran.vue')), 'tran')
+const setpassword = r => require.ensure([], () => r(require('../pages/login/setpassword.vue')), 'setpassword')
 
 /* 关于我们 */
 const aboutus = r => require.ensure([], () => r(require('../pages/aboutUs/aboutus')), 'aboutus')
@@ -207,6 +208,10 @@ export const router = new Router({
         {
             path: '/aboutus', //关于我们
             component: aboutus
+        },
+        {
+            path: '/setpassword',//设置密码
+            component:setpassword
         }
     ],
     scrollBehavior (to, from, savedPosition) { // 记录滚动位置

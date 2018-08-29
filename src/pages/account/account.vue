@@ -38,7 +38,7 @@ export default {
     data(){
         return{
             address_isset:'',
-            password_isset:'',
+            password_isset:'未设置',
         }
     },
     components:{

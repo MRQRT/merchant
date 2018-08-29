@@ -318,6 +318,10 @@ import md5 from 'js-md5'
 </style>
 <style scoped lang="scss">
 @import '../../sass/mixin';
+.register{
+    background:#fff;
+    min-height:100vh;
+}
 .logo{
     width: 100%;
     height: 2.48rem;

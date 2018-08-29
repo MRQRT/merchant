@@ -297,6 +297,10 @@ import {sendsms,checkexist,findpassword} from '@/service/getData.js'
 </style>
 <style scoped lang="scss">
 @import '../../sass/mixin';
+.register{
+    background-color:#fff;
+    min-height:100vh;
+}
 .logo{
     width: 100%;
     height: 2.48rem;

@@ -390,6 +390,10 @@
 	}
 </script>
 <style scoped>
+.loginIn{
+    background-color:#fff;
+    border:1px solid #fff;
+}
 input{
     caret-color: #333333;
 }

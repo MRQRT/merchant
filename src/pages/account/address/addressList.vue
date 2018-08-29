@@ -3,7 +3,7 @@
 		<head-top headTitle='我的地址'>
 			<img slot='head_goback' src='static/images/back.png' class="head_goback" @click="backWard">
 		</head-top>
-		<div class="address_list">
+		<div class="address_list" v-show='!empty'>
 			<section class="addressDe" v-for="(item,index) in addre" :key="index">
 				<p @click="selectAdd(item)"><span>{{item.contact}}</span><span>{{item.telephone}}</span></p>
 				<div @click="selectAdd(item)">{{item.address}}</div>
@@ -26,8 +26,7 @@
 		<div class="empty" v-show='empty'>
 			<img src="static/images/emptA.png">
 			<p>您的家在哪里？赶紧告诉我吧！</p>
-			<section @click="addNewAddr" class="toAdd" buttonText="添加地址">
-			</section>
+			<div @click="addNewAddr" class="s">添加地址</div>
 		</div>
 		<a class="add" @click="addNewAddr" v-show='hasAddress'><img :src="add3">新建地址</a>
 	</div>
@@ -141,6 +140,7 @@
 	top: 0;
 	z-index: 11;
 	background-color: #f5f5f5;
+	min-height:100vh;
 }
 .address_list{
 	width: 100%;
@@ -298,17 +298,17 @@
 	font-size: .28rem;
 	color: #666666;
 }
-.myBtn.toAdd{
+.s{
+	display:inline-block;
 	width:2.2rem;
 	height:.7rem;
-	background-color: #f2b643;
 	line-height:.7rem;
 	text-align:center;
 	font-size:.28rem;
+	background-color: #f2b643;
 	margin-top:.4rem;
+	border-radius:4px;
 	color:#fff;
-	border-radius:2px;
-	position: relative;
 }
 .has_checked{
 	display: inline-block;

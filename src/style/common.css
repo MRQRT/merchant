@@ -48,6 +48,7 @@ input{
     -moz-appearance: none;
     -o-appearance: none;
     -ms-appearance: none;
+    background-color:#fff;
 }
 input[type="button"], input[type="submit"], input[type="search"], input[type="reset"] {
     /* -webkit-appearance: none; */
@@ -163,28 +164,36 @@ html,body{
 /*placeholder颜色*/
 input::-webkit-input-placeholder{
     color:#BCBCBC;
+    font-size:.28rem;
 }
 input::-moz-placeholder{   /* Mozilla Firefox 19+ */
     color:#BCBCBC;
+    font-size:.28rem;
 }
 input:-moz-placeholder{    /* Mozilla Firefox 4 to 18 */
     color:#BCBCBC;
+    font-size:.28rem;
 }
 input:-ms-input-placeholder{  /* Internet Explorer 10-11 */ 
     color:#BCBCBC;
+    font-size:.28rem;
 }
 /*textarea-placeholder颜色*/
 textarea::-webkit-input-placeholder{
     color:#BCBCBC;
+    font-size:.28rem;
 }
 textarea::-moz-placeholder{   /* Mozilla Firefox 19+ */
     color:#BCBCBC;
+    font-size:.28rem;
 }
 textarea:-moz-placeholder{    /* Mozilla Firefox 4 to 18 */
     color:#BCBCBC;
+    font-size:.28rem;
 }
 textarea:-ms-input-placeholder{  /* Internet Explorer 10-11 */ 
     color:#BCBCBC;
+    font-size:.28rem;
 }
 /*细线*/
 .line{
