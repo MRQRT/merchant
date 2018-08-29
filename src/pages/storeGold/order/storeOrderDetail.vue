@@ -2,7 +2,7 @@
     <div class="storeGoldDetail">
         <!-- 头部标题部分 -->
         <head-top headTitle='订单详情' class="head-top nomal-font" ref="topHead">
-            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
+            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.push('/storeorderlist')">
         </head-top>
         <!-- 主体内容 -->
         <!-- 待支付订单 -->
@@ -31,7 +31,7 @@
                         <span class="name">{{orderInfo.contact}}</span>
                         <span class="tel">{{orderInfo.telephone | hideMible}}</span>
                     </p>
-                    <p class="add">{{orderInfo.address}}</p>
+                    <p class="add">{{orderInfo.address | clearStr}}</p>
                 </div>
             </div>
             <div class="distans"></div>
@@ -53,9 +53,9 @@
                     </p>
                     <p>
                         <span>存金方式</span>
-                        <span>{{cashJson[orderInfo.cash]}}</span>
+                        <span>{{orderInfo.cash ? '直接变现' : '存入克重'}}</span>
                     </p>
-                    <div class="" v-if="orderInfo.isLockprice==0">
+                    <div class="" v-if="orderInfo.lockprice">
                         <p>
                             <span>锁价保证金</span>
                             <span>{{orderInfo.ensure_cash}}元</span>
@@ -79,7 +79,7 @@
                     <span>锁价保证金</span>
                     <span>{{orderInfo.ensure_cash | formatPriceTwo}}元</span>
                 </div>
-                <div class="right-btn" @click="pay_beforehand_order()">支付</div>
+                <div class="right-btn" @click="pay_beforehand_order(0)">支付</div>
             </div>
         </div>
         <!-- 其他状态订单 -->
@@ -130,7 +130,7 @@
                         <span class="name">{{orderInfo.contact}}</span>
                         <span class="tel">{{orderInfo.telephone | hideMible}}</span>
                     </p>
-                    <p class="add">{{orderInfo.address}}</p>
+                    <p class="add">{{orderInfo.address | clearStr}}</p>
                 </div>
             </div>
             <div class="distans"></div>
@@ -152,9 +152,9 @@
                     </p>
                     <p>
                         <span>存金方式</span>
-                        <span>{{cashJson[orderInfo.cash]}}</span>
+                        <span>{{orderInfo.cash ? '直接变现' : '存入克重'}}</span>
                     </p>
-                    <div class="" v-if="orderInfo.isLockprice==1">
+                    <div class="" v-if="orderInfo.lockprice">
                         <p>
                             <span>锁价保证金</span>
                             <span>{{orderInfo.ensure_cash}}元</span>
@@ -168,22 +168,22 @@
             </div>
             <div class="distans"></div>
             <!-- 交易流水号等 -->
-            <div class="deal-other-info">
+            <div class="deal-other-info" v-if="orderInfo.lockprice">
                 <p>
                     <span>交易流水号</span>
-                    <span>420000000000000000</span>
+                    <span>{{orderInfo.tradeSerialNo}}</span>
                 </p>
                 <p>
                     <span>交易金额</span>
-                    <span>{{2345.2344 | formatPriceTwo}}</span>
+                    <span>{{orderInfo.tradeAmount | formatPriceTwo}}</span>
                 </p>
                 <p>
                     <span>成交时间</span>
-                    <span>2018-08-18 12:13:23</span>
+                    <span>{{orderInfo.tradeTime}}</span>
                 </p>
                 <p>
                     <span>支付银行卡</span>
-                    <span>中国工商银行(尾号3232)</span>
+                    <span>{{bankInfo.name}}(尾号{{bankInfo.code}})</span>
                 </p>
             </div>
             <div class="distans"></div>
@@ -195,7 +195,7 @@
                 </div>
                 <ul class="tracking-list" :class="{'showList':trackingStatus}">
                     <div class="line"></div>
-                    <li class="tracking-item" v-for="(item,index) in newList">
+                    <li class="tracking-item" v-for="(item,index) in newTrackList">
                         <div class="left-line">
                             <span class="dot" :class="{'recent-icon':index==0}"></span>
                         </div>
@@ -333,7 +333,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
         data(){
             return{
                 orderId:'',            // 订单id
-                expressNo:238487737766,// 快递单号
+                expressNo:'',          // 快递单号
                 expressCode:'',        // 物流公司编码
                 isLockOrder:0,         // 是否是锁价订单
                 isClick:0,             // 进度提示是否是点击显示
@@ -347,6 +347,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 reportClick:true,      // 确认检测报告按钮状态
                 trackingStatus:false,  // 订单追踪显示、隐藏
                 stepTipText:'',        // 进度提示文字
+                deliveryType:'',       // 查询快递单号时所需类型：0-取货/1-退货
                 minu:'--',             // 倒计时分
                 secd:'--',             // 倒计时秒
                 verifiCode:[],         // 验证码
@@ -357,10 +358,6 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 typeJson:{
                     '0':'投资金',
                     '1':'首饰',
-                },
-                cashJson:{
-                    '0':'存入克重',
-                    '1':'直接变现',
                 },
                 stepList:[
                     {name:'订单审核'},
@@ -390,21 +387,21 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     '12':{name:'物流异常',status:0,iconType:'',beforeStatus:1},
                     '13':{name:'已关闭',status:4,iconType:4,beforeStatus:1},
                 },
-                orderInfo:{
-                    code:37467288374467364,
-                    createTime:'2018-08-20 12:20:34',
-                    status:0,
-                    productType:0,
-                    applyWeight:3.23,
-                    isLockprice:1,
-                    cash:0,
-                    lockPrice:256.34,
-                    ensure_cash:3452.234,
-                    applyQuantity:3,
-                    contact:'小可爱',
-                    telephone:13520842445,
-                    address:'内蒙古呼和浩特市赛罕区7号楼602罕区7号楼602'
-                },
+                // orderInfo:{
+                //     code:37467288374467364,
+                //     createTime:'2018-08-20 12:20:34',
+                //     status:0,
+                //     productType:0,
+                //     applyWeight:3.23,
+                //     lockprice:true,
+                //     cash:true,
+                //     lockPrice:256.34,
+                //     ensure_cash:3452.234,
+                //     applyQuantity:3,
+                //     contact:'小可爱',
+                //     telephone:13520842445,
+                //     address:'内蒙古呼和浩特市赛罕区7号楼602罕区7号楼602'
+                // },
                 orderTrackJson:{
                     '0':{name:'订单已提交'},
                     '1':{name:'订单审核未通过'},
@@ -419,67 +416,68 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     '14':{name:'订单完成'},
                     '15':{name:'已支付锁价保证金'},
                 },
-                list: [
-                    {
-                        "id": null,
-                        "orderId": "123",
-                        "addSort": 7,
-                        'lastOrderStatus':7,
-                        "orderStatus": 7,
-                        "createTime": 1535095430000
-                    },
-                    {
-                        "id": null,
-                        "orderId": "123",
-                        "addSort": 6,
-                        'lastOrderStatus':7,
-                        "orderStatus": 7,
-                        "createTime": 1535095430000
-                    },
-                    {
-                        "id": null,
-                        "orderId": "123",
-                        "addSort": 5,
-                        'lastOrderStatus':6,
-                        "orderStatus":7,
-                        "createTime": 1535095430000
-                    },
-                    {
-                        "id": null,
-                        "orderId": "123",
-                        "addSort": 4,
-                        "orderStatus": 6,
-                        "createTime": 1535095378000
-                    },
-                    {
-                        "id": null,
-                        "orderId": "123",
-                        "addSort": 3,
-                        "orderStatus": 4,
-                        "createTime": 1535095371000
-                    },
-                    {
-                        "id": null,
-                        "orderId": "123",
-                        "addSort": 2,
-                        "orderStatus": 2,
-                        "createTime": 1535095365000
-                    },
-                    {
-                        "id": null,
-                        "orderId": "123",
-                        "addSort": 1,
-                        "orderStatus": 0, // 已支付保证金
-                        "createTime": 1535095362000
-                    },
-                    {
-                        "id": null,
-                        "orderId": "123",
-                        "addSort": 0,
-                        "orderStatus": 0,  // 订单已提交
-                        "createTime": 1535095362000
-                    }
-                ],
+                orderTrackList:[],
+                // orderTrackList: [
+                //     {
+                //         "id": null,
+                //         "orderId": "123",
+                //         "addSort": 7,
+                //         'lastOrderStatus':7,
+                //         "orderStatus": 7,
+                //         "createTime": 1535095430000
+                //     },
+                //     {
+                //         "id": null,
+                //         "orderId": "123",
+                //         "addSort": 6,
+                //         'lastOrderStatus':7,
+                //         "orderStatus": 7,
+                //         "createTime": 1535095430000
+                //     },
+                //     {
+                //         "id": null,
+                //         "orderId": "123",
+                //         "addSort": 5,
+                //         'lastOrderStatus':6,
+                //         "orderStatus":7,
+                //         "createTime": 1535095430000
+                //     },
+                //     {
+                //         "id": null,
+                //         "orderId": "123",
+                //         "addSort": 4,
+                //         "orderStatus": 6,
+                //         "createTime": 1535095378000
+                //     },
+                //     {
+                //         "id": null,
+                //         "orderId": "123",
+                //         "addSort": 3,
+                //         "orderStatus": 4,
+                //         "createTime": 1535095371000
+                //     },
+                //     {
+                //         "id": null,
+                //         "orderId": "123",
+                //         "addSort": 2,
+                //         "orderStatus": 2,
+                //         "createTime": 1535095365000
+                //     },
+                //     {
+                //         "id": null,
+                //         "orderId": "123",
+                //         "addSort": 1,
+                //         "orderStatus": 0, // 已支付保证金
+                //         "createTime": 1535095362000
+                //     },
+                //     {
+                //         "id": null,
+                //         "orderId": "123",
+                //         "addSort": 0,
+                //         "orderStatus": 0,  // 订单已提交
+                //         "createTime": 1535095362000
+                //     }
+                // ],
                 deliveryList:[
                     {
                         time:'2018-08-20 12:23:00',
@@ -523,7 +521,8 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     },
                 ],
                 orderTrackText:'',
-                newList:[],
+                orderInfo:'',
+                newTrackList:[],
                 reportInfo:{
                     attachmentPath:'',
                     operator:'张艺兴',
@@ -604,9 +603,9 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 this.fixed(false);
             },
             // 倒计时
-            countDown(){
-                var countdownMinute = 7;//10分钟倒计时
-                var startTimes = new Date('2018-8-23 18:52');//开始时间 new Date('2016-11-16 15:21');
+            countDown(time){
+                var countdownMinute = 10;//10分钟倒计时
+                var startTimes = new Date(time);//开始时间 new Date('2016-11-16 15:21');
                 var endTimes = new Date(startTimes.setMinutes(startTimes.getMinutes()+countdownMinute));//结束时间
                 var curTimes = new Date();//当前时间
                 var surplusTimes = endTimes.getTime()/1000 - curTimes.getTime()/1000;//结束毫秒-开始毫秒=剩余倒计时间
@@ -704,23 +703,20 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     }
                 }
             },
-            // 订单追踪数据
+            // 订单追踪文本展示
             trackingText(){
                 var that = this;
-                this.list.forEach(function(item,index){
-                    console.log(index)
-
+                this.orderTrackList.forEach(function(item,index){
                     if(item.orderStatus==0 && item.addSort!=0){ // 状态都为0时，判断已锁价
                         that.orderTrackText = that.orderTrackJson[15].name
-                    }else if(item.orderStatus==7 && item.lastOrderStatus!=6){ // 状态为7时，对应3个状态(已退换保证金/已完成)
-                        // that.orderTrackText = item.addSort == index ? that.orderTrackJson[9].name : that.orderTrackJson[14].name;
-                        that.orderTrackText = that.orderTrackJson[14].name
+                    }else if(item.orderStatus==7 && item.lastOrderStatus!=6){ // 状态为7时，对应3个状态(已退保证金/已完成/确认检测报告)
+                        that.orderTrackText = item.addSort == that.orderTrackList.length-1 ? that.orderTrackJson[9].name : that.orderTrackJson[14].name;
                     }else if(item.orderStatus == item.lastOrderStatus){ // 状态为1\8\13时，判断是否是退换保证金
                         that.orderTrackText = that.orderTrackJson[9].name
                     }else{
                         that.orderTrackText = that.orderTrackJson[item.orderStatus].name
                     }
-                    that.newList.push({
+                    that.newTrackList.push({
                         time:item.createTime,
                         name:that.orderTrackText
                     })
@@ -729,13 +725,32 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
 
             // 请求订单详情数据
             async query_detail(){
-                var res = query_detail(this.orderId);
+                var res = await query_detail(this.orderId);
                 if(res.code=='000000'){
                     this.orderInfo = res.data;
                     this.status = res.data.status;
+                    this.isLockOrder = res.data.lockprice;
+                    this.showTips(this.isClick,this.iconJson[this.status].iconType,'',this.status,this.isLockOrder);
+
+                    // 订单追踪
+                    if(this.status!=10 && this.status !=11){
+                        this.query_status_flow_mess();
+                    }
                     // 未支付状态调用倒计时函数
                     if(this.orderInfo.status==10){
-                        this.countDown();
+                        this.countDown(this.data.countDownTime);
+                    }
+                    // 未支付、已失效、锁价订单请求银行卡信息
+                    if(this.orderInfo.status==10 || this.orderInfo.status==11 || this.orderInfo.lockprice){
+                        this.query_card_info();
+                    }
+                    // 查看物流单号
+                    if(this.orderInfo.status==9){
+                        this.deliveryType = 1; // 退货
+                        this.query_logistics_mess();
+                    }else if(this.orderInfo.status==3){
+                        this.deliveryType = 0; // 取货
+                        this.query_logistics_mess();
                     }
                 }else{
                     Toast(res.message)
@@ -743,7 +758,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             },
             // 请求物流单号
             async query_logistics_mess(){
-                var res = query_logistics_mess(this.orderId,type) // type:0-取货；1-退货
+                var res = await query_logistics_mess(this.orderId,this.deliveryType) // type:0-取货；1-退货
                 if(res.code=='000000'){
                     this.expressNo = res.data.expressNo;
                     this.expressCode = res.data.expressCode;
@@ -753,7 +768,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             },
             // 查询具体物流信息
             async query_express_mess(){
-                var res = query_express_mess(this.expressNo,this.expressCode)
+                var res = await query_express_mess(this.expressNo,this.expressCode)
                 if(res.code=='000000'){
                     this.deliveryList = res.data;
                 }else{
@@ -762,23 +777,31 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             },
             // 查询检测报告
             async query_process_mess(){
-                var res = await query_process_mess(this.orderId);
+                var res = await query_process_mess(this.orderId,this.deliveryType);
                 if(res.code=='000000'){
                     this.reportInfo = res.data;
+                    if(this.deliveryType==0){
+                        this.expressNo1 = this.reportInfo
+                    }else{
+                        this.expressNo2 = this.reportInfo
+                    }
+                }else{
+                    Toast(res.message)
                 }
             },
-            // 订单追踪
+            // 查询订单追踪
             async query_status_flow_mess(){
-                var res = query_status_flow_mess(this.orderId);
+                var res = await query_status_flow_mess(this.orderId);
                 if(res.code=='000000'){
-                    this.list = res.data;
+                    this.orderTrackList = res.data;
+                    this.trackingText(); // 调用订单追踪文字展示函数
                 }else{
-                    Toast(rs.message)
+                    Toast(res.message)
                 }
             },
             // 确认订单(用户点击确认检测报告调用)
             async confirm_order(){
-                var res = confirm_order(this.orderId);
+                var res = await confirm_order(this.orderId);
                 if(rs.code=='000000'){
                     this.reportClick = false; // 确认订单 => 已确认
                     this.popupVisible = false;
@@ -786,14 +809,16 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             },
             // 修改订单状态(未支付倒计时结束)
             async update_status(){
-                var res = update_status(this.orderId);
+                var res = await update_status(this.orderId);
                 if(res.code=='000000'){
                     this.query_detail(); // 取消成功后再次调用详情数据
+                }else{
+                    Toast(res.message)
                 }
             },
             // 请求银行卡信息
             async query_card_info(){
-                var res = query_card_info();
+                var res = await query_card_info();
                 if(res.code=='000000'){
                     this.bankInfo = res.data;
                 }
@@ -815,14 +840,14 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 }
             },
             // 支付预下单
-            async pay_beforehand_order(){
+            async pay_beforehand_order(countType){
                 this.popupVisible1 = true;
-                var res = await pay_beforehand_order(this.orderId);
+                var res = await pay_beforehand_order(this.orderId,countType);
             },
             // 支付正式下单
             async pay_formal_order(){
                 var that = this;
-                var res = pay_formal_order(this.orderId,this.verifiCode);
+                var res = await pay_formal_order(this.orderId,this.verifiCode);
                 if(res.code=='000000'){         // 验证码正确跳转存金结果页
                     window.timer = setInterval(function(){
                         that.query_status()    // 隔一秒查询一次状态
@@ -839,7 +864,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                         if(action=='confirm'){ // 重新发送验证码函数
                             this.popupVisible1 = true;
                             this.verifiCode = []; // 将之前验证码清除
-                            console.log('重新发送验证码') // 调用另一个获取短信验证码接口
+                            this.pay_beforehand_order(1) // 调用另一个获取短信验证码接口
                         }else{
                             this.verifiCode = []; // 将之前验证码清除
                         }
@@ -877,8 +902,8 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             this.status = this.$route.query.status;
         },
         mounted(){
-            this.trackingText();
-            this.showTips(this.isClick,this.iconJson[this.status].iconType,'',this.status,this.isLockOrder);
+            this.query_detail(); // 订单详情
+            // this.showTips(this.isClick,this.iconJson[this.status].iconType,'',this.status,this.isLockOrder);
         },
         beforeRouteLeave (to, from, next) { // 离开此路由时清除定时器
             if(window.timer){

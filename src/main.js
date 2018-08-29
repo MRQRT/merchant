@@ -45,6 +45,10 @@ Vue.filter('hideMible',function(val){
     var reg = /^(\d{3})\d*(\d{4})$/;
     return (val+'').replace(reg,'$1****$2')
 });
+Vue.filter('clearStr',function(val){
+    return val.replace(/,/g, "");
+})
+
 /* 全局函数*/
 /* 禁止页面滚动 */
 Vue.prototype.fixed = function(status){

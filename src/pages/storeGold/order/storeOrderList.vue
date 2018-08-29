@@ -9,7 +9,7 @@
             <mt-loadmore :bottom-method="loadBottom" :bottom-all-loaded="allLoaded" :auto-fill="false"
                 bottomPullText="上滑加载更多" bottomDropText="松开加载" ref="loadmore" class="loadmore">
                 <ul class="order-list">
-                    <li class="order-item" v-for="(item,index) in orderList" :key="index" @click="$router.push({path:'/storeorderdetail',query:{id:index,status:item.status}})">
+                    <li class="order-item" v-for="(item,index) in orderList" :key="index" @click="$router.push({path:'/storeorderdetail',query:{id:item.id,status:item.status}})">
                         <!-- 左侧图片 -->
                         <div class="left-img">
                             <img src="static/images/order-touzijin.png" alt="" v-if="item.productType==0">
@@ -20,8 +20,8 @@
                             <!-- 变现or存入克重 -->
                             <div class="trade-type">
                                 <div class="left">
-                                    <span>{{typeJson[item.cash]}}</span>
-                                    <span class="lock-price" v-if="item.isLockprice==1"></span>
+                                    <span>{{item.cash ? '直接变现' : '存入克重'}}</span>
+                                    <span class="lock-price" v-if="item.lockprice"></span>
                                 </div>
                                 <div class="right">
                                     <span class="status" :class="{'overStatus':item.status==1 ||item.status==8 || item.status==11 || item.status==13}">{{statusJson[item.status].name}}</span>
@@ -32,7 +32,7 @@
                                 <div class="orderNo">
                                     <b>订单编号：</b>{{item.code}}
                                 </div>
-                                <div class="ensure-cash" v-if="item.isLockprice==1">保证金：{{item.ensureCash | formatPriceTwo}}元</div>
+                                <div class="ensure-cash" v-if="item.lockprice">保证金：{{item.ensureCash | formatPriceTwo}}元</div>
                                 <div class="weight-time">
                                     <span>总克重：{{item.applyWeight}}克</span>
                                     <span>{{item.createTime}}</span>
@@ -62,7 +62,7 @@ import { mapState,mapMutations } from 'vuex'
     export default {
         data(){
             return{
-                orderStatus:true,   // 是否有订单
+                orderStatus:true,    // 是否有订单
                 allLoaded:false,     // 是否全部加载完毕
                 wrapperHeight:0,     // 加载内容动态高度
                 searchCondition: {   // 分页属性
@@ -90,151 +90,152 @@ import { mapState,mapMutations } from 'vuex'
                     '0':'存入克重',
                     '1':'直接变现',
                 },
-                orderList:[
-                    {
-                        productType:0,
-                        status:0,
-                        code:'TR180309141234033476',
-                        tradeType:0, // 存入克重or直接变现
-                        isLockprice:1, // 是否锁价
-                        applyWeight:23.456,
-                        createTime:'2018-03-05 09:38',
-                        cash:1,
-                        ensureCash:543.345
-                    },
-                    {
-                        productType:1,
-                        status:1,
-                        code:'TR180309141234033476',
-                        tradeType:0,
-                        isLockprice:1,
-                        applyWeight:23.456,
-                        createTime:'2018-03-05 09:38',
-                        cash:0,
-                        ensureCash:543.345
-                    },
-                    {
-                        productType:0,
-                        status:2,
-                        code:'TR180309141234033476',
-                        tradeType:0,
-                        isLockprice:0,
-                        applyWeight:23.456,
-                        createTime:'2018-03-05 09:38',
-                        cash:0,
-                    },
-                    {
-                        productType:1,
-                        status:3,
-                        code:'TR180309141234033476',
-                        tradeType:1,
-                        isLockprice:0,
-                        applyWeight:23.456,
-                        createTime:'2018-03-05 09:38',
-                        cash:0,
-                    },
-                    {
-                        productType:0,
-                        status:4,
-                        code:'TR180309141234033476',
-                        tradeType:0,
-                        isLockprice:1,
-                        applyWeight:23.456,
-                        createTime:'2018-03-05 09:38',
-                        cash:0,
-                        ensureCash:543.345
-                    },
-                    {
-                        productType:1,
-                        status:5,
-                        code:'TR180309141234033476',
-                        tradeType:0,
-                        isLockprice:0,
-                        applyWeight:23.456,
-                        createTime:'2018-03-05 09:38',
-                        cash:0,
-                    },
-                    {
-                        productType:1,
-                        status:6,
-                        code:'TR180309141234033476',
-                        tradeType:0,
-                        isLockprice:0,
-                        applyWeight:23.456,
-                        createTime:'2018-03-05 09:38',
-                        cash:0,
-                    },
-                    {
-                        productType:1,
-                        status:7,
-                        code:'TR180309141234033476',
-                        tradeType:0,
-                        isLockprice:0,
-                        applyWeight:23.456,
-                        createTime:'2018-03-05 09:38',
-                        cash:0,
-                    },
-                    {
-                        productType:0,
-                        status:8,
-                        code:'TR180309141234033476',
-                        tradeType:0,
-                        isLockprice:0,
-                        applyWeight:23.456,
-                        createTime:'2018-03-05 09:38',
-                        cash:0,
-                    },
-                    {
-                        productType:0,
-                        status:9,
-                        code:'TR180309141234033476',
-                        tradeType:0,
-                        isLockprice:0,
-                        applyWeight:23.456,
-                        createTime:'2018-03-05 09:38',
-                        cash:0,
-                    },
-                    {
-                        productType:0,
-                        status:10,
-                        code:'TR180309141234033476',
-                        tradeType:0,
-                        isLockprice:0,
-                        applyWeight:23.456,
-                        createTime:'2018-03-05 09:38',
-                        cash:0,
-                    },
-                    {
-                        productType:0,
-                        status:11,
-                        code:'TR180309141234033476',
-                        tradeType:0,
-                        isLockprice:0,
-                        applyWeight:23.456,
-                        createTime:'2018-03-05 09:38',
-                        cash:0,
-                    },
-                    {
-                        productType:0,
-                        status:12,
-                        code:'TR180309141234033476',
-                        tradeType:0,
-                        isLockprice:0,
-                        applyWeight:23.456,
-                        createTime:'2018-03-05 09:38',
-                        cash:0,
-                    },
-                    {
-                        productType:1,
-                        status:13,
-                        code:'TR180309141234033476',
-                        tradeType:0,
-                        isLockprice:0,
-                        applyWeight:23.456,
-                        createTime:'2018-03-05 09:38',
-                        cash:0,
-                    },
-                ]
+                orderList:[],
+                // orderList:[
+                //     {
+                //         productType:0,
+                //         status:0,
+                //         code:'TR180309141234033476',
+                //         tradeType:0, // 存入克重or直接变现
+                //         isLockprice:1, // 是否锁价
+                //         applyWeight:23.456,
+                //         createTime:'2018-03-05 09:38',
+                //         cash:1,
+                //         ensureCash:543.345
+                //     },
+                //     {
+                //         productType:1,
+                //         status:1,
+                //         code:'TR180309141234033476',
+                //         tradeType:0,
+                //         isLockprice:1,
+                //         applyWeight:23.456,
+                //         createTime:'2018-03-05 09:38',
+                //         cash:0,
+                //         ensureCash:543.345
+                //     },
+                //     {
+                //         productType:0,
+                //         status:2,
+                //         code:'TR180309141234033476',
+                //         tradeType:0,
+                //         isLockprice:0,
+                //         applyWeight:23.456,
+                //         createTime:'2018-03-05 09:38',
+                //         cash:0,
+                //     },
+                //     {
+                //         productType:1,
+                //         status:3,
+                //         code:'TR180309141234033476',
+                //         tradeType:1,
+                //         isLockprice:0,
+                //         applyWeight:23.456,
+                //         createTime:'2018-03-05 09:38',
+                //         cash:0,
+                //     },
+                //     {
+                //         productType:0,
+                //         status:4,
+                //         code:'TR180309141234033476',
+                //         tradeType:0,
+                //         isLockprice:1,
+                //         applyWeight:23.456,
+                //         createTime:'2018-03-05 09:38',
+                //         cash:0,
+                //         ensureCash:543.345
+                //     },
+                //     {
+                //         productType:1,
+                //         status:5,
+                //         code:'TR180309141234033476',
+                //         tradeType:0,
+                //         isLockprice:0,
+                //         applyWeight:23.456,
+                //         createTime:'2018-03-05 09:38',
+                //         cash:0,
+                //     },
+                //     {
+                //         productType:1,
+                //         status:6,
+                //         code:'TR180309141234033476',
+                //         tradeType:0,
+                //         isLockprice:0,
+                //         applyWeight:23.456,
+                //         createTime:'2018-03-05 09:38',
+                //         cash:0,
+                //     },
+                //     {
+                //         productType:1,
+                //         status:7,
+                //         code:'TR180309141234033476',
+                //         tradeType:0,
+                //         isLockprice:0,
+                //         applyWeight:23.456,
+                //         createTime:'2018-03-05 09:38',
+                //         cash:0,
+                //     },
+                //     {
+                //         productType:0,
+                //         status:8,
+                //         code:'TR180309141234033476',
+                //         tradeType:0,
+                //         isLockprice:0,
+                //         applyWeight:23.456,
+                //         createTime:'2018-03-05 09:38',
+                //         cash:0,
+                //     },
+                //     {
+                //         productType:0,
+                //         status:9,
+                //         code:'TR180309141234033476',
+                //         tradeType:0,
+                //         isLockprice:0,
+                //         applyWeight:23.456,
+                //         createTime:'2018-03-05 09:38',
+                //         cash:0,
+                //     },
+                //     {
+                //         productType:0,
+                //         status:10,
+                //         code:'TR180309141234033476',
+                //         tradeType:0,
+                //         isLockprice:0,
+                //         applyWeight:23.456,
+                //         createTime:'2018-03-05 09:38',
+                //         cash:0,
+                //     },
+                //     {
+                //         productType:0,
+                //         status:11,
+                //         code:'TR180309141234033476',
+                //         tradeType:0,
+                //         isLockprice:0,
+                //         applyWeight:23.456,
+                //         createTime:'2018-03-05 09:38',
+                //         cash:0,
+                //     },
+                //     {
+                //         productType:0,
+                //         status:12,
+                //         code:'TR180309141234033476',
+                //         tradeType:0,
+                //         isLockprice:0,
+                //         applyWeight:23.456,
+                //         createTime:'2018-03-05 09:38',
+                //         cash:0,
+                //     },
+                //     {
+                //         productType:1,
+                //         status:13,
+                //         code:'TR180309141234033476',
+                //         tradeType:0,
+                //         isLockprice:0,
+                //         applyWeight:23.456,
+                //         createTime:'2018-03-05 09:38',
+                //         cash:0,
+                //     },
+                // ]
             }
         },
         components:{
@@ -249,32 +250,38 @@ import { mapState,mapMutations } from 'vuex'
 
         },
         methods: {
-            // 首次进入请求数据
+            //首次进入请求数据
             async requestList(){
-                var res=await query_list(this.shopId,this.searchCondition.pageNo,this.searchCondition.pageSize);
-                if(res.code==200){
-                    this.orderList = res.data.list;
-                    this.pages=res.data.pages;
-                    if(this.searchCondition.pageNo>=this.pages){
-                       this.allLoaded=true;  //数据加载完，bottomMethod则不再执行
+                var res = await query_list(this.searchCondition.pageNo,this.searchCondition.pageSize);
+                if(res.code=='000000'){
+                    if(res.data.content.length==0){
+                        this.orderStatus = false;
+                    }else{
+                        this.orderStatus = true;
+                        this.orderList = res.data.content;
+                        this.pages=res.data.totalPages;
+                        if(this.searchCondition.pageNo>=this.pages){
+                           this.allLoaded=true;  //数据加载完，bottomMethod则不再执行
+                        }
                     }
                 }
             },
-            // 加载更多
-            // loadMore(){
-            //     this.searchCondition.pageNo=this.searchCondition.pageNo+1;
-            //     var res=await query_list(this.shopId,this.searchCondition.pageNo,this.searchCondition.pageSize);
-            //     if(res.code==200){
-            //       this.orderList=this.orderList.concat(res.data.list);
-            //       if(this.searchCondition.pageNo>=this.pages){
-            //            this.allLoaded=true;  //数据加载完，bottomMethod则不再执行
-            //       }
-            //     }
-            // },
-            loadBottom(){  //上拉加载
+            //加载更多
+            async loadMore(){
+                this.searchCondition.pageNo=this.searchCondition.pageNo+1;
+                var res = await query_list(this.searchCondition.pageNo,this.searchCondition.pageSize);
+                if(res.code=='000000'){
+                  this.orderList=this.orderList.concat(res.data.content);
+                  if(this.searchCondition.pageNo>=this.pages){
+                       this.allLoaded=true;  //数据加载完，bottomMethod则不再执行
+                  }
+                }
+            },
+            //上拉加载
+            loadBottom(){
                 var that = this;
                 setTimeout(function(){
-                    // that.loadMore();
+                    that.loadMore();
                     that.$refs.loadmore.onBottomLoaded();
                 },800)
             },

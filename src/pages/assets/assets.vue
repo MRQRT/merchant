@@ -75,7 +75,7 @@ import { query_card_info, query_ensure_cash} from '@/service/getData.js'
         methods: {
             // 请求保证金信息
             async query_ensure_cash(){
-                var res = await query_ensure_cash(this.shopId);
+                var res = await query_ensure_cash();
                 if (res.code=='000000'){
                     this.ensureCash = res.data ? res.data.ensureCash : 0;
                 }
@@ -117,7 +117,6 @@ import { query_card_info, query_ensure_cash} from '@/service/getData.js'
 
         },
         mounted(){
-            console.log(this.shopId)
             this.query_card_info();
             if(this.shopStatus){
                 this.query_ensure_cash();
@@ -196,8 +195,8 @@ import { query_card_info, query_ensure_cash} from '@/service/getData.js'
 
                     .icon{
                         display: inline-block;
-                        width: .55rem;
-                        height: .55rem;
+                        width: .65rem;
+                        height: .65rem;
                         margin-right:.25rem;
                         @include border-radius(50%);
                         img{

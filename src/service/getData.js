@@ -96,7 +96,7 @@ export const shop_open_apply_status = () => fetch('/shop_open_apply/latest',{},'
 * 查询地址列表
 */
 
-export const query_shop_address_list = (shopId) => fetch('/address/query_shop_address_list?shopId='+shopId,{},'get')
+export const query_shop_address_list = () => fetch('/address/query_shop_address_list',{},'get')
 
 /**
  * 查询店铺信息
@@ -149,7 +149,7 @@ export const captcha = (code,mobile,id) => fetch('/bank_card/captcha',{'code':co
  * 查看保证金
  */
 
-export const query_ensure_cash = (shopId) => fetch('/order/query_ensure_cash?shopId='+shopId,{},'get');
+export const query_ensure_cash = () => fetch('/order/query_ensure_cash',{},'get');
 
 
 /**
@@ -175,7 +175,7 @@ export const add_recycle_order_check = (orderId) => fetch('/order/add_recycle_or
  * 创建订单
  */
 
-export const add_recycle_order = (applyQuantity,applyWeight,productType,isLockPrice,isCash,shopId,contact,telephone,address,bankCardId) => fetch('/order/add_recycle_order',{'applyQuantity':applyQuantity,'applyWeight':applyWeight,'productType':productType,'isLockPrice':isLockPrice,'isCash':isCash,'shopId':shopId,'contact':contact,'telephone':telephone,'address':address,'bankCardId':bankCardId},'post');
+export const add_recycle_order = (applyQuantity,applyWeight,productType,isLockPrice,isCash,contact,telephone,address,bankCardId) => fetch('/order/add_recycle_order',{'applyQuantity':applyQuantity,'applyWeight':applyWeight,'productType':productType,'isLockPrice':isLockPrice,'isCash':isCash,'contact':contact,'telephone':telephone,'address':address,'bankCardId':bankCardId},'post');
 
 /**
  * 支付预下单(发送短信验证码)
@@ -201,7 +201,7 @@ export const query_status = (orderId) => fetch('/order/query_status?orderId='+or
  * 查看订单列表
  */
 
-export const query_list = (shopId,page,size) => fetch('/order/query_list?shopId='+shopId+'&page='+page+'&size='+size,{},'get');
+export const query_list = (page,size) => fetch('/order/query_list?page='+page+'&size='+size,{},'get');
 
 /**
  * 查看订单详情

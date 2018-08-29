@@ -7,7 +7,7 @@
         <!-- 主体部分 -->
         <div class="main-cont">
             <!-- 订单成功 -->
-            <div class="success" v-if="orderstatus">
+            <div class="success" v-if="orderStatus">
                 <!-- 顶部图标部分 -->
                 <div class="top-info">
                     <div class="top-img">
@@ -23,7 +23,7 @@
                             <span class="name">{{orderInfo.contact}}</span>
                             <span class="tel">{{orderInfo.telephone | hideMible}}</span>
                         </p>
-                        <p class="add">{{orderInfo.address | clearStr}}</p>
+                        <p class="add" v-if="orderInfo.address">{{orderInfo.address|clearStr}}</p>
                     </div>
                 </div>
                 <!-- 订单信息 -->
@@ -42,7 +42,7 @@
                             <span>存金重量</span>
                             <span>{{orderInfo.applyWeight}}克</span>
                         </div>
-                        <div class="" v-if="orderInfo.isLockprice==1">
+                        <div class="" v-if="orderInfo.lockprice">
                             <div class="info-item">
                                 <span>锁价保证金</span>
                                 <span class="special-color">{{orderInfo.ensure_cash | formatPriceTwo}}元</span>
@@ -55,7 +55,7 @@
                     </div>
                 </div>
                 <!-- 银行卡 -->
-                <div class="bank-info"  v-if="orderInfo.isLockprice==1">
+                <div class="bank-info"  v-if="orderInfo.lockprice">
                     <span>银行卡</span>
                     <span>{{bankInfo.name}}(尾号{{bankInfo.code}})</span>
                 </div>
@@ -63,7 +63,7 @@
                 <div class="tip">工作人员会尽快联系您核实订单</div>
                 <!-- 按钮部分 -->
                 <div class="btn-opration">
-                    <div class="go-detail" @click="$router.push({path:'/storeorderdetail',query:{id:orderId}})">查看订单</div>
+                    <div class="go-detail" @click="$router.push({path:'/storeorderdetail',query:{id:orderId,status:orderInfo.status}})">查看订单</div>
                     <div class="go-index" @click="$router.push('/index')">返回首页</div>
                 </div>
             </div>
@@ -80,7 +80,7 @@
                 <div class="reason">失败原因：根据三方回调结果展示</div>
                 <!-- 按钮部分 -->
                 <div class="btn-opration">
-                    <div class="go-detail" @click="$router.push({path:'/storeorderdetail',query:{id:orderId}})">查看订单</div>
+                    <div class="go-detail" @click="$router.push({path:'/storeorderdetail',query:{id:orderId,status:10}})">查看订单</div>
                     <div class="go-index" @click="$router.push('/index')">返回首页</div>
                 </div>
             </div>
@@ -97,30 +97,31 @@ import { query_detail, query_card_info} from '@/service/getData.js'
         data(){
             return{
                 orderId:'',       // 订单ID
-                orderstatus:'', // 订单是否成功
+                orderStatus:false, // 订单是否成功
                 typeJson:{
                     '0':'投资金',
                     '1':'首饰',
                 },
-                orderInfo:{
-                    code:'57467288374467332677',
-                    createTime:'2018-08-20 12:20:34',
-                    status:0,
-                    productType:0,
-                    applyWeight:3.23,
-                    isLockprice:1,
-                    cash:0,
-                    lockPrice:256.34,
-                    ensure_cash:3452.234,
-                    applyQuantity:3,
-                    contact:'小可爱',
-                    telephone:13520842445,
-                    address:'内蒙古呼和浩特市赛罕区7号楼602罕区7号楼602'
-                },
+                orderInfo:'',
                 bankInfo:{
                     code:'0820',
                     name:'招商银行'
                 },
+                // orderInfo:{
+                //     code:'57467288374467332677',
+                //     createTime:'2018-08-20 12:20:34',
+                //     status:0,
+                //     productType:0,
+                //     applyWeight:3.23,
+                //     isLockprice:1,
+                //     cash:0,
+                //     lockPrice:256.34,
+                //     ensure_cash:3452.234,
+                //     applyQuantity:3,
+                //     contact:'小可爱',
+                //     telephone:13520842445,
+                //     address:'内蒙古呼和浩特市赛罕区7号楼602罕区7号楼602'
+                // },
             }
         },
         filters:{
@@ -143,7 +144,7 @@ import { query_detail, query_card_info} from '@/service/getData.js'
                 var res = await query_detail(this.orderId);
                 if(res.code=='000000'){
                     this.orderInfo = res.data;
-                    if(res.data.isLockPrice){  // 如果是锁价请求银行卡信息
+                    if(res.data.lockprice){  // 如果是锁价请求银行卡信息
                         this.query_card_info();
                     }
                 }else{
@@ -160,9 +161,10 @@ import { query_detail, query_card_info} from '@/service/getData.js'
         },
         created(){
             this.orderId = this.$route.query.id;
-            this.orderstatus = this.$route.query.status; // 支付成功 or 失败
         },
         mounted(){
+            this.orderStatus = this.$route.query.status; // 支付成功 or 失败
+            console.log(this.orderStatus)
             this.query_detail();
         },
     }
