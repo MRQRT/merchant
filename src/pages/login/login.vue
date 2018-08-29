@@ -173,7 +173,7 @@
             ]),
             //微信登录
             weixinLogin(){
-                const url = 'http://192.168.1.114:8080/bindingwechat'
+                const url = 'http://192.168.1.114:8080/tran'
                 window.location.href="http://cjtshmerchant.au32.cn/user/auth/login?redirectUrl="+url;
             },
             //点击左上角关闭按钮
@@ -224,11 +224,11 @@
                     if(res.code=='000000'){
                         //登录成功后获取用户基本概况
                         // this.userInforma();
-                        //登录成功后去获取登录页的上一页,再跳转回去(带上对应的参数)
                         this.RECORD_USERID(res.data.userId)
                         this.RECORD_ACCESSTOKEN(res.data.accessToken)
                         this.RECORD_MOBILE(res.data.mobile)
                         this.RECORD_MERCHANTID(res.data.merchantId)
+                        //登录成功后去获取登录页的上一页,再跳转回去(带上对应的参数)
                         this.toNext();
                     }else{
                         Toast({

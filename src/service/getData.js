@@ -38,16 +38,34 @@ export const quicklogin = (mobile,smsCode) => fetch('/user/quick/login',{'mobile
 export const findpassword = (mobile,smsCode,password) => fetch('/user/find/password',{'mobile':mobile,'smsCode':smsCode,'password':password},'post')
 
 /**
-* 微信等录
+* 微信登录
 */
 
 export const wechatlogin = (redirectUrl) => fetch('/user/auth/login?redirectUrl='+redirectUrl,{},'get')
+
+/**
+* 微信手机绑定
+*/
+
+export const wechat_bind_mobile = (openid,mobile,smsCode) => fetch('/user/auth/bind',{'openid':openid,'mobile':mobile,'smsCode':smsCode},'post')
 
 /**
 * 退出登录
 */
 
 export const logout = () => fetch('/user/logout',{},'post')
+
+/**
+* 登录密码修改
+*/
+
+export const change_password = (oldPwd,newPwd) => fetch('/user/password/modify',{'oldPwd':oldPwd,'newPwd':newPwd},'post')
+
+/**
+* 修改绑定手机
+*/
+
+export const change_mobile = (mobile,smsCode,password) => fetch('/user/mobile/modify',{'mobile':mobile,'smsCode':smsCode,'password':password},'post')
 
 /**
 * 上传营业执照
@@ -93,10 +111,52 @@ export const merchant_open_apply_status = () => fetch('/merchant_open_apply/late
 export const shop_open_apply_status = () => fetch('/shop_open_apply/latest',{},'get')
 
 /*
+* 区域省市县
+*/
+
+export const province_area_list = (parentId) => fetch('/area/list?parentId='+parentId,{},'get')
+
+/*
+* 区域市县
+*/
+
+export const city_area_list = (spell) => fetch('/area/city_list?spell='+spell,{},'get')
+
+/*
 * 查询地址列表
 */
 
 export const query_shop_address_list = () => fetch('/address/query_shop_address_list',{},'get')
+
+/*
+* 修改店铺地址
+*/
+
+export const update_shop_address = (addressId,contact,telephone,address,provinceId,cityId,areaId) => fetch('/address/update_shop_address',{'addressId':addressId,'contact':contact,'telephone':telephone,'address':address,'provinceId':provinceId,'cityId':cityId,'areaId':areaId},'post')
+
+/*
+* 新增店铺地址
+*/
+
+export const add_shop_address = (contact,telephone,address,provinceId,cityId,areaId) => fetch('/address/add_shop_address',{'contact':contact,'telephone':telephone,'address':address,'provinceId':provinceId,'cityId':cityId,'areaId':areaId},'post')
+
+/*
+* 删除店铺地址
+*/
+
+export const del_shop_address = (addressId) => fetch('/address/del_shop_address',{'addressId':addressId},'post')
+
+/*
+* 查询店铺地址详情
+*/
+
+export const query_shop_address_detail = (addressId) => fetch('/address/query_shop_address_detail?addressId='+addressId,{},'get')
+
+/*
+* 修改默认地址
+*/
+
+export const update_default_address = (addressId) => fetch('/address/update_default_address',{'addressId':addressId},'POST')
 
 /**
  * 查询店铺信息

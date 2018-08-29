@@ -43,7 +43,7 @@ import {MessageBox,Toast} from 'mint-ui'
 import { isNumber } from '@/config/mUtils.js'
 import {sendsms,checkexist,registry} from '@/service/getData.js'
 import {mapMutations,mapState} from 'vuex'
- import md5 from 'js-md5'
+import md5 from 'js-md5'
     export default {
         data(){
             return{
@@ -197,7 +197,7 @@ import {mapMutations,mapState} from 'vuex'
                             that.second = 60;
                         }
                     },1000)
-                    let res = await sendsms(this.tel,0);
+                    let res1 = await sendsms(this.tel,0);
                     if(res1.code!='000000'){
                         Toast({
                             message: res1.message,

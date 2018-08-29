@@ -51,6 +51,7 @@ const register = r => require.ensure([], () => r(require('../pages/login/registe
 const bindingWechat = r => require.ensure([], () => r(require('../pages/login/bindingWechat')), 'bindingWechat')
 const changePassword = r => require.ensure([], () => r(require('../pages/login/changePassword')), 'changePassword')
 const changeMobile = r => require.ensure([], () => r(require('../pages/login/changeMobile')), 'changeMobile')
+const tran = r => require.ensure([], () => r(require('../pages/login/tran.vue')), 'tran')
 
 /* 关于我们 */
 const aboutus = r => require.ensure([], () => r(require('../pages/aboutUs/aboutUs')), 'changeMobile')
@@ -174,6 +175,10 @@ export const router = new Router({
         {
             path: '/login', //登录
             component: login
+        },
+        {
+            path:'/tran',//微信等录过度页
+            component:tran,
         },
         {
             path: '/findpassword', //找回密码
