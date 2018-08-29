@@ -74,7 +74,7 @@
 		methods:{
 			//点击返回按钮
 			backWard(){
-			
+				this.$router.go(-1)
 			},
 			watchRouter(to, from){
 			},

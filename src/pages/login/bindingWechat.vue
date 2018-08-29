@@ -89,6 +89,14 @@ import md5 from 'js-md5'
                     this.isSubmit=false
                 }
             },
+            //
+            arg(val){
+               if(this.check_vercode&&this.check_tel&&this.arg){
+                    this.isSubmit=true
+                }else{
+                    this.isSubmit=false
+                } 
+            }
         },
         methods: {
             ...mapMutations([

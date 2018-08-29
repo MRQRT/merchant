@@ -174,7 +174,7 @@
 
 <script>
 import headTop from '@/components/header/head.vue'
-import { Popup,Toast } from 'mint-ui';
+import { Popup,Toast,MessageBox } from 'mint-ui';
 import { mapState,mapMutations } from 'vuex'
 import { shop_status, query_index_statistics, shop, logout } from '@/service/getData.js'
 
@@ -264,19 +264,28 @@ import { shop_status, query_index_statistics, shop, logout } from '@/service/get
                     }
                 }
             },
-            // 退出登录
+            //退出登录
             async quitLogin(){
+                MessageBox({
+                    title: '提示',
+                    message: '确定要退出登录？',
+                    confirmButtonText: '取消',
+                    showCancelButton: true,
+                    cancelButtonText:'退出登录',
+                }).then((action)=>{
+                    if(action=='cancel'){
+                        this.logout();//接口触发
+                    }
+                })
+            },
+            async logout(){
                 const res = await logout();
                 if(res.code=='000000'){
-                    Toast('退出登录成功');
-                    this.popupVisible=false;
-                    this.loginStatus=false;
                     this.RECORD_ACCESSTOKEN('');
+                    this.$router.push('/login');
                 }else if(res.code=='000004'){
-                    Toast('退出登录成功');
-                    this.popupVisible=false;
-                    this.loginStatus=false;
                     this.RECORD_ACCESSTOKEN('');
+                    this.$router.push('/login');
                 }else{
                     Toast({
                         message: res.message,
