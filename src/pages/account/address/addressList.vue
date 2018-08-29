@@ -66,7 +66,7 @@
 			continer.style.minHeight=(document.documentElement.clientHeight)+'px';
 		},
 		watch: {
-			
+
 		},
 		computed:{
 
@@ -74,7 +74,11 @@
 		methods:{
 			//点击返回按钮
 			backWard(){
-			
+				if(this.$route.query.from=='account'){
+					this.$router.push('/account')
+				}else{
+					this.$router.push('/storegold')
+				}
 			},
 			watchRouter(to, from){
 			},
@@ -117,11 +121,21 @@
 				// this.RECORD_ADDRESS(value);
 				var from=this.$route.query.from;
 				this.has_checked=value.id
-				
+				this.$router.push({
+					path:'/storegold',
+					query:{
+						addressId:value.id
+					}
+				})
 			},
 			//点击添加新地址
 			addNewAddr(){
-				this.$router.push({path:'/addAddress'})
+				this.$router.push({
+					path:'/addAddress',
+					query:{
+						from:'addresslist'
+					}
+				})
 			},
 		},
 		components:{

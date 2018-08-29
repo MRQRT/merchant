@@ -374,13 +374,15 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
             section{
                 padding:0 .4rem;
                 position: relative;
+
                 input,p{
                     width:100%;
-                    padding:.35rem 0;
+                    padding:.25rem 0 .35rem;
                     color:#333;
                     font-size: .28rem;
                     font-family:PingFangSC-Regular;
                     border-bottom: 1px solid #eee;
+
                 }
                 img{
                     display: inline-block;

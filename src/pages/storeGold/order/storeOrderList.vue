@@ -35,7 +35,7 @@
                                 <div class="ensure-cash" v-if="item.lockprice">保证金：{{item.ensureCash | formatPriceTwo}}元</div>
                                 <div class="weight-time">
                                     <span>总克重：{{item.applyWeight}}克</span>
-                                    <span>{{item.createTime}}</span>
+                                    <span>{{item.createTimeStr | deleteSec}}</span>
                                 </div>
                             </div>
                         </div>

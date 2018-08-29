@@ -163,7 +163,7 @@ export default{
 				this.province_show=false
 				this.city_show=true
 				this.province_list(val.id,'市');
-			}, 
+			},
 			// 选择城市
 			checkcity(val){//参数：城市对象
 				this.city=val.cityName
@@ -215,7 +215,12 @@ export default{
 				if(this.title=='添加地址' && this.stor){
 					const res_1 = await add_shop_address(this.contact,this.telephone,this.addressDetail,this.provinceId,this.cityId,this.areaId);
 					if(res_1.code=='000000'){
-						this.$router.push('/addresslist')
+						if(this.$route.query.from=='addresslist'){
+							this.$router.push('/addresslist')
+						}else{
+							this.$router.push('/storegold')
+						}
+
 					}
 				//修改地址
 				}else if(this.title=='修改地址'&&this.stor&&this.$route.query.modify){

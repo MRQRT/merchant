@@ -183,11 +183,11 @@ import { shop_status, query_index_statistics, shop, logout } from '@/service/get
         data(){
             return{
                 popupVisible:false,   // 左侧导航显示
-                loginStatus:false,     // 是否登录
-                dealObject:{
-                    totalCashAmount:2345.3444,
-                    totalWeight:23.43,
-                    totalCount:88
+                loginStatus:false,    // 是否登录
+                dealObject:{          // 近一月交易量
+                    totalCashAmount:0,
+                    totalWeight:0,
+                    totalCount:0
                 },
                 shopInfo:{
                     shopId:'',
@@ -244,7 +244,7 @@ import { shop_status, query_index_statistics, shop, logout } from '@/service/get
             },
             // 近一月统计数据
             async query_index_statistics(){
-                var res = query_index_statistics();
+                var res = await query_index_statistics();
                 if(res.code=='000000'){
                     this.dealObject=res.data;
                 }else if(res.code=='200206'){
@@ -297,9 +297,8 @@ import { shop_status, query_index_statistics, shop, logout } from '@/service/get
             if(this.loginStatus){              // 登录状态下请求
                 this.shop_status();            // 判断店铺状态
                 this.checkShopStatus();        // 店铺信息
-            }
-            if(this.shopStatus){
                 this.query_index_statistics(); // 首页统计数据
+                console.log(this.accessToken)
             }
         },
         beforeRouteLeave (to, from, next) {
