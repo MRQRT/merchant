@@ -192,6 +192,9 @@ import {business_license,person_card_back,person_card_front} from '@/service/get
                 this.back_idcard2_url=a.idcard2;//上传完返回的地址(反面)
             }
         },
+        destroyed(){
+            Indicator.close();
+        }
     }
 
 </script>

@@ -130,6 +130,8 @@ export default {
             this.ms.personCardEndDate=formasta;
         },
         async submit(){
+            var issubmit = this.check_input();
+            if(issubmit==false)return
             let arr = this.ms.personCode.split(' ');
             var ss = '';
             arr.forEach(item => {
@@ -139,7 +141,7 @@ export default {
             const res = await merchant_open_apply(this.ms.companyName,this.ms.businessLicenseCode,this.ms.businessLicenseBeginDate,this.ms.businessLicenseEndDate,this.ms.personName,this.ms.personCode,this.ms.personCardEndDate);
             if(res.code=='000000'){
                  setStore('qc_imgobj','','session');
-                this.$router.push('/applicationresults');
+                this.$router.push('/qcmscommitresult');
             }else{
                 setStore('qc_imgobj','','session');
                 Toast({
@@ -147,6 +149,37 @@ export default {
                     position: 'bottom',
                     duration: 3000
                 })
+            }
+        },
+        //校验输入框
+        check_input(){
+            if(this.ms.companyName==''){
+                Toast('请输入公司名称');
+                return false
+            }
+            if(this.ms.businessLicenseCode==''){
+                Toast('请输入营业执照号');
+                return false
+            }
+            if(this.ms.businessLicenseBeginDate==''){
+                Toast('请输入营业期限开始时间')
+                return false
+            }
+            if(this.ms.businessLicenseEndDate==''){
+                Toast('请输入营业期限结束时间')
+                return false
+            }
+            if(this.ms.personName==''){
+                Toast('请输入法人姓名')
+                return false
+            }
+            if(this.ms.personCode==''){
+                Toast('请输入法人身份证号')
+                return false
+            }
+            if(this.ms.personCardEndDate==''){
+                Toast('请输入证件有效期')
+                return false
             }
         }
     },
