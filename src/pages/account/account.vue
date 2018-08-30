@@ -31,7 +31,7 @@
 
 <script>
 import headTop from '@/components/header/head.vue'
-import {logout,query_shop_address_list} from '@/service/getData.js'
+import {logout,query_shop_address_list,check_password} from '@/service/getData.js'
 import { MessageBox,Toast } from 'mint-ui';
 import { mapState,mapMutations } from 'vuex'
 export default {
@@ -126,13 +126,25 @@ export default {
                     duration: 3000
                 });
             }
+        },
+        async check_password(){
+            const res = await check_password();
+            if(res.code=='000000'){
+                if(res.data.isExist){
+                    this.password_isset='已设置'
+                }else{
+                    this.password_isset='未设置'
+                }
+            }
         }
+        
     },
     created(){
 
     },
     mounted(){
         this.getAddress();//获取地址列表
+        this.check_password();//检查是否设置密码
     },
 }
 </script>
