@@ -23,9 +23,9 @@
             <div class="nextpage"><img src="static/images/next.png" alt=""></div>
         </section>
         <!-- button -->
-        <section class="button">
-            <div class="but_text" @click="quitLogin()">退出登录</div>
-        </section>
+        <!-- <section class="button"> -->
+            <!-- <div class="but_text" @click="quitLogin()">退出登录</div> -->
+        <!-- </section> -->
     </div>
 </template>
 
@@ -38,7 +38,8 @@ export default {
     data(){
         return{
             address_isset:'',
-            password_isset:'未设置',
+            password_isset:'',
+            address_tips:'',
         }
     },
     components:{
@@ -79,6 +80,8 @@ export default {
                         from:'account'
                     }
                 })
+            }else{
+                Toast(this.address_tips)
             }
         },
         go_password(){
@@ -95,6 +98,8 @@ export default {
                 this.address_isset='已设置'
             }else if(res.code=='000000'&&res.data.content.length==0){
                 this.address_isset="未设置"
+            }else{
+                this.address_tips=res.message
             }
         },
         //退出登录
