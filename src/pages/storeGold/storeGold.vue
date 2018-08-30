@@ -697,24 +697,24 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
 
 <style media="screen">
 .mint-popup{
-    border-radius: .2rem;
+    border-radius: .2rem !important;
 }
 .mint-msgbox-wrapper>.mint-msgbox{
-    width:5rem;
-    border-radius: 0;
+    width:5rem !important;
+    border-radius: 0 !important;
 }
 .mint-msgbox-wrapper .mint-msgbox-message{
-    color: #333;
-    font-size: .26rem;
+    color: #333 !important;
+    font-size: .26rem !important;
 }
 .mint-msgbox-wrapper .mint-msgbox-confirm, .mint-msgbox .mint-msgbox-btns .mint-msgbox-cancel{
-    color:#C09C60;
+    color:#C09C60 !important;
 }
 .mint-msgbox-wrapper .mint-msgbox-message{
-    text-align: left;
+    text-align: left !important;
 }
 .mint-msgbox-wrapper .mint-msgbox-message{
-    padding:.1rem .2rem;
+    padding:.1rem .2rem !important;
 }
 .mint-msgbox .mint-msgbox-btns .mint-msgbox-cancel{
     border-right:1px solid #eee !important;

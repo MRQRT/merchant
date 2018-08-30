@@ -55,22 +55,22 @@ export default {
 
 <style>
 .mint-msgbox-wrapper>.mint-msgbox{
-    width:5rem;
-    border-radius: 0;
+    width:5rem !important;
+    border-radius: 0 !important;
 }
 .mint-msgbox-wrapper .mint-msgbox-message{
-    font-size: .26rem;
+    font-size: .26rem !important;
 }
 .mint-msgbox-wrapper .mint-msgbox-confirm, .mint-msgbox .mint-msgbox-btns .mint-msgbox-cancel{
-    color:#C09C60;
+    color:#C09C60 !important;
 }
 .mint-msgbox-wrapper .mint-msgbox-message{
     text-align: left;
 }
 .mint-msgbox-wrapper .mint-msgbox-message{
-    padding:.1rem .2rem;
+    padding:.1rem .2rem !important;
 }
 .mint-msgbox-cancel{
-    border-right:1px solid #eee;
+    border-right:1px solid #eee !important;
 }
 </style>

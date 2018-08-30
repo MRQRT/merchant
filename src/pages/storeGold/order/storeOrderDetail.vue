@@ -941,6 +941,9 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
         background:none;
         /* border-radius: .2rem; */
     }
+    .mint-msgbox-btn .mint-msgbox-confirm{
+        color: #C09C60 !important;
+    }
 </style>
 
 <style scoped lang="scss">
