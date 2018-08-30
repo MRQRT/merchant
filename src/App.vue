@@ -9,7 +9,7 @@ import {query_gold_price} from './service/getData.js'
 import { mapState,mapMutations } from 'vuex'
 
 export default {
-        name: 'App',
+        name: 'app',
         data(){
             return{
 
