@@ -58,7 +58,7 @@ const setpassword = r => require.ensure([], () => r(require('../pages/login/setp
 const aboutus = r => require.ensure([], () => r(require('../pages/aboutUs/aboutus')), 'aboutus')
 
 
-export const router = new Router({
+const router = new Router({
     mode: 'history',
     routes: [
         {

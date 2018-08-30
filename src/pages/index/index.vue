@@ -202,7 +202,7 @@ import { shop_status, query_index_statistics, shop, logout } from '@/service/get
         },
         computed: {
             ...mapState([
-                'currentPrice','accessToken','shopStatus',
+                'currentPrice','accessToken','shopStatus','userId'
             ]),
         },
         watch:{
@@ -307,7 +307,7 @@ import { shop_status, query_index_statistics, shop, logout } from '@/service/get
                 this.shop_status();            // 判断店铺状态
                 this.checkShopStatus();        // 店铺信息
                 this.query_index_statistics(); // 首页统计数据
-                console.log(this.accessToken)
+                console.log(this.userId)
             }
         },
         beforeRouteLeave (to, from, next) {
