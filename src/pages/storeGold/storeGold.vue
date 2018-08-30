@@ -9,6 +9,7 @@
         <div class="main-cont" v-show="!popupVisible">
             <!-- 顶部banner -->
             <div class="top-banner">
+                <img src="static/images/storeGold-banner.png" alt="">
                 <!-- 实时金价 -->
                 <div class="current-price">
                     <div class="text">实时金价(元/克)<span class="question" @click="showPopup(1)"></span></div>
@@ -99,7 +100,7 @@
                         <p class="btn"><span></span>创建地址</p>
                     </div>
                     <!-- 有地址状态 -->
-                    <div class="address-card has-address" v-else @click="$router.push({path:'/addresslist',query:{from:'storegold'}})">
+                    <div class="address-card has-address" v-else @click="$router.push({path:'/addresslist',query:{from:'storegold',addressId:addressId}})">
                         <div class="left-part">
                             <p class="name-tel">
                                 <span class="name">{{receiverInfo.contact}}</span>
@@ -424,6 +425,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                     }else{
                         this.addressStatus = true;
                         this.receiverInfo = addressArray[0];
+                        this.addressId = addressArray[0].id;
                         // 如果有默认地址取默认
                         for(let i=0; i<addressArray.length;i++){
                             if(addressArray[i].defaults){
@@ -446,10 +448,6 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                     }
                 })
             },
-            //点击提交按钮前判断店铺状态
-            async add_recycle_order_check(){
-                var res = await add_recycle_order_check();
-            },
             // 选择地址后回调
             async query_shop_address_detail(){
                 var res = await query_shop_address_detail(this.addressId);
@@ -459,18 +457,33 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                 }
             },
             //点击按钮提交函数
-            submit(num){
-                if(!this.shopStatus){  // 店铺未通过审核
-                    this.showMessage(3);
-                }
-                if(this.submitStatus){     // 按钮可点击状态
-                    if(this.btnCtroller){
-                        this.btnCtroller=false
-                        num == 1 ? this.showMessage(4) : this.showMessage(5);
-                    }else{
-                        Toast('频繁操作～')
+            async submit(num){
+                var res = await add_recycle_order_check(); // 再次判断店铺是否通过审核
+                if(res.code=='000000'){
+                    this.RECORD_SHOPSTATUS(true)
+                    if(this.submitStatus){     // 按钮可点击状态
+                        if(this.btnCtroller){
+                            this.btnCtroller=false
+                            num == 1 ? this.showMessage(4) : this.showMessage(5);
+                        }else{
+                            Toast('频繁操作～')
+                        }
                     }
+                }else{
+                    this.showMessage(3);
+                    this.RECORD_SHOPSTATUS(false)
                 }
+                // if(!this.shopStatus){  // 店铺未通过审核
+                //     this.showMessage(3);
+                // }
+                // if(this.submitStatus){     // 按钮可点击状态
+                //     if(this.btnCtroller){
+                //         this.btnCtroller=false
+                //         num == 1 ? this.showMessage(4) : this.showMessage(5);
+                //     }else{
+                //         Toast('频繁操作～')
+                //     }
+                // }
             },
             //各类提示弹窗
             showMessage(num){
@@ -721,13 +734,24 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
             width:100%;
             height: 4.42rem;
             text-align: center;
-            padding-top:.4rem;
-            @include bg-image('/static/images/storeGold-banner.png');
+            // padding-top:.4rem;
+            position: relative;
+            z-index:8;
+            // @include bg-image('/static/images/storeGold-banner.png');
+            img{
+                width:100%;
+                height: 4.42rem;
+            }
             .current-price{
+                width:100%;
                 color: #DDC899;
+                text-align: center;
+                position: absolute;
+                top:.4rem;
                 .text{
                     font-size: .28rem;
                     margin-bottom: .2rem;
+                    font-family:PingFangSC-Regular;
                     .question{
                         display: inline-block;
                         width: .31rem;
@@ -739,6 +763,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                 }
                 .price{
                     font-size: .66rem;
+                    font-weight: bold;
                     font-family:DINAlternate-Bold;
                 }
             }
@@ -746,6 +771,8 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
         .order-wrap{
             width:100%;
             padding:0 .4rem;
+            position: relative;
+            z-index: 9;
 
             .inner-box{
                 width:100%;
@@ -1075,6 +1102,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
             font-size: .34rem;
             position: fixed;
             bottom: 0;
+            z-index: 10;
 
             .login{
                 width: 100%;

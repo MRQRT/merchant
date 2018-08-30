@@ -5,7 +5,7 @@
             <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.push({path:'/index',query:{navStatus:1}})">
         </head-top>
         <!-- 主体部分 -->
-        <div class="main-cont" ref="wrapper" v-if="orderStatus" :style="{ height: wrapperHeight + 'px' }">
+        <div class="main-cont" ref="wrapper" v-show="showStatus" v-if="orderStatus" :style="{ height: wrapperHeight + 'px' }">
             <mt-loadmore :bottom-method="loadBottom" :bottom-all-loaded="allLoaded" :auto-fill="false"
                 bottomPullText="上滑加载更多" bottomDropText="松开加载" ref="loadmore" class="loadmore">
                 <ul class="order-list">
@@ -57,16 +57,17 @@
 import headTop from '@/components/header/head.vue'
 import { query_list } from '@/service/getData.js'
 import { mapState,mapMutations } from 'vuex'
-
+import { Indicator } from 'mint-ui';
 
     export default {
         data(){
             return{
+                showStatus:false,    // 是否显示内容
                 orderStatus:true,    // 是否有订单
                 allLoaded:false,     // 是否全部加载完毕
                 wrapperHeight:0,     // 加载内容动态高度
                 searchCondition: {   // 分页属性
-                    pageNo: 1,
+                    pageNo: 0,
                     pageSize: 10
             	},
                 pages:'',             // 总页数
@@ -254,6 +255,8 @@ import { mapState,mapMutations } from 'vuex'
             async requestList(){
                 var res = await query_list(this.searchCondition.pageNo,this.searchCondition.pageSize);
                 if(res.code=='000000'){
+                    this.showStatus = true;
+                    Indicator.close();
                     if(res.data.content.length==0){
                         this.orderStatus = false;
                     }else{
@@ -309,6 +312,10 @@ import { mapState,mapMutations } from 'vuex'
 
         },
         mounted(){
+            Indicator.open({
+              // text: '加载中...',
+              spinnerType: 'fading-circle'
+            });
             this.requestList();
             // 计算滚动内容的高度
     		this.wrapperHeight = document.documentElement.clientHeight - this.$refs.wrapper.getBoundingClientRect().top;

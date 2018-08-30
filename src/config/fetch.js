@@ -69,7 +69,9 @@ axios.interceptors.response.use(
                 case '000001':
                     Indicator.close();
                     router.replace({path:'/systemError'})  //跳转到500页面
-                    break;                    
+                    break;
+                case '000004':
+                    store.commit('RECORD_ACCESSTOKEN','') //清除accesstoken
             }
         }
         return Promise.reject(error)  // 返回接口返回的错误信息

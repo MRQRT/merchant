@@ -46,6 +46,7 @@
 	export default{
 		data(){
 			return {
+				addressId:'',
 				picked: null,//和radio的值匹配，所匹配的值就是那个默认值
 				   del: del,//删除icon
 			   compile: compile,//编辑icon
@@ -58,6 +59,9 @@
 		},
 		created(){
 			var from=this.$route.query.from;
+			if(this.$route.query.addressId){
+				this.has_checked = this.$route.query.addressId;
+			}
 		},
 		mounted(){
 			this.getAddress();
@@ -120,12 +124,17 @@
 				// this.RECORD_ADDRESS(value);
 				var from=this.$route.query.from;
 				this.has_checked=value.id
-				this.$router.push({
-					path:'/storegold',
-					query:{
-						addressId:value.id
-					}
-				})
+				if(from=='storegold'){
+					this.$router.push({
+						path:'/storegold',
+						query:{
+							addressId:value.id
+						}
+					})
+				}else{
+					return
+				}
+
 			},
 			//点击添加新地址
 			addNewAddr(){

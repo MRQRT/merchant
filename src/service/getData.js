@@ -229,7 +229,7 @@ export const bind_card = (id,code,mobile,captcha) => fetch('/bank_card',{'id':id
  * 创建订单验证接口(验证店铺是否存在或是否通过审核)
  */
 
-export const add_recycle_order_check = (orderId) => fetch('/order/add_recycle_order_check',{},'post');
+export const add_recycle_order_check = () => fetch('/order/add_recycle_order_check',{},'get');
 
 /**
  * 创建订单

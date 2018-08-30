@@ -6,7 +6,7 @@
         </head-top>
         <!-- 主体内容 -->
         <!-- 待支付订单 -->
-        <div class="main-cont" v-if="status==10 || status==11">
+        <div class="main-cont" v-if="status==10 || status==11" v-show="showStatus">
             <!-- 顶部倒计时 -->
             <div class="countDown" v-if="status==10">
                 <p class="clock-icon"></p>
@@ -45,7 +45,7 @@
                     </p>
                     <p>
                         <span>总克重</span>
-                        <span>{{orderInfo.applyWeight}}克</span>
+                        <span>{{orderInfo.applyWeight | formatPriceTwo}}克</span>
                     </p>
                     <p>
                         <span>数量</span>
@@ -62,7 +62,7 @@
                         </p>
                         <p>
                             <span>锁定金价<b @click="lockPricePopup"></b></span>
-                            <span class="special-color">{{orderInfo.lockPrice}}元/克</span>
+                            <span class="special-color">{{orderInfo.lockPrices}}元/克</span>
                         </p>
                     </div>
                 </div>
@@ -79,11 +79,11 @@
                     <span>锁价保证金</span>
                     <span>{{orderInfo.ensureCash | formatPriceTwo}}元</span>
                 </div>
-                <div class="right-btn" @click="pay_beforehand_order(0)">支付</div>
+                <div class="right-btn" @click="pay_beforehand_order(1)">支付</div>
             </div>
         </div>
         <!-- 其他状态订单 -->
-        <div class="main-cont" v-else>
+        <div class="main-cont" v-else v-show="showStatus">
             <!-- 异常取消状态 -->
             <div class="abnormal-cancel" v-if="status == 8">
                 <img src="static/images/shopmsnopass.png" alt="">
@@ -97,7 +97,7 @@
                     <span>订单编号：{{orderInfo.code}}</span>
                     <span class="status" v-if="status!=8">{{iconJson[status].name}}</span>
                 </div>
-                <div class="create-time">提交时间：{{orderInfo.createTimeStr}}</div>
+                <div class="create-time" v-if="orderInfo.createTimeStr">提交时间：{{orderInfo.createTimeStr | deleteSec}}</div>
             </div>
             <div class="distans"></div>
             <!-- 中间进度显示 -->
@@ -144,7 +144,7 @@
                     </p>
                     <p>
                         <span>总克重</span>
-                        <span>{{orderInfo.applyWeight}}克</span>
+                        <span>{{orderInfo.applyWeight | formatPriceTwo}}克</span>
                     </p>
                     <p>
                         <span>数量</span>
@@ -157,11 +157,11 @@
                     <div class="" v-if="orderInfo.lockprice">
                         <p>
                             <span>锁价保证金</span>
-                            <span>{{orderInfo.ensure_cash}}元</span>
+                            <span>{{orderInfo.ensureCash}}元</span>
                         </p>
                         <p>
                             <span>锁定金价<b @click="lockPricePopup"></b></span>
-                            <span class="special-color">{{orderInfo.lockPrice}}元/克</span>
+                            <span class="special-color">{{orderInfo.lockPrices}}元/克</span>
                         </p>
                     </div>
                 </div>
@@ -175,7 +175,7 @@
                 </p>
                 <p>
                     <span>交易金额</span>
-                    <span>{{orderInfo.tradeAmount | formatPriceTwo}}</span>
+                    <span>{{orderInfo.tradeAmount | formatPriceTwo}}元</span>
                 </p>
                 <p>
                     <span>成交时间</span>
@@ -195,7 +195,7 @@
                 </div>
                 <ul class="tracking-list" :class="{'showList':trackingStatus}">
                     <div class="line"></div>
-                    <li class="tracking-item" v-for="(item,index) in newTrackList">
+                    <li class="tracking-item" v-for="(item,index) in newTrackList" v-if="item.status!=3">
                         <div class="left-line">
                             <span class="dot" :class="{'recent-icon':index==0}"></span>
                         </div>
@@ -254,7 +254,7 @@
                             </p>
                             <p>
                                 <span>检测时间：</span>
-                                <span>{{reportInfo.auditTime}}</span>
+                                <span>{{reportInfo.auditTimeStr}}</span>
                             </p>
                             <p>
                                 <span>检测说明：</span>
@@ -266,8 +266,8 @@
                             </p>
                         </div>
                         <div class="report-img">
-                            <img src="static/images/storeGold-banner.png" alt="">
-                            <!-- <img :src="reportInfo.attachmentPath" alt=""> -->
+                            <!-- <img src="static/images/storeGold-banner.png" alt=""> -->
+                            <img :src="reportInfo.attachmentPath" alt="">
                         </div>
                         <!-- 异常情况 -->
                         <div class="report-btn" v-if="status==5 || status==9 || status==13"><a href="tel:4001689999">联系客服</a></div>
@@ -289,13 +289,13 @@
                 <div class="top-part">
                     <h3>请输入短信验证码</h3>
                     <p>锁价保证金</p>
-                    <p class="price">¥{{orderInfo.ensure_cash|formatPriceTwo}}</p>
+                    <p class="price">¥{{orderInfo.ensureCash|formatPriceTwo}}</p>
                 </div>
                 <!-- 输入框 -->
                 <div class="bottom-part">
                     <div class="lock-single-price">
                         <span>锁定金价</span>
-                        <span>{{orderInfo.lockPrice|formatPriceTwo}}元/克</span>
+                        <span>{{orderInfo.lockPrices|formatPriceTwo}}元/克</span>
                     </div>
                     <div class="input-wrap">
                         <span>{{verifiCode[0]}}</span>
@@ -324,7 +324,7 @@
 
 <script>
 import headTop from '@/components/header/head.vue'
-import { MessageBox,Toast,Popup } from 'mint-ui';
+import { MessageBox,Toast,Popup,Indicator } from 'mint-ui';
 /* 请求详情、物流单号、物流信息、订单追踪、确认订单、修改订单 、银行卡信息、支付预下单、正式下单、查询支付状态、查询检测报告 */
 import { query_detail, query_logistics_mess, query_express_mess, query_status_flow_mess,confirm_order,update_status,query_card_info,pay_beforehand_order, pay_formal_order, query_status, query_process_mess} from '@/service/getData.js'
 
@@ -332,6 +332,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
     export default {
         data(){
             return{
+                showStatus:false,      // 内容是否显示
                 orderId:'',            // 订单id
                 expressNo:'',          // 快递单号
                 expressCode:'',        // 物流公司编码
@@ -406,17 +407,20 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     '0':{name:'订单已提交'},
                     '1':{name:'订单审核未通过'},
                     '2':{name:'订单审核通过'},
+                    '3':{name:'物流中'},
                     '4':{name:'平台已签收'},
                     '5':{name:'存金检测完毕-检测未通过'},
                     '6':{name:'存金检测完毕-检测通过'},
                     '7':{name:'已确认检测报告'},
                     '8':{name:'订单已取消'},
                     '9':{name:'保证金已退还'},
+                    '10':{name:'订单已提交'},
                     '13':{name:'平台已退货'},
                     '14':{name:'订单完成'},
                     '15':{name:'已支付锁价保证金'},
                 },
                 orderTrackList:[],
+                deliveryList:[],
                 // orderTrackList: [
                 //     {
                 //         "id": null,
@@ -478,48 +482,48 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 //         "createTime": 1535095362000
                 //     }
                 // ],
-                deliveryList:[
-                    {
-                        time:'2018-08-20 12:23:00',
-                        status:'已签收！签收人：黄金管家'
-                    },
-                    {
-                        time:'2018-08-20 12:23:00',
-                        status:'［北京市］海淀区科贸派件员：李冰   18910672345正在为您派件'
-                    },
-                    {
-                        time:'2018-08-20 12:23:00',
-                        status:'北京市海淀区科贸 已收入'
-                    },
-                    {
-                        time:'2018-08-20 12:23:00',
-                        status:'浙江省金华市义务中转站公司  已发出，下一站 北京运转中心'
-                    },
-                    {
-                        time:'2018-08-20 12:23:00',
-                        status:'［北京市］海淀区科贸派件员：李冰   18910672345正在为您派件'
-                    },
-                    {
-                        time:'2018-08-20 12:23:00',
-                        status:'北京市海淀区科贸 已收入'
-                    },
-                    {
-                        time:'2018-08-20 12:23:00',
-                        status:'浙江省金华市义务中转站公司  已发出，下一站 北京运转中心'
-                    },
-                    {
-                        time:'2018-08-20 12:23:00',
-                        status:'［北京市］海淀区科贸派件员：李冰   18910672345正在为您派件'
-                    },
-                    {
-                        time:'2018-08-20 12:23:00',
-                        status:'北京市海淀区科贸 已收入'
-                    },
-                    {
-                        time:'2018-08-20 12:23:00',
-                        status:'浙江省金华市义务中转站公司  已发出，下一站 北京运转中心'
-                    },
-                ],
+                // deliveryList:[
+                //     {
+                //         time:'2018-08-20 12:23:00',
+                //         status:'已签收！签收人：黄金管家'
+                //     },
+                //     {
+                //         time:'2018-08-20 12:23:00',
+                //         status:'［北京市］海淀区科贸派件员：李冰   18910672345正在为您派件'
+                //     },
+                //     {
+                //         time:'2018-08-20 12:23:00',
+                //         status:'北京市海淀区科贸 已收入'
+                //     },
+                //     {
+                //         time:'2018-08-20 12:23:00',
+                //         status:'浙江省金华市义务中转站公司  已发出，下一站 北京运转中心'
+                //     },
+                //     {
+                //         time:'2018-08-20 12:23:00',
+                //         status:'［北京市］海淀区科贸派件员：李冰   18910672345正在为您派件'
+                //     },
+                //     {
+                //         time:'2018-08-20 12:23:00',
+                //         status:'北京市海淀区科贸 已收入'
+                //     },
+                //     {
+                //         time:'2018-08-20 12:23:00',
+                //         status:'浙江省金华市义务中转站公司  已发出，下一站 北京运转中心'
+                //     },
+                //     {
+                //         time:'2018-08-20 12:23:00',
+                //         status:'［北京市］海淀区科贸派件员：李冰   18910672345正在为您派件'
+                //     },
+                //     {
+                //         time:'2018-08-20 12:23:00',
+                //         status:'北京市海淀区科贸 已收入'
+                //     },
+                //     {
+                //         time:'2018-08-20 12:23:00',
+                //         status:'浙江省金华市义务中转站公司  已发出，下一站 北京运转中心'
+                //     },
+                // ],
                 orderTrackText:'',
                 orderInfo:'',
                 newTrackList:[],
@@ -543,6 +547,9 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
 
         },
         watch:{
+            expressNo(val){
+                return val
+            },
             // 弹窗关闭解除禁止页面滚动
             popupVisible(val){
                 if(!this.popupVisible){
@@ -604,8 +611,8 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             },
             // 倒计时
             countDown(time){
-                var countdownMinute = 1;//10分钟倒计时
-                var startTimes = new Date(time);//开始时间 new Date('2016-11-16 15:21');
+                var countdownMinute = 3;//10分钟倒计时
+                var startTimes = new Date(time.replace(/-/g,"/"));//开始时间 new Date('2016-11-16 15:21');
                 var endTimes = new Date(startTimes.setMinutes(startTimes.getMinutes()+countdownMinute));//结束时间
                 var curTimes = new Date();//当前时间
                 var surplusTimes = endTimes.getTime()/1000 - curTimes.getTime()/1000;//结束毫秒-开始毫秒=剩余倒计时间
@@ -616,7 +623,6 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     surplusTimes--;
                     that.minu = Math.floor(surplusTimes/60);
                     that.secd = Math.round(surplusTimes%60);
-                    console.log(that.minu+':'+that.secd);
                     if(surplusTimes<=0){
                         that.minu = '--';
                         that.secd = '--';
@@ -710,7 +716,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             trackingText(){
                 var that = this;
                 this.orderTrackList.forEach(function(item,index){
-                    if(item.orderStatus==0 && item.addSort!=0){ // 状态都为0时，判断已锁价
+                    if(item.orderStatus==0 && item.lastOrderStatus==10){ // 状态都为0时，判断已锁价
                         that.orderTrackText = that.orderTrackJson[15].name
                     }else if(item.orderStatus==7 && item.lastOrderStatus!=6){ // 状态为7时，对应3个状态(已退保证金/已完成/确认检测报告)
                         that.orderTrackText = item.addSort == that.orderTrackList.length-1 ? that.orderTrackJson[9].name : that.orderTrackJson[14].name;
@@ -721,18 +727,23 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     }
                     that.newTrackList.push({
                         time:item.createTimeStr,
-                        name:that.orderTrackText
+                        name:that.orderTrackText,
+                        status:item.orderStatus
                     })
                 })
             },
 
             // 请求订单详情数据
             async query_detail(){
+                var that = this;
                 var res = await query_detail(this.orderId);
                 if(res.code=='000000'){
+                    this.showStatus = true;
+                    Indicator.close();
                     this.orderInfo = res.data;
                     this.status = res.data.status;
                     this.isLockOrder = res.data.lockprice;
+
                     this.showTips(this.isClick,this.iconJson[this.status].iconType,'',this.status,this.isLockOrder);
 
                     // 订单追踪(除未支付、已失效)
@@ -747,9 +758,9 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     if(this.orderInfo.status==10 || this.orderInfo.status==11 || this.orderInfo.lockprice){
                         this.query_card_info();
                     }
-                    // 从【物流中】状态就开始请求快递信息
-                    if(this.orderInfo.status>=2){
-                        this.deliveryType = this.orderInfo.status == 3 ? 0 : 1;
+                    // 从【物流中】状态就开始请求快递信息(以防状态发生变化，再次请求数据)
+                    if(this.orderInfo.status>2 && this.orderInfo.status!=8 && this.orderInfo.status!=10 && this.orderInfo.status!=11){
+                        this.deliveryType = this.orderInfo.status == 9 ||  this.orderInfo.status == 13 ? 1 : 0;
                         this.query_logistics_mess();
                     }
                 }else{
@@ -758,8 +769,6 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             },
             // 请求物流单号
             async query_logistics_mess(){
-                this.expressNo = '12345678';
-
                 var res = await query_logistics_mess(this.orderId,this.deliveryType) // type:0-取货；1-退货
                 if(res.code=='000000'){
                     this.expressNo = res.data.expressNo;
@@ -772,7 +781,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             async query_express_mess(){
                 var res = await query_express_mess(this.expressNo,this.expressCode)
                 if(res.code=='000000'){
-                    this.deliveryList = res.data;
+                    this.deliveryList = res.data.result.list;
                 }else{
                     Toast(res.message)
                 }
@@ -799,9 +808,9 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             // 确认订单(用户点击确认检测报告调用)
             async confirm_order(){
                 var res = await confirm_order(this.orderId);
-                if(rs.code=='000000'){
+                if(res.code=='000000'){
                     this.reportClick = false; // 确认订单 => 已确认
-                    this.popupVisible = false;
+                    // this.popupVisible = false;
                 }else{
                     Toast(res.message)
                 }
@@ -906,8 +915,16 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             this.status = this.$route.query.status;
         },
         mounted(){
+            Indicator.open({
+              // text: '加载中...',
+              spinnerType: 'fading-circle'
+            });
+            // 从【物流中】状态就开始请求快递信息
+            if(this.status>2 && this.status!=8 && this.status!=10 && this.status!=11){
+                this.deliveryType = this.status == 9 || this.status==13 ? 1 : 0;
+                this.query_logistics_mess();
+            }
             this.query_detail(); // 订单详情
-            // this.showTips(this.isClick,this.iconJson[this.status].iconType,'',this.status,this.isLockOrder);
         },
         beforeRouteLeave (to, from, next) { // 离开此路由时清除定时器
             if(window.timer){
@@ -1337,6 +1354,25 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     width: 100%;
                     align-items: flex-start;
                     @include flex-box();
+
+                    &:nth-of-type(1){
+                        .left-line{
+                            .dot{
+                                left:.1rem !important;
+                                top:.25rem !important;
+                                width: .24rem !important;
+                                height: .24rem !important;
+                                background:url('/static/images/dot-yes.png') no-repeat !important;
+                                background-size:100% !important;
+                            }
+                        }
+                        .right-text{
+                            p{
+                                color:#333;
+                            }
+                        }
+                    }
+
                     .left-line{
                         width: 10%;
                         padding:.2rem 0;
@@ -1503,6 +1539,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
     .delivery-wrap,.report-wrap{
         .top-wrap{
             width: 6.7rem;
+            min-height: 3rem;
             max-height: 8.2rem;
             padding:.3rem;
             background-color: #fff;
