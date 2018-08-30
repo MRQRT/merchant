@@ -62,6 +62,18 @@ export const logout = () => fetch('/user/logout',{},'post')
 export const change_password = (oldPwd,newPwd) => fetch('/user/password/modify',{'oldPwd':oldPwd,'newPwd':newPwd},'post')
 
 /**
+* 设置密码
+*/
+
+export const set_password = (password) => fetch('/user/password/set',{'password':password},'POST')
+
+/**
+* 检查是否设置密码
+*/
+
+export const check_password = () => fetch('/user/password/check',{},'POST')
+
+/**
 * 修改绑定手机
 */
 

@@ -23,22 +23,23 @@
             <div class="nextpage"><img src="static/images/next.png" alt=""></div>
         </section>
         <!-- button -->
-        <section class="button">
-            <div class="but_text" @click="quitLogin()">退出登录</div>
-        </section>
+        <!-- <section class="button"> -->
+            <!-- <div class="but_text" @click="quitLogin()">退出登录</div> -->
+        <!-- </section> -->
     </div>
 </template>
 
 <script>
 import headTop from '@/components/header/head.vue'
-import {logout,query_shop_address_list} from '@/service/getData.js'
+import {logout,query_shop_address_list,check_password} from '@/service/getData.js'
 import { MessageBox,Toast } from 'mint-ui';
 import { mapState,mapMutations } from 'vuex'
 export default {
     data(){
         return{
             address_isset:'',
-            password_isset:'未设置',
+            password_isset:'',
+            address_tips:'',
         }
     },
     components:{
@@ -79,6 +80,8 @@ export default {
                         from:'account'
                     }
                 })
+            }else{
+                Toast(this.address_tips)
             }
         },
         go_password(){
@@ -95,6 +98,8 @@ export default {
                 this.address_isset='已设置'
             }else if(res.code=='000000'&&res.data.content.length==0){
                 this.address_isset="未设置"
+            }else{
+                this.address_tips=res.message
             }
         },
         //退出登录
@@ -126,13 +131,25 @@ export default {
                     duration: 3000
                 });
             }
+        },
+        async check_password(){
+            const res = await check_password();
+            if(res.code=='000000'){
+                if(res.data.isExist){
+                    this.password_isset='已设置'
+                }else{
+                    this.password_isset='未设置'
+                }
+            }
         }
+        
     },
     created(){
 
     },
     mounted(){
         this.getAddress();//获取地址列表
+        this.check_password();//检查是否设置密码
     },
 }
 </script>
