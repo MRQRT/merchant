@@ -19,7 +19,7 @@
     			</section>
                 <!-- 银行卡 -->
                 <section :class="{'no-border':(errorTipStatus || bankTypeStatus)}">
-    				<input type="text" name="bankNum" placeholder="请输入有效银行卡号" ref="bankNum_input" pattern="[0-9]*"
+    				<input type="text" name="bankNum" placeholder="请输入银行卡号" ref="bankNum_input" pattern="[0-9]*"
                     v-model="bankNum" maxlength="23" @input="redSec()" v-on:blur="check(bankNum)">
                     <img :src="delImg" v-show="clear1" @click="del('b')">
     			</section>
@@ -83,7 +83,7 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
                 bankTypeStatus:false,   // 银行卡类型提示
                 telErrorStatus:false,   // 手机号错误提示
                 errorTip:'',            // 银行卡错误提示文字
-                cardType:'储蓄卡',       // 银行卡类型
+                cardType:'',       // 银行卡类型
                 bankName:'',     // 银行类型
                 iNow: true,             // 状态变量,解决重复点击问题
                 second: 60,             // 验证码倒计时
@@ -205,10 +205,10 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
             async checkBankCard(val){
                 const res = await return_card_info(val);
                 if(res.code=='000000'){
-                    // this.cardType=res.data.type;
                     if(res.data){
                         this.errorTipStatus=false;
                         this.bankName=res.data.name;
+                        this.cardType=res.data.type==0?'储蓄卡':'';
                     }else{
                         this.bankTypeStatus=false
     					this.errorTipStatus=true

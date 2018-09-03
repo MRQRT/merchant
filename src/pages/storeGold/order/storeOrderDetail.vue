@@ -212,9 +212,10 @@
             <!-- 物流信息 -->
             <div class="" v-if="popupNum==0">
                 <div class="delivery-wrap">
-                    <div class="top-wrap">
+                    <div class="top-wrap" >
                         <h3>物流信息</h3>
-                        <ul class="delivery-list">
+                        <mt-spinner type="triple-bounce" v-if="!deliveryStatus" color="#C09C60"></mt-spinner>
+                        <ul class="delivery-list" v-else>
                             <div class="line"></div>
                             <li class="delivery-item" :class="{'recent':index==0}"v-for="(item,index) in deliveryList" :key="index">
                                 <span class="time">{{item.time | changeTime}}</span>
@@ -324,7 +325,7 @@
 
 <script>
 import headTop from '@/components/header/head.vue'
-import { MessageBox,Toast,Popup,Indicator } from 'mint-ui';
+import { MessageBox,Toast,Popup,Indicator,Spinner } from 'mint-ui';
 /* 请求详情、物流单号、物流信息、订单追踪、确认订单、修改订单 、银行卡信息、支付预下单、正式下单、查询支付状态、查询检测报告 */
 import { query_detail, query_logistics_mess, query_express_mess, query_status_flow_mess,confirm_order,update_status,query_card_info,pay_beforehand_order, pay_formal_order, query_status, query_process_mess} from '@/service/getData.js'
 
@@ -349,6 +350,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 trackingStatus:false,  // 订单追踪显示、隐藏
                 stepTipText:'',        // 进度提示文字
                 deliveryType:'',       // 查询快递单号时所需类型：0-取货/1-退货
+                deliveryStatus:false,  // 物流正在加载中
                 minu:'--',             // 倒计时分
                 secd:'--',             // 倒计时秒
                 verifiCode:[],         // 验证码
@@ -413,9 +415,9 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     '6':{name:'存金检测完毕-检测通过'},
                     '7':{name:'已确认检测报告'},
                     '8':{name:'订单已取消'},
-                    '9':{name:'保证金已退还'},
+                    '9':{name:'平台已退货'},
                     '10':{name:'订单已提交'},
-                    '13':{name:'平台已退货'},
+                    '13':{name:'保证金已退还'},
                     '14':{name:'订单完成'},
                     '15':{name:'已支付锁价保证金'},
                 },
@@ -719,9 +721,9 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     if(item.orderStatus==0 && item.lastOrderStatus==10){ // 状态都为0时，判断已锁价
                         that.orderTrackText = that.orderTrackJson[15].name
                     }else if(item.orderStatus==7 && item.lastOrderStatus!=6){ // 状态为7时，对应3个状态(已退保证金/已完成/确认检测报告)
-                        that.orderTrackText = item.addSort == that.orderTrackList.length-1 ? that.orderTrackJson[9].name : that.orderTrackJson[14].name;
-                    }else if(item.orderStatus == item.lastOrderStatus){ // 状态为1\8\13时，判断是否是退换保证金
-                        that.orderTrackText = that.orderTrackJson[9].name
+                        that.orderTrackText = item.addSort == that.orderTrackList.length-1 ? that.orderTrackJson[13].name : that.orderTrackJson[14].name;
+                    }else if(item.orderStatus == item.lastOrderStatus && item.addSort == that.orderTrackList.length-1){ // 状态为1\8\13时，判断是否是退换保证金
+                        that.orderTrackText = that.orderTrackJson[13].name
                     }else{
                         that.orderTrackText = that.orderTrackJson[item.orderStatus].name
                     }
@@ -781,6 +783,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             async query_express_mess(){
                 var res = await query_express_mess(this.expressNo,this.expressCode)
                 if(res.code=='000000'){
+                    this.deliveryStatus = true;
                     this.deliveryList = res.data.result.list;
                 }else{
                     Toast(res.message)
@@ -810,8 +813,9 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 var res = await confirm_order(this.orderId);
                 if(res.code=='000000'){
                     this.reportClick = false; // 确认订单 => 已确认
-                    // this.popupVisible = false;
+                    this.query_detail();      // 再次调用详情函数
                 }else{
+                    this.popupVisible = false;
                     Toast(res.message)
                 }
             },
@@ -943,6 +947,10 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
     }
     .mint-msgbox-btn .mint-msgbox-confirm{
         color: #C09C60 !important;
+    }
+    .mint-spinner-triple-bounce{
+        text-align: center;
+        margin-top:.5rem;
     }
 </style>
 
@@ -1385,7 +1393,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                             width: .1rem;
                             height: .1rem;
                             position: absolute;
-                            left:.15rem;
+                            left:.16rem;
                             top:.34rem;
                             background:url('/static/images/dot-no.png') no-repeat;
                             background-size:100%;
@@ -1621,7 +1629,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
         }
         .report-img{
             width: 100%;
-            height:3.8rem;
+            // height:3.8rem;
             margin:.3rem 0 1.2rem;
             padding:0 .3rem;
             img{

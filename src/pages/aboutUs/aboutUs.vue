@@ -2,11 +2,11 @@
     <div class="aboutus">
         <!-- 头部标题部分 -->
         <head-top headTitle='关于我们' class="head-top nomal-font" ref="topHead">
-            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
+            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.push({path:'/index',query:{navStatus:1}})">
         </head-top>
         <!-- logo -->
         <section class="logo">
-            
+
         </section>
         <!-- title -->
         <section class="title">存金通商户版</section>
@@ -69,7 +69,7 @@ import headTop from '@/components/header/head.vue'
     font-size: .4rem;
     color: #333;
     font-weight:bold;
-    text-align:center; 
+    text-align:center;
 }
 .li{
     width: 100%;

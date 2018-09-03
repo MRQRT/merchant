@@ -57,7 +57,7 @@
 import headTop from '@/components/header/head.vue'
 import { query_list } from '@/service/getData.js'
 import { mapState,mapMutations } from 'vuex'
-import { Indicator } from 'mint-ui';
+import { Indicator,Toast } from 'mint-ui';
 
     export default {
         data(){
@@ -267,6 +267,10 @@ import { Indicator } from 'mint-ui';
                            this.allLoaded=true;  //数据加载完，bottomMethod则不再执行
                         }
                     }
+                }else{
+                    this.orderStatus = false;
+                    Indicator.close();
+                    // Toast(res.message)
                 }
             },
             //加载更多

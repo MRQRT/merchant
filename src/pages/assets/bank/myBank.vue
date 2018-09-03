@@ -127,7 +127,7 @@ import {query_card_info,} from '@/service/getData.js'
                 color: #fff;
                 width:100%;
                 height: 2.6rem;
-                padding:.4rem;
+                padding:.4rem .3rem;
                 @include bg-image('/static/images/bank-card.png');
 
                 .top-part{

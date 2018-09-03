@@ -801,6 +801,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                     .price{
                         font-size: .5rem;
                         font-weight: 500;
+                        font-weight: 500;
                         font-family:DINAlternate-Bold;
                     }
                     b{
