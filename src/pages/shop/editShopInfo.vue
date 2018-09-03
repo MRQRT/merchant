@@ -19,7 +19,7 @@
                 <input type="text" v-model="shop_message.name" placeholder="请输入店铺名称，不超过16个汉字">
             </div>
             <div class="line"></div>
-            <div class="one" style="position:relative;" @click="$router.push('/location')">
+            <div class="one" style="position:relative;" @click="selectassress">
                 <span>店铺地址</span>
                 <input type="text" v-model="shop_message.shop_name" placeholder="请选择店铺地址" readonly="value">
                 <img :src="right" class="right_jiantou">
@@ -38,10 +38,7 @@
             <div class="one" style="padding:0;">
                 <span style="line-height:1.1rem;">营业范围</span>
                 <p class="operation">
-                    <span class="nochecked" :class="{'checked':hui}" @click="select('hui')">回购</span>
-                    <span class="nochecked" :class="{'checked':ti}" @click="select('ti')">提金</span>
-                    <span class="nochecked" :class="{'checked':huan}" @click="select('huan')">换购</span>
-                    <span class="nochecked" :class="{'checked':wei}" @click="select('wei')">维保</span>
+                    <span v-for="(item,index) in business_scope" class="nochecked" :class="{'checked':item.checkid==item.id}" @click="select(item)" :key="index">{{item.name}}</span>
                 </p>
             </div>
         </section>
@@ -54,8 +51,8 @@
                         <img :src="image.src" class="thing_img">
                         <span @click='delImage(index)' class="del_image"></span>
                     </section>
-                    <input type="file" accept="image/*" @change="selectImage($event)" v-if="canPhoto" ref="file" style="display: none" name="file" id="storImg" multiple>
-                    <label for="storImg" class="add_img_label" v-show="files.length<6">
+                    <input type="file" accept="image/*" @change="selectImage($event)" ref="file" style="display: none" name="file" id="storImg" multiple>
+                    <label for="storImg" class="add_img_label" v-show="shop_message.images.length<6" v-if="canPhoto">
                         <div>
                             <img src="static/images/uploadimg.png">
                         </div>
@@ -74,18 +71,21 @@
 import headTop from '@/components/header/head.vue'
 import headimg from 'static/images/deheadpro.png'
 import	right from 'static/images/next.png'
-import {compress} from '@/config/mUtils.js'
-import {MessageBox} from 'mint-ui'
+import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
+import {MessageBox,Indicator,Toast} from 'mint-ui'
+import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply} from '@/service/getData.js'
     export default {
         data(){
             return{
                 right:right,//右箭头
                 headimg:headimg,
-                hui:0,
-                ti:0,
-                huan:0,
-                wei:0,
+                headimg_url:'',//上传完返回的头像地址
+                hui:'',
+                ti:'',
+                huan:'',
+                wei:'',
                 canPhoto:true,
+                business_scope:[],//经营范围标签
                 shop_message:{
                           logoId:'',//店铺头像地址
                             name:'',//店铺名称
@@ -99,7 +99,6 @@ import {MessageBox} from 'mint-ui'
                         facadeId:[],//店铺门面图地址数组（上传数据用）
                  businessScopeId:[],//营业范围
                 },
-                files: [], // 文件缓存（上传图片）
                 index: 0, // 序列号 可记录一共上传了多少张
             }
         },
@@ -113,27 +112,24 @@ import {MessageBox} from 'mint-ui'
 
         },
         methods: {
+            //经营范围选择
             select(val){
                 //删除数组指定元素
-                Array.prototype.remove = function(val) {
+                Array.prototype.remove = function(val){
                     var index = this.indexOf(val);
                     if (index > -1) {
                         this.splice(index, 1);
                     }
                 }
-                if(val=='hui'){
-                    this.hui=!this.hui;
-                    this.hui?this.shop_message.businessScopeId.push('回购'):this.shop_message.businessScopeId.remove('回购');
-                }else if(val=='ti'){
-                    this.ti=!this.ti;
-                    this.ti?this.shop_message.businessScopeId.push('提金'):this.shop_message.businessScopeId.remove('提金');
-                }else if(val=='huan'){ 
-                    this.huan=!this.huan;
-                    this.huan?this.shop_message.businessScopeId.push('换购'):this.shop_message.businessScopeId.remove('换购');
-                }else if(val=='wei'){
-                    this.wei=!this.wei;
-                    this.wei?this.shop_message.businessScopeId.push('维保'):this.shop_message.businessScopeId.remove('维保');
-                }
+                this.business_scope.forEach(element=>{
+                    if(val.name==element.name&&element.checkid!=val.id){
+                        element.checkid=val.id
+                        this.shop_message.businessScopeId.push(val.id)
+                    }else if(val.name==element.name&&element.checkid==val.id){
+                        element.checkid=''
+                        this.shop_message.businessScopeId.remove(val.id);
+                    }
+                })                
             },
             //头像图片选择
             selectheadimg(e){
@@ -153,90 +149,179 @@ import {MessageBox} from 'mint-ui'
                         //进行压缩,压缩完后进行回调上传
                         compress(reader,e.target.files[0].size,that)
                     }else{
-                        let formData = new FormData();
-                        formData.append('files',hea[0]);//lic[0]如果获取不到文件，就用e.target.files[0]
-                        that.uploadimg(formData,'headimg');
+                        let form = new FormData();
+                        form.append('file',hea[0]);//hea[0]如果获取不到文件，就用e.target.files[0]
+                        that.uploadimg(form,'headimg');
                     }
                 }
             },
-            //选择图片
+            //店铺选择图片
             selectImage(e){
                 // 查看文件选取数量和文件是否为空
                 if(e.target.files && e.target.files.length){
+                    if(e.target.files.length+this.shop_message.images.length==6){
+                        this.canPhoto=false
+                    }
 					if((e.target.files.length+this.shop_message.images.length)>6){
 						Toast('最多上传6张图片')
 						return;
 					}
                 }
-                for (var i=0,len=e.target.files.length;i<len;i++) {
+                for(var i=0;i<e.target.files.length;i++){
         			let item = {
           				 key: this.index++,
           				name: e.target.files[i].name,
           				size: e.target.files[i].size,
-          				file: e.target.files[i],
+                        file: e.target.files[i],
         			}
         			let reader = new FileReader()
         			reader.onload = (e) => {
 						this.$set(item, 'src', e.target.result)  
 						if(this.index<6||this.index==6){ //图片已达到6张 不在执行添加上传操作
-							this.files.push(item)
-							this.shop_message.images.push(item)
-						}
-						if(this.files.length==len){
-                            this.compressimg(reader)//图片压缩
-						}
+                            this.shop_message.images.push(item)
+                        }
+                        this.compressimg(reader,item)//图片压缩
 					}
 					reader.readAsDataURL(e.target.files[i])
                 }
             },
             //进行图片压缩
-            compressimg(reader){
+            compressimg(reader,item){
                 var that = this
 				let formData = new FormData()
-        		this.files.forEach((item, index) => {
-                    var img_size=item.size
-                    if(img_size/1024/1024>3){
-                        //进行压缩
-                        compress(reader,img_size,that)
-                    }else{
-                        let formData = new FormData();
-                        formData.append('files',item.file);//lic[0]如果获取不到文件，就用e.target.files[0]
-                        that.uploadimg(formData,'shopphoto');
-                    }
-                })
+                var img_size=item.size
+                if(img_size/1024/1024>3){
+                    //进行压缩
+                    compress(reader,img_size,that)
+                }else{
+                    let formData = new FormData();
+                    formData.append('file',item.file);//lic[0]如果获取不到文件，就用e.target.files[0]
+                    that.uploadimg(formData,'shopphoto');
+                }
             },
             //图片上传
-            uploadimg(val,val2){
-                console.log(val)
-                //备注：上传完要记得清空缓存数组
-                if(val2=='shopphoto'){
-                    this.files=[]
+            async uploadimg(val,val2){
+                Indicator.open();
+                if(val2=='headimg'){
+                    const res = await upload_shop_pro(val);//头像上传
+                    if(res.code=='000000'){
+                        Indicator.close();
+                        setStore('headimg',res.data.url,'session');
+                        this.headimg_url=res.data.url;//头像地址
+                        this.shop_message.logoId=res.data.id
+                    }else{
+                        Indicator.close();
+                        Toast({
+                            message: res.message,
+                            position: 'bottom',
+                            duration: 3000
+                        });
+                    }
+                }else if(val2=='shopphoto'){//店铺门面上传
+                    const res = await upload_shop_photo(val);
+                    Indicator.close()
+                    if(res.code=='000000'){
+                        this.shop_message.facadeId.push(res.data.id);
+                    }
                 }
             },
             /*删除图片*/
 			delImage: function(index){
-                this.files.splice(index,1)
-                this.shop_message.images.splice(index,1)
+                this.shop_message.images.splice(index,1);
+                if(this.shop_message.images.length<6){
+                    this.canPhoto=true
+                }
 				this.shop_message.facadeId.splice(index,1)
-				this.index--
+                this.index--
+            },
+            //地址选择
+            selectassress(){
+                setStore('shop_message',this.shop_message,'session');//跳转地图保存当前页数据
+                this.$router.push('/location');
+            },
+            //查询商店标签
+            async businessScope_list(){
+                const res = await business_scope();
+                if(res.code=='000000'){
+                    this.business_scope = res.data
+                    this.business_scope.forEach(element => {
+                        this.$set(element,'checkid','');
+                    });
+                    if(getStore('shop_message','session')){//经营范围反显
+                        this.shop_message.businessScopeId.forEach(e=>{
+                            this.business_scope.forEach(element => {
+                                if(e==element.id){
+                                    this.$set(element,'checkid',e);
+                                }
+                            })
+                        })
+                    }
+                }
+            },
+            //店铺信息校验
+            check_message(){
+                if(this.shop_message.logoId==''){
+                    Toast('请上传头像')
+                    return false
+                }else if(this.shop_message.name==''){
+                    Toast('请输入店铺名称')
+                    return false
+                }else if(this.shop_message.address==''){
+                    Toast('请选择店铺地址')
+                    return false
+                }else if(this.shop_message.mobile==''){
+                    Toast('请输入预约电话')
+                    return false
+                }else if(this.shop_message.introduce==''){
+                    Toast('请输入店铺介绍')
+                    return false
+                }else if(this.shop_message.facadeId==''){
+                    Toast('请上传店铺门面图')
+                    return false
+                }else if(this.shop_message.businessScopeId==''){
+                    Toast('请选择营业范围')
+                    return false
+                }else{
+                    return true
+                }
+
             },
             //信息提交
-            submit(){
-                MessageBox({
-                    title:'店铺信息已提交',
-                    message:'审核信息将在3个工作日内发到您的手机上，请留意短信',
-                    confirmButtonText:'我知道了',
-                }).then(action=>{
-                    this.$router.push('/index')
-                })
-            }
+            async submit(){
+                var a = this.check_message();
+                if(!a)return
+                removeStore('shop_message','session');
+                removeStore('headimg','session');
+                const res = await shop_open_apply();
+                if(res.code=='000000'){
+                    MessageBox({
+                        title:'店铺信息已提交',
+                        message:'审核信息将在3个工作日内发到您的手机上，请留意短信',
+                        confirmButtonText:'我知道了',
+                    }).then(action=>{
+                        this.$router.push('/index')
+                    })
+                }
+            },
         },
         created(){
 
         },
         mounted(){
-
+            //如果内存中有地址，进行返显
+            if(getStore('headimg','session')){//头像地址反显
+                this.headimg = getStore('headimg','session');
+                this.headimg_url = getStore('headimg','session');
+            }
+            if(getStore('shop_message','session')){//店铺门面图反显
+                this.shop_message=getStore('shop_message','session');
+            }
+            //查询店铺地址经营范围字典
+            this.businessScope_list();
         },
+        destroyed(){
+            Indicator.close();
+        }
     }
 
 </script>

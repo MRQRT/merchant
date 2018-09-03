@@ -402,6 +402,7 @@ export default{
 	left: 10%;
 }
 .list{
+	height:6.5rem;
 	overflow:auto;
 }
 .list_li{
