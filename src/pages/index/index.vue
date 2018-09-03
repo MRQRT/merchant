@@ -6,6 +6,7 @@
         </div>
 		<!--存金banner-->
 		<div class="storBanner">
+            <img src="/static/images/index-bg.png" alt="">
 			<div class="price_container">
 				<div>
 					<p class="price_in">
@@ -192,7 +193,7 @@ import { shop_status, query_index_statistics, shop, logout } from '@/service/get
                 shopInfo:{
                     shopId:'',
                     logoPath:'',
-                    name:'周大福周生生'
+                    name:'我的店铺'
                 },
             }
         },
@@ -249,6 +250,8 @@ import { shop_status, query_index_statistics, shop, logout } from '@/service/get
                     this.dealObject=res.data;
                 }else if(res.code=='200206'){
                     this.RECORD_SHOPSTATUS(false); // 店铺不存在或未通过审核
+                }else{
+                    Toast(res.message)
                 }
             },
             // 获取店铺信息
@@ -307,7 +310,7 @@ import { shop_status, query_index_statistics, shop, logout } from '@/service/get
                 this.shop_status();            // 判断店铺状态
                 this.checkShopStatus();        // 店铺信息
                 this.query_index_statistics(); // 首页统计数据
-                console.log(this.userId)
+                console.log('accessToken',this.accessToken)
             }
         },
         beforeRouteLeave (to, from, next) {
@@ -440,9 +443,11 @@ import { shop_status, query_index_statistics, shop, logout } from '@/service/get
         height: 6.2rem;
         margin-bottom: 2.7rem;
     	position: relative;
-        @include bg-image('/static/images/index-bg.png');
+        // @include bg-image('/static/images/index-bg.png');
         img{
-        	width:100%;
+        	// width:100%;
+            width: 100%;
+            height: 6.2rem;
         }
         .gradient{
         	width:100%;

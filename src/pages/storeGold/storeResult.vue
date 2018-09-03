@@ -40,16 +40,16 @@
                         </div>
                         <div class="info-item">
                             <span>存金重量</span>
-                            <span>{{orderInfo.applyWeight}}克</span>
+                            <span>{{orderInfo.applyWeight | formatPriceTwo}}克</span>
                         </div>
                         <div class="" v-if="orderInfo.lockprice">
                             <div class="info-item">
                                 <span>锁价保证金</span>
-                                <span class="special-color">{{orderInfo.ensure_cash | formatPriceTwo}}元</span>
+                                <span class="special-color">{{orderInfo.ensureCash | formatPriceTwo}}元</span>
                             </div>
                             <div class="info-item">
                                 <span>锁定金价</span>
-                                <span class="special-color">{{orderInfo.lockPrice | formatPriceTwo}}元</span>
+                                <span class="special-color">{{orderInfo.lockPrices | formatPriceTwo}}元</span>
                             </div>
                         </div>
                     </div>
@@ -80,7 +80,7 @@
                 <div class="reason">失败原因：{{paysFailReason}}</div>
                 <!-- 按钮部分 -->
                 <div class="btn-opration">
-                    <div class="go-detail" @click="$router.push({path:'/storeorderdetail',query:{id:orderId,status:10}})">查看订单</div>
+                    <div class="go-detail" @click="$router.push({path:'/storeorderdetail',query:{id:orderId,status:11}})">查看订单</div>
                     <div class="go-index" @click="$router.push('/index')">返回首页</div>
                 </div>
             </div>

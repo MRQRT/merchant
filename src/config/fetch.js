@@ -48,7 +48,10 @@ axios.interceptors.response.use(
     response => {
     /*通过response自定义code来标示请求状态*/
         const res = response;
-
+        if(res.data.code=='000004'){
+            Indicator.close();
+            store.commit('RECORD_ACCESSTOKEN','') //清除accesstoken
+        }
         return Promise.resolve(response)
     },error => {
         if (error.response) {
@@ -66,10 +69,10 @@ axios.interceptors.response.use(
                         position:'bottom',
                         duration:3000,
                     })
-                case '000001':
+                case 500:
                     Indicator.close();
                     router.replace({path:'/systemError'})  //跳转到500页面
-                    break;                    
+                    break;
             }
         }
         return Promise.reject(error)  // 返回接口返回的错误信息
