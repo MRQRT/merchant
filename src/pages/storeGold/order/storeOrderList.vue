@@ -5,7 +5,7 @@
             <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.push({path:'/index',query:{navStatus:1}})">
         </head-top>
         <!-- 主体部分 -->
-        <div class="main-cont" ref="wrapper" v-show="showStatus" v-if="orderStatus" :style="{ height: wrapperHeight + 'px' }">
+        <div class="main-cont" ref="wrapper" v-show="showStatus" v-if="orderStatus">
             <mt-loadmore :bottom-method="loadBottom" :bottom-all-loaded="allLoaded" :auto-fill="false"
                 bottomPullText="上滑加载更多" bottomDropText="松开加载" ref="loadmore" class="loadmore">
                 <ul class="order-list">
@@ -72,7 +72,7 @@ import { Indicator,Toast } from 'mint-ui';
             	},
                 pages:'',             // 总页数
                 statusJson:{
-                    '0':{name:'待审核'},
+                    '0':{name:'审核中'},
                     '1':{name:'审核失败'},
                     '2':{name:'审核通过'},
                     '3':{name:'物流中'},
@@ -343,7 +343,7 @@ import { Indicator,Toast } from 'mint-ui';
     min-height: 100vh;
     background-color: #f8f8f8;
     .main-cont{
-        overflow: scroll;
+        // overflow: scroll;
         padding-top:.88rem;
         .order-list{
             .order-item{

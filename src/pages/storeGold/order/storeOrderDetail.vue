@@ -40,6 +40,10 @@
                 <h3>存金信息</h3>
                 <div class="order-info">
                     <p>
+                        <span>订单编号</span>
+                        <span>{{orderInfo.code}}</span>
+                    </p>
+                    <p>
                         <span>存金类型</span>
                         <span>{{typeJson[orderInfo.productType]}}</span>
                     </p>
@@ -51,15 +55,7 @@
                         <span>数量</span>
                         <span>{{orderInfo.applyQuantity}}件</span>
                     </p>
-                    <p>
-                        <span>存金方式</span>
-                        <span>{{orderInfo.cash ? '直接变现' : '存入克重'}}</span>
-                    </p>
                     <div class="" v-if="orderInfo.lockprice">
-                        <p>
-                            <span>锁价保证金</span>
-                            <span>{{orderInfo.ensureCash}}元</span>
-                        </p>
                         <p>
                             <span>锁定金价<b @click="lockPricePopup"></b></span>
                             <span class="special-color">{{orderInfo.lockPrices}}元/克</span>
@@ -76,7 +72,7 @@
             <!-- 底部按钮 -->
             <div class="pay-btn" v-if="status==10">
                 <div class="left-price">
-                    <span>锁价保证金</span>
+                    <span>锁价保证金：</span>
                     <span>{{orderInfo.ensureCash | formatPriceTwo}}元</span>
                 </div>
                 <div class="right-btn" @click="pay_beforehand_order(1)">支付</div>
@@ -276,7 +272,7 @@
                         <div class="report-btn" v-else>
                             <span v-if="status==7 || !reportClick" style="color:#999">已确认</span>
                             <span v-else @click="confirm_order()">确认订单</span>
-                            <span><a href="tel:4001689999">联系客服</a></span>
+                            <span><a href="tel:4008196199">联系客服</a></span>
                         </div>
                     </div>
                 </div>
@@ -375,7 +371,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                         beforeStatus: 之前状态是否完成
                         iconType: 属于哪个图标
                     **/
-                    '0':{name:'待审核',status:1,iconType:0,beforeStatus:1},
+                    '0':{name:'审核中',status:1,iconType:0,beforeStatus:1},
                     '1':{name:'审核失败',status:2,iconType:0,beforeStatus:1},
                     '2':{name:'审核通过',status:1,iconType:0,beforeStatus:1},
                     '3':{name:'物流中',status:1,iconType:1,beforeStatus:0},
@@ -613,7 +609,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             },
             // 倒计时
             countDown(time){
-                var countdownMinute = 2;//10分钟倒计时
+                var countdownMinute = 15;//10分钟倒计时
                 var startTimes = new Date(time.replace(/-/g,"/"));//开始时间 new Date('2016-11-16 15:21');
                 var endTimes = new Date(startTimes.setMinutes(startTimes.getMinutes()+countdownMinute));//结束时间
                 var curTimes = new Date();//当前时间
@@ -647,7 +643,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 var text2 = '<p>订单审核未通过，您可以重新填写订单，风里雨里我们在这里等您！</p>';
                 var text3 = '<p>订单审核未通过，锁价定金将在3个工作日内退回至绑定银行卡，您可以重新填写订单，风里雨里我们在这里等您！</p>'
                 var text4 = `<p>快递小哥正在用心传递速度，物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">${this.expressNo}</span></p>`;
-                var text5 = `<p>亲爱的用户，您的宝贝我们收到啦~</p>
+                var text5 = `<p>亲爱的用户，您的黄金我们收到啦~</p>
                              <p>物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">${this.expressNo}<span></p>`;
                 var text6 = '<p>亲，专业检测师紧锣密鼓地开工啦！1个工作日内就会有结果哦！</p>'
                 var text7 = '<p>您的订单检测完毕！请尽快查看并确认<span id="report" style="color:#C09C60;border-bottom:1px solid #C09C60">检测报告</span>哦！</p>'
@@ -866,7 +862,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     },1000)
                 }else if(res.code=='200211'){ // 验证码错误显示重试对话框
                     this.popupVisible2 = false; // 关闭处理中动画
-                    var html = '<div style="color:000;font-size:.32rem;font-family:PingFangSC-Medium;text-align:center">支付密码错误，请重试</div>'
+                    var html = '<div style="color:000;font-size:.32rem;font-family:PingFangSC-Medium;text-align:center">验证码错误，请重试</div>'
                     MessageBox({
                         title:'',
                         message:html,

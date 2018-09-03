@@ -605,7 +605,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                     },1000)
                 }else if(res.code=='200211'){ // 验证码错误显示重试对话框
                     this.popupVisible2 = false; // 关闭处理中动画
-                    var html = '<div style="color:000;font-size:.32rem;font-family:PingFangSC-Medium;text-align:center">支付密码错误，请重试</div>'
+                    var html = '<div style="color:000;font-size:.32rem;font-family:PingFangSC-Medium;text-align:center">验证码错误，请重试</div>'
                     MessageBox({
                         title:'',
                         message:html,
@@ -628,6 +628,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                         }
                     })
                 }else{
+                    this.popupVisible2 = false;
                     Toast(res.message)
                 }
             },
