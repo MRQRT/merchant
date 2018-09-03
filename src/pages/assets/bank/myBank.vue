@@ -23,7 +23,7 @@
                         </div>
                         <div class="right-text">
                             <p>{{bankInfo.name}}</p>
-                            <p class="card-type">{{'储蓄卡'}}（单笔限额{{bankInfo.maxAmount}}W，单日限额{{bankInfo.dayMaxAmount}}W）</p>
+                            <p class="card-type">{{'储蓄卡'}}（单笔限额{{bankInfo.maxAmount/10000}}W，单日限额{{bankInfo.dayMaxAmount/10000}}W）</p>
                         </div>
                     </div>
                     <div class="bottom-part">
@@ -127,11 +127,11 @@ import {query_card_info,} from '@/service/getData.js'
                 color: #fff;
                 width:100%;
                 height: 2.6rem;
-                padding:.4rem .3rem;
+                padding:.4rem;
                 @include bg-image('/static/images/bank-card.png');
 
                 .top-part{
-                    margin-bottom: .4rem;
+                    margin-bottom: .25rem;
                     justify-content: flex-start;
                     @include flex-box();
                     .left-icon{

@@ -44,7 +44,7 @@
                         <span>{{typeJson[orderInfo.productType]}}</span>
                     </p>
                     <p>
-                        <span>总克重</span>
+                        <span>总重量</span>
                         <span>{{orderInfo.applyWeight | formatPriceTwo}}克</span>
                     </p>
                     <p>
@@ -208,7 +208,7 @@
             </div>
         </div>
         <!-- 弹窗部分 -->
-        <mt-popup v-model="popupVisible" popup-transition="popup-fade" closeOnClickModal="false">
+        <mt-popup v-model="popupVisible" popup-transition="popup-fade" closeOnClickModal="false" style="background:none">
             <!-- 物流信息 -->
             <div class="" v-if="popupNum==0">
                 <div class="delivery-wrap">
@@ -613,7 +613,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             },
             // 倒计时
             countDown(time){
-                var countdownMinute = 3;//10分钟倒计时
+                var countdownMinute = 2;//10分钟倒计时
                 var startTimes = new Date(time.replace(/-/g,"/"));//开始时间 new Date('2016-11-16 15:21');
                 var endTimes = new Date(startTimes.setMinutes(startTimes.getMinutes()+countdownMinute));//结束时间
                 var curTimes = new Date();//当前时间
@@ -942,7 +942,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
 
 <style media="screen">
     .mint-popup{
-        background:none;
+        background:none !important;
         /* border-radius: .2rem; */
     }
     .mint-msgbox-btn .mint-msgbox-confirm{
@@ -1547,6 +1547,9 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
         }
     }
     // 物流弹窗
+    .delivery-wrap{
+        max-height: 8.2rem;
+    }
     .delivery-wrap,.report-wrap{
         .top-wrap{
             width: 6.7rem;
@@ -1607,7 +1610,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             width: .44rem;
             height: .44rem;
             margin:.8rem auto;
-            background-color: none;
+            background-color: none !important;
             @include bg-image('/static/images/delivery-close.png');
         }
     }

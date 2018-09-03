@@ -832,6 +832,9 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                     }
                     .gold-type{
                         .type-right{
+                            width:4.4rem;
+                            @include flex-box();
+                            @include justify-content();
                             span{
                                 display: inline-block;
                                 width:2.1rem;
