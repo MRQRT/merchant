@@ -76,9 +76,6 @@ export default {
     color:#C09C60 !important;
 }
 .mint-msgbox-wrapper .mint-msgbox-message{
-    text-align: left;
-}
-.mint-msgbox-wrapper .mint-msgbox-message{
     padding:.1rem .2rem !important;
 }
 .mint-msgbox-cancel{

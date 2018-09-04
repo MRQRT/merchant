@@ -51,7 +51,7 @@
                                 <span @touchstart="decreaseCount">
                                     <img src="static/images/minus-count.png" class="minusNum">
                                 </span>
-                                <input type="number" v-model="extractNum" pattern="[0-9]*">
+                                <input type="tel" v-model="extractNum" pattern="[0-9]*" @input="inputNum(extractNum)">
                                 <span @touchstart="increaseCount">
                                     <img src="static/images/plus-count.png" class="plusNum">
                                 </span>
@@ -324,6 +324,10 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
             //输入内容保留1位小数
 			checkInput(val){
 				this.weight = clearNoNum(val,1);
+                if(this.weight>100000){
+                    Toast('单笔订单不得超过100000克')
+                    this.weight = 100000;
+                }
             },
             //提金数量减1
             decreaseCount(){
@@ -335,6 +339,21 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
             //设置提金加1
             increaseCount(){
                 this.extractNum++;
+                if(this.extractNum>100){
+                    Toast('单笔订单不得超过100件');
+                    this.extractNum = 100;
+                    return;
+                }
+            },
+            //监听数量输入
+            inputNum(val){
+                if(! /^\d+$/.test(val)){
+                    Toast('只能输入整数')
+                }
+                if(this.extractNum>100){
+                    Toast('单笔订单不得超过100件');
+                    this.extractNum = 100;
+                }
             },
             //选择存金类型
             chooseType(num){
@@ -698,9 +717,17 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
             window.onresize = () => {
                 var h=document.documentElement.clientHeight
 		    	if((this.screenHeight-h)>50){
-					document.querySelector('.opration-wrap').style.position = 'relative'
+                    if(!this.loginStatus){
+						document.querySelector('.login').style.position = 'relative'
+					}else{
+						document.querySelector('.other-btn').style.position = 'relative'
+					}
 		    	}else{
-					document.querySelector('.opration-wrap').style.position = 'fixed'
+                    if(!this.loginStatus){
+						document.querySelector('.login').style.position = 'fixed'
+					}else{
+                        document.querySelector('.other-btn').style.position = 'fixed'
+					}
 		    	}
             }
         },
@@ -1121,11 +1148,6 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
         }
         .opration-wrap{
             width: 100%;
-            height: .98rem;
-            font-size: .34rem;
-            position: fixed;
-            bottom: 0;
-            z-index: 10;
 
             .login{
                 width: 100%;
@@ -1135,13 +1157,20 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                 text-align: center;
                 line-height: .98rem;
                 background-color: #DDC899;
+                position: fixed;
+                bottom: 0;
+                z-index: 10;
             }
             .other-btn{
                 width:100%;
                 height:.98rem;
                 text-align: center;
                 line-height: .98rem;
+                position: fixed;
+                bottom: 0;
+                z-index: 10;
                 @include flex-box();
+
                 .submitNo{
                     background-color: #eee3cb !important;
                 }
