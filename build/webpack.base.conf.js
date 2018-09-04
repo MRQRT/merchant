@@ -30,6 +30,9 @@ module.exports = {
       'static': resolve('static'),
     }
   },
+  externals: {
+      "BMap": "BMap"
+  },
   module: {
     rules: [
       {

@@ -465,7 +465,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             lockPricePopup(){
                 MessageBox({
                   title: '提示',
-                  message:'锁定金价：当前订单将以您锁定金 价成交。' ,
+                  message:'锁定金价：当前订单将以您锁定金价成交。' ,
                   confirmButtonText: '我知道了'
                 })
             },

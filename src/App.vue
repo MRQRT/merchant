@@ -19,7 +19,22 @@ export default {
 
         },
         watch:{
-
+            $route(to,from){
+                if(to.path=='/index' || to.path=='/storegold'){
+                    if(window.queryPrice){
+                        clearInterval(window.queryPrice);
+                    }
+                    var that=this;
+                    /*5秒刷新一次*/
+                    window.queryPrice = setInterval(function(){
+                        that.getCurrent();
+                    },5000)
+                }else{
+                    if(window.queryPrice){
+                        clearInterval(window.queryPrice);
+                    }
+                }
+            }
         },
         methods: {
             ...mapMutations([
@@ -44,12 +59,8 @@ export default {
         mounted(){
             /*调用实时金价*/
             this.getCurrent();
-            var that=this;
-            /*3秒刷新一次*/
-            // setInterval(function(){
-            //     that.getCurrent();
-            // },10000)
         },
+
     }
 </script>
 
