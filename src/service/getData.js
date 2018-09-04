@@ -122,6 +122,28 @@ export const merchant_open_apply_status = () => fetch('/merchant_open_apply/late
 
 export const shop_open_apply_status = () => fetch('/shop_open_apply/latest',{},'get')
 
+/**
+ * 上传店铺头像
+*/
+export const upload_shop_pro = (file) => fetch('/attachment/upload',file,'post')
+
+/**
+ * 上传店铺门面图
+*/
+export const upload_shop_photo = (file) => fetch('/attachment/upload',file,'post')
+
+/*
+* 查询店铺经营范围
+*/
+
+export const business_scope = () => fetch('/shop/business_scope',{},'get')
+
+/*
+* 提交店铺入驻申请
+*/
+
+export const shop_open_apply = () => fetch('/shop_open_apply',{},'post')
+
 /*
 * 区域省市县
 */

@@ -55,11 +55,12 @@ const tran = r => require.ensure([], () => r(require('../pages/login/tran.vue'))
 const setpassword = r => require.ensure([], () => r(require('../pages/login/setpassword.vue')), 'setpassword')
 
 /* 关于我们 */
-const aboutus = r => require.ensure([], () => r(require('../pages/aboutUs/aboutus')), 'aboutus')
+const aboutus = r => require.ensure([], () => r(require('../pages/aboutus/aboutus')), 'aboutus')
 
 
 const router = new Router({
     mode: 'history',
+    base: "/",
     routes: [
         {
             path:'*',

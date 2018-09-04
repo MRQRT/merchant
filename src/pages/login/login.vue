@@ -96,8 +96,7 @@
 			}
 		},
         created() {
-            
-        },
+            },
 		mounted() {
             let a = isweixin();
             a?this.isWeixin=true:false

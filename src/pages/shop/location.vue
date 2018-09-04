@@ -12,20 +12,30 @@
             </section>
         </div>
         <!-- 地图 -->
-        <div class="allmap" id="container">
-            
+        <div class="allmap" id="container"></div>
+        <!-- 地址列表 -->
+        <div class="address_list">
+            <section class="around" v-for="(item,index) in surroundingPois" :key="index" @click="select_address(item)">
+                <p class="title">{{item.title}}</p>
+                <div class="item_address">{{item.address}}</div>
+            <div class="line" style="margin-top:.16rem;"></div>
+            </section>
         </div>
     </div>
 </template>
 <script>
 import headTop from '@/components/header/head.vue'
-import icons from "static/images/delivery-recent.png"
-
+import icons from "static/images/remark.png"
+import {city_area_list} from '@/service/getData.js'
+import {MessageBox,Indicator,Toast} from 'mint-ui'
+import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
     export default {
         data(){
             return{
                 location: '北京市',
                 input_address: '',
+                city_list: '',
+                surroundingPois:[],//检索到的地址
             }
         },
         components:{
@@ -38,6 +48,18 @@ import icons from "static/images/delivery-recent.png"
 
         },
         methods: {
+            async city(){
+                const res = await city_area_list('');
+                if(res.code=='000000'){
+                    this.city_list=res.data;
+                }
+            },
+            //地址选择
+            select_address(val){
+                setStore('select_address',val,'session');
+                this.$router.push('/editshopinfo')
+            },
+            //定位
             map(){
             let v_this = this;
                 var map = new BMap.Map("container");
@@ -59,7 +81,12 @@ import icons from "static/images/delivery-recent.png"
                         var localPosition = addComp.city + addComp.district + addComp.street;
                             // alert(localPosition)
                         var local = new BMap.LocalSearch(map, {      
-                            renderOptions:{map: map}  
+                            // renderOptions:{map: map},
+                            onSearchComplete : function(r) {
+                                console.log(r)
+                                console.log(r.Br)
+                                v_this.surroundingPois=r.Br;
+                            }
                         });    
                         local.search(rs.address);
                         });
@@ -87,13 +114,14 @@ import icons from "static/images/delivery-recent.png"
                 // 创建标注对象并添加到地图   
                 var marker = new BMap.Marker(val1, {icon: myIcon}); 
                 val.addOverlay(marker);    
-            }
+            },
         },
         created(){
 
         },
         mounted(){
             this.map();
+            this.city();
         },
     }
 
@@ -134,25 +162,26 @@ import icons from "static/images/delivery-recent.png"
     width: .7rem;
     height: .7rem;
     @include bg-image("/static/images/back.png");
-    background-size: 20%;
+    background-size: 15%;
     background-position: center;
     transform: rotate(-90deg);
 }
 .se_box span:before{
     position: absolute;
-    right: -.8rem;
+    right: -5.3rem;
     content:'';
     width: .7rem;
     height: .7rem;
-    @include bg-image("/static/images/back.png");
-    background-size: 20%;
+    @include bg-image("/static/images/search.png");
+    background-size: 60%;
     background-position: center;
 }
 .se_box input{
     float: left;
     background:rgba(245,245,245,1);
-    margin-top: .15rem;
+    margin-top: .2rem;
     margin-left: .75rem;
+    font-size: .28rem;
 }
 .allmap{
     width: 100%;
@@ -170,5 +199,38 @@ input:-moz-placeholder{    /* Mozilla Firefox 4 to 18 */
 }
 input:-ms-input-placeholder{  /* Internet Explorer 10-11 */ 
     font-size: .28rem;
+}
+.address_list{
+    width:100%;
+    height:5.3rem;
+    overflow: scroll;
+}
+.around{
+    height: 1.1rem;
+    font-size: .3rem;
+    color: .333rem;
+    padding-left: .8rem;
+    padding-top: .1rem;
+    background:url("/static/images/adli.png");
+    background-size:.3rem;
+    background-position: .25rem center;
+    background-repeat: no-repeat;
+}
+.title{
+    line-height: .5rem;
+    font-size: .3rem;
+    font-weight: bold;
+}
+.item_address{
+    font-size: .25rem;
+}
+.address_list .around:nth-child(1)>.title{
+    color: #C09C60;
+}
+.address_list .around:nth-child(1){
+    background:url("/static/images/move.png");
+    background-size:.3rem;
+    background-position: .25rem center;
+    background-repeat: no-repeat;
 }
 </style>
