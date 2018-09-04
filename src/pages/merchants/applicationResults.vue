@@ -2,7 +2,7 @@
     <div class="applicationresults">
         <!-- 头部标题部分 -->
         <head-top headTitle='商户入驻' class="head-top nomal-font" ref="topHead">
-            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
+            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.push('/index')">
         </head-top>
         <!-- model -->
         <!-- 开通商户 -->

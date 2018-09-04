@@ -111,16 +111,7 @@ import {sendsms,checkexist,findpassword} from '@/service/getData.js'
                 if(!this.isSubmit)return
                 const res = await checkexist(this.tel);
                 if(res.code=="000000"&&(res.data&&res.data.isExist)){//请求成功且没有注册
-                     MessageBox({
-                        title: '提示',
-                        message: '手机号未注册',
-                        confirmButtonText: '去注册',
-                        showCancelButton: '我知道了',
-                    }).then((action)=>{
-                        if(action=='confirm'){
-                            this.$router.push('/register')
-                        }
-                    })
+                    Toast('手机号未注册')
                     return 
                 }else if(res.code=="000000"&&(res.data&&!res.data.isExist)){//请求成功且已经注册
                    let md5password=md5(this.password); 
@@ -129,9 +120,10 @@ import {sendsms,checkexist,findpassword} from '@/service/getData.js'
                         Toast('验证码错误')
                         return
                     }else if(res.code=='000000'){
+                        var html = '<div style="text-align:center;">登录密码已更新</div>'
                         MessageBox({
                             title: '找回成功',
-                            message: '登录密码已更新' ,
+                            message: html,
                             confirmButtonText: '我知道了',
                         }).then((action)=>{
                             this.$router.push('/login')
@@ -158,16 +150,17 @@ import {sendsms,checkexist,findpassword} from '@/service/getData.js'
                 if(!a)return
                 const res = await checkexist(this.tel);//检验是否已注册
                 if(res.code=="000000"&&(res.data&&res.data.isExist)){//请求成功且没有注册
-                    MessageBox({
-                        title: '提示',
-                        message: '手机号未注册' ,
-                        confirmButtonText: '去注册',
-                        showCancelButton: '我知道了'
-                    }).then((action)=>{
-                        if(action=='confirm'){
-                            this.$router.push('/register')
-                        }
-                    })
+                    // MessageBox({
+                    //     title: '提示',
+                    //     message: '手机号未注册' ,
+                    //     confirmButtonText: '去注册',
+                    //     showCancelButton: '我知道了'
+                    // }).then((action)=>{
+                    //     if(action=='confirm'){
+                    //         this.$router.push('/register')
+                    //     }
+                    // })
+                    Toast('手机号未注册');
                     return
                 }else if(res.code=="000000"&&(res.data&&!res.data.isExist)){//请求成功且已经注册
                     var that=this;

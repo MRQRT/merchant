@@ -151,11 +151,13 @@ import md5 from 'js-md5'
                         this.$router.push('/login');
                     }
                 }else if(res.code=="000000"&&(res.data&&!res.data.isExist)){//请求成功且已经注册
+                    var html = '<div style="text-align:center;">手机号已注册</div>'
                     MessageBox({
                         title: '提示',
-                        message: '手机号已注册',
+                        message: html,
                         confirmButtonText: '去登录',
-                        showCancelButton: '我知道了',
+                        showCancelButton: true,
+                        cancelButtonText: '我知道了',
                     }).then((action)=>{
                         if(action=='confirm'){
                             this.$router.push('/login')
@@ -193,7 +195,7 @@ import md5 from 'js-md5'
                             clearInterval(timer);
                             that.iNow=true;
                             send_smscode.style.color="#C09C60";
-                            that.clickText = '获取验证码';
+                            that.clickText = '重新获取';
                             that.second = 60;
                         }
                     },1000)
@@ -206,11 +208,13 @@ import md5 from 'js-md5'
                         });
                     }
                 }else if(res.code=="000000"&&(res.data&&!res.data.isExist)){//请求成功且已经注册
+                    var html = '<div style="text-align:center;">手机号已注册</div>'
                     MessageBox({
                         title: '提示',
-                        message: '手机号已注册' ,
+                        message: html,
                         confirmButtonText: '去登录',
-                        showCancelButton: '我知道了'
+                        showCancelButton: true,
+                        cancelButtonText: '我知道了',
                     }).then((action)=>{
                         if(action=='confirm'){
                             this.$router.push('/login')

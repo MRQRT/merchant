@@ -326,16 +326,19 @@
                         });
                     }
                 }else if(res.code=="000000"&&(res.data&&res.data.isExist)){//请求成功且未注册
+                    var html = '<div style="text-align:center;">手机号未注册</div>'
                     MessageBox({
                         title: '提示',
-                        message: '手机号未注册' ,
+                        message: html,
                         confirmButtonText: '去注册',
-                        showCancelButton: '我知道了'
+                        showCancelButton: true,
+                        cancelButtonText: '我知道了',
                     }).then((action)=>{
                         if(action=='confirm'){
                             this.$router.push('/register')
                         }
                     })
+                    // Toast('手机号未注册');
                     return
                 }else{
                     Toast({
