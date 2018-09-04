@@ -51,6 +51,13 @@ axios.interceptors.response.use(
         if(res.data.code=='000004'){
             Indicator.close();
             store.commit('RECORD_ACCESSTOKEN','') //清除accesstoken
+            var html='<div style="text-align:center;font-weight:bold;font-size:.32rem;">会话失效，请重新登录</div>';
+            MessageBox.alert(html, {
+                confirmButtonText: '登录',
+                type: 'warning'
+            }).then(() => {
+                router.replace({path:'/login'})
+            })
         }
         return Promise.resolve(response)
     },error => {

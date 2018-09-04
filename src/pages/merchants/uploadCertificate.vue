@@ -80,7 +80,7 @@ import {business_license,person_card_back,person_card_front} from '@/service/get
                         //文件大于3M进行压缩
                         if(lic[0].size/1024/1024>3){
                             //进行压缩,压缩完后进行回调上传
-                            compress(reader,e.target.files[0].size,that)
+                            compress(reader,e.target.files[0].size,that,'lic')
                         }else{
                             let formData = new FormData();
                             formData.append('file',lic[0]);//lic[0]如果获取不到文件，就用e.target.files[0]
@@ -91,7 +91,7 @@ import {business_license,person_card_back,person_card_front} from '@/service/get
                         var id1 = document.getElementById("idcard1").files;
                         if(id1[0].size/1024/1024>3){
                             //进行压缩
-                            compress(reader,e.target.files[0].size,that)
+                            compress(reader,e.target.files[0].size,that,'id1')
                         }else{
                             let formData = new FormData();
                             formData.append('file',id1[0]);//lic[0]如果获取不到文件，就用e.target.files[0]
@@ -102,7 +102,7 @@ import {business_license,person_card_back,person_card_front} from '@/service/get
                         var id2 = document.getElementById("idcard2").files;
                         if(id2[0].size/1024/1024>3){
                             //进行压缩
-                            compress(reader,e.target.files[0].size,that)
+                            compress(reader,e.target.files[0].size,that,'id2')
                         }else{
                             let formData = new FormData();
                             formData.append('file',id2[0]);//lic[0]如果获取不到文件，就用e.target.files[0]

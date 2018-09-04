@@ -147,7 +147,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                     //文件大于3M进行压缩
                     if(hea[0].size/1024/1024>3){
                         //进行压缩,压缩完后进行回调上传
-                        compress(reader,e.target.files[0].size,that)
+                        compress(reader,e.target.files[0].size,that,'headimg')
                     }else{
                         let form = new FormData();
                         form.append('file',hea[0]);//hea[0]如果获取不到文件，就用e.target.files[0]
@@ -192,7 +192,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 var img_size=item.size
                 if(img_size/1024/1024>3){
                     //进行压缩
-                    compress(reader,img_size,that)
+                    compress(reader,img_size,that,'shopphoto')
                 }else{
                     let formData = new FormData();
                     formData.append('file',item.file);//lic[0]如果获取不到文件，就用e.target.files[0]
