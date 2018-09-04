@@ -19,7 +19,7 @@ const applicationresults = r => require.ensure([], () => r(require('../pages/mer
 const qcmscommitresult = r => require.ensure([], () => r(require('../pages/merchants/qcmscommitresult')), 'qcmscommitresult')
 
 /* 店铺相关 */
-const myShop = r => require.ensure([], () => r(require('../pages/shop/myShop')), 'myShop')
+const myshop = r => require.ensure([], () => r(require('../pages/shop/myshop')), 'myshop')
 const editShopInfo = r => require.ensure([], () => r(require('../pages/shop/editShopInfo')), 'editShopInfo')
 const location = r => require.ensure([], () => r(require('../pages/shop/location')), 'location')
 
@@ -93,7 +93,6 @@ const router = new Router({
         {
             path: '/qcmscommitresult', //审核信息提交成功
             component: qcmscommitresult,
-
         },
         {
             path: '/applicationresults',  // 审核结果页
@@ -101,7 +100,7 @@ const router = new Router({
         },
         {
             path: '/myshop',  // 我的店铺页
-            component: myShop,
+            component: myshop,
         },
         {
             path: '/editshopinfo',  // 编辑店铺信息页

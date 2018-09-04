@@ -8,7 +8,7 @@
         <section class="headportrait">
             <label for="headpo" class="headpo">
                 <input type="file" accept="image/*" style="display:none;" id="headpo" @change="selectheadimg">
-                <img :src="headimg" alt="头像">
+                <img :src="headimg" alt="头像" style="width:1.6rem;height:1.6rem;">
             </label>
                 <p>设置店铺头像</p>
         </section>
@@ -21,7 +21,7 @@
             <div class="line"></div>
             <div class="one" style="position:relative;" @click="selectassress">
                 <span>店铺地址</span>
-                <input type="text" v-model="shop_message.shop_name" placeholder="请选择店铺地址" readonly="value">
+                <input type="text" v-model="shop_message.address" placeholder="请选择店铺地址" readonly="value">
                 <img :src="right" class="right_jiantou">
             </div>
             <div class="line"></div>
@@ -73,7 +73,7 @@ import headimg from 'static/images/deheadpro.png'
 import	right from 'static/images/next.png'
 import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
 import {MessageBox,Indicator,Toast} from 'mint-ui'
-import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply} from '@/service/getData.js'
+import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityName} from '@/service/getData.js'
     export default {
         data(){
             return{
@@ -258,6 +258,28 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply} from '
                     }
                 }
             },
+            //根据区域解出id
+            async area_id(val){
+                const res = await cityName(val);
+                if(res.code=='000000'){
+                    if(res.data){
+                       this.shop_message.areaId=res.data.id
+                    }
+                }
+            },
+            //区域信息解析
+            area_tran(point){
+                let v_this=this
+                //以指定的经度与纬度创建一个坐标点
+                var pt = new BMap.Point(point.lng,point.lat);
+                //创建一个地理位置解析器
+                var geoc = new BMap.Geocoder();
+                geoc.getLocation(pt, function(rs){//解析格式：城市，区县，街道
+                    // console.log(rs.addressComponents.district)//根据区域反解区域id
+                    // console.log(rs.addressComponents.city)//城市
+                    v_this.area_id(rs.addressComponents.district)//解出id
+                })
+            },
             //店铺信息校验
             check_message(){
                 if(this.shop_message.logoId==''){
@@ -284,7 +306,6 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply} from '
                 }else{
                     return true
                 }
-
             },
             //信息提交
             async submit(){
@@ -292,7 +313,8 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply} from '
                 if(!a)return
                 removeStore('shop_message','session');
                 removeStore('headimg','session');
-                const res = await shop_open_apply();
+                removeStore('select_address','session');
+                const res = await shop_open_apply(this.shop_message.logoId,this.shop_message.name,this.shop_message.areaId,this.shop_message.address,this.shop_message.lat,this.shop_message.lng,this.shop_message.mobile,this.shop_message.introduce,this.shop_message.facadeId,this.shop_message.businessScopeId);
                 if(res.code=='000000'){
                     MessageBox({
                         title:'店铺信息已提交',
@@ -301,6 +323,12 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply} from '
                     }).then(action=>{
                         this.$router.push('/index')
                     })
+                }else{
+                    Toast({
+                        message: res.message,
+                        position: 'bottom',
+                        duration: 3000
+                    });
                 }
             },
         },
@@ -318,6 +346,15 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply} from '
             }
             //查询店铺地址经营范围字典
             this.businessScope_list();
+            //如果内存中有选择的地址
+            if(getStore('select_address','session')){
+                var ad_obj=getStore('select_address','session')
+                this.shop_message.areaId='';
+                this.shop_message.address=ad_obj.title+'('+ad_obj.address+')';
+                this.shop_message.lat=ad_obj.point.lat;
+                this.shop_message.lng=ad_obj.point.lng;
+                this.area_tran(ad_obj.point);//地址解析
+            }
         },
         destroyed(){
             Indicator.close();
@@ -382,6 +419,9 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply} from '
 .one input{
     width: 75%;
     font-size: .28rem;
+    overflow:hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .one textarea{
     width: 75%;
