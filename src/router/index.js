@@ -156,11 +156,11 @@ const router = new Router({
             }
         },
         {
-            path: '/addressList',  // 地址列表页
+            path: '/addresslist',  // 地址列表页
             component: addressList,
         },
         {
-            path: '/addAddress',  // 新增地址页
+            path: '/addaddress',  // 新增地址页
             component: addAddress,
             meta: {
                 requireAuth: true,

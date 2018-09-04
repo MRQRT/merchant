@@ -373,7 +373,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                         this.showMessage(2)
                     }else{
                         this.$router.push({
-                            path:'/addAddress',
+                            path:'/addaddress',
                             query:{
                                 from:'/storegold'
                             }
