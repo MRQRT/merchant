@@ -2,7 +2,7 @@
     <div class="shop-detail">
         <!-- 头部标题部分 -->
         <head-top headTitle='店铺信息' class="head-top nomal-font" ref="topHead">
-            <img slot='head_goback' :src='detailInfo.logoPath' class="head_goback" @click="$router.go(-1)">
+            <img slot='head_goback' src='/static/images/back.png' class="head_goback" @click="$router.go(-1)">
         </head-top>
         <!-- 主体部分 -->
         <div class="main-cont">
@@ -10,18 +10,17 @@
             <div class="banner">
                 <swiper :options="swiperOption">
                     <swiper-slide class="banner-item" v-for="(item,index) in detailInfo.facadePaths" :key="index">
-                        <!-- <img src="../../images/shopBanner.jpeg" alt=""> -->
                         <img :src="item" alt="" class="swiper_image">
                     </swiper-slide>
                     <div class="swiper-pagination" slot="pagination"></div>
                 </swiper>
                  <section class="headimg">
-                    <img src="static/images/deheadpro.png" alt="">
+                    <img :src="detailInfo.logoPath" alt="">
                 </section>
             </div>
             <!-- 店铺名称 -->
             <div class="shop-basic-info">
-                <div class="name">{{name}}</div>
+                <div class="name">{{detailInfo.name}}</div>
                 <div class="star" :class="starJson[judgeStar(detailInfo.star)].className">
                     <span></span>
                     <span></span>
@@ -30,7 +29,7 @@
                     <span></span>
                 </div>
                 <div class="labels">
-                    <span v-for="(item,index) in detailInfo.label" :key="index">{{item}}</span>
+                    <span v-for="(item,index) in detailInfo.businessScopeNames" :key="index">{{item}}</span>
                 </div>
             </div>
             <!-- 店铺介绍 -->
@@ -48,11 +47,11 @@
             </div>
             <!-- 电话 -->
             <div class="phone">
-                <p>400-166-9999</p>
+                <p>{{detailInfo.mobile}}</p>
             </div>
             <!-- 商户号 -->
             <div class="merchantnum" style="margin-top:.1rem;">
-                <span>商户号：{{merchantId}}</span>
+                <span>商户号：{{detailInfo.merchantId}}</span>
             </div>
         </div>
     </div>
@@ -62,7 +61,8 @@
 import headTop from '@/components/header/head.vue'
 import '@/style/swiper.min.css'
 import {shopDetail} from '@/service/getData.js';
-import { mapState,mapMutations } from 'vuex'
+import { mapState,mapMutations } from 'vuex';
+import back from 'static/images/hgdBg.jpg';
 
     export default {
         data(){
@@ -81,15 +81,16 @@ import { mapState,mapMutations } from 'vuex'
                     paginationType:'fraction',
                 },
                 detailInfo:{
-                    facadePaths:[{},{},{},{}],
+                    facadePaths:[],
                     logoPath:'',
                     introduce:'我卖黄金、收黄金、维修各种金银首饰等等等等等等，我卖黄金、收黄金、维修各种金银首饰等等等等等等，我卖黄金、收黄金、维修各种金银',
                     star:90,
-                    address:'北京市北京市北京市北京市北京市',
-                    phone:17600568656,
+                    address:'',
+                    mobile:'',
                     lat:'',
                     lng:'',
-                    label:['回购','存金'],
+                    businessScopeNames:[],
+                    name:'',
                 },
                 starJson:{
                     '2.5':{className:'twoHalf'},
@@ -333,5 +334,13 @@ import { mapState,mapMutations } from 'vuex'
 }
 .headimg img{
     height:1.54rem;
+}
+.banner-item{
+    width:100%;
+    height:5rem;
+}
+.swiper_image{
+    width:100%;
+    height:5rem;
 }
 </style>
