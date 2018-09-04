@@ -269,6 +269,9 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
                             			this.second = 60
                         			}
                     			},1000)
+                            }else if(res.code=='100035'){
+                                that.iNow = true;
+                                Toast('预留手机号错误')
                             }else{
                                 that.iNow = true;
                                 Toast(res.message)
