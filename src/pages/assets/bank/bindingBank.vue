@@ -18,13 +18,15 @@
                     <p>{{userID}}</p>
     			</section>
                 <!-- 银行卡 -->
-                <section :class="{'no-border':(errorTipStatus || bankTypeStatus)}">
-    				<input type="text" name="bankNum" placeholder="请输入银行卡号" ref="bankNum_input" pattern="[0-9]*"
-                    v-model="bankNum" maxlength="23" @input="redSec()" v-on:blur="check(bankNum)">
-                    <img :src="delImg" v-show="clear1" @click="del('b')">
+                <section>
+                    <div class="inner-wrap" :class="{'no-border':(errorTipStatus || bankTypeStatus)}">
+        				<input type="text" name="bankNum" placeholder="请输入银行卡号" ref="bankNum_input" pattern="[0-9]*"
+                        v-model="bankNum" maxlength="23" @input="redSec()" v-on:blur="check(bankNum)">
+                        <img :src="delImg" v-show="clear1" @click="del('b')">
+                    </div>
     			</section>
                 <!-- 错误提示、银行卡类型提示 -->
-                <section class="tip">
+                <div class="tip">
                     <div class="error-tip" v-show="errorTipStatus">
                         <span class="icon"></span>
                         <span>{{errorTip}}</span>
@@ -32,25 +34,29 @@
                     <div class="cardType" v-show="bankTypeStatus">
                         <span>{{cardType}}/</span><span>{{bankName}}</span>
                     </div>
-                </section>
+                </div>
                 <!-- 手机号 -->
                 <section>
-    				<input type="text" name="telNum" placeholder="请输入银行预留手机号" v-model="telNum" pattern="[0-9]*"
-                    maxlength="11" v-on:blur="checkTel(telNum)" :class="{'no-border':telErrorStatus}">
-                    <img :src="delImg" v-show="clear2" @click="del('p')">
+                    <div class="inner-wrap" :class="{'no-border':telErrorStatus}">
+        				<input type="text" name="telNum" placeholder="请输入银行预留手机号" v-model="telNum" pattern="[0-9]*"
+                        maxlength="11" v-on:blur="checkTel(telNum)">
+                        <img :src="delImg" v-show="clear2" @click="del('p')">
+                    </div>
     			</section>
                 <!-- 手机号错误提示 -->
-                <section class="mobile-error" v-show="telErrorStatus">
+                <div class="mobile-error" v-show="telErrorStatus">
                     <div class="error-tip">
                         <span class="icon"></span>
                         <span>请输入正确手机号</span>
                     </div>
-                </section>
+                </div>
                 <!-- 获取短信验证码 -->
                 <section class="verification-code">
-    				<input type="text" class="code-input" name="verifiCode" placeholder="请输入短信验证码" v-model="verifiCode" pattern="[0-9]*">
-                    <span class="getVerif" @click="getVerif" ref="send_smscode">获取验证码</span>
-                    <img :src="delImg" v-show="clear3" @click="del('v')">
+                    <div class="inner-wrap verifi-wrap">
+        				<input type="text" class="code-input" name="verifiCode" placeholder="请输入短信验证码" v-model="verifiCode" pattern="[0-9]*">
+                        <span class="getVerif" @click="getVerif" ref="send_smscode">获取验证码</span>
+                        <img :src="delImg" v-show="clear3" @click="del('v')">
+                    </div>
     			</section>
             </div>
             <!-- 确认按钮 -->
@@ -365,6 +371,7 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
             }
             .tip,.mobile-error{
                 width: 100%;
+                padding:0 .4rem;
                 background-color: #f8f8f8;
                 .error-tip{
                     padding:.25rem 0;
@@ -390,16 +397,22 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
                 border-bottom: none !important;
             }
             section{
+                width:100%;
+                height:1.1rem;
+                line-height: 1.1rem;
                 padding:0 .4rem;
                 position: relative;
 
+                p,.inner-wrap{
+                    height:100%;
+                    border-bottom: 1px solid #eee;
+                }
                 input,p{
                     width:100%;
-                    padding:.25rem 0 .35rem;
+                    // padding:.25rem 0 .35rem;
                     color:#333;
                     font-size: .28rem;
                     font-family:PingFangSC-Regular;
-                    border-bottom: 1px solid #eee;
 
                 }
                 img{
@@ -412,12 +425,8 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
                 }
                 .getVerif{
                 	display: inline-block;
-                	height: .3rem;
-                	margin-top: .35rem;
                 	font-size: .28rem;
-                	float: right;
                 	color: #eda835;
-
                 }
                 &:nth-of-type(1) input{
                     color:#333;
@@ -425,23 +434,24 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
                 &:nth-of-type(2) input{
                     color:#333;
                 }
-                &:nth-of-type(7) input{
+                &:nth-of-type(5) .inner-wrap{
                     border-bottom: none;
                 }
             }
             .verification-code{
                 position: relative;
+
+                .verifi-wrap{
+                    flex-wrap: nowrap;
+                    @include flex-box();
+                    @include justify-content();
+                }
                 img{
                     right:2rem;
                     top:32%;
                 }
                 .code-input{
                     width:70%;
-                }
-                .getVerif{
-                    position: absolute;
-                    right:.4rem;
-                    top:0;
                 }
             }
         }
