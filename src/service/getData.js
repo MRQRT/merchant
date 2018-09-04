@@ -122,6 +122,12 @@ export const merchant_open_apply_status = () => fetch('/merchant_open_apply/late
 
 export const shop_open_apply_status = () => fetch('/shop_open_apply/latest',{},'get')
 
+/*
+* 获取店铺信息
+*/
+
+export const shop = () => fetch('/shop',{},'get')
+
 /**
  * 上传店铺头像
 */
@@ -143,12 +149,6 @@ export const business_scope = () => fetch('/shop/business_scope',{},'get')
 */
 
 export const shop_open_apply = (logoId,name,areaId,address,lat,lng,mobile,introduce,facadeId,businessScopeId) => fetch('/shop_open_apply',{'logoId':logoId,'name':name,'areaId':areaId,'address':address,'lat':lat,'lng':lng,'mobile':mobile,'introduce':introduce,'facadeId':facadeId,'businessScopeId':businessScopeId},'post')
-
-/**
- * 店铺详情
- */
-
-export const shopDetail = (id) => fetch('/personal/store_detail?id='+id,{},'get');
 
 /*
 * 区域省市县
@@ -214,7 +214,7 @@ export const update_default_address = (addressId) => fetch('/address/update_defa
  * 查询店铺信息
  */
 
-export const shop = () => fetch('/shop',{},'get');
+export const shopDetail = () => fetch('/shop',{},'get');
 
 /**
  * 查询店铺状态
