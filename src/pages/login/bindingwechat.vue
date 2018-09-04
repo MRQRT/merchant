@@ -198,12 +198,20 @@ import md5 from 'js-md5'
                     this.RECORD_MOBILE(res.userVo.mobile)
                     this.RECORD_MERCHANTID(res.userVo.merchantId)
                     this.$router.push('/index');
-                }else{
+                }else if(res.code=='300111'){
                     Toast({
-                        message: res.message,
+                        message: '短信验证失败',
                         position: 'bottom',
                         duration: 3000
                     });
+                }else if(res.code=='300113'){
+                    Toast({
+                        message: '该手机已绑定，请更换其他手机号',
+                        position: 'bottom',
+                        duration: 3000
+                    });
+                }else{
+                    
                 }
             }
         },
@@ -238,6 +246,10 @@ import md5 from 'js-md5'
 </style>
 <style scoped lang="scss">
 @import '../../sass/mixin';
+.bingingWechat{
+    background:#fff;
+    min-height:100vh;
+}
 .logo{
     width: 100%;
     height: 3.5rem;

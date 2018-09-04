@@ -16,7 +16,7 @@
 			<img :src="next" style="width:.4rem;margin-top: .25rem;">
 		</section>
 		<section class="name_tel_addr last" style="height: 1.6rem">
-			<textarea name="addr" placeholder="请输入详细地址" v-model="addressDetail" maxlength="50" id="area">
+			<textarea name="addr" placeholder="请输入详细地址" v-model="addressDetail" maxlength="32" id="area">
 			</textarea>
 		</section>
 		<div class="stor"><span class="storAdd" :class="stor?'isStor':'noStor'" @click="baocun()">保存</span></div>
@@ -216,7 +216,19 @@ export default{
 					const res_1 = await add_shop_address(this.contact,this.telephone,this.addressDetail,this.provinceId,this.cityId,this.areaId);
 					if(res_1.code=='000000'){
 						if(this.$route.query.from=='addresslist'){
-							this.$router.push('/addresslist')
+							this.$router.push({
+								path:'/addresslist',
+								query:{
+									from:'account'
+								}
+							})
+						}else if(this.$route.query.from=='account'){
+							this.$router.push({
+								path:'/addresslist',
+								query:{
+									from:'account'
+								}
+							})
 						}else{
 							this.$router.push('/storegold')
 						}
@@ -226,7 +238,21 @@ export default{
 				}else if(this.title=='修改地址'&&this.stor&&this.$route.query.modify){
 					const res_2 = await update_shop_address(this.addressId,this.contact,this.telephone,this.addressDetail,this.provinceId,this.cityId,this.areaId);
 					if(res_2.code=='000000'){
-						this.$router.push('/addresslist')
+						if(this.$route.query.from=='storegold'){
+							this.$router.push({
+								path:'/addresslist',
+								query:{
+									from:'storegold'
+								}
+							})
+						}else if(this.$route.query.from=='account'){
+							this.$router.push({
+								path:'/addresslist',
+								query:{
+									from:'account'
+								}
+							})
+						}
 					}
 				}
 			},

@@ -12,17 +12,17 @@
         <!-- input-message -->
         <div class="message">
             <div class="tel">
-                <input type="text" maxlength="11" placeholder="请输入手机号" v-model="tel" @input="checkInput(tel,'telphone')">
+                <input type="text" maxlength="11" placeholder="请输入更换手机号" v-model="tel" @input="checkInput(tel,'telphone')">
                 <span class="clear" v-show="tel" style="z-index:3"><img src="static/images/clearinput.png" alt="" @click="clears"></span>
             </div>
             <section class="line"></section>
             <div class="ver_code">
-                <input type="text" maxlength="6" placeholder="请输入验证码" v-model="vercode" @input="checkInput(vercode,'vercode')">
+                <input type="text" maxlength="6" placeholder="请输入短信验证码" v-model="vercode" @input="checkInput(vercode,'vercode')">
                 <span class="text_click" @click="get_vercode" ref="send_smscode">{{clickText}}</span>
             </div>
         </div>
         <div class="password">
-            <input type="text" maxlength="20" placeholder="6~20位字母、数字组合" ref="password" v-model="password">
+            <input type="text" maxlength="20" placeholder="请输入登录密码" ref="password" v-model="password">
         </div>
         <!-- 按钮 -->
         <div class="create_acount">
@@ -108,9 +108,9 @@ export default {
             let a = this.check_tels(this.tel);
             if(!a)return
             if(!this.check_vercode&&this.vercode!=''){
-                Toast('验证吗格式不正确')
+                Toast('验证码格式不正确')
                 return
-            }else if(!this.vercode==''){
+            }else if(this.vercode==''){
                 Toast('请输入验证码')
                 return
             }
@@ -146,6 +146,10 @@ export default {
             let send_smscode = this.$refs.send_smscode;
             let a = this.check_tels(this.tel);//检查手机号
             if(!a)return
+            if(this.tel==this.mobile){
+                Toast('与当前绑定手机号相同')
+                return
+            }
             const res = await checkexist(this.tel);//检验是否已注册
             if(res.code=="000000"&&(res.data&&res.data.isExist)){//请求成功且没有注册可以发送
                 var that=this;

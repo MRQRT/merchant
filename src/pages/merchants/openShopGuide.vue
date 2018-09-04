@@ -113,11 +113,10 @@ import headTop from '@/components/header/head.vue'
 }
 footer{
     width: 100%;
-    position: absolute;
-    bottom: 0;
     padding-bottom: .4rem;
     display: flex;
     justify-content: center;
+    margin-top:2rem;
 }
 footer section{
     width: 6.7rem;

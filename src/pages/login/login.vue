@@ -61,6 +61,7 @@
         <img src="static/images/wx.png" class="weixin_img" @click="weixinLogin">
         <span>微信登录</span>
     </div>
+    <a href="tel:4008196199" id="target"></a>
 	</div>
 </template>
 <script>
@@ -100,9 +101,6 @@
 		mounted() {
             let a = isweixin();
             a?this.isWeixin=true:false
-            // if(localStorage.getItem('isWebview')){
-            //     document.querySelector('.weixin_login').style.display="block"
-            // }
 		},
 		computed:{
             // ...mapState([
@@ -172,7 +170,8 @@
             ]),
             //微信登录
             weixinLogin(){
-                const url = 'http://192.168.1.114:8080/tran'
+                // const url = 'http://192.168.1.114:8080/tran'
+                const url = 'http://cjtshtest.au32.cn/tran'
                 window.location.href="http://cjtshmerchant.au32.cn/user/auth/login?redirectUrl="+url;
             },
             //点击左上角关闭按钮
@@ -229,6 +228,19 @@
                         this.RECORD_MERCHANTID(res.data.merchantId)
                         //登录成功后去获取登录页的上一页,再跳转回去(带上对应的参数)
                         this.toNext();
+                    }else if(res.code=='000006'){//用户登录异常
+                        var html='<div style="text-align:center">您的账户出现了一些异常，我们已暂时对账户做出了封禁处理，如有疑问，请您联系客服</div>'
+                         MessageBox({
+                            title: '警告',
+                            message: html,
+                            confirmButtonText: '我知道了',
+                            showCancelButton: true,
+                            cancelButtonText:'联系客服',
+                        }).then((action)=>{
+                            if(action=='cancel'){
+                                document.getElementById("target").click()
+                            }
+                        })
                     }else{
                         Toast({
                             message: res.message,
@@ -256,6 +268,19 @@
                         this.RECORD_MOBILE(res.data.mobile)
                         this.RECORD_MERCHANTID(res.data.merchantId)
                         this.toNext();
+                    }else if(res.code=='000006'){//用户登录异常
+                        var html='<div style="text-align:center">您的账户出现了一些异常，我们已暂时对账户做出了封禁处理，如有疑问，请您联系客服</div>';
+                         MessageBox({
+                            title: '警告',
+                            message: html,
+                            confirmButtonText: '我知道了',
+                            showCancelButton: true,
+                            cancelButtonText: '联系客服',
+                        }).then((action)=>{
+                            if(action=='cancel'){
+                                document.getElementById("target").click()
+                            }
+                        })
                     }else{
                         Toast({
                             message: res.message,
