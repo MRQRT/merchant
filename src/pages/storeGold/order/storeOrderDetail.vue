@@ -179,7 +179,8 @@
                 </p>
                 <p>
                     <span>支付银行卡</span>
-                    <span>{{bankInfo.name}}(尾号{{bankInfo.code}})</span>
+                    <!-- <span>{{bankInfo.name}}(尾号{{bankInfo.code}})</span> -->
+                    <span>{{orderInfo.tradeBankCard}}</span>
                 </p>
             </div>
             <div class="distans"></div>
@@ -386,21 +387,6 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     '12':{name:'物流异常',status:0,iconType:'',beforeStatus:1},
                     '13':{name:'已关闭',status:4,iconType:4,beforeStatus:1},
                 },
-                // orderInfo:{
-                //     code:37467288374467364,
-                //     createTime:'2018-08-20 12:20:34',
-                //     status:0,
-                //     productType:0,
-                //     applyWeight:3.23,
-                //     lockprice:true,
-                //     cash:true,
-                //     lockPrice:256.34,
-                //     ensure_cash:3452.234,
-                //     applyQuantity:3,
-                //     contact:'小可爱',
-                //     telephone:13520842445,
-                //     address:'内蒙古呼和浩特市赛罕区7号楼602罕区7号楼602'
-                // },
                 orderTrackJson:{
                     '0':{name:'订单已提交'},
                     '1':{name:'订单审核未通过'},
@@ -419,123 +405,10 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 },
                 orderTrackList:[],
                 deliveryList:[],
-                // orderTrackList: [
-                //     {
-                //         "id": null,
-                //         "orderId": "123",
-                //         "addSort": 7,
-                //         'lastOrderStatus':7,
-                //         "orderStatus": 7,
-                //         "createTime": 1535095430000
-                //     },
-                //     {
-                //         "id": null,
-                //         "orderId": "123",
-                //         "addSort": 6,
-                //         'lastOrderStatus':7,
-                //         "orderStatus": 7,
-                //         "createTime": 1535095430000
-                //     },
-                //     {
-                //         "id": null,
-                //         "orderId": "123",
-                //         "addSort": 5,
-                //         'lastOrderStatus':6,
-                //         "orderStatus":7,
-                //         "createTime": 1535095430000
-                //     },
-                //     {
-                //         "id": null,
-                //         "orderId": "123",
-                //         "addSort": 4,
-                //         "orderStatus": 6,
-                //         "createTime": 1535095378000
-                //     },
-                //     {
-                //         "id": null,
-                //         "orderId": "123",
-                //         "addSort": 3,
-                //         "orderStatus": 4,
-                //         "createTime": 1535095371000
-                //     },
-                //     {
-                //         "id": null,
-                //         "orderId": "123",
-                //         "addSort": 2,
-                //         "orderStatus": 2,
-                //         "createTime": 1535095365000
-                //     },
-                //     {
-                //         "id": null,
-                //         "orderId": "123",
-                //         "addSort": 1,
-                //         "orderStatus": 0, // 已支付保证金
-                //         "createTime": 1535095362000
-                //     },
-                //     {
-                //         "id": null,
-                //         "orderId": "123",
-                //         "addSort": 0,
-                //         "orderStatus": 0,  // 订单已提交
-                //         "createTime": 1535095362000
-                //     }
-                // ],
-                // deliveryList:[
-                //     {
-                //         time:'2018-08-20 12:23:00',
-                //         status:'已签收！签收人：黄金管家'
-                //     },
-                //     {
-                //         time:'2018-08-20 12:23:00',
-                //         status:'［北京市］海淀区科贸派件员：李冰   18910672345正在为您派件'
-                //     },
-                //     {
-                //         time:'2018-08-20 12:23:00',
-                //         status:'北京市海淀区科贸 已收入'
-                //     },
-                //     {
-                //         time:'2018-08-20 12:23:00',
-                //         status:'浙江省金华市义务中转站公司  已发出，下一站 北京运转中心'
-                //     },
-                //     {
-                //         time:'2018-08-20 12:23:00',
-                //         status:'［北京市］海淀区科贸派件员：李冰   18910672345正在为您派件'
-                //     },
-                //     {
-                //         time:'2018-08-20 12:23:00',
-                //         status:'北京市海淀区科贸 已收入'
-                //     },
-                //     {
-                //         time:'2018-08-20 12:23:00',
-                //         status:'浙江省金华市义务中转站公司  已发出，下一站 北京运转中心'
-                //     },
-                //     {
-                //         time:'2018-08-20 12:23:00',
-                //         status:'［北京市］海淀区科贸派件员：李冰   18910672345正在为您派件'
-                //     },
-                //     {
-                //         time:'2018-08-20 12:23:00',
-                //         status:'北京市海淀区科贸 已收入'
-                //     },
-                //     {
-                //         time:'2018-08-20 12:23:00',
-                //         status:'浙江省金华市义务中转站公司  已发出，下一站 北京运转中心'
-                //     },
-                // ],
                 orderTrackText:'',
                 orderInfo:'',
                 newTrackList:[],
-                reportInfo:{
-                    attachmentPath:'',
-                    operator:'张艺兴',
-                    operationResult:0,
-                    auditTime:'2018-08-20 13:14',
-                    auditRemark:'检测啦检测啦',
-                    code:'283763662655',
-                    realGrossWeight:2.3,
-                    realNetWeight:24.2323,
-                    realLoss:0.2345,
-                }
+                reportInfo:'',
             }
         },
         components:{
@@ -609,7 +482,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             },
             // 倒计时
             countDown(time){
-                var countdownMinute = 15;//10分钟倒计时
+                var countdownMinute = 2;//10分钟倒计时
                 var startTimes = new Date(time.replace(/-/g,"/"));//开始时间 new Date('2016-11-16 15:21');
                 var endTimes = new Date(startTimes.setMinutes(startTimes.getMinutes()+countdownMinute));//结束时间
                 var curTimes = new Date();//当前时间
@@ -752,8 +625,8 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     if(this.orderInfo.status==10){
                         this.countDown(this.orderInfo.createTimeStr);
                     }
-                    // 未支付、已失效、锁价订单请求银行卡信息
-                    if(this.orderInfo.status==10 || this.orderInfo.status==11 || this.orderInfo.lockprice){
+                    // 未支付、已失效 请求银行卡信息
+                    if(this.orderInfo.status==10 || this.orderInfo.status==11){
                         this.query_card_info();
                     }
                     // 从【物流中】状态就开始请求快递信息(以防状态发生变化，再次请求数据)

@@ -99,11 +99,11 @@ const router = new Router({
             component: applicationresults,
         },
         {
-            path: '/myShop',  // 我的店铺页
+            path: '/myshop',  // 我的店铺页
             component: myShop,
         },
         {
-            path: '/editShopInfo',  // 编辑店铺信息页
+            path: '/editshopinfo',  // 编辑店铺信息页
             component: editShopInfo,
         },
         {

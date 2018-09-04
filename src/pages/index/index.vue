@@ -177,7 +177,7 @@
 import headTop from '@/components/header/head.vue'
 import { Popup,Toast,MessageBox } from 'mint-ui';
 import { mapState,mapMutations } from 'vuex'
-import { shop_status, query_index_statistics, shop, logout } from '@/service/getData.js'
+import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_status } from '@/service/getData.js'
 
 
     export default {
@@ -228,7 +228,7 @@ import { shop_status, query_index_statistics, shop, logout } from '@/service/get
                 if(this.shopStatus){
                     this.$router.push('/myshop') // 跳转我的店铺页
                 }else{
-                    this.$router.push('/openshopguide') // 开店引导页
+                    this.merchant_open_apply_status();
                 }
             },
             // 判断店铺状态
@@ -251,7 +251,7 @@ import { shop_status, query_index_statistics, shop, logout } from '@/service/get
                 }else if(res.code=='200206'){
                     this.RECORD_SHOPSTATUS(false); // 店铺不存在或未通过审核
                 }else{
-                    Toast(res.message)
+                    // Toast(res.message)
                 }
             },
             // 获取店铺信息
@@ -264,6 +264,17 @@ import { shop_status, query_index_statistics, shop, logout } from '@/service/get
                     }else{
                         this.RECORD_SHOPID('');        // 保存店铺ID
                         this.RECORD_SHOPSTATUS(false); // 店铺不存在或未通过审核
+                    }
+                }
+            },
+            // 获取最新商户审核信息
+            async merchant_open_apply_status(){
+                var res = await merchant_open_apply_status();
+                if(res.code=='000000'){
+                    if(res.data){
+                        this.$router.push('/applicationresults') //审核结果页
+                    }else{
+                        this.$router.push('/openshopguide') // 商户入驻引导页
                     }
                 }
             },
@@ -322,6 +333,11 @@ import { shop_status, query_index_statistics, shop, logout } from '@/service/get
 
 </script>
 
+<style media="screen">
+    .mint-msgbox-wrapper .mint-msgbox-message{
+        text-align: center !important;
+    }
+</style>
 
 <style scoped lang="scss">
 @import '../../sass/mixin';
@@ -516,7 +532,7 @@ import { shop_status, query_index_statistics, shop, logout } from '@/service/get
         .title{
             color: #333;
             font-size: .34rem;
-            // font-weight: bold;
+            font-weight: bold;
             font-family:PingFangSC-Medium;
             margin-bottom: .3rem;
         }
