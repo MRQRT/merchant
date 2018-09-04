@@ -49,7 +49,7 @@
                             </div>
                             <div class="info-item">
                                 <span>锁定金价</span>
-                                <span class="special-color">{{orderInfo.lockPrices | formatPriceTwo}}元</span>
+                                <span class="special-color">{{orderInfo.lockPrices | formatPriceTwo}}元/克</span>
                             </div>
                         </div>
                     </div>

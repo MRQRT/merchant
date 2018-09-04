@@ -373,7 +373,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                         this.showMessage(2)
                     }else{
                         this.$router.push({
-                            path:'/addAddress',
+                            path:'/addaddress',
                             query:{
                                 from:'/storegold'
                             }
@@ -573,9 +573,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                     this.ensureCash = res.data.ensureCash;
                     this.lockPrice = res.data.lockPrice;
                     this.popupVisible1 = true;    // 显示验证码弹窗
-                    setTimeout(function(){
-                        that.requestVerifi(0);        // 调用预下单函数，发送验证码函数
-                    })
+                    this.requestVerifi(0);        // 调用预下单函数，发送验证码函数
                 }else{
                     Toast(res.message);
                     this.btnCtroller = true;  // 按钮恢复可点状态
@@ -594,14 +592,33 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
             //支付预下单（发送验证码函数）
             async requestVerifi(countType){
                 var res = await pay_beforehand_order(this.orderId,countType);
+                if(res.code=='000000'){
+                    this.popupVisible1 = true;    // 显示验证码弹窗
+                }else{
+                    this.popupVisible1 = false;  // 关闭验证码弹窗
+                    Toast(res.message)
+                }
             },
             // 支付正式下单 (校验验证码)
             async checkoutVerifi(){
                 var that = this;
                 var res = await pay_formal_order(this.orderId,this.verifiCode);
-                if(res.code=='000000'){         // 验证码正确跳转存金结果页
+                if(res.code=='000000'){
+                    var timesRun = 0;
                     window.timer = setInterval(function(){
-                        that.query_status()    // 隔一秒查询一次状态
+                        timesRun += 1000;
+                        that.query_status()       // 隔1秒查询一次状态
+
+                        if(timesRun==120000){    // 2min后自动跳转待支付详情页
+                            this.popupVisible2 = false; // 关闭处理中动画
+                            that.$router.push({
+                                path:'/storeorderdetail',
+                                query:{
+                                    id:that.orderId,
+                                    status:10,
+                                }
+                            })
+                        }
                     },1000)
                 }else if(res.code=='200211'){ // 验证码错误显示重试对话框
                     this.popupVisible2 = false; // 关闭处理中动画
@@ -634,6 +651,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
             },
             //间隔查询订单状态
             async query_status(){
+                var that = this;
                 var res = await query_status(this.orderId);
                 if(res.code=='000000'){
                     if(res.data.pays==1){          // 存金支付成功

@@ -5,6 +5,7 @@
             <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
         </head-top>
         <!-- model -->
+        <!-- 开通商户 -->
         <div class="model" v-show="qcadd">
             <p>商家入驻</p>
             <section class="squ">
@@ -14,14 +15,16 @@
                 <p>手机上，请留意查收短信</p>
             </section>
         </div>
+        <!-- 开通店铺 -->
         <div class="model" v-show="noshop">
             <p>开通店铺</p>
             <section class="squ">
                 <img src="static/images/noshop.png" alt="">
                 <p style="margin-top:.42rem;">啊哦，您还没有店铺！</p>
-                <button class="button">立即入驻</button>
+                <button class="button" @click="$router.push('/editshopinfo')">立即入驻</button>
             </section>
         </div>
+        <!-- 商户审核通过 -->
         <div class="model" v-show="qcpass">
             <p>商家入驻</p>
             <section class="squ">
@@ -30,6 +33,7 @@
                 <p>恭喜您，入驻资质已经审核通过了</p>
             </section>
         </div>
+        <!-- 店铺资料已提交 -->
         <div class="model" v-show="shopadd">
             <p>开通店铺</p>
             <section class="squ">
@@ -39,24 +43,27 @@
                 <p>手机上，请留意查收短信</p>
             </section>
         </div>
+        <!-- 商户审核失败 -->
         <div class="model" v-show="qcnopass">
             <p>商家入驻</p>
             <section class="squ" style="padding-top:.5rem">
                 <img src="static/images/qcnopass.png" alt="">
                 <h4 style="margin-top:0">入驻资质未通过审核</h4>
-                <p>失败原因：根据后台审核选择理由展示</p>
-                <button class="button">重新申请</button>
+                <p>失败原因：{{merhcantFail}}</p>
+                <button class="button" @click="$router.push('/uploadcertificate')">重新申请</button>
             </section>
         </div>
+        <!-- 店铺审核失败 -->
         <div class="model" v-show="shopnopass">
             <p>开通店铺</p>
             <section class="squ" style="padding-top:.5rem;">
                 <img src="static/images/shopmsnopass.png" alt="">
                 <h4 style="margin-top:.0rem;">店铺资料未通过审核</h4>
-                <p>失败原因：根据后台审核选择理由展示</p>
-                <button class="button">重新申请</button>
+                <p>失败原因：{{shopFail}}</p>
+                <button class="button" @click="$router.push('/editshopinfo')">重新申请</button>
             </section>
         </div>
+        <!-- 店铺审核通过 -->
         <div class="model" v-show="shoppass">
             <p>开通店铺</p>
             <section class="squ">
@@ -82,6 +89,8 @@ import {merchant_open_apply_status,shop_open_apply_status} from '@/service/getDa
                shopadd: false,
                shoppass: false,
                shopnopass: false,
+               merhcantFail:'',//商户审核失败原因
+               shopFail:'',   //店铺审核失败原因
             }
         },
         components:{
@@ -109,6 +118,7 @@ import {merchant_open_apply_status,shop_open_apply_status} from '@/service/getDa
                         this.qcadd=0;
                         this.qcpass=0;
                         this.qcnopass=1;
+                        this.merhcantFail = res.data.verifyReasonLabel;
                     }
                 }
                 this.shop_status();
@@ -117,28 +127,35 @@ import {merchant_open_apply_status,shop_open_apply_status} from '@/service/getDa
                 const res = await shop_open_apply_status();
                 // console.log(res)
                 if(res.code=='000000'){
-                    if(res.data.status=='1'){ // 1、待审核
-                        if(this.qcadd){//
-                            this.noshop=1;
-                            this.shopadd=0;
-                            this.shoppass=0;
-                            this.shopnopass=0;
-                        }else{
+                    if(res.data){
+                        if(res.data.status=='1'){ // 1、待审核
+                            if(this.qcadd){//
+                                this.noshop=1;
+                                this.shopadd=0;
+                                this.shoppass=0;
+                                this.shopnopass=0;
+                            }else{
+                                this.noshop=0;
+                                this.shopadd=1;
+                                this.shoppass=0;
+                                this.shopnopass=0;
+                            }
+                        }else if(res.data.status=='2'){//2、审核通过
                             this.noshop=0;
-                            this.shopadd=1;
-                            this.shoppass=0;
+                            this.shopadd=0;
+                            this.shoppass=1;
                             this.shopnopass=0;
+                        }else if(res.data.status=='9'){//3、未通过
+                            this.noshop=0;
+                            this.shopadd=0;
+                            this.shopass=0;
+                            this.shopnopass=1;
+                            this.shopFail = res.data.verifyReasonLabel;
                         }
-                    }else if(res.data.status=='2'){//2、审核通过
-                        this.noshop=0;
-                        this.shopadd=0;
-                        this.shoppass=1;
-                        this.shopnopass=0;
-                    }else if(res.data.status=='9'){//3、未通过
-                        this.noshop=0;
-                        this.shopadd=0;
-                        this.shopass=0;
-                        this.shopnopass=1;
+                    }else{
+                        this.qcadd=1;
+                        this.noshop=1;
+                        this.qcpass=0;
                     }
                 }
             }

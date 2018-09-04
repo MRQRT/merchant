@@ -55,11 +55,12 @@ const tran = r => require.ensure([], () => r(require('../pages/login/tran.vue'))
 const setpassword = r => require.ensure([], () => r(require('../pages/login/setpassword.vue')), 'setpassword')
 
 /* 关于我们 */
-const aboutus = r => require.ensure([], () => r(require('../pages/aboutUs/aboutus')), 'aboutus')
+const aboutus = r => require.ensure([], () => r(require('../pages/aboutus/aboutus')), 'aboutus')
 
 
 const router = new Router({
     mode: 'history',
+    base: "/",
     routes: [
         {
             path:'*',
@@ -92,7 +93,6 @@ const router = new Router({
         {
             path: '/qcmscommitresult', //审核信息提交成功
             component: qcmscommitresult,
-
         },
         {
             path: '/applicationresults',  // 审核结果页
@@ -103,7 +103,7 @@ const router = new Router({
             component: myshop,
         },
         {
-            path: '/editShopInfo',  // 编辑店铺信息页
+            path: '/editshopinfo',  // 编辑店铺信息页
             component: editShopInfo,
         },
         {
@@ -155,11 +155,11 @@ const router = new Router({
             }
         },
         {
-            path: '/addressList',  // 地址列表页
+            path: '/addresslist',  // 地址列表页
             component: addressList,
         },
         {
-            path: '/addAddress',  // 新增地址页
+            path: '/addaddress',  // 新增地址页
             component: addAddress,
             meta: {
                 requireAuth: true,
