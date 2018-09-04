@@ -20,7 +20,7 @@
                 <!-- 银行卡 -->
                 <section>
                     <div class="inner-wrap" :class="{'no-border':(errorTipStatus || bankTypeStatus)}">
-        				<input type="text" name="bankNum" placeholder="请输入银行卡号" ref="bankNum_input" pattern="[0-9]*"
+        				<input type="tel" name="bankNum" placeholder="请输入银行卡号" ref="bankNum_input" pattern="[0-9]*"
                         v-model="bankNum" maxlength="23" @input="redSec()" v-on:blur="check(bankNum)">
                         <img :src="delImg" v-show="clear1" @click="del('b')">
                     </div>
@@ -38,7 +38,7 @@
                 <!-- 手机号 -->
                 <section>
                     <div class="inner-wrap" :class="{'no-border':telErrorStatus}">
-        				<input type="text" name="telNum" placeholder="请输入银行预留手机号" v-model="telNum" pattern="[0-9]*"
+        				<input type="tel" name="telNum" placeholder="请输入银行预留手机号" v-model="telNum" pattern="[0-9]*"
                         maxlength="11" v-on:blur="checkTel(telNum)">
                         <img :src="delImg" v-show="clear2" @click="del('p')">
                     </div>
@@ -53,7 +53,7 @@
                 <!-- 获取短信验证码 -->
                 <section class="verification-code">
                     <div class="inner-wrap verifi-wrap">
-        				<input type="text" class="code-input" name="verifiCode" placeholder="请输入短信验证码" v-model="verifiCode" pattern="[0-9]*">
+        				<input type="tel" class="code-input" name="verifiCode" placeholder="请输入短信验证码" v-model="verifiCode" pattern="[0-9]*">
                         <span class="getVerif" @click="getVerif" ref="send_smscode">获取验证码</span>
                         <img :src="delImg" v-show="clear3" @click="del('v')">
                     </div>

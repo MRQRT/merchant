@@ -280,9 +280,10 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
             },
             //退出登录
             async quitLogin(){
+                var html='<div style="text-align:center">确定要退出登录？</div>'
                 MessageBox({
                     title: '提示',
-                    message: '确定要退出登录？',
+                    message: html,
                     confirmButtonText: '取消',
                     showCancelButton: true,
                     cancelButtonText:'退出登录',
@@ -332,12 +333,6 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
     }
 
 </script>
-
-<style media="screen">
-    .mint-msgbox-wrapper .mint-msgbox-message{
-        text-align: center !important;
-    }
-</style>
 
 <style scoped lang="scss">
 @import '../../sass/mixin';
