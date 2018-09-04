@@ -58,6 +58,7 @@ const aboutus = r => require.ensure([], () => r(require('../pages/aboutUs/aboutU
 
 export const router = new Router({
     mode: 'history',
+    base: "/",
     routes: [
         {
             path:'*',
