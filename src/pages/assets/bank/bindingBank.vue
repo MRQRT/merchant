@@ -19,7 +19,7 @@
     			</section>
                 <!-- 银行卡 -->
                 <section :class="{'no-border':(errorTipStatus || bankTypeStatus)}">
-    				<input type="text" name="bankNum" placeholder="请输入有效银行卡号" ref="bankNum_input" pattern="[0-9]*"
+    				<input type="text" name="bankNum" placeholder="请输入银行卡号" ref="bankNum_input" pattern="[0-9]*"
                     v-model="bankNum" maxlength="23" @input="redSec()" v-on:blur="check(bankNum)">
                     <img :src="delImg" v-show="clear1" @click="del('b')">
     			</section>
@@ -36,7 +36,7 @@
                 <!-- 手机号 -->
                 <section>
     				<input type="text" name="telNum" placeholder="请输入银行预留手机号" v-model="telNum" pattern="[0-9]*"
-                    maxlength="11" v-on:blur="checkTel(telNum)">
+                    maxlength="11" v-on:blur="checkTel(telNum)" :class="{'no-border':telErrorStatus}">
                     <img :src="delImg" v-show="clear2" @click="del('p')">
     			</section>
                 <!-- 手机号错误提示 -->
@@ -62,7 +62,7 @@
 <script>
 import headTop from '@/components/header/head.vue'
 import	delImg from 'static/images/clearinput.png'
-import { Toast } from 'mint-ui'
+import { Toast,MessageBox } from 'mint-ui'
 import { merchant, return_card_info, bind_card,captcha } from '@/service/getData.js'
 
 
@@ -83,8 +83,8 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
                 bankTypeStatus:false,   // 银行卡类型提示
                 telErrorStatus:false,   // 手机号错误提示
                 errorTip:'',            // 银行卡错误提示文字
-                cardType:'储蓄卡',       // 银行卡类型
-                bankName:'工商银行',     // 银行类型
+                cardType:'',       // 银行卡类型
+                bankName:'',     // 银行类型
                 iNow: true,             // 状态变量,解决重复点击问题
                 second: 60,             // 验证码倒计时
                 rightShow:0,            // 信息是否完善
@@ -153,27 +153,43 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
 				}
             },
             //格式化银行卡号
+            // redSec(){
+            //     let num = 0;
+            //     const str = this.bankNum;
+            //     const elem = this.$refs.bankNum_input;
+            //     if(str.length > num){
+            //         const c = str.replace(/\s/g,  "");
+            //         if(str != "" && c.length > 4 && c.length % 4 == 1){
+            //             this.bankNum = str.substring(0, str.length - 1)+ " " + str.substring(str.length - 1, str.length);
+            //         }
+            //     }
+            //     if(elem.setSelectionRange){//W3C
+            //         setTimeout(function(){
+            //             elem.setSelectionRange(elem.value.length,elem.value.length);
+            //             elem.focus()
+            //         },0);
+            //     }else if(elem.createTextRange){//IE
+            //         const textRange=elem.createTextRange()
+            //         textRange.moveStart("character",elem.value.length)
+            //         textRange.moveEnd("character",0)
+            //         textRange.select()
+            //     }
+            // },
             redSec(){
-                let num = 0;
-                const str = this.bankNum;
-                const elem = this.$refs.bankNum_input;
-                if(str.length > num){
-                    const c = str.replace(/\s/g,  "");
-                    if(str != "" && c.length > 4 && c.length % 4 == 1){
-                        this.bankNum = str.substring(0, str.length - 1)+ " " + str.substring(str.length - 1, str.length);
-                    }
-                }
-                if(elem.setSelectionRange){//W3C
-                    setTimeout(function(){
-                        elem.setSelectionRange(elem.value.length,elem.value.length);
-                        elem.focus()
-                    },0);
-                }else if(elem.createTextRange){//IE
-                    const textRange=elem.createTextRange()
-                    textRange.moveStart("character",elem.value.length)
-                    textRange.moveEnd("character",0)
-                    textRange.select()
-                }
+                //获取当前光标的位置
+                var caret = this.$refs.bankNum_input.selectionStart;
+                //获取当前的value
+                var value = this.bankNum;
+                //从左边沿到坐标之间的空格数
+                var sp = (value.slice(0, caret).match(/\s/g) || []).length
+                //去掉所有空格
+                var nospace = value.replace(/\s/g, '')
+                //重新插入空格
+                var curVal = this.bankNum = nospace.replace(/(\d{4})/g, "$1 ").trim()
+                //从左边沿到原坐标之间的空格数
+                var curSp = (curVal.slice(0, caret).match(/\s/g) || []).length
+                //修正光标位置
+                this.$refs.bankNum_input.selectionEnd = this.$refs.bankNum_input.selectionStart = caret + curSp - sp
             },
             // 获取默认商户信息
             async getMerchant(){
@@ -183,12 +199,11 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
                     this.userID = res.data.personCode;
                 }
             },
-            //校验银行卡号
+            //失去焦点时 校验银行卡号类型
 			check(value){
-                this.bankTypeStatus=true;
+                // this.bankTypeStatus=true;
 				const num = /^[a-z0-9\s]{16,19}$/;
                 var newValue = value.replace(/\s/g, "");
-
 				if(num.test(newValue)){
 					this.tipShow = false;
 					this.checkBankCard(newValue)
@@ -205,9 +220,11 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
             async checkBankCard(val){
                 const res = await return_card_info(val);
                 if(res.code=='000000'){
-                    // this.cardType=res.data.type;
                     if(res.data){
+                        this.bankTypeStatus=true;
+                        this.errorTipStatus=false;
                         this.bankName=res.data.name;
+                        this.cardType=res.data.type==0?'储蓄卡':'';
                     }else{
                         this.bankTypeStatus=false
     					this.errorTipStatus=true
@@ -230,24 +247,26 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
 					if(this.rightShow==1){
 						if(this.iNow==true && this.second==60 && this.bankTypeStatus==1){
                 			that.iNow = false;
-                			const res=await captcha(this.bankNum,this.telNum,this.verifiNo)
+                            const bankCode = this.bankNum.replace(/\s/g, "");
+                			const res=await captcha(bankCode,this.telNum,this.verifiNo)
                             if(res.code=='000000'){
                                 this.verifiNo = res.data;
-                            }else if(res.code=='100030'){
+                                that.timer = setInterval(function(){
+                        			send_smscode.style.color="#666"
+                        			i--
+                        			send_smscode.innerHTML = i+'s'
+                        			if(i==-1){
+                            			clearInterval(that.timer)
+                            			that.iNow=true
+                            			send_smscode.style.color="#eda835"
+                            			send_smscode.innerHTML = '获取验证码'
+                            			this.second = 60
+                        			}
+                    			},1000)
+                            }else{
+                                that.iNow = true;
                                 Toast(res.message)
                             }
-                			that.timer = setInterval(function(){
-                    			send_smscode.style.color="#666"
-                    			i--
-                    			send_smscode.innerHTML = i+'s'
-                    			if(i==-1){
-                        			clearInterval(that.timer)
-                        			that.iNow=true
-                        			send_smscode.style.color="#eda835"
-                        			send_smscode.innerHTML = '获取验证码'
-                        			this.second = 60
-                    			}
-                			},1000)
 						}
 					}else if(this.bankNum == '' && this.rightShow==1){
 						Toast("请先输入银行卡号")
@@ -270,12 +289,18 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
 					const formatBankN = this.bankNum.replace(/\s/g, "")
 					const res = await bind_card(this.verifiNo,formatBankN, this.telNum, this.verifiCode)
 					if(res.code=='000000'){
-						Toast('银行卡绑定成功')
-						if(this.$route.query.from=='storegold'){
-                            this.$router.replace('/storegold')
-						}else{
-							this.$router.replace('/assets')
-						}
+                        Toast({
+                          message: '银行卡绑定成功',
+                          position: 'middle',
+                          duration: 1000
+                        });
+                        setTimeout(() => {
+                            if(this.$route.query.from=='storegold'){
+                                this.$router.replace('/storegold')
+    						}else{
+    							this.$router.replace('/assets')
+    						}
+                        }, 1000);
 					}else{
 						MessageBox({
 							title: '提示',
@@ -301,6 +326,7 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
 				}else if(val=='p'){
 					this.telNum = ''
                     this.telErrorStatus = false;
+                    this.rightShow = 0;
 				}else if(val=='v'){
 					this.verifiCode = ''
 				}
@@ -361,17 +387,20 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
                 input{
                     border-bottom: none !important;
                 }
+                border-bottom: none !important;
             }
             section{
                 padding:0 .4rem;
                 position: relative;
+
                 input,p{
                     width:100%;
-                    padding:.35rem 0;
+                    padding:.25rem 0 .35rem;
                     color:#333;
                     font-size: .28rem;
                     font-family:PingFangSC-Regular;
                     border-bottom: 1px solid #eee;
+
                 }
                 img{
                     display: inline-block;

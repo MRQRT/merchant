@@ -96,8 +96,7 @@
 			}
 		},
         created() {
-            
-        },
+            },
 		mounted() {
             let a = isweixin();
             a?this.isWeixin=true:false
@@ -172,9 +171,9 @@
                 'RECORD_USERID','RECORD_MOBILE','RECORD_MERCHANTID','RECORD_ACCESSTOKEN'
             ]),
             //微信登录
-            async weixinLogin(){
-                const url = 'http://192.168.1.114:8080/bindingwechat'
-                const res = await wechatlogin(url);
+            weixinLogin(){
+                const url = 'http://192.168.1.114:8080/tran'
+                window.location.href="http://cjtshmerchant.au32.cn/user/auth/login?redirectUrl="+url;
             },
             //点击左上角关闭按钮
             backWard(){
@@ -224,11 +223,11 @@
                     if(res.code=='000000'){
                         //登录成功后获取用户基本概况
                         // this.userInforma();
-                        //登录成功后去获取登录页的上一页,再跳转回去(带上对应的参数)
                         this.RECORD_USERID(res.data.userId)
                         this.RECORD_ACCESSTOKEN(res.data.accessToken)
                         this.RECORD_MOBILE(res.data.mobile)
                         this.RECORD_MERCHANTID(res.data.merchantId)
+                        //登录成功后去获取登录页的上一页,再跳转回去(带上对应的参数)
                         this.toNext();
                     }else{
                         Toast({
@@ -293,7 +292,7 @@
                             that.second = 60;
                         }
                     },1000)
-                    let res = await sendsms(this.num,1);
+                    let res1 = await sendsms(this.num,1);
                     if(res1.code!='000000'){
                         Toast({
                             message: res1.message,
@@ -390,6 +389,10 @@
 	}
 </script>
 <style scoped>
+.loginIn{
+    background-color:#fff;
+    border:1px solid #fff;
+}
 input{
     caret-color: #333333;
 }

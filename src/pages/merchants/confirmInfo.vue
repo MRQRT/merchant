@@ -13,77 +13,184 @@
         <section class="msbody">
             <div class="inputms">
                 <span class="left_name">公司名称</span>
-                <input type="text" v-model="ms.companyName">
+                <input type="text" v-model="ms.companyName" placeholder="请输入公司名称">
             </div>
             <div class="line" style="width: 100%;"></div>
                 <div class="inputms">
                 <span class="left_name">营业执照号</span>
-                <input type="text" v-model="ms.businessLicenseCode">
+                <input type="text" v-model="ms.businessLicenseCode" placeholder="请输入营业执照号">
             </div>
             <div class="line" style="width: 100%;"></div>
                 <div class="inputms">
                 <span class="left_name">营业期限</span>
-                <input type="text" v-model="ms.date">
+                <input id="start_date" type="text" v-model="ms.businessLicenseBeginDate" readonly="true" @click="startpicker" placeholder="营业开始时间">
+                <span id="middle">至</span>
+                <input id="end_date" type="text" v-model="ms.businessLicenseEndDate" readonly="true" @click="endpicker" placeholder="营业结束时间">
             </div>
             <div class="line" style="width: 100%;"></div>
                 <div class="inputms">
                 <span class="left_name">法人姓名</span>
-                <input type="text" v-model="ms.personName">
+                <input type="text" v-model="ms.personName" placeholder="请输入法人姓名">
             </div>
             <div class="line" style="width: 100%;"></div>
                 <div class="inputms">
                 <span class="left_name">法人身份证号</span>
-                <input type="text" v-model="ms.personCode">
+                <input type="text" v-model="ms.personCode" placeholder="请输入法人身份证号">
             </div>
             <div class="line" style="width: 100%;"></div>
                 <div class="inputms">
                 <span class="left_name">证件有效期</span>
-                <input type="text" v-model="ms.personCardEndDate">
+                <input type="text" v-model="ms.personCardEndDate" readonly="true" @click="terms" placeholder="请输入证件有效期">
             </div>
         </section>
         <!-- button -->
         <div class="button">
-            <section>确认无误</section>
+            <section @click="submit()">确认无误</section>
         </div>
+        <!-- 时间选取框(开始时间) -->
+        <mt-datetime-picker @click="startpicker" ref="picker" type="date" :startDate="new Date('1990-01-01')" @confirm="handleConfirm">
+        </mt-datetime-picker>
+        <!-- 时间选取框(结束时间) -->
+        <mt-datetime-picker @click="endpicker" ref="picker2" type="date" :startDate="new Date('2018-01-01')" :endDate="new Date('2050-01-01')"  @confirm="handleConfirm2">
+        </mt-datetime-picker>
+        <!-- 时间选取框(身份证有效期) -->
+        <mt-datetime-picker @click="terms" ref="picker3" type="date" :startDate="new Date('2019-01-01')" :endDate="new Date('2050-01-01')"  @confirm="handleConfirm3">
+        </mt-datetime-picker>
     </div>
 </template>
 
 <script>
 import headTop from '@/components/header/head.vue'
+import {business_qualification} from '@/service/getData.js'
+import {DatetimePicker,Toast} from 'mint-ui'
+import {formatDate,curentTime,isEmptyObject,setStore} from '@/config/mUtils.js'
+import {merchant_open_apply} from '@/service/getData.js'
+export default {
+    data(){
+        return{
+            ms:{
+                companyName: '',
+                businessLicenseCode: "",
+                businessLicenseBeginDate: curentTime(),//营业期限开始时间
+                businessLicenseEndDate: curentTime(),//营业期限结束时间
+                personName: "",
+                personCode: "",
+                personCardEndDate: "",
+            }
+        }
+    },
+    components:{
+        headTop,
+    },
+    computed: {
 
-    export default {
-        data(){
-            return{
-                ms:{
-                    companyName: '北京盈吉通电子商务有限公司',
-                    businessLicenseCode: "91110 0105 MA12 3817 J9",
-                    date: "2025-15-13 至 2015-12-13",
-                    personName: "张爱过",
-                    personCode: "140300 1223 4511 2116",
-                    personCardEndDate: "2025-12-13",
-                }
+    },
+    watch:{
+
+    },
+    methods: {
+        //获取营业资质
+        async business_qc(){
+            const res = await business_qualification();
+            //未获取营业资质
+            let isobj = isEmptyObject(res.data);
+            if(res.code=='100001'){
+                return
+            }else if(res.code=='000000'&&!isobj){
+                this.ms = res.data
             }
         },
-        components:{
-            headTop,
+        //打开开始时间选取框
+        startpicker(val){
+            this.$refs.picker.open();
         },
-        computed: {
-
+        //打开结束时间选取框
+        endpicker(){
+            this.$refs.picker2.open();
         },
-        watch:{
-
+        terms(){
+            this.$refs.picker3.open();
         },
-        methods: {
-
+        //确定选取的开始时间
+        handleConfirm(val){
+            var sta = new Date(val);
+            var formasta = formatDate(sta,'yyyy-MM-dd');
+            this.ms.businessLicenseBeginDate=formasta;
         },
-        created(){
-
+        //确定选取的开始时间
+        handleConfirm2(val){
+            var sta = new Date(val);
+            var formasta = formatDate(sta,'yyyy-MM-dd');
+            this.ms.businessLicenseEndDate=formasta;
         },
-        mounted(){
-
+        //身份证期限
+        handleConfirm3(val){
+            var sta = new Date(val);
+            var formasta = formatDate(sta,'yyyy-MM-dd');
+            this.ms.personCardEndDate=formasta;
         },
-    }
+        async submit(){
+            var issubmit = this.check_input();
+            if(issubmit==false)return
+            let arr = this.ms.personCode.split(' ');
+            var ss = '';
+            arr.forEach(item => {
+                ss = ss + item
+            });
+            this.ms.personCode=ss
+            const res = await merchant_open_apply(this.ms.companyName,this.ms.businessLicenseCode,this.ms.businessLicenseBeginDate,this.ms.businessLicenseEndDate,this.ms.personName,this.ms.personCode,this.ms.personCardEndDate);
+            if(res.code=='000000'){
+                 setStore('qc_imgobj','','session');
+                this.$router.push('/qcmscommitresult');
+            }else{
+                setStore('qc_imgobj','','session');
+                Toast({
+                    message: res.message,
+                    position: 'bottom',
+                    duration: 3000
+                })
+            }
+        },
+        //校验输入框
+        check_input(){
+            if(this.ms.companyName==''){
+                Toast('请输入公司名称');
+                return false
+            }
+            if(this.ms.businessLicenseCode==''){
+                Toast('请输入营业执照号');
+                return false
+            }
+            if(this.ms.businessLicenseBeginDate==''){
+                Toast('请输入营业期限开始时间')
+                return false
+            }
+            if(this.ms.businessLicenseEndDate==''){
+                Toast('请输入营业期限结束时间')
+                return false
+            }
+            if(this.ms.personName==''){
+                Toast('请输入法人姓名')
+                return false
+            }
+            if(this.ms.personCode==''){
+                Toast('请输入法人身份证号')
+                return false
+            }
+            if(this.ms.personCardEndDate==''){
+                Toast('请输入证件有效期')
+                return false
+            }
+        }
+    },
+    created(){
 
+    },
+    mounted(){
+        //获取营业资质
+       this.business_qc();
+    },
+}
 </script>
 
 <style scoped lang="scss">
@@ -155,5 +262,24 @@ import headTop from '@/components/header/head.vue'
     font-size: .32rem;
     border-radius: 4px;
     text-align: center;
+}
+#start_date,#end_date{
+    float: left;
+    width: 26%;
+}
+#middle{
+    width: 10%;
+    float: left;
+    height: 1.1rem;
+    line-height: 1.1rem;
+    text-align: center;
+}
+#end_date{
+    padding-left: .09rem;
+}
+</style>
+<style lang="css">
+.mint-datetime-action{
+    color: #666666;
 }
 </style>

@@ -6,18 +6,25 @@ import qs from 'qs'
 import { Toast, MessageBox,Indicator} from 'mint-ui'
 import store from '../store'
 
-axios.defaults.baseURL = process.env.API_ROOT   //配置接口地址
+// axios.defaults.baseURL = process.env.API_ROOT   //配置接口地址
 
-// axios.defaults.baseURL = '/api'   //配置接口地址
+axios.defaults.baseURL = '/api'   //配置接口地址
 // axios.defaults.timeout = 5000; //配置请求的超时时间，超时将被中断
 
 //POST传参序列化(添加请求拦截器)
 axios.interceptors.request.use((config) => {
     //在发送请求之前将参数序列化
     if(config.method  === 'post' || config.method === 'put') {
-        config.data = qs.stringify(config.data,{ skipNulls: true });
-        config.params = qs.stringify(config.url,{ skipNulls: true })
+        let isFormData = (v) => {
+            return Object.prototype.toString.call(v) === '[object FormData]';
+        }
+        var a = isFormData(config.data);
+        if(!a){
+            config.data = qs.stringify(config.data,{ skipNulls: true });
+            config.params = qs.stringify(config.url,{ skipNulls: true });
+        }
         config.headers['Accept'] = 'application/json'
+        // config.headers['Content-Type'] = 'application/x-www-form-urlencoded'
     }
     if(config.method === 'get') {
         config.params = qs.stringify(config.data)
@@ -41,7 +48,10 @@ axios.interceptors.response.use(
     response => {
     /*通过response自定义code来标示请求状态*/
         const res = response;
-
+        if(res.data.code=='000004'){
+            Indicator.close();
+            store.commit('RECORD_ACCESSTOKEN','') //清除accesstoken
+        }
         return Promise.resolve(response)
     },error => {
         if (error.response) {
@@ -59,7 +69,7 @@ axios.interceptors.response.use(
                         position:'bottom',
                         duration:3000,
                     })
-                case '000001':
+                case 500:
                     Indicator.close();
                     router.replace({path:'/systemError'})  //跳转到500页面
                     break;

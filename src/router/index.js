@@ -46,17 +46,19 @@ const storeArg = r => require.ensure([], () => r(require('../pages/arguments/sto
 
 /* 登录注册页面 */
 const login = r => require.ensure([], () => r(require('../pages/login/login')), 'login')
-const findPassword = r => require.ensure([], () => r(require('../pages/login/findPassword')), 'findPassword')
+const findpassword = r => require.ensure([], () => r(require('../pages/login/findpassword')), 'findpassword')
 const register = r => require.ensure([], () => r(require('../pages/login/register')), 'register')
-const bindingWechat = r => require.ensure([], () => r(require('../pages/login/bindingWechat')), 'bindingWechat')
-const changePassword = r => require.ensure([], () => r(require('../pages/login/changePassword')), 'changePassword')
-const changeMobile = r => require.ensure([], () => r(require('../pages/login/changeMobile')), 'changeMobile')
+const bindingwechat = r => require.ensure([], () => r(require('../pages/login/bindingwechat')), 'bindingwechat')
+const changepassword = r => require.ensure([], () => r(require('../pages/login/changepassword')), 'changepassword')
+const changemobile = r => require.ensure([], () => r(require('../pages/login/changemobile')), 'changemobile')
+const tran = r => require.ensure([], () => r(require('../pages/login/tran.vue')), 'tran')
+const setpassword = r => require.ensure([], () => r(require('../pages/login/setpassword.vue')), 'setpassword')
 
 /* 关于我们 */
-const aboutus = r => require.ensure([], () => r(require('../pages/aboutUs/aboutUs')), 'changeMobile')
+const aboutus = r => require.ensure([], () => r(require('../pages/aboutUs/aboutus')), 'aboutus')
 
 
-export const router = new Router({
+const router = new Router({
     mode: 'history',
     base: "/",
     routes: [
@@ -177,24 +179,28 @@ export const router = new Router({
             component: login
         },
         {
+            path:'/tran',//微信等录过度页
+            component:tran,
+        },
+        {
             path: '/findpassword', //找回密码
-            component: findPassword
+            component: findpassword
         },
         {
             path: '/register', //注册页
             component: register
         },
         {
-            path: '/bindingWechat', //绑定手机
-            component: bindingWechat
+            path: '/bindingwechat', //绑定手机
+            component: bindingwechat
         },
         {
-            path: '/changeMobile', //修改绑定手机号
-            component: changeMobile
+            path: '/changemobile', //修改绑定手机号
+            component: changemobile
         },
         {
-            path: '/changePassword', //修改密码
-            component: changePassword
+            path: '/changepassword', //修改密码
+            component: changepassword
         },
         {
             path: '/location', //选择店铺地址页
@@ -203,6 +209,10 @@ export const router = new Router({
         {
             path: '/aboutus', //关于我们
             component: aboutus
+        },
+        {
+            path: '/setpassword',//设置密码
+            component:setpassword
         }
     ],
     scrollBehavior (to, from, savedPosition) { // 记录滚动位置

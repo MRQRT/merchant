@@ -2,11 +2,11 @@
     <div class="storeGoldDetail">
         <!-- 头部标题部分 -->
         <head-top headTitle='订单详情' class="head-top nomal-font" ref="topHead">
-            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
+            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.push('/storeorderlist')">
         </head-top>
         <!-- 主体内容 -->
         <!-- 待支付订单 -->
-        <div class="main-cont" v-if="status==10 || status==11">
+        <div class="main-cont" v-if="status==10 || status==11" v-show="showStatus">
             <!-- 顶部倒计时 -->
             <div class="countDown" v-if="status==10">
                 <p class="clock-icon"></p>
@@ -31,7 +31,7 @@
                         <span class="name">{{orderInfo.contact}}</span>
                         <span class="tel">{{orderInfo.telephone | hideMible}}</span>
                     </p>
-                    <p class="add">{{orderInfo.address}}</p>
+                    <p class="add" v-if="orderInfo.address">{{orderInfo.address | clearStr}}</p>
                 </div>
             </div>
             <div class="distans"></div>
@@ -40,29 +40,25 @@
                 <h3>存金信息</h3>
                 <div class="order-info">
                     <p>
+                        <span>订单编号</span>
+                        <span>{{orderInfo.code}}</span>
+                    </p>
+                    <p>
                         <span>存金类型</span>
                         <span>{{typeJson[orderInfo.productType]}}</span>
                     </p>
                     <p>
-                        <span>总克重</span>
-                        <span>{{orderInfo.applyWeight}}克</span>
+                        <span>总重量</span>
+                        <span>{{orderInfo.applyWeight | formatPriceTwo}}克</span>
                     </p>
                     <p>
                         <span>数量</span>
                         <span>{{orderInfo.applyQuantity}}件</span>
                     </p>
-                    <p>
-                        <span>存金方式</span>
-                        <span>{{cashJson[orderInfo.cash]}}</span>
-                    </p>
-                    <div class="" v-if="orderInfo.isLockprice==0">
-                        <p>
-                            <span>锁价保证金</span>
-                            <span>{{orderInfo.ensure_cash}}元</span>
-                        </p>
+                    <div class="" v-if="orderInfo.lockprice">
                         <p>
                             <span>锁定金价<b @click="lockPricePopup"></b></span>
-                            <span class="special-color">{{orderInfo.lockPrice}}元/克</span>
+                            <span class="special-color">{{orderInfo.lockPrices}}元/克</span>
                         </p>
                     </div>
                 </div>
@@ -71,19 +67,19 @@
             <!-- 银行卡 -->
             <div class="bank">
                 <span>银行卡</span>
-                <span>工商银行(尾号1234)</span>
+                <span>{{bankInfo.name}}(尾号{{bankInfo.code}})</span>
             </div>
             <!-- 底部按钮 -->
             <div class="pay-btn" v-if="status==10">
                 <div class="left-price">
-                    <span>锁价保证金</span>
-                    <span>{{orderInfo.ensure_cash}}元</span>
+                    <span>锁价保证金：</span>
+                    <span>{{orderInfo.ensureCash | formatPriceTwo}}元</span>
                 </div>
-                <div class="right-btn">支付</div>
+                <div class="right-btn" @click="pay_beforehand_order(1)">支付</div>
             </div>
         </div>
         <!-- 其他状态订单 -->
-        <div class="main-cont" v-else>
+        <div class="main-cont" v-else v-show="showStatus">
             <!-- 异常取消状态 -->
             <div class="abnormal-cancel" v-if="status == 8">
                 <img src="static/images/shopmsnopass.png" alt="">
@@ -97,7 +93,7 @@
                     <span>订单编号：{{orderInfo.code}}</span>
                     <span class="status" v-if="status!=8">{{iconJson[status].name}}</span>
                 </div>
-                <div class="create-time">提交时间：{{orderInfo.createTime}}</div>
+                <div class="create-time" v-if="orderInfo.createTimeStr">提交时间：{{orderInfo.createTimeStr | deleteSec}}</div>
             </div>
             <div class="distans"></div>
             <!-- 中间进度显示 -->
@@ -130,7 +126,7 @@
                         <span class="name">{{orderInfo.contact}}</span>
                         <span class="tel">{{orderInfo.telephone | hideMible}}</span>
                     </p>
-                    <p class="add">{{orderInfo.address}}</p>
+                    <p class="add" v-if="orderInfo.address">{{orderInfo.address | clearStr}}</p>
                 </div>
             </div>
             <div class="distans"></div>
@@ -144,7 +140,7 @@
                     </p>
                     <p>
                         <span>总克重</span>
-                        <span>{{orderInfo.applyWeight}}克</span>
+                        <span>{{orderInfo.applyWeight | formatPriceTwo}}克</span>
                     </p>
                     <p>
                         <span>数量</span>
@@ -152,38 +148,38 @@
                     </p>
                     <p>
                         <span>存金方式</span>
-                        <span>{{cashJson[orderInfo.cash]}}</span>
+                        <span>{{orderInfo.cash ? '直接变现' : '存入克重'}}</span>
                     </p>
-                    <div class="" v-if="orderInfo.isLockprice==1">
+                    <div class="" v-if="orderInfo.lockprice">
                         <p>
                             <span>锁价保证金</span>
-                            <span>{{orderInfo.ensure_cash}}元</span>
+                            <span>{{orderInfo.ensureCash}}元</span>
                         </p>
                         <p>
                             <span>锁定金价<b @click="lockPricePopup"></b></span>
-                            <span class="special-color">{{orderInfo.lockPrice}}元/克</span>
+                            <span class="special-color">{{orderInfo.lockPrices}}元/克</span>
                         </p>
                     </div>
                 </div>
             </div>
             <div class="distans"></div>
             <!-- 交易流水号等 -->
-            <div class="deal-other-info">
+            <div class="deal-other-info" v-if="orderInfo.lockprice">
                 <p>
                     <span>交易流水号</span>
-                    <span>420000000000000000</span>
+                    <span>{{orderInfo.tradeSerialNo}}</span>
                 </p>
                 <p>
                     <span>交易金额</span>
-                    <span>{{2345.2344 | formatPriceTwo}}</span>
+                    <span>{{orderInfo.tradeAmount | formatPriceTwo}}元</span>
                 </p>
                 <p>
                     <span>成交时间</span>
-                    <span>2018-08-18 12:13:23</span>
+                    <span>{{orderInfo.tradeTime}}</span>
                 </p>
                 <p>
                     <span>支付银行卡</span>
-                    <span>中国工商银行(尾号3232)</span>
+                    <span>{{bankInfo.name}}(尾号{{bankInfo.code}})</span>
                 </p>
             </div>
             <div class="distans"></div>
@@ -195,7 +191,7 @@
                 </div>
                 <ul class="tracking-list" :class="{'showList':trackingStatus}">
                     <div class="line"></div>
-                    <li class="tracking-item" v-for="(item,index) in newList">
+                    <li class="tracking-item" v-for="(item,index) in newTrackList" v-if="item.status!=3">
                         <div class="left-line">
                             <span class="dot" :class="{'recent-icon':index==0}"></span>
                         </div>
@@ -208,13 +204,14 @@
             </div>
         </div>
         <!-- 弹窗部分 -->
-        <mt-popup v-model="popupVisible" popup-transition="popup-fade" closeOnClickModal="false">
+        <mt-popup v-model="popupVisible" popup-transition="popup-fade" closeOnClickModal="false" style="background:none">
             <!-- 物流信息 -->
             <div class="" v-if="popupNum==0">
                 <div class="delivery-wrap">
-                    <div class="top-wrap">
+                    <div class="top-wrap" >
                         <h3>物流信息</h3>
-                        <ul class="delivery-list">
+                        <mt-spinner type="triple-bounce" v-if="!deliveryStatus" color="#C09C60"></mt-spinner>
+                        <ul class="delivery-list" v-else>
                             <div class="line"></div>
                             <li class="delivery-item" :class="{'recent':index==0}"v-for="(item,index) in deliveryList" :key="index">
                                 <span class="time">{{item.time | changeTime}}</span>
@@ -234,43 +231,40 @@
                         <div class="report-text">
                             <p>
                                 <span>订单号：</span>
-                                <span>CJ20180305001</span>
+                                <span>{{reportInfo.code}}</span>
                             </p>
                             <p>
                                 <span>实测总毛重：</span>
-                                <span>32克</span>
+                                <span>{{reportInfo.realGrossWeight}}克</span>
                             </p>
                             <p>
-                                <span>实测总净重：31克</span>
-                                <span>31克</span>
+                                <span>实测总净重：</span>
+                                <span>{{reportInfo.realNetWeight}}克</span>
                             </p>
                             <p>
                                 <span>克重损耗：</span>
-                                <span>1克</span>
+                                <span>{{reportInfo.realLoss}}克</span>
                             </p>
                             <p>
                                 <span>检测人：</span>
-                                <span>小可爱</span>
-                            </p>
-                            <p>
-                                <span>克重损耗：</span>
-                                <span>1克</span>
+                                <span>{{reportInfo.operator}}</span>
                             </p>
                             <p>
                                 <span>检测时间：</span>
-                                <span>2018-03-12 13:38:00</span>
+                                <span>{{reportInfo.auditTimeStr}}</span>
                             </p>
                             <p>
                                 <span>检测说明：</span>
-                                <span>——</span>
+                                <span>{{reportInfo.auditRemark}}</span>
                             </p>
                             <p>
                                 <span>检测结果：</span>
-                                <span>通过</span>
+                                <span>{{reportInfo.operationResult==0?'通过':'拒绝'}}</span>
                             </p>
                         </div>
                         <div class="report-img">
-                            <img src="static/images/storeGold-banner.png" alt="">
+                            <!-- <img src="static/images/storeGold-banner.png" alt=""> -->
+                            <img :src="reportInfo.attachmentPath" alt="">
                         </div>
                         <!-- 异常情况 -->
                         <div class="report-btn" v-if="status==5 || status==9 || status==13"><a href="tel:4001689999">联系客服</a></div>
@@ -278,10 +272,48 @@
                         <div class="report-btn" v-else>
                             <span v-if="status==7 || !reportClick" style="color:#999">已确认</span>
                             <span v-else @click="confirm_order()">确认订单</span>
-                            <span><a href="tel:4001689999">联系客服</a></span>
+                            <span><a href="tel:4008196199">联系客服</a></span>
                         </div>
                     </div>
                 </div>
+            </div>
+        </mt-popup>
+        <!-- 输入验证码弹窗 -->
+        <mt-popup v-model="popupVisible1" v-if="status==10" popup-transition="popup-fade" :closeOnClickModal="false">
+            <div class="verifi-wrap">
+                <span class="close-btn" @click="closeVerifi()">×</span>
+                <!-- 顶部信息 -->
+                <div class="top-part">
+                    <h3>请输入短信验证码</h3>
+                    <p>锁价保证金</p>
+                    <p class="price">¥{{orderInfo.ensureCash|formatPriceTwo}}</p>
+                </div>
+                <!-- 输入框 -->
+                <div class="bottom-part">
+                    <div class="lock-single-price">
+                        <span>锁定金价</span>
+                        <span>{{orderInfo.lockPrices|formatPriceTwo}}元/克</span>
+                    </div>
+                    <div class="input-wrap">
+                        <span>{{verifiCode[0]}}</span>
+                        <span>{{verifiCode[1]}}</span>
+                        <span>{{verifiCode[2]}}</span>
+                        <span>{{verifiCode[3]}}</span>
+                        <span>{{verifiCode[4]}}</span>
+                        <span>{{verifiCode[5]}}</span>
+                        <input type="tel" ref="verifiInput" maxlength="6" v-model="verifiCode" autofocus="autofocus" v-on:input="checkVerifi()">
+                    </div>
+                </div>
+            </div>
+        </mt-popup>
+        <!-- 正在支付中弹窗 -->
+        <mt-popup v-model="popupVisible2" v-if="status==10" popup-transition="popup-fade" :closeOnClickModal="false">
+            <div class="pay-wrap">
+                <div class="top-img">
+                    <img src="static/images/pay-inner.png" alt="">
+                    <img src="static/images/pay-outer.png" alt="">
+                </div>
+                <p>处理中，请稍候...</p>
             </div>
         </mt-popup>
     </div>
@@ -289,16 +321,17 @@
 
 <script>
 import headTop from '@/components/header/head.vue'
-import { MessageBox,Toast,Popup } from 'mint-ui';
-/* 请求详情、物流单号、物流信息、订单追踪、确认订单、修改订单 、银行卡信息*/
-import { query_detail, query_logistics_mess, query_express_mess, query_status_flow_mess,confirm_order,update_status,query_card_info} from '@/service/getData.js'
+import { MessageBox,Toast,Popup,Indicator,Spinner } from 'mint-ui';
+/* 请求详情、物流单号、物流信息、订单追踪、确认订单、修改订单 、银行卡信息、支付预下单、正式下单、查询支付状态、查询检测报告 */
+import { query_detail, query_logistics_mess, query_express_mess, query_status_flow_mess,confirm_order,update_status,query_card_info,pay_beforehand_order, pay_formal_order, query_status, query_process_mess} from '@/service/getData.js'
 
 
     export default {
         data(){
             return{
+                showStatus:false,      // 内容是否显示
                 orderId:'',            // 订单id
-                expressNo:238487737766,// 快递单号
+                expressNo:'',          // 快递单号
                 expressCode:'',        // 物流公司编码
                 isLockOrder:0,         // 是否是锁价订单
                 isClick:0,             // 进度提示是否是点击显示
@@ -306,19 +339,24 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 status:'',             // 订单状态
                 timeOut:false,         // 订单是否超时
                 popupVisible:false,    // 信息弹窗显示隐藏
+                popupVisible1:false,   // 支付验证码弹窗
+                popupVisible2:false,   // 正在支付中弹窗
                 popupNum:'',           // 哪个弹窗显示
                 reportClick:true,      // 确认检测报告按钮状态
                 trackingStatus:false,  // 订单追踪显示、隐藏
                 stepTipText:'',        // 进度提示文字
+                deliveryType:'',       // 查询快递单号时所需类型：0-取货/1-退货
+                deliveryStatus:false,  // 物流正在加载中
                 minu:'--',             // 倒计时分
                 secd:'--',             // 倒计时秒
+                verifiCode:[],         // 验证码
+                bankInfo:{             // 未支付银行卡信息
+                    code:'0820',
+                    name:'中国工商银行'
+                },
                 typeJson:{
                     '0':'投资金',
                     '1':'首饰',
-                },
-                cashJson:{
-                    '0':'存入克重',
-                    '1':'直接变现',
                 },
                 stepList:[
                     {name:'订单审核'},
@@ -333,7 +371,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                         beforeStatus: 之前状态是否完成
                         iconType: 属于哪个图标
                     **/
-                    '0':{name:'待审核',status:1,iconType:0,beforeStatus:1},
+                    '0':{name:'审核中',status:1,iconType:0,beforeStatus:1},
                     '1':{name:'审核失败',status:2,iconType:0,beforeStatus:1},
                     '2':{name:'审核通过',status:1,iconType:0,beforeStatus:1},
                     '3':{name:'物流中',status:1,iconType:1,beforeStatus:0},
@@ -348,130 +386,156 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     '12':{name:'物流异常',status:0,iconType:'',beforeStatus:1},
                     '13':{name:'已关闭',status:4,iconType:4,beforeStatus:1},
                 },
-                orderInfo:{
-                    code:37467288374467364,
-                    createTime:'2018-08-20 12:20:34',
-                    status:0,
-                    productType:0,
-                    applyWeight:3.23,
-                    isLockprice:1,
-                    cash:0,
-                    lockPrice:256.34,
-                    ensure_cash:3452.234,
-                    applyQuantity:3,
-                    contact:'小可爱',
-                    telephone:13520842445,
-                    address:'内蒙古呼和浩特市赛罕区7号楼602罕区7号楼602'
-                },
+                // orderInfo:{
+                //     code:37467288374467364,
+                //     createTime:'2018-08-20 12:20:34',
+                //     status:0,
+                //     productType:0,
+                //     applyWeight:3.23,
+                //     lockprice:true,
+                //     cash:true,
+                //     lockPrice:256.34,
+                //     ensure_cash:3452.234,
+                //     applyQuantity:3,
+                //     contact:'小可爱',
+                //     telephone:13520842445,
+                //     address:'内蒙古呼和浩特市赛罕区7号楼602罕区7号楼602'
+                // },
                 orderTrackJson:{
                     '0':{name:'订单已提交'},
                     '1':{name:'订单审核未通过'},
                     '2':{name:'订单审核通过'},
+                    '3':{name:'物流中'},
                     '4':{name:'平台已签收'},
                     '5':{name:'存金检测完毕-检测未通过'},
                     '6':{name:'存金检测完毕-检测通过'},
                     '7':{name:'已确认检测报告'},
                     '8':{name:'订单已取消'},
-                    '9':{name:'保证金已退还'},
-                    '13':{name:'平台已退货'},
+                    '9':{name:'平台已退货'},
+                    '10':{name:'订单已提交'},
+                    '13':{name:'保证金已退还'},
                     '14':{name:'订单完成'},
                     '15':{name:'已支付锁价保证金'},
                 },
-                list: [
-                    {
-                        "id": null,
-                        "orderId": "123",
-                        "addSort": 6,
-                        "orderStatus": 1,
-                        "createTime": 1535095430000
-                    },
-                    {
-                        "id": null,
-                        "orderId": "123",
-                        "addSort": 5,
-                        "orderStatus":7,
-                        "createTime": 1535095430000
-                    },
-                    {
-                        "id": null,
-                        "orderId": "123",
-                        "addSort": 4,
-                        "orderStatus": 6,
-                        "createTime": 1535095378000
-                    },
-                    {
-                        "id": null,
-                        "orderId": "123",
-                        "addSort": 3,
-                        "orderStatus": 4,
-                        "createTime": 1535095371000
-                    },
-                    {
-                        "id": null,
-                        "orderId": "123",
-                        "addSort": 2,
-                        "orderStatus": 2,
-                        "createTime": 1535095365000
-                    },
-                    {
-                        "id": null,
-                        "orderId": "123",
-                        "addSort": 1,
-                        "orderStatus": 0, // 已支付保证金
-                        "createTime": 1535095362000
-                    },
-                    {
-                        "id": null,
-                        "orderId": "123",
-                        "addSort": 0,
-                        "orderStatus": 0,  // 订单已提交
-                        "createTime": 1535095362000
-                    }
-                ],
-                deliveryList:[
-                    {
-                        time:'2018-08-20 12:23:00',
-                        status:'已签收！签收人：黄金管家'
-                    },
-                    {
-                        time:'2018-08-20 12:23:00',
-                        status:'［北京市］海淀区科贸派件员：李冰   18910672345正在为您派件'
-                    },
-                    {
-                        time:'2018-08-20 12:23:00',
-                        status:'北京市海淀区科贸 已收入'
-                    },
-                    {
-                        time:'2018-08-20 12:23:00',
-                        status:'浙江省金华市义务中转站公司  已发出，下一站 北京运转中心'
-                    },
-                    {
-                        time:'2018-08-20 12:23:00',
-                        status:'［北京市］海淀区科贸派件员：李冰   18910672345正在为您派件'
-                    },
-                    {
-                        time:'2018-08-20 12:23:00',
-                        status:'北京市海淀区科贸 已收入'
-                    },
-                    {
-                        time:'2018-08-20 12:23:00',
-                        status:'浙江省金华市义务中转站公司  已发出，下一站 北京运转中心'
-                    },
-                    {
-                        time:'2018-08-20 12:23:00',
-                        status:'［北京市］海淀区科贸派件员：李冰   18910672345正在为您派件'
-                    },
-                    {
-                        time:'2018-08-20 12:23:00',
-                        status:'北京市海淀区科贸 已收入'
-                    },
-                    {
-                        time:'2018-08-20 12:23:00',
-                        status:'浙江省金华市义务中转站公司  已发出，下一站 北京运转中心'
-                    },
-                ],
+                orderTrackList:[],
+                deliveryList:[],
+                // orderTrackList: [
+                //     {
+                //         "id": null,
+                //         "orderId": "123",
+                //         "addSort": 7,
+                //         'lastOrderStatus':7,
+                //         "orderStatus": 7,
+                //         "createTime": 1535095430000
+                //     },
+                //     {
+                //         "id": null,
+                //         "orderId": "123",
+                //         "addSort": 6,
+                //         'lastOrderStatus':7,
+                //         "orderStatus": 7,
+                //         "createTime": 1535095430000
+                //     },
+                //     {
+                //         "id": null,
+                //         "orderId": "123",
+                //         "addSort": 5,
+                //         'lastOrderStatus':6,
+                //         "orderStatus":7,
+                //         "createTime": 1535095430000
+                //     },
+                //     {
+                //         "id": null,
+                //         "orderId": "123",
+                //         "addSort": 4,
+                //         "orderStatus": 6,
+                //         "createTime": 1535095378000
+                //     },
+                //     {
+                //         "id": null,
+                //         "orderId": "123",
+                //         "addSort": 3,
+                //         "orderStatus": 4,
+                //         "createTime": 1535095371000
+                //     },
+                //     {
+                //         "id": null,
+                //         "orderId": "123",
+                //         "addSort": 2,
+                //         "orderStatus": 2,
+                //         "createTime": 1535095365000
+                //     },
+                //     {
+                //         "id": null,
+                //         "orderId": "123",
+                //         "addSort": 1,
+                //         "orderStatus": 0, // 已支付保证金
+                //         "createTime": 1535095362000
+                //     },
+                //     {
+                //         "id": null,
+                //         "orderId": "123",
+                //         "addSort": 0,
+                //         "orderStatus": 0,  // 订单已提交
+                //         "createTime": 1535095362000
+                //     }
+                // ],
+                // deliveryList:[
+                //     {
+                //         time:'2018-08-20 12:23:00',
+                //         status:'已签收！签收人：黄金管家'
+                //     },
+                //     {
+                //         time:'2018-08-20 12:23:00',
+                //         status:'［北京市］海淀区科贸派件员：李冰   18910672345正在为您派件'
+                //     },
+                //     {
+                //         time:'2018-08-20 12:23:00',
+                //         status:'北京市海淀区科贸 已收入'
+                //     },
+                //     {
+                //         time:'2018-08-20 12:23:00',
+                //         status:'浙江省金华市义务中转站公司  已发出，下一站 北京运转中心'
+                //     },
+                //     {
+                //         time:'2018-08-20 12:23:00',
+                //         status:'［北京市］海淀区科贸派件员：李冰   18910672345正在为您派件'
+                //     },
+                //     {
+                //         time:'2018-08-20 12:23:00',
+                //         status:'北京市海淀区科贸 已收入'
+                //     },
+                //     {
+                //         time:'2018-08-20 12:23:00',
+                //         status:'浙江省金华市义务中转站公司  已发出，下一站 北京运转中心'
+                //     },
+                //     {
+                //         time:'2018-08-20 12:23:00',
+                //         status:'［北京市］海淀区科贸派件员：李冰   18910672345正在为您派件'
+                //     },
+                //     {
+                //         time:'2018-08-20 12:23:00',
+                //         status:'北京市海淀区科贸 已收入'
+                //     },
+                //     {
+                //         time:'2018-08-20 12:23:00',
+                //         status:'浙江省金华市义务中转站公司  已发出，下一站 北京运转中心'
+                //     },
+                // ],
                 orderTrackText:'',
-                newList:[],
+                orderInfo:'',
+                newTrackList:[],
+                reportInfo:{
+                    attachmentPath:'',
+                    operator:'张艺兴',
+                    operationResult:0,
+                    auditTime:'2018-08-20 13:14',
+                    auditRemark:'检测啦检测啦',
+                    code:'283763662655',
+                    realGrossWeight:2.3,
+                    realNetWeight:24.2323,
+                    realLoss:0.2345,
+                }
             }
         },
         components:{
@@ -481,6 +545,9 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
 
         },
         watch:{
+            expressNo(val){
+                return val
+            },
             // 弹窗关闭解除禁止页面滚动
             popupVisible(val){
                 if(!this.popupVisible){
@@ -509,7 +576,8 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             showReport(){
                 var that = this;
                 document.getElementById('report').onclick=function(){
-                    that.lookPopup(1)
+                    that.lookPopup(1);
+                    that.query_process_mess();
                 }
             },
             // 物流信息弹窗
@@ -540,9 +608,9 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 this.fixed(false);
             },
             // 倒计时
-            countDown(){
-                var countdownMinute = 7;//10分钟倒计时
-                var startTimes = new Date('2018-8-23 18:52');//开始时间 new Date('2016-11-16 15:21');
+            countDown(time){
+                var countdownMinute = 15;//10分钟倒计时
+                var startTimes = new Date(time.replace(/-/g,"/"));//开始时间 new Date('2016-11-16 15:21');
                 var endTimes = new Date(startTimes.setMinutes(startTimes.getMinutes()+countdownMinute));//结束时间
                 var curTimes = new Date();//当前时间
                 var surplusTimes = endTimes.getTime()/1000 - curTimes.getTime()/1000;//结束毫秒-开始毫秒=剩余倒计时间
@@ -553,13 +621,11 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     surplusTimes--;
                     that.minu = Math.floor(surplusTimes/60);
                     that.secd = Math.round(surplusTimes%60);
-                    console.log(that.minu+':'+that.secd);
                     if(surplusTimes<=0){
-                        console.log('时间到！');
                         that.minu = '--';
                         that.secd = '--';
                         clearInterval(countdowns);
-                        // 重新调用订单详情函数
+                        // 调用取消订单函数
                         that.update_status();
                     }
                 },1000);
@@ -570,20 +636,20 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 this.trackingStatus = !this.trackingStatus;
             },
             // 进度提示文字
-            showTips(isClick,index,event,status,islock){
+            showTips(isClick,index,event,status,islock,deliveryType){
                 var text0 = '<p>我们正在马不停蹄地审核您的订单哦，审核结果将在2个工作日内通知到您！请耐心等待～</p>';
                 var text1 = `<p>恭喜您，订单审核通过！</p>
                              <p>我们已经安排快递小哥上门取件啦，请留意接听取件电话</p>`;
                 var text2 = '<p>订单审核未通过，您可以重新填写订单，风里雨里我们在这里等您！</p>';
                 var text3 = '<p>订单审核未通过，锁价定金将在3个工作日内退回至绑定银行卡，您可以重新填写订单，风里雨里我们在这里等您！</p>'
                 var text4 = `<p>快递小哥正在用心传递速度，物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">${this.expressNo}</span></p>`;
-                var text5 = `<p>亲爱的用户，您的宝贝我们收到啦~</p>
+                var text5 = `<p>亲爱的用户，您的黄金我们收到啦~</p>
                              <p>物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">${this.expressNo}<span></p>`;
                 var text6 = '<p>亲，专业检测师紧锣密鼓地开工啦！1个工作日内就会有结果哦！</p>'
                 var text7 = '<p>您的订单检测完毕！请尽快查看并确认<span id="report" style="color:#C09C60;border-bottom:1px solid #C09C60">检测报告</span>哦！</p>'
                 var text8 = `<p>亲，只差最后一步啦，快来看看您的<span id="report" style="color:#C09C60;border-bottom:1px solid #C09C60">检测报告</span>吧~三个工作日后将自动确认，如您对检测结果有任何疑问，请联系客服：4008-196-199</p>`
                 var text9 = `<p>很抱歉，您的订单检测未通过，查看<span id="report" style="color:#C09C60;border-bottom:1px solid #C09C60">检测报告</span>
-                             <p>我们已安排您的宝贝回家，物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">SFXXXXXXXXXX</span></p>`
+                             <p>我们已安排您的宝贝回家，物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">${this.expressNo}</span></p>`
                 var text10 = '<p>恭喜啦，您的黄金成功卖出，T+1个工作日内到账，锁价保证金会同时返还至您的银行卡，具体以银行实际到账时间为准哦！</p>'
                 var text11 = '<p>恭喜啦，您的黄金成功卖出，T+1个工作日内到账，具体以银行实际到账时间为准哦！</p>'
                 var text12 = '<p>存金已退还，订单关闭</p>'
@@ -594,7 +660,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     '2':text1,  // 审核通过
                     '3':text4,  // 物流中
                     '4':text6,  // 检测中
-                    '5':text13,  // 检测不通过
+                    '5':text13, // 检测不通过
                     '6':text8,  // 待确认
                     '9':text9,  // 退货中
                     '13':text12,// 已关闭
@@ -602,11 +668,15 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 if(isClick){ // 如果是点击显示
                     if(event.currentTarget.classList.contains('stepSuccess')){ // 只有成功状态可点击
                         this.squreNum = index;
+                        this.deliveryType = index == 1 ? 0 : 1; // 判断是取货还是退货
                         if(index == 3){ // 第4个图标判断是确认还是退货
                             if(status==5){
                                 this.stepTipText=text13;
                             }else{
                                 this.stepTipText = (status==6 || status==7) ? text8 : text9;
+                                if(this.stepTipText==text9){ // 点击退货中，再次请求退货单号
+                                    this.query_logistics_mess()
+                                }
                             }
                         }else if(index == 4){ // 第5个图标判断是完成还是关闭
                             if(status==7){
@@ -621,13 +691,13 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                                     break;
                                 case 1:
                                     this.stepTipText = status==3?text4:text5;
+                                    this.query_logistics_mess();
                                     break;
                                 case 2:
                                     this.stepTipText = status==4?text6:text7;
                                     break;
                             }
                         }
-
                     }
                 }else{ // 初次进入页面直接显示
                     this.squreNum = index;
@@ -640,36 +710,56 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     }
                 }
             },
-            // 订单追踪数据
+            // 订单追踪文本展示
             trackingText(){
                 var that = this;
-                this.list.forEach(function(item){
-                    if(item.orderStatus==0 && item.addSort!=0){ // 状态都为0时，判断已锁价
+                this.orderTrackList.forEach(function(item,index){
+                    if(item.orderStatus==0 && item.lastOrderStatus==10){ // 状态都为0时，判断已锁价
                         that.orderTrackText = that.orderTrackJson[15].name
-                    }else if(item.orderStatus==1 && (item.addSort!=1 || item.addSort!=2)){ // 状态都为1时，判断显示审核未通过 or 退换保证金
-                        that.orderTrackText = that.orderTrackJson[9].name
-                    }
-                    else{
+                    }else if(item.orderStatus==7 && item.lastOrderStatus!=6){ // 状态为7时，对应3个状态(已退保证金/已完成/确认检测报告)
+                        that.orderTrackText = item.addSort == that.orderTrackList.length-1 ? that.orderTrackJson[13].name : that.orderTrackJson[14].name;
+                    }else if(item.orderStatus == item.lastOrderStatus && item.addSort == that.orderTrackList.length-1){ // 状态为1\8\13时，判断是否是退换保证金
+                        that.orderTrackText = that.orderTrackJson[13].name
+                    }else{
                         that.orderTrackText = that.orderTrackJson[item.orderStatus].name
                     }
-                    that.newList.push({
-                        time:item.createTime,
-                        name:that.orderTrackText
+                    that.newTrackList.push({
+                        time:item.createTimeStr,
+                        name:that.orderTrackText,
+                        status:item.orderStatus
                     })
                 })
-                console.log(this.newList)
-
             },
 
             // 请求订单详情数据
             async query_detail(){
-                var res = query_detail(this.orderId);
+                var that = this;
+                var res = await query_detail(this.orderId);
                 if(res.code=='000000'){
+                    this.showStatus = true;
+                    Indicator.close();
                     this.orderInfo = res.data;
                     this.status = res.data.status;
-                    // 未支付状态调用倒计时函数
+                    this.isLockOrder = res.data.lockprice;
+
+                    this.showTips(this.isClick,this.iconJson[this.status].iconType,'',this.status,this.isLockOrder);
+
+                    // 订单追踪(除未支付、已失效)
+                    if(this.status!=10 && this.status !=11){
+                        this.query_status_flow_mess();
+                    }
+                    // 【未支付】状态调用倒计时函数
                     if(this.orderInfo.status==10){
-                        this.countDown();
+                        this.countDown(this.orderInfo.createTimeStr);
+                    }
+                    // 未支付、已失效、锁价订单请求银行卡信息
+                    if(this.orderInfo.status==10 || this.orderInfo.status==11 || this.orderInfo.lockprice){
+                        this.query_card_info();
+                    }
+                    // 从【物流中】状态就开始请求快递信息(以防状态发生变化，再次请求数据)
+                    if(this.orderInfo.status>2 && this.orderInfo.status!=8 && this.orderInfo.status!=10 && this.orderInfo.status!=11){
+                        this.deliveryType = this.orderInfo.status == 9 ||  this.orderInfo.status == 13 ? 1 : 0;
+                        this.query_logistics_mess();
                     }
                 }else{
                     Toast(res.message)
@@ -677,7 +767,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             },
             // 请求物流单号
             async query_logistics_mess(){
-                var res = query_logistics_mess(this.orderId,type) // type:0-取货；1-退货
+                var res = await query_logistics_mess(this.orderId,this.deliveryType) // type:0-取货；1-退货
                 if(res.code=='000000'){
                     this.expressNo = res.data.expressNo;
                     this.expressCode = res.data.expressCode;
@@ -687,61 +777,176 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             },
             // 查询具体物流信息
             async query_express_mess(){
-                var res = query_express_mess(this.expressNo,this.expressCode)
+                var res = await query_express_mess(this.expressNo,this.expressCode)
                 if(res.code=='000000'){
-                    this.deliveryList = res.data;
+                    this.deliveryStatus = true;
+                    this.deliveryList = res.data.result.list;
                 }else{
                     Toast(res.message)
                 }
             },
-            // 订单追踪
-            async query_status_flow_mess(){
-                var res = query_status_flow_mess(this.orderId);
+            // 查询检测报告
+            async query_process_mess(){
+                var res = await query_process_mess(this.orderId,this.deliveryType);
                 if(res.code=='000000'){
-                    this.list = res.data;
+                    this.reportInfo = res.data;
                 }else{
-                    Toast(rs.message)
+                    Toast(res.message)
+                }
+            },
+            // 查询订单追踪
+            async query_status_flow_mess(){
+                var res = await query_status_flow_mess(this.orderId);
+                if(res.code=='000000'){
+                    this.orderTrackList = res.data;
+                    this.trackingText(); // 调用订单追踪文字展示函数
+                }else{
+                    Toast(res.message)
                 }
             },
             // 确认订单(用户点击确认检测报告调用)
             async confirm_order(){
-                var res = confirm_order(this.orderId);
-                if(rs.code=='000000'){
+                var res = await confirm_order(this.orderId);
+                if(res.code=='000000'){
                     this.reportClick = false; // 确认订单 => 已确认
+                    this.query_detail();      // 再次调用详情函数
+                }else{
                     this.popupVisible = false;
+                    Toast(res.message)
                 }
             },
             // 修改订单状态(未支付倒计时结束)
             async update_status(){
-                var res = update_status(this.orderId);
+                var res = await update_status(this.orderId);
                 if(res.code=='000000'){
                     this.query_detail(); // 取消成功后再次调用详情数据
+                }else{
+                    Toast(res.message)
                 }
             },
             // 请求银行卡信息
             async query_card_info(){
-                var res = query_card_info();
+                var res = await query_card_info();
                 if(res.code=='000000'){
-
+                    this.bankInfo = res.data;
                 }
-            }
+            },
+
+            //关闭验证码弹窗
+            closeVerifi(){
+                this.popupVisible1 = false;
+                this.verifiCode = []; // 将之前验证码清除
+            },
+            // 检测输入的支付验证码
+            checkVerifi(){
+                var res = /^[0-9]*$/g;
+                if(this.verifiCode.length==6){
+                    this.popupVisible1 = false;     // 关闭验证码弹窗
+                    this.$refs.verifiInput.blur();  // 隐藏键盘
+                    this.popupVisible2 = true;      // 显示正在支付动画
+                    this.pay_formal_order();          // 校验验证码是否正确
+                }
+            },
+            // 支付预下单
+            async pay_beforehand_order(countType){
+                this.popupVisible1 = true;
+                var res = await pay_beforehand_order(this.orderId,countType);
+            },
+            // 支付正式下单
+            async pay_formal_order(){
+                var that = this;
+                var res = await pay_formal_order(this.orderId,this.verifiCode);
+                if(res.code=='000000'){         // 验证码正确跳转存金结果页
+                    window.timer = setInterval(function(){
+                        that.query_status()    // 隔一秒查询一次状态
+                    },1000)
+                }else if(res.code=='200211'){ // 验证码错误显示重试对话框
+                    this.popupVisible2 = false; // 关闭处理中动画
+                    var html = '<div style="color:000;font-size:.32rem;font-family:PingFangSC-Medium;text-align:center">验证码错误，请重试</div>'
+                    MessageBox({
+                        title:'',
+                        message:html,
+                        showCancelButton: true,
+                        confirmButtonText:'重试'
+                    }).then(action => {
+                        if(action=='confirm'){ // 重新发送验证码函数
+                            this.popupVisible1 = true;
+                            this.verifiCode = []; // 将之前验证码清除
+                            this.pay_beforehand_order(1) // 调用另一个获取短信验证码接口
+                        }else{
+                            this.verifiCode = []; // 将之前验证码清除
+                        }
+                    })
+                }else{
+                    Toast(res.message)
+                }
+            },
+            // 间隔查询订单状态
+            async query_status(){
+                var res = await query_status(this.orderId);
+                if(res.code=='000000'){
+                    if(res.data.pays==1){          // 存金支付成功
+                        this.popupVisible2 = false; // 关闭处理中动画
+                        this.$router.push({
+                            path:'/storeresult',
+                            query:{
+                                id:this.orderId,
+                                status:1
+                            }
+                        })
+                    }else if(res.data.pays==2){     // 存金支付失败
+                        this.popupVisible2 = false; // 关闭处理中动画
+                        this.$router.push({
+                            path:'/storeresult',
+                            query:{
+                                id:this.orderId,
+                                status:0,
+                                paysFailReason:res.data.paysFailReason
+                            }
+                        })
+                    }
+                }else{
+                    Toast(res.message)
+                }
+            },
         },
         created(){
             this.orderId = this.$route.query.id;
             this.status = this.$route.query.status;
         },
         mounted(){
-            this.trackingText();
-            this.showTips(this.isClick,this.iconJson[this.status].iconType,'',this.status,this.isLockOrder);
+            Indicator.open({
+              // text: '加载中...',
+              spinnerType: 'fading-circle'
+            });
+            // 从【物流中】状态就开始请求快递信息
+            if(this.status>2 && this.status!=8 && this.status!=10 && this.status!=11){
+                this.deliveryType = this.status == 9 || this.status==13 ? 1 : 0;
+                this.query_logistics_mess();
+            }
+            this.query_detail(); // 订单详情
         },
+        beforeRouteLeave (to, from, next) { // 离开此路由时清除定时器
+            if(window.timer){
+                clearInterval(window.timer)
+            }
+            next()
+        }
     }
 
 </script>
 
 <style media="screen">
     .mint-popup{
-        background:none;
+        background:none !important;
         /* border-radius: .2rem; */
+    }
+    .mint-msgbox-btn .mint-msgbox-confirm{
+        color: #C09C60 !important;
+    }
+    .mint-spinner-triple-bounce{
+        text-align: center;
+        margin-top:.5rem;
     }
 </style>
 
@@ -773,7 +978,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
 }
 .storeGoldDetail{
     width: 100%;
-    padding-bottom: .4rem;
+    // padding-bottom: .4rem;
     background-color: #f8f8f8;
     .main-cont{
         min-height: 100vh;
@@ -1156,6 +1361,25 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     width: 100%;
                     align-items: flex-start;
                     @include flex-box();
+
+                    &:nth-of-type(1){
+                        .left-line{
+                            .dot{
+                                left:.1rem !important;
+                                top:.25rem !important;
+                                width: .24rem !important;
+                                height: .24rem !important;
+                                background:url('/static/images/dot-yes.png') no-repeat !important;
+                                background-size:100% !important;
+                            }
+                        }
+                        .right-text{
+                            p{
+                                color:#333;
+                            }
+                        }
+                    }
+
                     .left-line{
                         width: 10%;
                         padding:.2rem 0;
@@ -1165,7 +1389,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                             width: .1rem;
                             height: .1rem;
                             position: absolute;
-                            left:.15rem;
+                            left:.16rem;
                             top:.34rem;
                             background:url('/static/images/dot-no.png') no-repeat;
                             background-size:100%;
@@ -1201,10 +1425,131 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             }
         }
     }
+    // 支付验证码弹窗
+    .verifi-wrap{
+        width: 6.7rem;
+        padding:.4rem .3rem;
+        text-align: center;
+        background-color: #fff;
+        position: relative;
+        @include border-radius(.2rem);
+        .close-btn{
+            font-size: .6rem;
+            position: absolute;
+            left:.25rem;
+            top:.05rem;
+        }
+        .top-part{
+            border-bottom: 1px solid #eee;
+            h3{
+                color: #000;
+                font-size: .32rem;
+                margin-bottom: .25rem;
+            }
+            p{
+                color: #999;
+                font-size: .24rem;
+            }
+            .price{
+                color: #333;
+                font-size: .6rem;
+                margin-bottom: .4rem;
+                font-family:DINAlternate-Bold;
+            }
+        }
+        .bottom-part{
+            .lock-single-price{
+                width: 100%;
+                color: #666;
+                font-size: .28rem;
+                padding:.35rem 0 .4rem;
+                @include flex-box();
+                @include justify-content();
+                span{
+                    &:nth-of-type(2){
+                        color: #C09C60;
+                    }
+                }
+            }
+            .input-wrap{
+                height: .98rem;
+                width: 6rem;
+                margin: 0 auto;
+                position: relative;
+                text-align: left;
+                align-items: center;
+                border:1px solid #E1E1E1;
+                border-left:none;
+                @include flex-box();
+                > span {
+                    width: 1rem;
+                    height: .98rem;
+                    line-height: .98rem;
+                    border-left: 1px solid #E1E1E1;
+                    display: inline-block;
+                    text-align: center;
+                    vertical-align: middle;
+                    // @include flex-grow(1);
+                }
+                > input {
+                    width: 150%;
+                    height: 100%;
+                    position: absolute;
+                    left: 0;
+                    top:0;
+                    // letter-spacing: 1rem;
+                    padding-left: 0.3rem;
+                    color: transparent;
+                    text-shadow: 0 0 0 #000;
+                    opacity: 0;
+                    margin-left: -50%;
+                    text-indent: -999em;
+                    z-index:999;
+                }
+            }
+        }
+    }
+    .pay-wrap{
+        width: 4.9rem;
+        height: 2.86rem;
+        padding-top:.6rem;
+        background-color: #fff;
+        @include border-radius(.2rem);
+        @keyframes roundLoop2{
+            0%{ transform: rotate(0deg); }
+            100%{ transform: rotate(360deg); }
+        }
+        .top-img{
+            width: 1.08rem;
+            height: 1.08rem;
+            margin:0 auto .3rem;
+            position: relative;
+            img{
+                &:nth-of-type(1){
+                    width:100%;
+                    position: absolute;
+                    top:0;
+                    left:0;
+                }
+                &:nth-of-type(2){
+                    animation: roundLoop2 1s linear infinite;
+                }
+            }
+        }
+        p{
+            color: #666;
+            font-size: .28rem;
+            text-align: center;
+        }
+    }
     // 物流弹窗
+    .delivery-wrap{
+        max-height: 8.2rem;
+    }
     .delivery-wrap,.report-wrap{
         .top-wrap{
             width: 6.7rem;
+            min-height: 3rem;
             max-height: 8.2rem;
             padding:.3rem;
             background-color: #fff;
@@ -1261,7 +1606,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             width: .44rem;
             height: .44rem;
             margin:.8rem auto;
-            background-color: none;
+            background-color: none !important;
             @include bg-image('/static/images/delivery-close.png');
         }
     }
@@ -1283,7 +1628,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
         }
         .report-img{
             width: 100%;
-            height:3.8rem;
+            // height:3.8rem;
             margin:.3rem 0 1.2rem;
             padding:0 .3rem;
             img{

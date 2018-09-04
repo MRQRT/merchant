@@ -40,11 +40,26 @@ Vue.filter('changeTime',function(val){
     timeArr2=timeArr2.join(':');
     return timeArr1 + ' ' + timeArr2;
 });
+// 删除时间秒数
+Vue.filter('deleteSec',function(val){
+    var arr=val.split(' ');
+    var timeArr1 = arr[0];
+    
+    var timeArr2=arr[1].split(':');
+    timeArr2.pop();
+    timeArr2=timeArr2.join(':');
+    return timeArr1 + ' ' + timeArr2;
+});
 /* 隐藏电话中间四位数 */
 Vue.filter('hideMible',function(val){
     var reg = /^(\d{3})\d*(\d{4})$/;
     return (val+'').replace(reg,'$1****$2')
 });
+
+Vue.filter('clearStr',function(val){
+    return (val+'').replace(/,/g, "");
+})
+
 /* 全局函数*/
 /* 禁止页面滚动 */
 Vue.prototype.fixed = function(status){

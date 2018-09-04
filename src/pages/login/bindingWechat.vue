@@ -33,9 +33,10 @@
 import headTop from '@/components/header/head.vue'
 import store_readed from 'static/images/store-readed.png'
 import store_read from 'static/images/store-read.png'
-import {sendsms} from '@/service/getData.js'
+import {sendsms,wechat_bind_mobile} from '@/service/getData.js'
 import {mapMutations,mapState} from 'vuex'
 import { isNumber } from '@/config/mUtils.js'
+import {Toast} from 'mint-ui'
 import md5 from 'js-md5'
     export default {
         data(){
@@ -48,6 +49,9 @@ import md5 from 'js-md5'
                 arg:true,//存金通用户协议是否勾选
                 isSubmit: false,
                 clickText: '获取验证码',
+                openid: '',//用户的openid
+                iNow:true,//
+                second:60,//
             }
         },
         components:{
@@ -85,8 +89,19 @@ import md5 from 'js-md5'
                     this.isSubmit=false
                 }
             },
+            //
+            arg(val){
+               if(this.check_vercode&&this.check_tel&&this.arg){
+                    this.isSubmit=true
+                }else{
+                    this.isSubmit=false
+                } 
+            }
         },
         methods: {
+            ...mapMutations([
+                'RECORD_USERID','RECORD_MOBILE','RECORD_MERCHANTID','RECORD_ACCESSTOKEN'
+            ]),
             isread(){
                 if(this.readicon==store_readed){
                     this.readicon=store_read;
@@ -101,45 +116,24 @@ import md5 from 'js-md5'
                 let send_smscode = this.$refs.send_smscode;
                 let a = this.check_tels(this.tel);//检查手机号
                 if(!a)return
-                const res = await checkexist(this.tel);//检验是否已注册
-                if(res.code=="000000"&&(res.data&&res.data.isExist)){//请求成功且没有注册
-                    var that=this;
-                    this.iNow = false;
-                    let timer = setInterval(function(){
-                        send_smscode.style.color="#666";
-                        that.second--;
-                        that.clickText = that.second+'s';
-                        if(that.second==-1){
-                            clearInterval(timer);
-                            that.iNow=true;
-                            send_smscode.style.color="#C09C60";
-                            that.clickText = '获取验证码';
-                            that.second = 60;
-                        }
-                    },1000)
-                    let res = await sendsms(this.tel,0);
-                    if(res1.code!='000000'){
-                        Toast({
-                            message: res1.message,
-                            position: 'bottom',
-                            duration: 3000
-                        });
+                var that=this;
+                this.iNow = false;
+                let timer = setInterval(function(){
+                    send_smscode.style.color="#666";
+                    that.second--;
+                    that.clickText = that.second+'s';
+                    if(that.second==0){
+                        clearInterval(timer);
+                        that.iNow=true;
+                        send_smscode.style.color="#C09C60";
+                        that.clickText = '获取验证码';
+                        that.second = 60;
                     }
-                }else if(res.code=="000000"&&(res.data&&!res.data.isExist)){//请求成功且已经注册
-                    MessageBox({
-                        title: '提示',
-                        message: '手机号已注册' ,
-                        confirmButtonText: '去登录',
-                        showCancelButton: '我知道了'
-                    }).then((action)=>{
-                        if(action=='confirm'){
-                            this.$router.push('/login')
-                        }
-                    })
-                    return
-                }else{
+                },1000)
+                let res1 = await sendsms(this.tel,3);
+                if(res1.code!='000000'){
                     Toast({
-                        message: res.message,
+                        message: res1.message,
                         position: 'bottom',
                         duration: 3000
                     });
@@ -170,16 +164,56 @@ import md5 from 'js-md5'
                     }
                 }
             },
+            //校验手机号是否正确
+            check_tels(val){
+                let reg = /^(0|86|17951)?(13[0-9]|15[0-9]|17[0-9]|18[0-9]|14[0-9]|19[0-9])[0-9]{8}$/;
+                if(val.length<11&&val.length>0){
+                    Toast('手机号格式不正确')
+                    this.check_tel=false
+                    this.vercode=''
+                    return false
+                }
+                if(val.match(reg)){
+                    this.check_tel=true
+                    return true
+                }else if(val ==''){
+                    Toast('请输入手机号')
+                    this.vercode=''
+                    this.check_tel=false
+                    return false
+                }else{
+                    Toast('手机号格式不正确')
+                    this.check_tel=false
+                    this.vercode=''
+                    return false
+                }
+            },
             //提交信息
-            commit(){
-                
+            async commit(){
+                if(!this.isSubmit)return
+                const res = await wechat_bind_mobile(this.openid,this.tel,this.vercode);
+                if(res.code=='000000'){
+                    this.RECORD_USERID(res.userVo.userId)
+                    this.RECORD_ACCESSTOKEN(res.userVo.accessToken)
+                    this.RECORD_MOBILE(res.userVo.mobile)
+                    this.RECORD_MERCHANTID(res.userVo.merchantId)
+                    this.$router.push('/index');
+                }else{
+                    Toast({
+                        message: res.message,
+                        position: 'bottom',
+                        duration: 3000
+                    });
+                }
             }
         },
         created(){
 
         },
         mounted(){
-
+            if(this.$route.query.openid){
+                this.openid=this.$route.query.openid
+            }
         },
     }
 

@@ -6,9 +6,10 @@
 
 <script>
 import {query_gold_price} from './service/getData.js'
+import { mapState,mapMutations } from 'vuex'
 
 export default {
-        name: 'App',
+        name: 'app',
         data(){
             return{
 
@@ -21,11 +22,14 @@ export default {
 
         },
         methods: {
+            ...mapMutations([
+                'RECORD_CURRENPRICE'
+            ]),
             /*请求实时金价*/
             async getCurrent(){
                 var res=await query_gold_price();
-                if(res.code==200){
-                    var price=res.data.goldPrice
+                if(res.code=='000000'){
+                    var price=res.data.price
                     this.RECORD_CURRENPRICE(price) // 将获取到的金价储存在session中
                 }else{
 					if(!this.currentPrice){ 	// 如果session中无数据，则是首次请求失败
@@ -39,7 +43,7 @@ export default {
         },
         mounted(){
             /*调用实时金价*/
-            // this.getCurrent();
+            this.getCurrent();
             var that=this;
             /*3秒刷新一次*/
             // setInterval(function(){
@@ -51,22 +55,22 @@ export default {
 
 <style>
 .mint-msgbox-wrapper>.mint-msgbox{
-    width:5rem;
-    border-radius: 0;
+    width:5rem !important;
+    border-radius: 0 !important;
 }
 .mint-msgbox-wrapper .mint-msgbox-message{
-    font-size: .26rem;
+    font-size: .26rem !important;
 }
 .mint-msgbox-wrapper .mint-msgbox-confirm, .mint-msgbox .mint-msgbox-btns .mint-msgbox-cancel{
-    color:#C09C60;
+    color:#C09C60 !important;
 }
 .mint-msgbox-wrapper .mint-msgbox-message{
     text-align: left;
 }
 .mint-msgbox-wrapper .mint-msgbox-message{
-    padding:.1rem .2rem;
+    padding:.1rem .2rem !important;
 }
 .mint-msgbox-cancel{
-    border-right:1px solid #eee;
+    border-right:1px solid #eee !important;
 }
 </style>

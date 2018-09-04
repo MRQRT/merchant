@@ -6,6 +6,7 @@ import {
 	RECORD_MOBILE,
 	RECORD_MERCHANTID,
 	RECORD_SHOPID,
+	RECORD_SHOPSTATUS,
 } from './mutation-types.js'
 
 import {setStore, getStore, setCookie ,getCookie, removeCookie, removeStore} from '../config/mUtils'
@@ -36,6 +37,11 @@ export default {
 	[RECORD_SHOPID](state,shopId){
 		state.shopId = shopId
 		setStore('shopId',shopId,'local')
+	},
+	//记录店铺审核状态
+	[RECORD_SHOPSTATUS](state,shopStatus){
+		state.shopStatus = shopStatus;
+		setStore('shopStatus',shopStatus,'session');
 	},
 	// 记录当前时间
 	[RECORD_CURRENTIME](state,now){
