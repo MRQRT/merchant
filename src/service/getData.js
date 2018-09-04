@@ -142,7 +142,13 @@ export const business_scope = () => fetch('/shop/business_scope',{},'get')
 * 提交店铺入驻申请
 */
 
-export const shop_open_apply = () => fetch('/shop_open_apply',{},'post')
+export const shop_open_apply = (logoId,name,areaId,address,lat,lng,mobile,introduce,facadeId,businessScopeId) => fetch('/shop_open_apply',{'logoId':logoId,'name':name,'areaId':areaId,'address':address,'lat':lat,'lng':lng,'mobile':mobile,'introduce':introduce,'facadeId':facadeId,'businessScopeId':businessScopeId},'post')
+
+/**
+ * 店铺详情
+ */
+
+export const shopDetail = (id) => fetch('/personal/store_detail?id='+id,{},'get');
 
 /*
 * 区域省市县
@@ -155,6 +161,18 @@ export const province_area_list = (parentId) => fetch('/area/list?parentId='+par
 */
 
 export const city_area_list = (spell) => fetch('/area/city_list?spell='+spell,{},'get')
+
+/*
+* 县级别接口
+*/
+
+export const area_list = () => fetch('/area/city_area_list',{},'get')
+
+/*
+* 区域县查询id
+*/
+
+export const cityName = (cityName) => fetch('/area/city_name?cityName='+cityName,{},'get')
 
 /*
 * 查询地址列表
