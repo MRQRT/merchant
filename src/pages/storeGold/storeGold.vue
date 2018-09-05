@@ -706,13 +706,14 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
             if(this.loginStatus){
                 this.shop_status();
                 this.queryBank();
+                if(this.$route.query.addressId){
+                    this.addressId = this.$route.query.addressId;
+                    this.query_shop_address_detail()
+                }else{
+                    this.queryAddress();
+                }
             }
-            if(this.$route.query.addressId){
-                this.addressId = this.$route.query.addressId;
-                this.query_shop_address_detail()
-            }else{
-                this.queryAddress();
-            }
+
             //处理键盘弹出的沉底按钮顶上去的兼容问题
             window.onresize = () => {
                 var h=document.documentElement.clientHeight
