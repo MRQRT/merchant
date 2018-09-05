@@ -230,7 +230,7 @@ export default{
 								}
 							})
 						}else{
-							this.$router.push('/storegold')
+							this.$router.push('/addresslist')
 						}
 
 					}
