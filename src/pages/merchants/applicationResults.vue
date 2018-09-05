@@ -15,15 +15,6 @@
                 <p>手机上，请留意查收短信</p>
             </section>
         </div>
-        <!-- 开通店铺 -->
-        <div class="model" v-show="noshop">
-            <p>开通店铺</p>
-            <section class="squ">
-                <img src="static/images/noshop.png" alt="">
-                <p style="margin-top:.42rem;">啊哦，您还没有店铺！</p>
-                <button class="button" @click="$router.push('/editshopinfo')">立即入驻</button>
-            </section>
-        </div>
         <!-- 商户审核通过 -->
         <div class="model" v-show="qcpass">
             <p>商家入驻</p>
@@ -31,16 +22,6 @@
                 <img src="static/images/qcpass.png" alt="">
                 <h4>入驻资质审核通过</h4>
                 <p>恭喜您，入驻资质已经审核通过了</p>
-            </section>
-        </div>
-        <!-- 店铺资料已提交 -->
-        <div class="model" v-show="shopadd">
-            <p>开通店铺</p>
-            <section class="squ">
-                <img src="static/images/shopmsadd.png" alt="">
-                <h4 style="margin-top:.42rem;">店铺资料已提交</h4>
-                <p>审核信息将在3个工作日内发送到您的</p>
-                <p>手机上，请留意查收短信</p>
             </section>
         </div>
         <!-- 商户审核失败 -->
@@ -51,6 +32,25 @@
                 <h4 style="margin-top:0">入驻资质未通过审核</h4>
                 <p>失败原因：{{merhcantFail}}</p>
                 <button class="button" @click="$router.push('/uploadcertificate')">重新申请</button>
+            </section>
+        </div>
+        <!-- 开通店铺引导 -->
+        <div class="model" v-show="noshop">
+            <p>开通店铺</p>
+            <section class="squ">
+                <img src="static/images/noshop.png" alt="">
+                <p style="margin-top:.42rem;">啊哦，您还没有店铺！</p>
+                <button class="button" @click="$router.push('/editshopinfo')">立即入驻</button>
+            </section>
+        </div>
+        <!-- 店铺资料已提交 -->
+        <div class="model" v-show="shopadd">
+            <p>开通店铺</p>
+            <section class="squ">
+                <img src="static/images/shopmsadd.png" alt="">
+                <h4 style="margin-top:.42rem;">店铺资料已提交</h4>
+                <p>审核信息将在3个工作日内发送到您的</p>
+                <p>手机上，请留意查收短信</p>
             </section>
         </div>
         <!-- 店铺审核失败 -->
@@ -82,13 +82,13 @@ import {merchant_open_apply_status,shop_open_apply_status} from '@/service/getDa
     export default {
         data(){
             return{
-               qcadd: false,
-               qcpass: false,
-               qcnopass: false,
-               noshop: false,
-               shopadd: false,
-               shoppass: false,
-               shopnopass: false,
+               qcadd: 0,
+               qcpass: 0,
+               qcnopass: 0,
+               noshop: 0,
+               shopadd: 0,
+               shoppass: 0,
+               shopnopass: 0,
                merhcantFail:'',//商户审核失败原因
                shopFail:'',   //店铺审核失败原因
             }
@@ -125,21 +125,13 @@ import {merchant_open_apply_status,shop_open_apply_status} from '@/service/getDa
             },
             async shop_status(){
                 const res = await shop_open_apply_status();
-                // console.log(res)
                 if(res.code=='000000'){
                     if(res.data){
                         if(res.data.status=='1'){ // 1、待审核
-                            if(this.qcadd){//
-                                this.noshop=1;
-                                this.shopadd=0;
-                                this.shoppass=0;
-                                this.shopnopass=0;
-                            }else{
-                                this.noshop=0;
-                                this.shopadd=1;
-                                this.shoppass=0;
-                                this.shopnopass=0;
-                            }
+                            this.noshop=0;
+                            this.shopadd=1;
+                            this.shoppass=0;
+                            this.shopnopass=0;
                         }else if(res.data.status=='2'){//2、审核通过
                             this.noshop=0;
                             this.shopadd=0;
@@ -152,10 +144,8 @@ import {merchant_open_apply_status,shop_open_apply_status} from '@/service/getDa
                             this.shopnopass=1;
                             this.shopFail = res.data.verifyReasonLabel;
                         }
-                    }else{
-                        this.qcadd=1;
-                        this.noshop=1;
-                        this.qcpass=0;
+                    }else if(res.message="操作成功"){
+                        this.noshop=1;//未开通
                     }
                 }
             }
