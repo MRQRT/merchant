@@ -140,7 +140,7 @@ import { query_card_info, query_ensure_cash} from '@/service/getData.js'
             color: #fff;
             text-align: center;
             padding-top:.7rem;
-            background:linear-gradient(-74deg,rgba(192,156,96,0.9),rgba(218,194,142,0.9));
+            @include bg-image('/static/images/assets-bg.png');
             .title{
                 font-size: .28rem
             }
