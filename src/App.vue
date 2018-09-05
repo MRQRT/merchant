@@ -20,6 +20,7 @@ export default {
         },
         watch:{
             $route(to,from){
+                this.messageBoxRemove();
                 if(to.path=='/index' || to.path=='/storegold'){
                     if(window.queryPrice){
                         clearInterval(window.queryPrice);
@@ -40,6 +41,13 @@ export default {
             ...mapMutations([
                 'RECORD_CURRENPRICE'
             ]),
+            //messageBox删除
+            messageBoxRemove(){
+                var thisNode=document.getElementsByClassName("mint-msgbox-wrapper")[0]
+                if(thisNode){
+                    thisNode.parentNode.removeChild(thisNode)
+                }
+            },
             /*请求实时金价*/
             async getCurrent(){
                 var res=await query_gold_price();

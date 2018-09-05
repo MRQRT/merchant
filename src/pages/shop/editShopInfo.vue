@@ -32,7 +32,7 @@
             <div class="line"></div>
             <div class="one" style="display:flex">
                 <span style="float:left;">店铺简介</span>
-                <textarea type="text" v-model="shop_message.introduce" style="float:left;flex-grow:1" placeholder="店铺简介不可为空，最大长度144个汉字"></textarea>
+                <textarea type="text" v-model="shop_message.introduce" maxlength="144" style="float:left;flex-grow:1" placeholder="店铺简介不可为空，最大长度144个汉字"></textarea>
             </div>
             <div class="line"></div>
             <div class="one" style="padding:0;">
