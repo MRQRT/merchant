@@ -313,7 +313,7 @@
                             clearInterval(timer);
                             that.iNow=true;
                             send_smscode.style.color="#C09C60";
-                            send_smscode.innerHTML = '获取验证码';
+                            send_smscode.innerHTML = '重新获取';
                             that.second = 60;
                         }
                     },1000)
