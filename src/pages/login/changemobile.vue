@@ -107,6 +107,10 @@ export default {
         async commit(){
             let a = this.check_tels(this.tel);
             if(!a)return
+            if(this.tel==this.mobile){
+                Toast('与当前绑定手机号相同')
+                return
+            }
             if(!this.check_vercode&&this.vercode!=''){
                 Toast('验证码格式不正确')
                 return
