@@ -229,10 +229,7 @@ export default{
 									from:'account'
 								}
 							})
-						}else{
-							this.$router.push('/addresslist')
 						}
-
 					}
 				//修改地址
 				}else if(this.title=='修改地址'&&this.stor&&this.$route.query.modify){
