@@ -264,7 +264,7 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
                         			if(i==-1){
                             			clearInterval(that.timer)
                             			that.iNow=true
-                            			send_smscode.style.color="#eda835"
+                            			send_smscode.style.color="#C09C60"
                             			send_smscode.innerHTML = '获取验证码'
                             			this.second = 60
                         			}
@@ -284,7 +284,7 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
 					}else if(this.bankNum=='' && this.telNum==''){
 						Toast("请先输入银行卡号")
 					}else if(this.bankNum!='' && this.telNum==''){
-						Toast("请输入手机号")
+						Toast("请输入正确的手机号")
 					}else if(this.bankNum!='' && this.telNum!='' && this.rightShow!=1){
 						Toast("请输入正确的手机号")
 					}else{
@@ -320,7 +320,7 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
 						this.verifiCode=''
 						let send_smscode = this.$refs.send_smscode
 						clearInterval(this.timer)
-						send_smscode.style.color="#eda835"
+						send_smscode.style.color="#C09C60"
                         send_smscode.innerHTML = '获取验证码'
                         this.second = 60
 						this.iNow=true
@@ -429,7 +429,7 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
                 .getVerif{
                 	display: inline-block;
                 	font-size: .28rem;
-                	color: #eda835;
+                	color: #C09C60;
                 }
                 &:nth-of-type(1) input{
                     color:#333;
@@ -445,6 +445,7 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
                 position: relative;
 
                 .verifi-wrap{
+                    padding-right:.1rem;
                     flex-wrap: nowrap;
                     @include flex-box();
                     @include justify-content();

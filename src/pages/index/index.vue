@@ -1,175 +1,330 @@
 <template>
-    <div class="index">
-        <!-- 导航按钮 -->
-        <div class="navigator" @click="navPopup">
-            <img src="static/images/nav-icon.png" alt="">
+    <div class="outer-wrap">
+        <!-- 移动端显示样式 -->
+        <div class="index" v-if="!pcStatus">
+            <!-- 导航按钮 -->
+            <div class="navigator" @click="navPopup">
+                <img src="static/images/nav-icon.png" alt="">
+            </div>
+    		<!--存金banner-->
+    		<div class="storBanner">
+                <img src="/static/images/index-bg.png" alt="">
+    			<div class="price_container">
+    				<div>
+    					<p class="price_in">
+    						<span>实时金价&回收金价(元/克)</span>
+    					</p>
+    					<p class="price_amount">{{currentPrice | formatPriceTwo}}</p>
+    					<button class="goStore" @click="$router.push('/storegold')">一键存金</button>
+    				</div>
+    			</div>
+    		</div>
+    		<!-- 成交数量 -->
+    		<section class="dealNum" v-if="loginStatus && shopStatus">
+                <p class="title">近一月成交量</p>
+                <div class="deal-num">
+                    <div class="total-price">
+                        <p>累计成交金额(元)</p>
+                        <p class="price">{{dealObject.totalCashAmount | formatPriceTwo}}</p>
+                    </div>
+                    <div class="bottom-num">
+                        <div class="left-weight">
+                            <p>累计成交克重(克)</p>
+                            <p class="weight">{{dealObject.totalWeight}}</p>
+                        </div>
+                        <div class="right-count">
+                            <p>累计成交笔数(笔)</p>
+                            <p class="price">{{dealObject.totalCount}}</p>
+                        </div>
+                    </div>
+                </div>
+    		</section>
+    		<!--存金流程-->
+    		<div class="store_flow">
+    			<section class="subtitle">黄金回收流程</section>
+                <div class="store_flow-wrap">
+                    <p class="resume">我们承诺，随时接受退换</p>
+        			<section class="flow_container">
+        				<div class="each_flow_container">
+        					<img src="static/images/store-1.png">
+        					<p>在线预约</p>
+        				</div>
+        				<p class="store_join_line"></p>
+        				<div class="each_flow_container">
+        					<img src="static/images/store-2.png">
+        					<p>顺丰上门</p>
+        				</div>
+        				<p class="store_join_line"></p>
+        				<div class="each_flow_container">
+        					<img src="static/images/store-3.png">
+        					<p>检测变现</p>
+        				</div>
+        			</section>
+                </div>
+    		</div>
+    		<!--选择原因-->
+    		<section class="reason">
+    			<section class="subtitle">存金通服务保障</section>
+                <div class="reason-wrap">
+                    <div>
+        				<p>实时金价卖出</p>
+        				<p>透明安全有保障</p>
+        			</div>
+        			<div>
+        				<p>直达精炼厂</p>
+        				<p>没有中间商赚取差价</p>
+        			</div>
+        			<div>
+        				<p>免费上门取货</p>
+        				<p>5000万高额保费</p>
+        			</div>
+        			<div>
+        				<p>先称重估价</p>
+        				<p>客户满意再成交</p>
+        			</div>
+                </div>
+                <p class="resume">黄金管家旗下品牌，央企背景，回收黄金我们是专业的</p>
+    		</section>
+    		<!-- 股东背景 -->
+            <div class="gudong-wrap">
+                <section class="subtitle">股东背景</section>
+                <div class="gudong">
+                    <div class="pe">
+                        <img src="static/images/company-1.png" alt="">
+                    </div>
+                    <div class="pe">
+                        <img src="static/images/company-2.png" alt="">
+                    </div>
+                    <div class="pe">
+                        <img src="static/images/company-3.png" alt="">
+                    </div>
+                    <div class="pe">
+                        <img src="static/images/company-4.png" alt="">
+                    </div>
+                    <div class="pe">
+                        <img src="static/images/company-5.png" alt="">
+                    </div>
+                    <div class="pe">
+                        <img src="static/images/company-6.png" alt="">
+                    </div>
+                </div>
+            </div>
+    		<!-- 公司介绍 -->
+    		<section class="jieshao">
+    			<section class="subtitle">公司介绍</section>
+                <div class="jieshao-img">
+                    <img src="static/images/company-bg.png" alt="">
+                    <span>我们是谁</span>
+                </div>
+    			<div class="jieshao-text">
+    				<div style="text-align: left;">"存金通"隶属于北京黄金管家科技发展有限公司，总部位于北京，是拥有央企背景的黄金回购平台。上海黄金交易所综合类会员“众恒隆”作为股东为“存金通”保驾护航。经由“存金通”回收来的所有黄金将直达精炼厂，为上海黄金交易所指定的黄金回收机构。</div>
+    				<p>微信公众号：hjgjdyh</p>
+    				<p>黄金管家QQ群：673646474</p>
+    				<p>黄金管家官方微信：13651098613</p>
+    				<p>客服电话：4008-196-199</p>
+    				<p>公司地址：北京市海淀区中关村SOHO B座 1209室</p>
+    			</div>
+    		</section>
+            <!-- 左侧导航 -->
+            <mt-popup v-model="popupVisible" position="left">
+                <div class="nav-wrap">
+                    <!-- 未登录情况 -->
+                    <div class="top-info" v-if="!loginStatus">
+                        <div class="cjt-logo">
+                            <img src="static/images/cjt-logo.png" alt="">
+                        </div>
+                        <!-- 登录注册按钮 -->
+                        <div class="login-btn"  @click="$router.push({path:'/login',query:{redirect:'/index'}})">登录/注册</div>
+                    </div>
+                    <!-- 已登录：店铺图标名称 -->
+                    <div class="top-info" @click="goShop()" v-else>
+                        <div class="shop-logo">
+                            <img src="static/images/shop-logo.png" alt="" v-if="!shopStatus">
+                            <img :src="shopInfo.logoPath" alt="" v-else>
+                        </div>
+                        <!-- 登录且审核通过提示 -->
+                        <p v-if="shopStatus">{{shopInfo.name}}</p>
+                        <!-- 未开店/店铺正在审核中显示 -->
+                        <p v-else>我的店铺</p>
+                    </div>
+                    <!-- 导航路由 -->
+                    <ul class="nav-list">
+                        <li @click="$router.push('/assets')">
+                            <span class="icon1"></span>
+                            <span>我的资产</span>
+                        </li>
+                        <li @click="$router.push('/storeorderlist')">
+                            <span class="icon2"></span>
+                            <span>我的订单</span>
+                        </li>
+                        <li @click="$router.push('/account')">
+                            <span class="icon3"></span>
+                            <span>帐户管理</span>
+                        </li>
+                        <li @click="$router.push('/aboutus')">
+                            <span class="icon4"></span>
+                            <span>关于我们</span>
+                        </li>
+                        <li @click="quitLogin()" v-if="loginStatus">
+                            <span class="icon5"></span>
+                            <span>退出登录</span>
+                        </li>
+                    </ul>
+                </div>
+            </mt-popup>
         </div>
-		<!--存金banner-->
-		<div class="storBanner">
-            <img src="/static/images/index-bg.png" alt="">
-			<div class="price_container">
-				<div>
-					<p class="price_in">
-						<span>实时金价&回收金价(元/克)</span>
-					</p>
-					<p class="price_amount">{{currentPrice | formatPriceTwo}}</p>
-					<button class="goStore" @click="$router.push('/storegold')">一键存金</button>
-				</div>
-			</div>
-		</div>
-		<!-- 成交数量 -->
-		<section class="dealNum" v-if="loginStatus && shopStatus">
-            <p class="title">近一月成交量</p>
-            <div class="deal-num">
-                <div class="total-price">
-                    <p>累计成交金额(元)</p>
-                    <p class="price">{{dealObject.totalCashAmount | formatPriceTwo}}</p>
-                </div>
-                <div class="bottom-num">
-                    <div class="left-weight">
-                        <p>累计成交克重(克)</p>
-                        <p class="weight">{{dealObject.totalWeight}}</p>
+        <!-- pc端显示样式 -->
+        <div class="pc-index" v-else>
+            <!-- 顶部banner -->
+            <div class="top-banner">
+                <img src="static/images/pc-banner.png" alt="">
+            </div>
+            <!-- 主体部分 -->
+            <div class="pc-content">
+                <!-- 行业前景及问题 -->
+                <div class="part problem">
+                    <h3>行业前景及问题</h3>
+                    <div class="problem-text">
+                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;据黄金协会数据显示，我国每年黄金回购业务规模达550吨以上，约1500亿元人民币的交易额。</p>
+                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在移动互联网时代，线上寻找解决方案已经成为客户的使用习惯，存金通目前与百度、搜狗、360、UC浏览器等签订战略推广合作,客户可以在各大搜索引擎直接选择存金通的附近商家或高评分商家，选择到店服务！</p>
+                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;真正解决了传统黄金回购门店的以下问题：</p>
                     </div>
-                    <div class="right-count">
-                        <p>累计成交笔数(笔)</p>
-                        <p class="price">{{dealObject.totalCount}}</p>
+                    <ul class="problem-img">
+                        <li>
+                            <div class="left-img">
+                                <img src="static/images/pc-problem1.png" alt="">
+                            </div>
+                            <div class="right-text">
+                                <p>获取客户难</p>
+                                <p>店面辐射范围小</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="left-img">
+                                <img src="static/images/pc-problem2.png" alt="">
+                            </div>
+                            <div class="right-text">
+                                <p>获取客户难</p>
+                                <p>店面辐射范围小</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="left-img">
+                                <img src="static/images/pc-problem3.png" alt="">
+                            </div>
+                            <div class="right-text">
+                                <p>获取客户难</p>
+                                <p>店面辐射范围小</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <!-- 我们的优势 -->
+                <div class="part advantage">
+                    <h3>我们的优势</h3>
+                    <div class="advantage-text">
+                        <p>黄金管家打通黄金回购全流程，上线“存金通”品牌，同时支持线上卖金及到店服务，</p>
+                        <p>客户可以按距离、评分等方式选择门店直接上门，当面交易，为顾客带来便捷的同时也为合作商户提供精准、高转化流量。</p>
+                    </div>
+                    <div class="advantage-img">
+                        <img src="static/images/pc-advantage.png" alt="">
                     </div>
                 </div>
-            </div>
-		</section>
-		<!--存金流程-->
-		<div class="store_flow">
-			<section class="subtitle">黄金回收流程</section>
-            <div class="store_flow-wrap">
-                <p class="resume">我们承诺，随时接受退换</p>
-    			<section class="flow_container">
-    				<div class="each_flow_container">
-    					<img src="static/images/store-1.png">
-    					<p>在线预约</p>
+                <!-- 黄金回购流程 -->
+                <div class="part gold-flow">
+                    <h3>黄金回购流程</h3>
+                    <div class="gold-flow-text">
+                        <p>在线预约--顺丰上门--专业检测--快捷变现</p>
+                    </div>
+                    <div class="gold-flow-img">
+                        <img src="static/images/pc-flow.png" alt="">
+                    </div>
+                </div>
+                <!-- 服务保障 -->
+                <div class="part service">
+                    <h3>服务保障</h3>
+                    <ul class="service-list">
+                        <li class="service-item">
+                            <h4>黄金高价卖出</h4>
+                            <p>直连上金所报价</p>
+                            <p>全品类回购</p>
+                            <p>全品类回购</p>
+                        </li>
+                        <li class="service-item">
+                            <h4>流程高效安全</h4>
+                            <p>顺丰快递、全额保价</p>
+                            <p>权威机构检测</p>
+                            <p>随时接受退换</p>
+                        </li>
+                        <li class="service-item">
+                            <h4>极简体验</h4>
+                            <p>一键完成回购</p>
+                            <p>微信公众号/APP</p>
+                            <p>/H5/小程序</p>
+                        </li>
+                        <li class="service-item">
+                            <h4>直达精炼厂</h4>
+                            <p>黄金回购直达精炼厂</p>
+                            <p>无中间商赚取差价</p>
+                        </li>
+                    </ul>
+                </div>
+                <!-- 相关产品 -->
+                <div class="part product">
+                    <h3>相关产品</h3>
+                    <div class="qrcode-wrap">
+                        <div class="qrcode">
+                            <img src="static/images/pc-code1.png" alt="">
+                            <p>存金通商户版</p>
+                        </div>
+                        <div class="line"></div>
+                        <div class="qrcode">
+                            <img src="static/images/pc-code2.png" alt="">
+                            <p>黄金管家APP</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- 股东背景 -->
+                <div class="part gudong">
+                    <h3>股东背景</h3>
+                    <ul class="gudong-list">
+                        <li class="gudong-item">
+                            <img src="static/images/company-1.png" alt="">
+                        </li>
+                        <li class="gudong-item">
+                            <img src="static/images/company-5.png" alt="">
+                        </li>
+                        <li class="gudong-item">
+                            <img src="static/images/company-4.png" alt="">
+                        </li>
+                        <li class="gudong-item">
+                            <img src="static/images/company-6.png" alt="">
+                        </li>
+                        <li class="gudong-item">
+                            <img src="static/images/company-2.png" alt="">
+                        </li>
+                        <li class="gudong-item">
+                            <img src="static/images/company-3.png" alt="">
+                        </li>
+                    </ul>
+                </div>
+                <!-- 底部说明 -->
+                <div class="bottom-info">
+                    <div class="pc_footer_content">
+    					<div class="pc_footer_content_left">
+    						<div>“存金通”隶属于北京黄金管家科技发展有限公司，总部位于北京，是拥有央企背景的黄金回购平台。经由“存金通”回收来的所有黄金将直达精炼厂，为上海黄金交易所指定的黄金回收机构。</div>
+    					</div>
+    					<div class="pc_footer_content_right">
+    						<p>4008-196-199</p>
+    						<p style="margin-top:0;">微信公众号：hjgjdyh</p>
+    						<p>官方群2018：673646474</p>
+    						<p>官方分析群2018：556533099</p>
+    					</div>
     				</div>
-    				<p class="store_join_line"></p>
-    				<div class="each_flow_container">
-    					<img src="static/images/store-2.png">
-    					<p>顺丰上门</p>
-    				</div>
-    				<p class="store_join_line"></p>
-    				<div class="each_flow_container">
-    					<img src="static/images/store-3.png">
-    					<p>检测变现</p>
-    				</div>
-    			</section>
-            </div>
-		</div>
-		<!--选择原因-->
-		<section class="reason">
-			<section class="subtitle">存金通服务保障</section>
-            <div class="reason-wrap">
-                <div>
-    				<p>实时金价卖出</p>
-    				<p>透明安全有保障</p>
-    			</div>
-    			<div>
-    				<p>直达精炼厂</p>
-    				<p>没有中间商赚取差价</p>
-    			</div>
-    			<div>
-    				<p>免费上门取货</p>
-    				<p>5000万高额保费</p>
-    			</div>
-    			<div>
-    				<p>先称重估价</p>
-    				<p>客户满意再成交</p>
-    			</div>
-            </div>
-            <p class="resume">黄金管家旗下品牌，央企背景，回收黄金我们是专业的</p>
-		</section>
-		<!-- 股东背景 -->
-        <div class="gudong-wrap">
-            <section class="subtitle">股东背景</section>
-            <div class="gudong">
-                <div class="pe">
-                    <img src="static/images/company-1.png" alt="">
-                </div>
-                <div class="pe">
-                    <img src="static/images/company-2.png" alt="">
-                </div>
-                <div class="pe">
-                    <img src="static/images/company-3.png" alt="">
-                </div>
-                <div class="pe">
-                    <img src="static/images/company-4.png" alt="">
-                </div>
-                <div class="pe">
-                    <img src="static/images/company-5.png" alt="">
-                </div>
-                <div class="pe">
-                    <img src="static/images/company-6.png" alt="">
+    				<p class="loca">地址：北京市海淀区中关村SOHO B座 1209室</p>
                 </div>
             </div>
         </div>
-		<!-- 公司介绍 -->
-		<section class="jieshao">
-			<section class="subtitle">公司介绍</section>
-            <div class="jieshao-img">
-                <img src="static/images/company-bg.png" alt="">
-                <span>我们是谁</span>
-            </div>
-			<div class="jieshao-text">
-				<div style="text-align: left;">"存金通"隶属于北京黄金管家科技发展有限公司，总部位于北京，是拥有央企背景的黄金回购平台。上海黄金交易所综合类会员“众恒隆”作为股东为“存金通”保驾护航。经由“存金通”回收来的所有黄金将直达精炼厂，为上海黄金交易所指定的黄金回收机构。</div>
-				<p>微信公众号：hjgjdyh</p>
-				<p>黄金管家QQ群：673646474</p>
-				<p>黄金管家官方微信：13651098613</p>
-				<p>客服电话：4008-196-199</p>
-				<p>公司地址：北京市海淀区中关村SOHO B座 1209室</p>
-			</div>
-		</section>
-        <!-- 左侧导航 -->
-        <mt-popup v-model="popupVisible" position="left">
-            <div class="nav-wrap">
-                <!-- 未登录情况 -->
-                <div class="top-info" v-if="!loginStatus">
-                    <div class="cjt-logo">
-                        <img src="static/images/cjt-logo.png" alt="">
-                    </div>
-                    <!-- 登录注册按钮 -->
-                    <div class="login-btn"  @click="$router.push({path:'/login',query:{redirect:'/index'}})">登录/注册</div>
-                </div>
-                <!-- 已登录：店铺图标名称 -->
-                <div class="top-info" @click="goShop()" v-else>
-                    <div class="shop-logo">
-                        <img src="static/images/shop-logo.png" alt="" v-if="!shopStatus">
-                        <img :src="shopInfo.logoPath" alt="" v-else>
-                    </div>
-                    <!-- 登录且审核通过提示 -->
-                    <p v-if="shopStatus">{{shopInfo.name}}</p>
-                    <!-- 未开店/店铺正在审核中显示 -->
-                    <p v-else>我的店铺</p>
-                </div>
-                <!-- 导航路由 -->
-                <ul class="nav-list">
-                    <li @click="$router.push('/assets')">
-                        <span class="icon1"></span>
-                        <span>我的资产</span>
-                    </li>
-                    <li @click="$router.push('/storeorderlist')">
-                        <span class="icon2"></span>
-                        <span>我的订单</span>
-                    </li>
-                    <li @click="$router.push('/account')">
-                        <span class="icon3"></span>
-                        <span>帐户管理</span>
-                    </li>
-                    <li @click="$router.push('/aboutus')">
-                        <span class="icon4"></span>
-                        <span>关于我们</span>
-                    </li>
-                    <li @click="quitLogin()" v-if="loginStatus">
-                        <span class="icon5"></span>
-                        <span>退出登录</span>
-                    </li>
-                </ul>
-            </div>
-        </mt-popup>
     </div>
 </template>
 
@@ -185,6 +340,7 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
             return{
                 popupVisible:false,   // 左侧导航显示
                 loginStatus:false,    // 是否登录
+                pcStatus:false,      // 是否是pc端
                 dealObject:{          // 近一月交易量
                     totalCashAmount:0,
                     totalWeight:0,
@@ -195,6 +351,7 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
                     logoPath:'',
                     name:'我的店铺'
                 },
+                clientWidth:document.documentElement.clientWidth,//页面宽度
             }
         },
         components:{
@@ -212,8 +369,10 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
 				return val
 			},
             popupVisible:function(val){
-                val ? this.fixed(true) : this.fixed(false)
-            }
+                if(!this.pcStatus){
+                    val ? this.fixed(true) : this.fixed(false)
+                }
+            },
         },
         methods: {
             ...mapMutations([
@@ -311,9 +470,11 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
             }
         },
         created(){
-            if(this.$route.query.navStatus){ // 从五个导航跳转回来导航要默认展开
-                this.popupVisible = true;
-                this.fixed(true);
+            if(!this.pcStatus){
+                if(this.$route.query.navStatus){ // 从五个导航跳转回来导航要默认展开
+                    this.popupVisible = true;
+                    this.fixed(true);
+                }
             }
         },
         mounted(){
@@ -323,6 +484,21 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
                 this.checkShopStatus();        // 店铺信息
                 this.query_index_statistics(); // 首页统计数据
                 console.log('accessToken',this.accessToken)
+            }
+            // 判断是pc还是移动端
+            if(this.clientWidth>1000){
+                this.pcStatus=true
+            }else{
+                this.pcStatus=false
+            }
+            var that = this;
+            window.onresize = function(){
+                var windowsize = document.documentElement.clientWidth;
+    			if(windowsize>768 || windowsize==768){
+    				that.pcStatus=true
+    			}else{
+    				that.pcStatus=false
+    			}
             }
         },
         beforeRouteLeave (to, from, next) {
@@ -409,6 +585,7 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
                 line-height: .54rem;
                 text-align: left;
                 margin-top:.38rem;
+                font-weight: bold;
                 font-family:PingFangSC-Medium;
             }
         }
@@ -522,7 +699,7 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
     .dealNum{
         width:100%;
         text-align: left;
-        padding:0 .4rem;
+        padding:.2rem .4rem 0;
         margin-bottom: .6rem;
         .title{
             color: #333;
@@ -595,7 +772,7 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
             @include flex-box();
             @include justify-content();
             img{
-            	width:.8rem;
+            	width:.81rem;
                 height:.8rem;
             }
             .each_flow_container{
@@ -651,6 +828,7 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
                     @include bg-image('/static/images/service-4.png');
                 }
                 p{
+                    text-align: center;
                     &:nth-of-type(1){
                         font-size: .3rem;
                     }
@@ -748,6 +926,7 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
         	color: #999;
         	line-height: .45rem;
             padding-bottom: .4rem;
+            font-family:PingFangSC-Regular;
             @include box-shadow(0px 10px 12px -1px rgba(0,0,0,0.06));
             &>div{
             	font-size: .28rem;
@@ -760,6 +939,254 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
             	text-align: left;
                 padding-left:.3rem;
             }
+        }
+    }
+}
+
+.pc-index{
+    width:100%;
+    background-color: rgba(248,248,248,1);
+    .top-banner{
+        width:100%;
+        img{
+            width:100%;
+        }
+    }
+    .pc-content{
+        width:100%;
+        text-align: center;
+        margin:0 auto;
+        border:1px solid #eee;
+        background-color: #fff;
+
+        .part{
+            // width:900px;
+            width:1000px;
+            margin:0 auto;
+            text-align: center;
+            h3{
+                color: #333;
+                font-size: 16px;
+                font-weight: bold;
+                margin-bottom: 40px;
+                margin-top:60px;
+                font-family:PingFangSC-Medium;
+            }
+            .problem-text, .advantage-text,.gold-flow-text{
+                text-align: left;
+                p{
+                    color: #666;
+                    font-size: 12px;
+                    line-height: 23px;
+                    &:nth-of-type(3){
+                        color: #333;
+                    }
+                }
+            }
+            .problem-text{
+                margin-bottom: 30px;
+            }
+            .advantage-text,.gold-flow-text{
+                text-align: center;
+            }
+            .problem-img{
+                width:100%;
+                align-items: center;
+                @include flex-box();
+                @include justify-content();
+                li{
+                    width:32%;
+                    padding:20px 30px;
+                    align-items: center;
+                    @include flex-box();
+                    @include box-shadow(2px 0px 30px rgba(31,20,17,0.06));
+                    .left-img{
+                        width: 45px;
+                        height: 45px;
+                        margin-right:15px;
+                        img{
+                            width: 100%;
+                        }
+                    }
+                    .right-text{
+                        color: #666;
+                        font-size: 14px;
+                        text-align: left;
+                        line-height: 20px;
+                        font-family:PingFangSC-Regular;
+                    }
+                }
+            }
+            .advantage-img{
+                width: 100%;
+                margin-top:10px;
+                position: relative;
+                img{
+                    width: 480px;
+                    height: 290px;
+                    margin-left:30px;
+                }
+            }
+            .gold-flow-img{
+                width:480px;
+                height: 240px;
+                margin:25px auto 0;
+                img{
+                    width: 100%;
+                }
+            }
+
+        }
+        .advantage{
+            margin-top:70px;
+        }
+        // 存金流程
+        .gold-flow{
+            width: 100%;
+            padding:60px 0;
+            margin-top:60px;
+            background-color: rgba(248,248,248,1);
+            h3{
+                margin-top:0;
+            }
+        }
+        // 服务保障
+        .service{
+            width: 1000px;
+            h3{
+                color: #333;
+                font-size: 16px;
+            }
+            .service-list{
+                @include flex-box();
+                @include justify-content();
+                .service-item{
+                    width: 24%;
+                    padding:25px 0 20px;
+                    color: #fff;
+                    font-size: 12px;
+                    text-align: center;
+                    h4{
+                        font-size: 16px;
+                        margin-bottom: 10px;
+                    }
+                    p{
+                        line-height: 20px;
+                    }
+                    &:nth-of-type(1){
+                        @include bg-image('/static/images/pc-service1.png');
+                    }
+                    &:nth-of-type(2){
+                        @include bg-image('/static/images/pc-service2.png');
+                    }
+                    &:nth-of-type(3){
+                        @include bg-image('/static/images/pc-service3.png');
+                    }
+                    &:nth-of-type(4){
+                        @include bg-image('/static/images/pc-service4.png');
+                    }
+                }
+            }
+        }
+        // 相关产品
+        .product{
+            width: 100%;
+            padding-top:60px;
+            margin-top:100px;
+            background:rgba(248,248,248,1);
+            h3{
+                margin-top:0;
+            }
+            .qrcode-wrap{
+                align-items: flex-start;
+                justify-content: center;
+                @include flex-box();
+                .qrcode{
+                    img{
+                        width: 240px;
+                        height: 240px;
+                    }
+                    p{
+                        color: #333;
+                        font-size: 16px;
+                        margin-top:-20px;
+                        font-family:PingFangSC-Regular;
+                    }
+                }
+                .line{
+                    width: 1px;
+                    height: 300px;
+                    margin:30px 50px 0;
+                    background-color: #DDC899;
+                }
+            }
+
+        }
+        // 股东背景
+        .gudong{
+            padding-bottom: 100px;
+            .gudong-list{
+                @include flex-box();
+                @include justify-content();
+                .gudong-item{
+                    width: 15.5%;
+                    padding:10px 20px;
+                    // height: 45px;
+                    border:1px solid #eee;
+                    img{
+                        // @include center(150px 64px);
+                    }
+                }
+            }
+        }
+        // 底部信息
+        .bottom-info{
+        	width: 100%;
+        	height: 270px;
+        	background-color: rgb(51, 51, 51);
+        	text-align: center;
+        	font-size: 8px;
+        	color: #fff;
+            .pc_footer_content{
+            	display: inline-block;
+            	width: 1000px;
+            	border-bottom: 1px solid #999;
+            	height: 200px;
+                .pc_footer_content_left{
+                	width: 50%;
+                	height: 180px;
+                	float: left;
+                	background-image: url('/static/images/cjt-logo.png');
+                	background-repeat: no-repeat;
+                	background-size: 90px 27px;
+                	background-position: 0px 40px;
+                	padding-top: 80px;
+                	text-align: left;
+                    div{
+                    	line-height: 30px;
+                    }
+                }
+                .pc_footer_content_right{
+                	width: 50%;
+                    height: 180px;
+                    float: right;
+                    text-align: left;
+                    line-height: 25px;
+                    padding-left: 270px;
+                }
+            }
+        }
+        .pc_footer_content_right p:nth-child(1){
+        	font-size: 20px;
+        	line-height: 80px;
+        	font-weight: bold;
+        }
+        .loca{
+            width:1000px;
+            margin:0 auto;
+        	color: #999999;
+        	line-height: 73px;
+        	text-align: left;
         }
     }
 }

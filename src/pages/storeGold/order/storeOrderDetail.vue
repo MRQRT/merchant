@@ -463,9 +463,10 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             },
             // 锁价解释弹窗
             lockPricePopup(){
+                var html='<div style="text-align:left">锁定金价：当前订单将以您锁定金价成交。</div>'
                 MessageBox({
                   title: '提示',
-                  message:'锁定金价：当前订单将以您锁定金价成交。' ,
+                  message:html ,
                   confirmButtonText: '我知道了'
                 })
             },
@@ -863,9 +864,8 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
         }
         .countDown,.order-cancel{
             width:100%;
-            height:1.62rem;
             color:#fff;
-            padding:.3rem .4rem;
+            padding:.4rem .4rem .3rem;
             align-items: flex-start;
             @include flex-box();
             @include bg-color();

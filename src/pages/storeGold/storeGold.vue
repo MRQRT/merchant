@@ -714,9 +714,19 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                 }
             }
 
-            //处理键盘弹出的沉底按钮顶上去的兼容问题
+
             window.onresize = () => {
-                var h=document.documentElement.clientHeight
+                var that = this;
+                var h=document.documentElement.clientHeight;
+                var windowsize = document.documentElement.clientWidth;
+
+                // 判断是pc还是移动端
+    			if(windowsize>768 || windowsize==768){
+    				that.pcStatus=true
+    			}else{
+    				that.pcStatus=false
+    			}
+                //处理键盘弹出的沉底按钮顶上去的兼容问题
 		    	if((this.screenHeight-h)>50){
                     if(!this.loginStatus){
 						document.querySelector('.login').style.position = 'relative'

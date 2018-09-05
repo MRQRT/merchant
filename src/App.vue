@@ -89,4 +89,8 @@ export default {
 .mint-msgbox-cancel{
     border-right:1px solid #eee !important;
 }
+.mint-msgbox-btns{
+    height:.88rem;
+    line-height: .88rem;
+}
 </style>

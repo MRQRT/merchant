@@ -25,7 +25,6 @@ module.exports = {
     host:'192.168.1.114',//comp guo
     // host:'192.168.1.110',//home guo
     // host: '192.168.1.181', // can be overwritten by process.env.HOST
-    // host:'10.88.88.8',
     port: 8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: true,
     errorOverlay: true,

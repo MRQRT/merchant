@@ -391,6 +391,7 @@ import { Indicator,Toast } from 'mint-ui';
 
                 }
                 .bottom-info{
+                    font-family:PingFangSC-Regular;
                     justify-content: flex-end;
                     flex-direction: column;
                     @include flex-box();
@@ -416,7 +417,7 @@ import { Indicator,Toast } from 'mint-ui';
     .no-order{
         width:100%;
         height: 100vh;
-        padding-top:1.5rem;
+        padding-top:2.3rem;
         background-color: #fff;
         .top-img{
             width: 2.8rem;

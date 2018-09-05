@@ -30,7 +30,7 @@
     }
     p{
         color: #999;
-        font-size: .3rem;
+        font-size: .28rem;
         margin:.5rem 0 .7rem;
     }
     .btn{
