@@ -5,7 +5,7 @@
 		</head-top>
 		<div class="address_list" v-show='!empty'>
 			<section class="addressDe" v-for="(item,index) in addre" :key="index">
-				<p @click="selectAdd(item)"><span>{{item.contact}}</span><span>{{item.telephone}}</span></p>
+				<p @click="selectAdd(item)"><span>{{item.contact}}</span><span>{{item.telephone|filter_tel}}</span></p>
 				<div @click="selectAdd(item)">{{item.address}}</div>
 				<p>
 					<input type="radio" v-model="picked" :id="index" :value="index" @click="putDefault(item.id,index)">
@@ -71,6 +71,11 @@
 		watch: {
 
 		},
+		filters:{
+			filter_tel(val){
+				return val.substring(0,3)+'****'+val.substring(7,11);
+			}
+		},
 		computed:{
 
 		},
@@ -117,7 +122,23 @@
 			},
 			//编辑地址
 			putAddress(val){
-				this.$router.push({path:'addAddress',  query: { modify: val.id}})
+				if(this.$route.query.from=='storegold'){
+					this.$router.push({
+						path:'addAddress',  
+						query: { 
+							modify: val.id,
+							from:'storegold'
+						}
+					})
+				}else if(this.$route.query.from=='account'){
+					this.$router.push({
+						path:'addAddress',  
+						query: { 
+							modify: val.id,
+							from:'account'
+						}
+					})
+				}
 			},
 			//地址选择
 			selectAdd(value){
@@ -138,12 +159,21 @@
 			},
 			//点击添加新地址
 			addNewAddr(){
-				this.$router.push({
-					path:'/addAddress',
-					query:{
-						from:'addresslist'
-					}
-				})
+				if(this.$route.query.from=='account'){
+					this.$router.push({
+						path:'/addAddress',
+						query:{
+							from:'account'
+						}
+					})
+				}else{
+					this.$router.push({
+						path:'/addAddress',
+						query:{
+							from:'storegold'
+						}
+					})
+				}
 			},
 		},
 		components:{
