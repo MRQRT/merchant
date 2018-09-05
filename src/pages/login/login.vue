@@ -172,7 +172,7 @@
             weixinLogin(){
                 // const url = 'http://192.168.1.114:8080/tran'
                 const url = 'http://cjtshtest.au32.cn/tran'
-                window.location.href="http://cjtshmerchant.au32.cn/user/auth/login?redirectUrl="+url;
+                window.location.href="http://cjtshmerchant.au32.cn/api/user/auth/login?redirectUrl="+url;
             },
             //点击左上角关闭按钮
             backWard(){
