@@ -499,6 +499,8 @@ input{
 .password input{
     font-size:.28rem;
     padding-left: .22rem;
+    height:.5rem;
+    line-height: .5rem;
 }
 .telephone{
     display: flex;

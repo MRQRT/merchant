@@ -2,7 +2,7 @@
     <div class="qcmscommitresult">
         <!-- 头部标题部分 -->
         <head-top headTitle='核对资质信息' class="head-top nomal-font" ref="topHead">
-            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
+            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.push('/index')">
         </head-top>
         <!-- model -->
         <div class="model">
@@ -15,18 +15,18 @@
         </div>
         <!-- button -->
         <div class="button">
-            <section @click="$router.push('/editshopinfo')">完善店铺信息</section>
+            <section @click="$router.push('/editshopinfo')" v-if="open_shop_button">完善店铺信息</section>
         </div>
     </div>
 </template>
 
 <script>
 import headTop from '@/components/header/head.vue'
-
+import {shop_open_apply_status} from '@/service/getData.js'
     export default {
         data(){
             return{
-
+                open_shop_button:false,
             }
         },
         components:{
@@ -39,13 +39,28 @@ import headTop from '@/components/header/head.vue'
 
         },
         methods: {
-
+            async shop_status(){
+                const res = await shop_open_apply_status();
+                if(res.code=='000000'){
+                    if(res.data){
+                        if(res.data.status=='1'){ // 1、待审核
+                           this.open_shop_button=false;
+                        }else if(res.data.status=='2'){//2、审核通过
+                           this.open_shop_button=false
+                        }else if(res.data.status=='9'){//3、未通过
+                           this.open_shop_button=true
+                        }
+                    }else if(res.message="操作成功"){
+                        this.open_shop_button=1;//未开通
+                    }
+                }
+            }
         },
         created(){
 
         },
         mounted(){
-
+            this.shop_status();
         },
     }
 
