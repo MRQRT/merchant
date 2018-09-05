@@ -166,7 +166,7 @@ export default {
                         that.second = 60;
                     }
                 },1000)
-                let res1 = await sendsms(this.tel,0);
+                let res1 = await sendsms(this.tel,4);
                 if(res1.code!='000000'){
                     Toast({
                         message: res1.message,
