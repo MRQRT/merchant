@@ -24,7 +24,7 @@
            <div class="pwdContent" ref="pwdContent" v-show="pwd">
                <div class="account">
                    <input type="text" id="inputAcc" placeholder="请输入手机号/商户号" v-model="account" style="width:90%;">
-                   <span class="wrongAcc" ref="wrongAccount" v-show="accWrong">号码格式错误</span>
+                   <span class="wrongAcc" ref="wrongAccount" v-show="accWrong"></span>
                    <img src="static/images/clearinput.png" class="clear accIpt" v-show="account" @click="clearAccIpt">
                </div>
                <div class="password">
