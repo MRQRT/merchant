@@ -215,11 +215,11 @@ export default{
 				if(this.title=='添加地址' && this.stor){
 					const res_1 = await add_shop_address(this.contact,this.telephone,this.addressDetail,this.provinceId,this.cityId,this.areaId);
 					if(res_1.code=='000000'){
-						if(this.$route.query.from=='addresslist'){
+						if(this.$route.query.from=='storegold'){
 							this.$router.push({
 								path:'/addresslist',
 								query:{
-									from:'account'
+									from:'storegold'
 								}
 							})
 						}else if(this.$route.query.from=='account'){
@@ -229,10 +229,7 @@ export default{
 									from:'account'
 								}
 							})
-						}else{
-							this.$router.push('/storegold')
 						}
-
 					}
 				//修改地址
 				}else if(this.title=='修改地址'&&this.stor&&this.$route.query.modify){

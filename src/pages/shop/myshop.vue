@@ -21,7 +21,7 @@
             <!-- 店铺名称 -->
             <div class="shop-basic-info">
                 <div class="name">{{detailInfo.name}}</div>
-                <div class="star" :class="starJson[judgeStar(detailInfo.star)].className">
+                <div class="star" :class="starJson[judgeStar(detailInfo.score)].className">
                     <span></span>
                     <span></span>
                     <span></span>
@@ -84,7 +84,7 @@ import back from 'static/images/hgdBg.jpg';
                     facadePaths:[],
                     logoPath:'',
                     introduce:'我卖黄金、收黄金、维修各种金银首饰等等等等等等，我卖黄金、收黄金、维修各种金银首饰等等等等等等，我卖黄金、收黄金、维修各种金银',
-                    star:90,
+                    star:'',
                     address:'',
                     mobile:'',
                     lat:'',

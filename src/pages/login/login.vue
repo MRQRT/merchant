@@ -24,7 +24,7 @@
            <div class="pwdContent" ref="pwdContent" v-show="pwd">
                <div class="account">
                    <input type="text" id="inputAcc" placeholder="请输入手机号/商户号" v-model="account" style="width:90%;">
-                   <span class="wrongAcc" ref="wrongAccount" v-show="accWrong">号码格式错误</span>
+                   <span class="wrongAcc" ref="wrongAccount" v-show="accWrong"></span>
                    <img src="static/images/clearinput.png" class="clear accIpt" v-show="account" @click="clearAccIpt">
                </div>
                <div class="password">
@@ -172,7 +172,7 @@
             weixinLogin(){
                 // const url = 'http://192.168.1.114:8080/tran'
                 const url = 'http://cjtshtest.au32.cn/tran'
-                window.location.href="http://cjtshmerchant.au32.cn/user/auth/login?redirectUrl="+url;
+                window.location.href="http://cjtshmerchant.au32.cn/api/user/auth/login?redirectUrl="+url;
             },
             //点击左上角关闭按钮
             backWard(){
@@ -313,7 +313,7 @@
                             clearInterval(timer);
                             that.iNow=true;
                             send_smscode.style.color="#C09C60";
-                            send_smscode.innerHTML = '获取验证码';
+                            send_smscode.innerHTML = '重新获取';
                             that.second = 60;
                         }
                     },1000)
@@ -420,6 +420,7 @@
 .loginIn{
     background-color:#fff;
     border:1px solid #fff;
+    min-height:100vh;
 }
 input{
     caret-color: #333333;

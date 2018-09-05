@@ -107,6 +107,10 @@ export default {
         async commit(){
             let a = this.check_tels(this.tel);
             if(!a)return
+            if(this.tel==this.mobile){
+                Toast('与当前绑定手机号相同')
+                return
+            }
             if(!this.check_vercode&&this.vercode!=''){
                 Toast('验证码格式不正确')
                 return
@@ -162,11 +166,11 @@ export default {
                         clearInterval(timer);
                         that.iNow=true;
                         send_smscode.style.color="#C09C60";
-                        that.clickText = '获取验证码';
+                        that.clickText = '重新获取';
                         that.second = 60;
                     }
                 },1000)
-                let res1 = await sendsms(this.tel,0);
+                let res1 = await sendsms(this.tel,4);
                 if(res1.code!='000000'){
                     Toast({
                         message: res1.message,

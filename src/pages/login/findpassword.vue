@@ -173,7 +173,7 @@ import {sendsms,checkexist,findpassword} from '@/service/getData.js'
                             clearInterval(timer);
                             that.iNow=true;
                             send_smscode.style.color="#C09C60";
-                            that.clickText = '获取验证码';
+                            that.clickText = '重新获取';
                             that.second = 60;
                         }
                     },1000)
