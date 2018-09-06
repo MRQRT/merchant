@@ -2,7 +2,7 @@
     <div class="editshopinfo">
         <!-- 头部标题部分 -->
         <head-top headTitle='完善店铺信息' class="head-top nomal-font" ref="topHead">
-            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
+            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="goback()">
         </head-top>
         <!-- headportrait -->
         <section class="headportrait">
@@ -112,6 +112,9 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
 
         },
         methods: {
+            goback(){
+                this.$router.push('/applicationresults')
+            },
             //经营范围选择
             select(val){
                 //删除数组指定元素

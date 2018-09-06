@@ -63,7 +63,7 @@
 import headTop from '@/components/header/head.vue'
 import {business_qualification} from '@/service/getData.js'
 import {DatetimePicker,Toast} from 'mint-ui'
-import {formatDate,curentTime,isEmptyObject,setStore} from '@/config/mUtils.js'
+import {formatDate,curentTime,isEmptyObject,setStore,removeStore} from '@/config/mUtils.js'
 import {merchant_open_apply} from '@/service/getData.js'
 export default {
     data(){
@@ -173,10 +173,10 @@ export default {
             this.ms.personCode=ss
             const res = await merchant_open_apply(this.ms.companyName,this.ms.businessLicenseCode,this.ms.businessLicenseBeginDate,this.ms.businessLicenseEndDate,this.ms.personName,this.ms.personCode,this.ms.personCardEndDate);
             if(res.code=='000000'){
-                 setStore('qc_imgobj','','session');
+                 removeStore('qc_imgobj','session');
                 this.$router.push('/qcmscommitresult');
             }else{
-                setStore('qc_imgobj','','session');
+                removeStore('qc_imgobj','session');
                 Toast({
                     message: res.message,
                     position: 'bottom',
