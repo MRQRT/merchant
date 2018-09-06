@@ -27,7 +27,7 @@
             <div class="line"></div>
             <div class="one">
                 <span>预约电话</span>
-                <input type="text" v-model="shop_message.mobile" placeholder="固定电话/手机">
+                <input type="text" v-model="shop_message.mobile" placeholder="固定电话/手机" maxlength="11">
             </div>
             <div class="line"></div>
             <div class="one" style="display:flex">

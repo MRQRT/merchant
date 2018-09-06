@@ -248,7 +248,7 @@ input:-ms-input-placeholder{  /* Internet Explorer 10-11 */
     overflow: scroll;
 }
 .around{
-    height: 1.1rem;
+    min-height: 1.1rem;
     font-size: .3rem;
     color: .333rem;
     padding-left: .8rem;
@@ -257,6 +257,7 @@ input:-ms-input-placeholder{  /* Internet Explorer 10-11 */
     background-size:.3rem;
     background-position: .25rem center;
     background-repeat: no-repeat;
+    padding-right:.35rem;
 }
 .title{
     line-height: .5rem;
@@ -265,6 +266,7 @@ input:-ms-input-placeholder{  /* Internet Explorer 10-11 */
 }
 .item_address{
     font-size: .25rem;
+    
 }
 .address_list .around:nth-child(1)>.title{
     color: #C09C60;
