@@ -17,6 +17,11 @@
         <div class="allmap" id="container"></div>
         <!-- 所选地址列表 -->
         <div class="address_list">
+            <section v-if="first_address" class="around" @click="select_address(first_address)">
+                <p class="title">{{first_address.title}}</p>
+                <div class="item_address">{{first_address.address}}</div>
+            <div class="line" style="margin-top:.16rem;"></div>
+            </section>
             <section class="around" v-for="(item,index) in surroundingPois" :key="index" @click="select_address(item)">
                 <p class="title">{{item.title}}</p>
                 <div class="item_address">{{item.address}}</div>
@@ -27,7 +32,6 @@
         <section class="area" v-if="area_show">
             <mt-index-list>
                 <mt-index-section v-for="(letter,index) in citySortArr" :key="index" :index="letter">
-                    <!-- <mt-cell  v-for="(cityName,index) in cityArr"  :key="index" v-if="cityName.key == letter" :title="cityName.value" @click.native="chooseCity(cityName.value)"></mt-cell> -->
                     <mt-cell  v-for="(item,index) in city_list" :key="index" v-if="item.spell==letter" :title="item.cityName" @click.native="chooseCity(item)"></mt-cell>
                 </mt-index-section>
             </mt-index-list>
@@ -45,11 +49,12 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
             return{
                 location: '',
                 default_address: {
-                    latitude:116.404,
+                    latitude:116.504,
                     longitude:39.915,
                 },//默认北京的中心
                 input_address: '',
                 city_list: '',
+                first_address:'',//第一个地址（地图上展示的地址）
                 surroundingPois:[],//检索到的地址
                 area_show:false,//地址列表显示开关
                 citySortArr: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "W", "X", "Y", "Z"],//存放第二次筛选重复，不存在的城市首字母数组
@@ -69,28 +74,31 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
             search_area(){
                 let v_this=this
                 this.area_show=false
-                if(!this.input_address)return
-                var map = new BMap.Map("container");      
-                map.centerAndZoom(new BMap.Point(116.404, 39.915), 11);      
-                // 创建地址解析器实例     
-                var myGeo = new BMap.Geocoder();      
-                // 将地址解析结果显示在地图上，并调整地图视野    
-                myGeo.getPoint(v_this.location+v_this.input_address, function(point){
-                    // console.log(point)  
-                    if (point) {      
-                        map.centerAndZoom(point, 15);      
-                        v_this.v_mark(map,point.lng,point.lat);
-                    }      
-                }, v_this.location);
-                //
-                var local = new BMap.LocalSearch(map, {
-                    // renderOptions:{map: map},
-                    onSearchComplete : function(r) {
-                        console.log(r)
-                        v_this.surroundingPois=r.Br;//将搜索结果放入地址选取列表中
-                    }
-                });    
-                local.search(v_this.input_address);
+                if(this.input_address){//如果输入框有值，进行搜索，同时清空选中的地址
+                    this.first_address='';
+                    var map = new BMap.Map("container");      
+                    map.centerAndZoom(new BMap.Point(116.404, 39.915), 11);   
+                    // 创建地址解析器实例     
+                    var myGeo = new BMap.Geocoder();      
+                    // 将地址解析结果显示在地图上，并调整地图视野    
+                    myGeo.getPoint(v_this.location+v_this.input_address, function(point){
+                        if(point){
+                            map.centerAndZoom(point, 15);      
+                            v_this.v_mark(map,point.lng,point.lat);
+                        }      
+                    }, v_this.location);
+                    //
+                    var local = new BMap.LocalSearch(map, {
+                        // renderOptions:{map: map},
+                        onSearchComplete : function(r) {
+                            v_this.surroundingPois=r.Br;//将搜索结果放入地址选取列表中
+                        }
+                    });    
+                    local.search(v_this.input_address);
+                }else{//如果输入框没有地址，进行定位
+                    this.first_address='';
+                    this.map(this.default_address,'one');
+                }
             },
             //请求地址
             async city(){
@@ -120,36 +128,72 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
                 map.centerAndZoom(point, 17);
             },
             //定位
-            map(val){
+            map(val,val2){
                 let v_this = this;
                 var map = new BMap.Map("container");
                 var point = new BMap.Point(val.latitude, val.longitude);
                 map.centerAndZoom(point, 17);
                 //获取定位
-                var geolocation = new BMap.Geolocation();
-                geolocation.getCurrentPosition(function(r){
-                    if(this.getStatus() == BMAP_STATUS_SUCCESS){
-                        //以指定的经度与纬度创建一个坐标点
-                        var pt = new BMap.Point(r.point.lng,r.point.lat);
-                        //创建一个地理位置解析器
-                        var geoc = new BMap.Geocoder();
-                        geoc.getLocation(pt, function(rs){//解析格式：城市，区县，街道
-                        // console.log(rs.addressComponents.district)//根据区域反解区域id
-                        v_this.location=rs.addressComponents.city//城市
-                            var local = new BMap.LocalSearch(map, {    
-                                // renderOptions:{map: map},
-                                onSearchComplete : function(r) {
-                                    v_this.surroundingPois=r.Br;//将搜索结果放入地址选取列表中
-                                }
-                            });    
-                            local.search(rs.address);
-                        });
-                        v_this.v_mark(map,r.point.lng,r.point.lat);
-                    }
-                    else {
-                        alert('failed'+this.getStatus());
-                    }        
-                });
+                if(val2=='one'){
+                    var geolocation = new BMap.Geolocation();
+                    geolocation.getCurrentPosition(function(r){
+                        if(this.getStatus() == BMAP_STATUS_SUCCESS){
+                            //以指定的经度与纬度创建一个坐标点
+                            if(r.point.lng=='116.4037397'||r.point.lat=='39.91488908'){//定位失败
+                                var depault = {lng:116.404,lat:39.9146}
+                                var pt1 = new BMap.Point(depault.lng,depault.lat);
+                                //创建一个地理位置解析器
+                                var geoc = new BMap.Geocoder();
+                                geoc.getLocation(pt1, function(rs){//解析格式：城市，区县，街道
+                                // console.log(rs.addressComponents.district)//根据区域反解区域id
+                                v_this.location=rs.addressComponents.city//城市
+                                    var local = new BMap.LocalSearch(map, {    
+                                        // renderOptions:{map: map},
+                                        onSearchComplete : function(r) {
+                                            v_this.surroundingPois=r.Br;//将搜索结果放入地址选取列表中
+                                        }
+                                    });    
+                                    local.search(rs.address);
+                                });
+                                v_this.v_mark(map,depault.lng,depault.lat);
+                            }else{
+                                var pt2 = new BMap.Point(r.point.lng,r.point.lat);
+                                //创建一个地理位置解析器
+                                var geoc = new BMap.Geocoder();
+                                geoc.getLocation(pt2, function(rs){//解析格式：城市，区县，街道
+                                // console.log(rs.addressComponents.district)//根据区域反解区域id
+                                v_this.location=rs.addressComponents.city//城市
+                                    var local = new BMap.LocalSearch(map, {    
+                                        // renderOptions:{map: map},
+                                        onSearchComplete : function(r) {
+                                            v_this.surroundingPois=r.Br;//将搜索结果放入地址选取列表中
+                                        }
+                                    });    
+                                    local.search(rs.address);
+                                });
+                                v_this.v_mark(map,r.point.lng,r.point.lat);
+                            }
+                        }else{
+                            alert('failed'+this.getStatus());//定位失败
+                        }        
+                    });
+                }else{
+                    var pt3 = new BMap.Point(val.lng,val.lat);
+                    //创建一个地理位置解析器
+                    var geoc = new BMap.Geocoder();
+                    geoc.getLocation(pt3, function(rs){//解析格式：城市，区县，街道
+                    // console.log(rs.addressComponents.district)//根据区域反解区域id
+                    v_this.location=rs.addressComponents.city//城市
+                        var local = new BMap.LocalSearch(map, {    
+                            // renderOptions:{map: map},
+                            onSearchComplete : function(r) {
+                                v_this.surroundingPois=r.Br;//将搜索结果放入地址选取列表中
+                            }
+                        });    
+                        local.search(rs.address);
+                    });
+                    v_this.v_mark(map,val.lng,val.lat);
+                }
             },
             v_mark(val,val1,val2){
                 var point = new BMap.Point(val1, val2);
@@ -173,11 +217,14 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
 
         },
         mounted(){
-            this.map(this.default_address);//定位
-            this.city();
             if(getStore('select_address','session')){//如果内存中有选中的地址
-
+                let e = getStore('select_address','session');
+                this.map(e.point,'two');
+                this.first_address=e;
+            }else{
+                this.map(this.default_address,'one');//定位
             }
+            this.city();
         },
     }
 
