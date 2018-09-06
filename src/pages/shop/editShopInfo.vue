@@ -374,6 +374,15 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 this.shop_message.lng=ad_obj.point.lng;
                 this.area_tran(ad_obj.point);//地址解析
             }
+            var height=document.documentElement.clientHeight;
+            window.onresize=function(){
+                var h=document.documentElement.clientHeight
+                if((height-h)>50){
+                    document.querySelector('.button').style.position = 'relative'
+                }else{
+                    document.querySelector('.button').style.position = 'fixed'
+                }
+            }
         },
         destroyed(){
             Indicator.close();
