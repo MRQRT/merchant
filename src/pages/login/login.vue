@@ -442,7 +442,7 @@ input{
     text-align: center;
 }
 .logoPart img{
-    width: 2rem;
+    width: 1.83rem;
 }
 .loginPart{
     height:5.3rem;
@@ -615,18 +615,18 @@ input{
 /*placeholder颜色*/
 input::-webkit-input-placeholder{
     color:#BCBCBC;
-    font-size: .32rem;
+    font-size: .28rem;
 }
 input::-moz-placeholder{   /* Mozilla Firefox 19+ */
     color:#BCBCBC;
-    font-size: .32rem;
+    font-size: .28rem;
 }
 input:-moz-placeholder{    /* Mozilla Firefox 4 to 18 */
     color:#BCBCBC;
-    font-size: .32rem;
+    font-size: .28rem;
 }
 input:-ms-input-placeholder{  /* Internet Explorer 10-11 */ 
     color:#BCBCBC;
-    font-size: .32rem;
+    font-size: .28rem;
 }
 </style>
