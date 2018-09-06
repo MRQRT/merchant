@@ -307,10 +307,29 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                     return true
                 }
             },
+            //校验手机号是否正确
+            check_tels(val){
+                let reg = /^(0|86|17951)?(13[0-9]|15[0-9]|17[0-9]|18[0-9]|14[0-9]|19[0-9])[0-9]{8}$/;
+                if(val.length<11&&val.length>0){
+                    Toast('手机号格式不正确')
+                    return false
+                }
+                if(val.match(reg)){
+                    return true
+                }else if(val ==''){
+                    Toast('请输入手机号')
+                    return false
+                }else{
+                    Toast('手机号格式不正确')
+                    return false
+                }
+            },
             //信息提交
             async submit(){
                 var a = this.check_message();
                 if(!a)return
+                let b = this.check_tels(this.shop_message.mobile);//检查手机号
+                if(!b)return
                 removeStore('shop_message','session');
                 removeStore('headimg','session');
                 removeStore('select_address','session');
