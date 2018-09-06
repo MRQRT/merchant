@@ -90,11 +90,11 @@ export default {
     border-right:1px solid #eee !important;
 }
 .mint-msgbox-btns{
-    height:.88rem;
-    line-height: .88rem;
+    height:.88rem !important;
+    line-height: .88rem !important;
 }
 .mint-msgbox-wrapper .mint-msgbox-content{
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid #eee !important;
 }
 
 </style>
