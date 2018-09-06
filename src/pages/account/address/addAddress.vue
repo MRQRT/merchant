@@ -114,8 +114,12 @@ export default{
 				val!=''&&this.rightShow==1&&this.addr!=''?this.stor=1:this.stor=0
 			},
 			telephone: function(val){
+				console.log(val)
 				val!=''?this.is_2=1:this.is_2=0;
 				let reg = /^(0|86|17951)?(13[0-9]|15[0-9]|17[0-9]|18[0-9]|14[0-9]|19[0-9])[0-9]{8}$/;
+				if(val.length>11){
+                    this.telephone = val.slice(0,11)
+                }
 				if(val.match(reg)){
 					this.rightShow = 1;
 				}else if(this.telephone ==''){
