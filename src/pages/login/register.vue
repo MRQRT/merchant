@@ -25,7 +25,7 @@
             <section class="line"></section> 
         </div>
         <!-- 注册协议 -->
-        <div class="agr"><img :src="readicon" alt="" @click="isread">我已阅读并接受<span @click="$router.push('/registerArg')">《存金通商户版用户协议》</span></div>
+        <!-- <div class="agr"><img :src="readicon" alt="" @click="isread">我已阅读并接受<span @click="$router.push('/registerArg')">《存金通商户版用户协议》</span></div> -->
         <!-- 按钮 -->
         <div class="create_acount">
             <section class="noActived" :class="{'hasActived':isSubmit==true}" @click="commit">创建账号</section>
@@ -60,7 +60,7 @@ import md5 from 'js-md5'
                 isSubmit: false,
                 iNow: true,//解决重复点击问题
                 second: 60,//获取验证码的毫秒数
-                arg:true,//存金通用户协议是否勾选
+                // arg:true,//存金通用户协议是否勾选
             }
         },
         components:{
@@ -83,7 +83,7 @@ import md5 from 'js-md5'
                 }else{
                     this.check_tel=false
                 }
-                if(this.check_tel&&this.check_vercode&&this.check_password&&this.arg){
+                if(this.check_tel&&this.check_vercode&&this.check_password){
                     this.isSubmit=true
                 }else{
                     this.isSubmit=false
@@ -92,7 +92,7 @@ import md5 from 'js-md5'
             //验证码
             vercode(val){
                val.length==6?this.check_vercode=true:this.check_vercode=false;
-               if(this.check_vercode&&this.check_tel&&this.check_password&&this.arg){
+               if(this.check_vercode&&this.check_tel&&this.check_password){
                     this.isSubmit=true
                 }else{
                     this.isSubmit=false
@@ -101,20 +101,20 @@ import md5 from 'js-md5'
             //密码
             password(val){
                 let d = this.check_passwords(val);
-                if(this.check_vercode&&this.check_tel&&this.check_password&&this.arg){
+                if(this.check_vercode&&this.check_tel&&this.check_password){
                     this.isSubmit=true
                 }else{
                     this.isSubmit=false
                 }
             },
             //阅读协议
-            arg(){
-                if(this.check_vercode&&this.check_tel&&this.check_password&&this.arg){
-                    this.isSubmit=true
-                }else{
-                    this.isSubmit=false
-                }
-            }
+            // arg(){
+            //     if(this.check_vercode&&this.check_tel&&this.check_password){
+            //         this.isSubmit=true
+            //     }else{
+            //         this.isSubmit=false
+            //     }
+            // }
         },
         methods: {
             ...mapMutations([
@@ -124,15 +124,15 @@ import md5 from 'js-md5'
                 this.eye==clo_eye?this.eye=op_eye:this.eye=clo_eye
                 this.eye==clo_eye?this.texorpas='password':this.texorpas='text'
             },
-            isread(){
-                if(this.readicon==store_readed){
-                    this.readicon=store_read;
-                    this.arg=0
-                }else{
-                    this.readicon=store_readed;
-                    this.arg=1
-                }
-            },
+            // isread(){
+            //     if(this.readicon==store_readed){
+            //         this.readicon=store_read;
+            //         // this.arg=0
+            //     }else{
+            //         this.readicon=store_readed;
+            //         // this.arg=1
+            //     }
+            // },
             //提交信息
             async commit(){
                 if(!this.isSubmit)return
@@ -396,6 +396,7 @@ import md5 from 'js-md5'
     height: .88rem;
     padding-left: .4rem;
     padding-right: .4rem;
+    margin-top: 2rem;
 }
 .create_acount section{
     width: 100%;
