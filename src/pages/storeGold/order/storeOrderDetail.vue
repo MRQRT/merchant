@@ -100,7 +100,7 @@
             <div class="middle-step" v-if="status != 8">
                 <div class="step-img">
                     <ul>
-                        <li class="step-item" v-for="(item,index) in stepList" :key="index" @click="showTips(1,index,$event,status,isLockOrder)"
+                        <li class="step-item" v-for="(item,index) in stepList" :key="index" @click="showTips(1,index,$event,status,isLockOrder)" ref="stepList"
                         :class="{'stepSuccess':(iconJson[status].status==1 || iconJson[status].beforeStatus==1) && iconJson[status].iconType>=index,
                         'stepError':iconJson[status].status==2 && iconJson[status].iconType==index,
                         'stepSpecial':iconJson[status].status==3 && (index==3 || index==4),
@@ -332,8 +332,10 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             return{
                 showStatus:false,      // 内容是否显示
                 orderId:'',            // 订单id
-                expressNo:'',          // 快递单号
-                expressCode:'',        // 物流公司编码
+                expressNo1:'',         // 快递单号_取货
+                expressCode1:'',       // 物流公司编码_取货
+                expressNo2:'',         // 快递单号_退货
+                expressCode2:'',       // 物流公司编码_退货
                 isLockOrder:0,         // 是否是锁价订单
                 isClick:0,             // 进度提示是否是点击显示
                 squreNum:null,         // 提示三角显示隐藏
@@ -456,6 +458,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             // 物流信息弹窗
             showDelivery(){
                 var that = this;
+
                 document.getElementById('delivery').onclick=function(){
                     that.lookPopup(0);
                     that.query_express_mess(); // 调用物流信息
@@ -483,7 +486,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             },
             // 倒计时
             countDown(time){
-                var countdownMinute = 2;//10分钟倒计时
+                var countdownMinute = 15;//15分钟倒计时
                 var startTimes = new Date(time.replace(/-/g,"/"));//开始时间 new Date('2016-11-16 15:21');
                 var endTimes = new Date(startTimes.setMinutes(startTimes.getMinutes()+countdownMinute));//结束时间
                 var curTimes = new Date();//当前时间
@@ -510,20 +513,21 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 this.trackingStatus = !this.trackingStatus;
             },
             // 进度提示文字
-            showTips(isClick,index,event,status,islock,deliveryType){
+            showTips(isClick,index,event,status,islock){
+
                 var text0 = '<p>我们正在马不停蹄地审核您的订单哦，审核结果将在2个工作日内通知到您！请耐心等待～</p>';
                 var text1 = `<p>恭喜您，订单审核通过！</p>
                              <p>我们已经安排快递小哥上门取件啦，请留意接听取件电话</p>`;
                 var text2 = '<p>订单审核未通过，您可以重新填写订单，风里雨里我们在这里等您！</p>';
                 var text3 = '<p>订单审核未通过，锁价定金将在3个工作日内退回至绑定银行卡，您可以重新填写订单，风里雨里我们在这里等您！</p>'
-                var text4 = `<p>快递小哥正在用心传递速度，物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">${this.expressNo}</span></p>`;
+                var text4 = `<p>快递小哥正在用心传递速度，物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">${this.expressNo1}</span></p>`;
                 var text5 = `<p>亲爱的用户，您的黄金我们收到啦~</p>
-                             <p>物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">${this.expressNo}<span></p>`;
+                             <p>物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">${this.expressNo1}<span></p>`;
                 var text6 = '<p>亲，专业检测师紧锣密鼓地开工啦！1个工作日内就会有结果哦！</p>'
                 var text7 = '<p>您的订单检测完毕！请尽快查看并确认<span id="report" style="color:#C09C60;border-bottom:1px solid #C09C60">检测报告</span>哦！</p>'
                 var text8 = `<p>亲，只差最后一步啦，快来看看您的<span id="report" style="color:#C09C60;border-bottom:1px solid #C09C60">检测报告</span>吧~三个工作日后将自动确认，如您对检测结果有任何疑问，请联系客服：4008-196-199</p>`
                 var text9 = `<p>很抱歉，您的订单检测未通过，查看<span id="report" style="color:#C09C60;border-bottom:1px solid #C09C60">检测报告</span>
-                             <p>我们已安排您的宝贝回家，物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">${this.expressNo}</span></p>`
+                             <p>我们已安排您的宝贝回家，物流单号：<span id="delivery" style="color:#C09C60;border-bottom:1px solid #C09C60">${this.expressNo2}</span></p>`
                 var text10 = '<p>恭喜啦，您的黄金成功卖出，T+1个工作日内到账，锁价保证金会同时返还至您的银行卡，具体以银行实际到账时间为准哦！</p>'
                 var text11 = '<p>恭喜啦，您的黄金成功卖出，T+1个工作日内到账，具体以银行实际到账时间为准哦！</p>'
                 var text12 = '<p>存金已退还，订单关闭</p>'
@@ -549,7 +553,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                             }else{
                                 this.stepTipText = (status==6 || status==7) ? text8 : text9;
                                 if(this.stepTipText==text9){ // 点击退货中，再次请求退货单号
-                                    this.query_logistics_mess()
+                                    this.query_logistics_mess(1)
                                 }
                             }
                         }else if(index == 4){ // 第5个图标判断是完成还是关闭
@@ -559,13 +563,14 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                                 this.stepTipText = text12;  // 关闭订单
                             }
                         }else{
+                            var that = this;
                             switch(index){
                                 case 0:
                                     this.stepTipText = status==0?text0:text1; // 避免在当前状态点击切换
                                     break;
                                 case 1:
+                                    this.query_logistics_mess(0);
                                     this.stepTipText = status==3?text4:text5;
-                                    this.query_logistics_mess();
                                     break;
                                 case 2:
                                     this.stepTipText = status==4?text6:text7;
@@ -604,7 +609,6 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     })
                 })
             },
-
             // 请求订单详情数据
             async query_detail(){
                 var that = this;
@@ -631,27 +635,44 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                         this.query_card_info();
                     }
                     // 从【物流中】状态就开始请求快递信息(以防状态发生变化，再次请求数据)
-                    if(this.orderInfo.status>2 && this.orderInfo.status!=8 && this.orderInfo.status!=10 && this.orderInfo.status!=11){
-                        this.deliveryType = this.orderInfo.status == 9 ||  this.orderInfo.status == 13 ? 1 : 0;
-                        this.query_logistics_mess();
+                    // if(this.orderInfo.status>2 && this.orderInfo.status!=8 && this.orderInfo.status!=10 && this.orderInfo.status!=11){
+                    //     this.deliveryType = this.orderInfo.status == 9 ||  this.orderInfo.status == 13 ? 1 : 0;
+                    //     this.query_logistics_mess();
+                    // }
+                    if(this.orderInfo.status>2 && this.orderInfo.status<9 && this.orderInfo.status!=8){
+                        this.query_logistics_mess(0);
+                    }else if(this.orderInfo.status>=9 && this.orderInfo.status!=10 && this.orderInfo.status!=11){
+                        this.query_logistics_mess(0);
+                        this.query_logistics_mess(1);
                     }
                 }else{
                     Toast(res.message)
                 }
             },
             // 请求物流单号
-            async query_logistics_mess(){
-                var res = await query_logistics_mess(this.orderId,this.deliveryType) // type:0-取货；1-退货
+            async query_logistics_mess(typeNum){
+                var res = await query_logistics_mess(this.orderId,typeNum) // type:0-取货；1-退货
                 if(res.code=='000000'){
-                    this.expressNo = res.data.expressNo;
-                    this.expressCode = res.data.expressCode;
+                    if(typeNum==0){
+                        this.expressNo1 = res.data.expressNo;
+                        this.expressCode1 = res.data.expressCode;
+                    }else{
+                        this.expressNo2 = res.data.expressNo;
+                        this.expressCode2 = res.data.expressCode;
+                    }
+
                 }else{
                     Toast(res.message)
                 }
             },
             // 查询具体物流信息
             async query_express_mess(){
-                var res = await query_express_mess(this.expressNo,this.expressCode)
+                var res;
+                if(this.deliveryType==0){
+                    res = await query_express_mess(this.expressNo1,this.expressCode1)
+                }else{
+                    res = await query_express_mess(this.expressNo2,this.expressCode2)
+                }
                 if(res.code=='000000'){
                     this.deliveryStatus = true;
                     this.deliveryList = res.data.result.list;
@@ -790,13 +811,18 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
         },
         mounted(){
             Indicator.open({
-              // text: '加载中...',
               spinnerType: 'fading-circle'
             });
             // 从【物流中】状态就开始请求快递信息
-            if(this.status>2 && this.status!=8 && this.status!=10 && this.status!=11){
-                this.deliveryType = this.status == 9 || this.status==13 ? 1 : 0;
-                this.query_logistics_mess();
+            // if(this.status>2 && this.status!=8 && this.status!=10 && this.status!=11){
+            //     this.deliveryType = this.status == 9 || this.status==13 ? 1 : 0;
+            //     this.query_logistics_mess();
+            // }
+            if(this.status>2 && this.status<9 && this.status!=8){
+                this.query_logistics_mess(0);
+            }else if(this.status>=9 && this.status!=10 && this.status!=11){
+                this.query_logistics_mess(0);
+                this.query_logistics_mess(1);
             }
             this.query_detail(); // 订单详情
         },

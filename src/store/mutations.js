@@ -7,6 +7,7 @@ import {
 	RECORD_MERCHANTID,
 	RECORD_SHOPID,
 	RECORD_SHOPSTATUS,
+	RECORD_STOREORDERINFO,
 } from './mutation-types.js'
 
 import {setStore, getStore, setCookie ,getCookie, removeCookie, removeStore} from '../config/mUtils'
@@ -52,4 +53,7 @@ export default {
 		state.currentPrice = currentPrice;
 		setStore('currentPrice',currentPrice,'session')
 	},
+	[RECORD_STOREORDERINFO](state,storeOrderInfo){
+		state.storeOrderInfo = storeOrderInfo;
+	}
 }

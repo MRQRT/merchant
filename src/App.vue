@@ -93,4 +93,8 @@ export default {
     height:.88rem;
     line-height: .88rem;
 }
+.mint-msgbox-wrapper .mint-msgbox-content{
+    border-bottom: 1px solid #eee;
+}
+
 </style>

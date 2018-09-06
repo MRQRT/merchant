@@ -280,7 +280,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
         },
         computed: {
             ...mapState([
-                'currentPrice','accessToken','shopId','shopStatus',
+                'currentPrice','accessToken','shopId','shopStatus','storeOrderInfo'
             ]),
             // 预估金额
             estimatePrice(){
@@ -310,7 +310,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
         },
         methods: {
             ...mapMutations([
-                'RECORD_SHOPSTATUS','RECORD_ACCESSTOKEN'
+                'RECORD_SHOPSTATUS','RECORD_ACCESSTOKEN','RECORD_STOREORDERINFO'
             ]),
             //存金说明弹框
 			showPopup(num){
@@ -698,7 +698,11 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
 
         },
         created(){
-
+            if(this.storeOrderInfo){
+                this.typeNum = this.storeOrderInfo.typeNum;
+                this.weight = this.storeOrderInfo.weight;
+                this.extractNum = this.storeOrderInfo.extractNum;
+            }
         },
         mounted(){
             this.loginStatus = this.accessToken ? true : false;
@@ -745,6 +749,17 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
         beforeRouteLeave (to, from, next) { // 离开此路由时清除定时器
             if(window.timer){
                 clearInterval(window.timer)
+            }
+            // 跳转路由时需保存所填写的订单信息
+            if(to.path=='/addaddress' || to.path=='/addresslist' || to.path=='/bindingbank' || to.path=='/storearg'){
+                var obj = {
+                    typeNum:this.typeNum,
+                    weight:this.weight,
+                    extractNum:this.extractNum
+                }
+                this.RECORD_STOREORDERINFO(obj)
+            }else{
+                this.RECORD_STOREORDERINFO('')
             }
             next()
         }

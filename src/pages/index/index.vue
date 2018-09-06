@@ -181,93 +181,185 @@
             </div>
             <!-- 主体部分 -->
             <div class="pc-content">
-                <!-- 行业前景及问题 -->
+                <!-- 黄金回收行业前景 -->
+                <div class="part prospect">
+                    <h3>黄金回收行业前景</h3>
+                    <ul class="prospect-img">
+                        <li>
+                            <div class="top-img">
+                                <img src="static/images/pc-prospect1.png" alt="">
+                            </div>
+                            <div class="bottom-text">
+                                <p>黄金消费市场连续5年世界第一</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="top-img">
+                                <img src="static/images/pc-prospect2.png" alt="">
+                            </div>
+                            <div class="bottom-text">
+                                <p>黄金回收业务规模达550吨以上 约合1500亿元人民币</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="top-img">
+                                <img src="static/images/pc-prospect3.png" alt="">
+                            </div>
+                            <div class="bottom-text">
+                                <p>市场规模增长速度30%</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <!-- 行业所需解决的问题 -->
                 <div class="part problem">
-                    <h3>行业前景及问题</h3>
-                    <div class="problem-text">
-                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;据黄金协会数据显示，我国每年黄金回购业务规模达550吨以上，约1500亿元人民币的交易额。</p>
-                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在移动互联网时代，线上寻找解决方案已经成为客户的使用习惯，存金通目前与百度、搜狗、360、UC浏览器等签订战略推广合作,客户可以在各大搜索引擎直接选择存金通的附近商家或高评分商家，选择到店服务！</p>
-                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;真正解决了传统黄金回购门店的以下问题：</p>
-                    </div>
+                    <h3>行业所需解决的问题</h3>
                     <ul class="problem-img">
-                        <li>
-                            <div class="left-img">
-                                <img src="static/images/pc-problem1.png" alt="">
+                        <li class="problem-item">
+                            <div class="left-icon">
+                                <img src="static/images/pc-pro1.png" alt="">
                             </div>
                             <div class="right-text">
                                 <p>获取客户难</p>
                                 <p>店面辐射范围小</p>
                             </div>
                         </li>
-                        <li>
-                            <div class="left-img">
-                                <img src="static/images/pc-problem2.png" alt="">
+                        <li class="problem-item">
+                            <div class="left-icon">
+                                <img src="static/images/pc-pro2.png" alt="">
                             </div>
                             <div class="right-text">
-                                <p>获取客户难</p>
-                                <p>店面辐射范围小</p>
+                                <p>客户感知度弱</p>
+                                <p>品牌影响力缺乏</p>
                             </div>
                         </li>
-                        <li>
-                            <div class="left-img">
-                                <img src="static/images/pc-problem3.png" alt="">
+                        <li class="problem-item">
+                            <div class="left-icon">
+                                <img src="static/images/pc-pro3.png" alt="">
                             </div>
                             <div class="right-text">
-                                <p>获取客户难</p>
-                                <p>店面辐射范围小</p>
+                                <p>信任感难建立</p>
+                                <p>行业内鱼龙混杂</p>
                             </div>
+                        </li>
+                    </ul>
+                </div>
+                <!-- 解决问题的渠道 -->
+                <div class="part browser">
+                    <h3>解决问题的渠道</h3>
+                    <div class="browser-text">
+                        <p>移动互联网时代，存金通帮您精准定位客户源</p>
+                    </div>
+                    <ul class="browser-list">
+                        <li>
+                            <div class="top-img">
+                                <img src="static/images/pc-broeser1.png" alt="">
+                            </div>
+                            <p>百度浏览器</p>
+                        </li>
+                        <li>
+                            <div class="top-img">
+                                <img src="static/images/pc-broeser2.png" alt="">
+                            </div>
+                            <p>360浏览器</p>
+                        </li>
+                        <li>
+                            <div class="top-img">
+                                <img src="static/images/pc-broeser3.png" alt="">
+                            </div>
+                            <p>搜狗浏览器</p>
+                        </li>
+                        <li>
+                            <div class="top-img">
+                                <img src="static/images/pc-broeser4.png" alt="">
+                            </div>
+                            <p>UC浏览器</p>
+                        </li>
+                        <li>
+                            <div class="top-img">
+                                <img src="static/images/pc-broeser5.png" alt="">
+                            </div>
+                            <p>微博</p>
+                        </li>
+                        <li>
+                            <div class="top-img">
+                                <img src="static/images/pc-broeser6.png" alt="">
+                            </div>
+                            <p>微信</p>
                         </li>
                     </ul>
                 </div>
                 <!-- 我们的优势 -->
                 <div class="part advantage">
                     <h3>我们的优势</h3>
-                    <div class="advantage-text">
-                        <p>黄金管家打通黄金回购全流程，上线“存金通”品牌，同时支持线上卖金及到店服务，</p>
-                        <p>客户可以按距离、评分等方式选择门店直接上门，当面交易，为顾客带来便捷的同时也为合作商户提供精准、高转化流量。</p>
-                    </div>
-                    <div class="advantage-img">
-                        <img src="static/images/pc-advantage.png" alt="">
-                    </div>
-                </div>
-                <!-- 黄金回购流程 -->
-                <div class="part gold-flow">
-                    <h3>黄金回购流程</h3>
-                    <div class="gold-flow-text">
-                        <p>在线预约--顺丰上门--专业检测--快捷变现</p>
-                    </div>
-                    <div class="gold-flow-img">
-                        <img src="static/images/pc-flow.png" alt="">
+                    <div class="advantage-wrap">
+                        <div class="left-text">
+                            <p><span></span>客户卖金场景全覆盖</p>
+                            <p><span></span>回收流程专业便捷</p>
+                            <p><span></span>营销模式精准高效</p>
+                        </div>
+                        <div class="right-img">
+                            <img src="static/images/pc-map.png" alt="">
+                        </div>
                     </div>
                 </div>
-                <!-- 服务保障 -->
-                <div class="part service">
-                    <h3>服务保障</h3>
-                    <ul class="service-list">
-                        <li class="service-item">
-                            <h4>黄金高价卖出</h4>
-                            <p>直连上金所报价</p>
-                            <p>全品类回购</p>
-                            <p>全品类回购</p>
-                        </li>
-                        <li class="service-item">
-                            <h4>流程高效安全</h4>
-                            <p>顺丰快递、全额保价</p>
-                            <p>权威机构检测</p>
-                            <p>随时接受退换</p>
-                        </li>
-                        <li class="service-item">
-                            <h4>极简体验</h4>
-                            <p>一键完成回购</p>
-                            <p>微信公众号/APP</p>
-                            <p>/H5/小程序</p>
-                        </li>
-                        <li class="service-item">
-                            <h4>直达精炼厂</h4>
-                            <p>黄金回购直达精炼厂</p>
-                            <p>无中间商赚取差价</p>
-                        </li>
-                    </ul>
+                <!-- 黄金回收流程 -->
+                <div class="part flow">
+                    <h3>黄金回收流程</h3>
+                    <div class="flow-img">
+                        <img src="static/images/pc-flow-bg.png" alt="">
+                    </div>
+                    <div class="flow-list-wrap">
+                        <ul class="flow-list">
+                            <li class="flow-item">
+                                <div class="top-img">
+                                    <img src="static/images/pc-flowicon1.png" alt="">
+                                </div>
+                                <p>黄金高价卖出</p>
+                                <div class="flow-line"></div>
+                                <div class="more-info">
+                                    <p>直连上金所报价</p>
+                                    <p>全品类回购</p>
+                                    <p>手续费行业最低</p>
+                                </div>
+                            </li>
+                            <li class="flow-item">
+                                <div class="top-img">
+                                    <img src="static/images/pc-flowicon2.png" alt="">
+                                </div>
+                                <p>流程高效安全</p>
+                                <div class="flow-line"></div>
+                                <div class="more-info">
+                                    <p>顺丰快递、全额保价</p>
+                                    <p>权威机构检测</p>
+                                    <p>随时接受退换</p>
+                                </div>
+                            </li>
+                            <li class="flow-item">
+                                <div class="top-img">
+                                    <img src="static/images/pc-flowicon3.png" alt="">
+                                </div>
+                                <p>极简体验</p>
+                                <div class="flow-line"></div>
+                                <div class="more-info">
+                                    <p>一键完成回购</p>
+                                    <p>微信公众号/APP </p>
+                                    <p>/H5/小程序</p>
+                                </div>
+                            </li>
+                            <li class="flow-item">
+                                <div class="top-img">
+                                    <img src="static/images/pc-flowicon4.png" alt="">
+                                </div>
+                                <p>直达精炼厂</p>
+                                <div class="flow-line"></div>
+                                <div class="more-info">
+                                    <p>黄金回购直达精炼厂</p>
+                                    <p>无中间商赚取差价</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
                 <!-- 相关产品 -->
                 <div class="part product">
@@ -276,11 +368,13 @@
                         <div class="qrcode">
                             <img src="static/images/pc-code1.png" alt="">
                             <p>存金通商户版</p>
+                            <p>扫描二维码关注存金通</p>
                         </div>
                         <div class="line"></div>
                         <div class="qrcode">
                             <img src="static/images/pc-code2.png" alt="">
                             <p>黄金管家APP</p>
+                            <p>扫描二维码下载</p>
                         </div>
                     </div>
                 </div>
@@ -289,22 +383,22 @@
                     <h3>股东背景</h3>
                     <ul class="gudong-list">
                         <li class="gudong-item">
-                            <img src="static/images/company-1.png" alt="">
+                            <img src="static/images/pc-company1.png" alt="">
                         </li>
                         <li class="gudong-item">
-                            <img src="static/images/company-5.png" alt="">
+                            <img src="static/images/pc-company2.png" alt="">
                         </li>
                         <li class="gudong-item">
-                            <img src="static/images/company-4.png" alt="">
+                            <img src="static/images/pc-company3.png" alt="">
                         </li>
                         <li class="gudong-item">
-                            <img src="static/images/company-6.png" alt="">
+                            <img src="static/images/pc-company4.png" alt="">
                         </li>
                         <li class="gudong-item">
-                            <img src="static/images/company-2.png" alt="">
+                            <img src="static/images/pc-company5.png" alt="">
                         </li>
                         <li class="gudong-item">
-                            <img src="static/images/company-3.png" alt="">
+                            <img src="static/images/pc-company6.png" alt="">
                         </li>
                     </ul>
                 </div>
@@ -604,7 +698,7 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
                     &:nth-of-type(1){
                         display: inline-block;
                         width: .36rem;
-                        height: .36rem;
+                        height: .37rem;
                     }
                 }
                 .icon1{
@@ -956,7 +1050,6 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
         width:100%;
         text-align: center;
         margin:0 auto;
-        border:1px solid #eee;
         background-color: #fff;
 
         .part{
@@ -966,13 +1059,13 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
             text-align: center;
             h3{
                 color: #333;
-                font-size: 16px;
+                font-size: 18px;
                 font-weight: bold;
-                margin-bottom: 40px;
-                margin-top:60px;
+                margin-bottom: 50px;
+                letter-spacing:1.2px;
                 font-family:PingFangSC-Medium;
             }
-            .problem-text, .advantage-text,.gold-flow-text{
+            .prospect-text, .problem-text{
                 text-align: left;
                 p{
                     color: #666;
@@ -983,159 +1076,339 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
                     }
                 }
             }
-            .problem-text{
+            .prospect-text{
                 margin-bottom: 30px;
             }
-            .advantage-text,.gold-flow-text{
+            .problem-text,.browser-text{
                 text-align: center;
+                p{
+                    color: #666;
+                    font-size: 12px;
+                }
             }
-            .problem-img{
+        }
+        .prospect{
+            // width: 62%;
+            width: 100%;
+            margin:0 auto;
+            padding:80px 0;
+            .prospect-img{
                 width:100%;
                 align-items: center;
+                justify-content: center;
                 @include flex-box();
-                @include justify-content();
+                // @include justify-content();
                 li{
-                    width:32%;
-                    padding:20px 30px;
+                    width:281px;
+                    height: 222px;
+                    padding:44px 34px 0;
+                    margin-right: 20px;
                     align-items: center;
+                    flex-direction: column;
                     @include flex-box();
                     @include box-shadow(2px 0px 30px rgba(31,20,17,0.06));
-                    .left-img{
-                        width: 45px;
-                        height: 45px;
-                        margin-right:15px;
+                    .top-img{
+                        width: 74px;
+                        height: 74px;
+                        margin:0 auto 15px;
+                        img{
+                            width: 100%;
+                        }
+                    }
+                    .bottom-text{
+                        color: #666;
+                        font-size: 12px;
+                        line-height: 20px;
+                        font-family:PingFangSC-Regular;
+                    }
+                }
+            }
+
+        }
+        .problem{
+            width: 100%;
+            height:328px;
+            padding:80px 0 60px;
+            @include bg-image('/static/images/pc-problem-bg.png');
+            background-size: 100% 100%;
+            h3{
+                color: #fff;
+            }
+            .problem-img{
+                // width: 62%;
+                width: 100%;
+                margin:20px auto 0;
+                position: relative;
+                justify-content: center;
+                @include flex-box();
+                // @include justify-content();
+                .problem-item{
+                    width:281px;
+                    // height: 89px;
+                    padding:18px 20px;
+                    margin-right: 20px;
+                    background:rgba(255,255,255,0.1);
+                    @include flex-box();
+                    .left-icon{
+                        width: 44px;
+                        height:44px;
+                        margin-right:20px;
                         img{
                             width: 100%;
                         }
                     }
                     .right-text{
-                        color: #666;
-                        font-size: 14px;
                         text-align: left;
-                        line-height: 20px;
-                        font-family:PingFangSC-Regular;
+                        p{
+                            color: #fff;
+                            font-size: 12px;
+                            line-height: 20px;
+                        }
+                    }
+                }
+
+            }
+        }
+        // 解决问题的渠道
+        .browser{
+            width: 100%;
+            padding:70px 0;
+            h3{
+                margin-top:0;
+                margin-bottom: 40px;
+            }
+            .browser-list{
+                // width:62%;
+                width: 100%;
+                margin:30px auto 0;
+                justify-content: center;
+                @include flex-box();
+                // @include justify-content();
+                li{
+                    width: 133px;
+                    height: 133px;
+                    margin-right: 18px;
+                    text-align: center;
+                    padding:30px 0;
+                    background:rgba(248,248,248,1);
+                    flex-direction: column;
+                    @include flex-box();
+                    .top-img{
+                        width: 47px;
+                        height: 47px;
+                        margin: 0 auto 15px;
+                        img{
+                            width: 100%;
+                        }
+                    }
+                    p{
+                        color: #333;
+                        font-size: 12px;
                     }
                 }
             }
-            .advantage-img{
-                width: 100%;
-                margin-top:10px;
-                position: relative;
-                img{
-                    width: 480px;
-                    height: 290px;
-                    margin-left:30px;
-                }
+        }
+        // 服务保障
+        .advantage{
+            width: 100%;
+            height:370px;
+            padding-top:80px;
+            @include bg-image('/static/images/pc-advantage-bg.png');
+
+            h3{
+                color: #fff;
+                font-size: 18px;
             }
-            .gold-flow-img{
-                width:480px;
-                height: 240px;
-                margin:25px auto 0;
-                img{
-                    width: 100%;
+            .advantage-wrap{
+                // width:62%;
+                width: 100%;
+                height:100%;
+                margin:0 auto;
+                position: relative;
+                justify-content: center;
+                @include flex-box();
+
+
+                .left-text{
+                    width: 450px;
+                    color: #fff;
+                    font-size: 12px;
+                    padding-top:20px;
+                    text-align: left;
+                    p{
+                        margin-bottom: 24px;
+                        span{
+                            display: inline-block;
+                            width: 12px;
+                            height: 12px;
+                            margin-right:15px;
+                            @include bg-image('/static/images/pc-advantage-icon.png');
+                        }
+                    }
+                }
+                .right-img{
+                    width: 444px;
+                    height: 266px;
+                    margin-top:10px;
+                    img{
+                        width: 100%;
+                    }
                 }
             }
 
         }
-        .advantage{
-            margin-top:70px;
-        }
-        // 存金流程
-        .gold-flow{
-            width: 100%;
-            padding:60px 0;
-            margin-top:60px;
-            background-color: rgba(248,248,248,1);
-            h3{
-                margin-top:0;
+        // 回收流程
+        .flow{
+            width:100%;
+            text-align: center;
+            margin-top:120px;
+            .flow-img{
+                width: 100%;
+                height: 376px;
+                margin-top:50px;
+                img{
+                    width: 100%;
+                    height: 100%;
+                }
             }
-        }
-        // 服务保障
-        .service{
-            width: 1000px;
-            h3{
-                color: #333;
-                font-size: 16px;
+            .flow-list-wrap{
+                width:100%;
+                height:296px;
+                background-color: #333;
             }
-            .service-list{
+            .flow-list{
+                // width:62%;
+                width: 100%;
+                height:296px;
+                margin:0 auto;
+                background-color: #333;
+                justify-content: center;
                 @include flex-box();
-                @include justify-content();
-                .service-item{
-                    width: 24%;
-                    padding:25px 0 20px;
-                    color: #fff;
-                    font-size: 12px;
+                img{
+                    width: 100%;
+                }
+                .flow-item{
+                    width: 222px;
+                    height:296px;
+                    padding-top:80px;
                     text-align: center;
-                    h4{
-                        font-size: 16px;
-                        margin-bottom: 10px;
-                    }
-                    p{
-                        line-height: 20px;
+                    @include transition(.3s);
+                    &:hover{
+                        padding-top:40px;
+                        @include transition(.3s);
+                        .more-info{
+                            display: block;
+                            opacity: 1;
+                            @include transition(.3s);
+                        }
                     }
                     &:nth-of-type(1){
-                        @include bg-image('/static/images/pc-service1.png');
+                        @include bg-image('/static/images/pc-flow-bg1.jpg');
                     }
                     &:nth-of-type(2){
-                        @include bg-image('/static/images/pc-service2.png');
+                        @include bg-image('/static/images/pc-flow-bg2.jpg');
                     }
                     &:nth-of-type(3){
-                        @include bg-image('/static/images/pc-service3.png');
+                        @include bg-image('/static/images/pc-flow-bg3.jpg');
                     }
                     &:nth-of-type(4){
-                        @include bg-image('/static/images/pc-service4.png');
+                        @include bg-image('/static/images/pc-flow-bg4.jpg');
+                    }
+                    .top-img{
+                        width: 126px;
+                        height: 96px;
+                        margin:0 auto;
+                        img{
+                            width: 100%;
+                        }
+                    }
+                    p{
+                        color: #fff;
+                        font-size: 14px;
+                        margin:20px 0 15px;
+                    }
+                    .flow-line{
+                        width: 30px;
+                        height: 1px;
+                        margin:0 auto;
+                        @include bg-image('/static/images/pc-flow-line.png');
+                    }
+                    .more-info{
+                        margin-top:15px;
+                        display: none;
+                        opacity: 0;
+                        @include transition(.3s);
+                        p{
+                            margin:0 !important;
+                            line-height: 20px;
+                            font-size: 10px;
+                        }
+
                     }
                 }
             }
+
         }
         // 相关产品
         .product{
             width: 100%;
-            padding-top:60px;
-            margin-top:100px;
-            background:rgba(248,248,248,1);
+            padding:70px 0;
             h3{
                 margin-top:0;
+                margin-bottom: 20px;
             }
             .qrcode-wrap{
                 align-items: flex-start;
                 justify-content: center;
+                position: relative;
                 @include flex-box();
                 .qrcode{
+                    &:nth-of-type(1){
+                        margin-right:120px;
+                    }
                     img{
-                        width: 240px;
-                        height: 240px;
+                        width: 158px;
+                        height: 158px;
                     }
                     p{
                         color: #333;
-                        font-size: 16px;
-                        margin-top:-20px;
+                        font-size: 14px;
                         font-family:PingFangSC-Regular;
+                        &:nth-of-type(1){
+                            margin-top:-20px;
+                        }
+                        &:nth-of-type(2){
+                            color: #666;
+                            font-size: 10px;
+                        }
                     }
                 }
                 .line{
                     width: 1px;
-                    height: 300px;
-                    margin:30px 50px 0;
+                    height:310px;
                     background-color: #DDC899;
+                    position: absolute;
+                    top:20px;
                 }
             }
 
         }
         // 股东背景
         .gudong{
-            padding-bottom: 100px;
+            width: 100%;
+            padding:80px 0 70px;
+            background:rgba(248,248,248,1);
             .gudong-list{
+                // width: 62%;
+                width: 100%;
+                margin:0 auto;
+                justify-content: center;
                 @include flex-box();
-                @include justify-content();
+                // @include justify-content();
                 .gudong-item{
-                    width: 15.5%;
-                    padding:10px 20px;
-                    // height: 45px;
-                    border:1px solid #eee;
-                    img{
-                        // @include center(150px 64px);
-                    }
+                    width: 136px;
+                    height: 60px;
+                    margin-right: 14px;
                 }
             }
         }
@@ -1148,14 +1421,19 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
         	font-size: 8px;
         	color: #fff;
             .pc_footer_content{
-            	display: inline-block;
-            	width: 1000px;
-            	border-bottom: 1px solid #999;
+                // width: 1000px;
+                width: 100%;
+                margin:0 auto;
+                display: inline-block;
             	height: 200px;
+                justify-content: center;
+                @include flex-box();
+                // @include justify-content();
                 .pc_footer_content_left{
-                	width: 50%;
+                	width: 432px;
                 	height: 180px;
                 	float: left;
+                    margin-right: 280px;
                 	background-image: url('/static/images/cjt-logo.png');
                 	background-repeat: no-repeat;
                 	background-size: 90px 27px;
@@ -1167,26 +1445,31 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
                     }
                 }
                 .pc_footer_content_right{
-                	width: 50%;
+                	width: 174px;
                     height: 180px;
                     float: right;
                     text-align: left;
                     line-height: 25px;
-                    padding-left: 270px;
+                    // padding-left: 270px;
+                    p{
+                        font-size: 12px;
+                        &:nth-of-type(1){
+                            font-size: 24px;
+                        	line-height: 90px;
+                        	font-weight: bold;
+                        }
+                    }
                 }
             }
         }
-        .pc_footer_content_right p:nth-child(1){
-        	font-size: 20px;
-        	line-height: 80px;
-        	font-weight: bold;
-        }
         .loca{
-            width:1000px;
+            width:888px;
             margin:0 auto;
         	color: #999999;
         	line-height: 73px;
         	text-align: left;
+            border-top: 1px solid #999;
+
         }
     }
 }

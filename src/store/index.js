@@ -14,6 +14,7 @@ const state = {
 	shopStatus:getStore('shopStatus','session'), //店铺审核状态
 	now:'',										 //当前时间
 	currentPrice:getStore('currentPrice','session'),// 当前实时金价
+	storeOrderInfo:'',							 //保存的存金填写信息
 }
 
 export default new Vuex.Store({
