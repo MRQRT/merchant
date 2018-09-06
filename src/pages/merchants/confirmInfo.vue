@@ -23,9 +23,9 @@
             <div class="line" style="width: 100%;"></div>
                 <div class="inputms">
                 <span class="left_name">营业期限</span>
-                <input id="start_date" type="text" v-model="ms.businessLicenseBeginDate" readonly="true" @click="startpicker" placeholder="营业开始时间">
+                <span id="start_date" type="text" @click="startpicker">{{ms.businessLicenseBeginDate | filterdata1}}</span>
                 <span id="middle">至</span>
-                <input id="end_date" type="text" v-model="ms.businessLicenseEndDate" readonly="true" @click="endpicker" placeholder="营业结束时间">
+                <span id="end_date" type="text" @click="endpicker">{{ms.businessLicenseEndDate | filterdata2}}</span>
             </div>
             <div class="line" style="width: 100%;"></div>
                 <div class="inputms">
@@ -48,10 +48,10 @@
             <section @click="submit()">确认无误</section>
         </div>
         <!-- 时间选取框(开始时间) -->
-        <mt-datetime-picker @click="startpicker" ref="picker" type="date" :startDate="new Date('1990-01-01')" @confirm="handleConfirm">
+        <mt-datetime-picker @click="startpicker" ref="picker" type="date" :startDate="new Date('1990-01-01')" @confirm="handleConfirm" v-model="ms.businessLicenseBeginDate">
         </mt-datetime-picker>
         <!-- 时间选取框(结束时间) -->
-        <mt-datetime-picker @click="endpicker" ref="picker2" type="date" :startDate="new Date('2018-01-01')" :endDate="new Date('2050-01-01')"  @confirm="handleConfirm2">
+        <mt-datetime-picker @click="endpicker" ref="picker2" type="date" :startDate="new Date('2018-01-01')" :endDate="new Date('2050-01-01')" @confirm="handleConfirm2" v-model="ms.businessLicenseEndDate">
         </mt-datetime-picker>
         <!-- 时间选取框(身份证有效期) -->
         <mt-datetime-picker @click="terms" ref="picker3" type="date" :startDate="new Date('2019-01-01')" :endDate="new Date('2050-01-01')"  @confirm="handleConfirm3">
@@ -63,7 +63,7 @@
 import headTop from '@/components/header/head.vue'
 import {business_qualification} from '@/service/getData.js'
 import {DatetimePicker,Toast} from 'mint-ui'
-import {formatDate,curentTime,isEmptyObject,setStore} from '@/config/mUtils.js'
+import {formatDate,curentTime,isEmptyObject,setStore,removeStore} from '@/config/mUtils.js'
 import {merchant_open_apply} from '@/service/getData.js'
 export default {
     data(){
@@ -83,10 +83,30 @@ export default {
         headTop,
     },
     computed: {
-
+        
     },
     watch:{
 
+    },
+    filters:{
+        filterdata1(val){
+            if(val.length>9){
+                return val
+            }else if(val.length==undefined){
+                var sta = new Date(val);
+                var formasta = formatDate(sta,'yyyy-MM-dd');
+                return formasta
+            }
+        },
+        filterdata2(val){
+            if(val.length>9){
+                return val
+            }else if(val.length==undefined){
+                var sta = new Date(val);
+                var formasta = formatDate(sta,'yyyy-MM-dd');
+                return formasta
+            }
+        },
     },
     methods: {
         //获取营业资质
@@ -132,6 +152,19 @@ export default {
         async submit(){
             var issubmit = this.check_input();
             if(issubmit==false)return
+            //格式化时间
+            if(this.ms.businessLicenseBeginDate.length==undefined){
+                var s1 = this.ms.businessLicenseBeginDate;
+                var sta1 = new Date(s1);
+                var form1 = formatDate(sta1,'yyyy-MM-dd');
+                this.ms.businessLicenseBeginDate=form1
+            }
+            if(this.ms.businessLicenseEndDate.length==undefined){
+                var s2 = this.ms.businessLicenseEndDate;
+                var sta2 = new Date(s2);
+                var form2 = formatDate(sta2,'yyyy-MM-dd');
+                this.ms.businessLicenseEndDate=form2
+            }
             let arr = this.ms.personCode.split(' ');
             var ss = '';
             arr.forEach(item => {
@@ -140,10 +173,10 @@ export default {
             this.ms.personCode=ss
             const res = await merchant_open_apply(this.ms.companyName,this.ms.businessLicenseCode,this.ms.businessLicenseBeginDate,this.ms.businessLicenseEndDate,this.ms.personName,this.ms.personCode,this.ms.personCardEndDate);
             if(res.code=='000000'){
-                 setStore('qc_imgobj','','session');
+                 removeStore('qc_imgobj','session');
                 this.$router.push('/qcmscommitresult');
             }else{
-                setStore('qc_imgobj','','session');
+                removeStore('qc_imgobj','session');
                 Toast({
                     message: res.message,
                     position: 'bottom',
@@ -181,14 +214,23 @@ export default {
                 Toast('请输入证件有效期')
                 return false
             }
-        }
+        },
     },
     created(){
 
     },
     mounted(){
         //获取营业资质
-       this.business_qc();
+        this.business_qc();
+        var height=document.documentElement.clientHeight;
+        window.onresize=function(){
+            var h=document.documentElement.clientHeight
+            if((height-h)>50){
+                document.querySelector('.button').style.position = 'relative'
+            }else{
+                document.querySelector('.button').style.position = 'fixed'
+            }
+        }
     },
 }
 </script>
@@ -229,7 +271,6 @@ export default {
     height: 1.1rem;
     color: #333;
     font-size: .28rem;
-    // border: 1px solid red;
 }
 .left_name{
     float: left;
@@ -266,20 +307,23 @@ export default {
 #start_date,#end_date{
     float: left;
     width: 26%;
+    height: 1.1rem;
+    line-height: 1.1rem;
 }
 #middle{
     width: 10%;
     float: left;
     height: 1.1rem;
     line-height: 1.1rem;
-    text-align: center;
-}
-#end_date{
-    padding-left: .09rem;
+    text-align: left;
+    padding-left: .15rem;
 }
 </style>
 <style lang="css">
 .mint-datetime-action{
     color: #666666;
+}
+.picker .mint-datetime-picker{
+    background-color:#fff;
 }
 </style>

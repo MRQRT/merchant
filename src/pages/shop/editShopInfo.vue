@@ -2,7 +2,7 @@
     <div class="editshopinfo">
         <!-- 头部标题部分 -->
         <head-top headTitle='完善店铺信息' class="head-top nomal-font" ref="topHead">
-            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
+            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="goback()">
         </head-top>
         <!-- headportrait -->
         <section class="headportrait">
@@ -27,7 +27,7 @@
             <div class="line"></div>
             <div class="one">
                 <span>预约电话</span>
-                <input type="text" v-model="shop_message.mobile" placeholder="固定电话/手机">
+                <input type="text" v-model="shop_message.mobile" placeholder="固定电话/手机" maxlength="11">
             </div>
             <div class="line"></div>
             <div class="one" style="display:flex">
@@ -112,6 +112,9 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
 
         },
         methods: {
+            goback(){
+                this.$router.push('/applicationresults')
+            },
             //经营范围选择
             select(val){
                 //删除数组指定元素
@@ -307,10 +310,29 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                     return true
                 }
             },
+            //校验手机号是否正确
+            check_tels(val){
+                let reg = /^(0|86|17951)?(13[0-9]|15[0-9]|17[0-9]|18[0-9]|14[0-9]|19[0-9])[0-9]{8}$/;
+                if(val.length<11&&val.length>0){
+                    Toast('手机号格式不正确')
+                    return false
+                }
+                if(val.match(reg)){
+                    return true
+                }else if(val ==''){
+                    Toast('请输入手机号')
+                    return false
+                }else{
+                    Toast('手机号格式不正确')
+                    return false
+                }
+            },
             //信息提交
             async submit(){
                 var a = this.check_message();
                 if(!a)return
+                let b = this.check_tels(this.shop_message.mobile);//检查手机号
+                if(!b)return
                 removeStore('shop_message','session');
                 removeStore('headimg','session');
                 removeStore('select_address','session');
@@ -354,6 +376,15 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 this.shop_message.lat=ad_obj.point.lat;
                 this.shop_message.lng=ad_obj.point.lng;
                 this.area_tran(ad_obj.point);//地址解析
+            }
+            var height=document.documentElement.clientHeight;
+            window.onresize=function(){
+                var h=document.documentElement.clientHeight
+                if((height-h)>50){
+                    document.querySelector('.button').style.position = 'relative'
+                }else{
+                    document.querySelector('.button').style.position = 'fixed'
+                }
             }
         },
         destroyed(){

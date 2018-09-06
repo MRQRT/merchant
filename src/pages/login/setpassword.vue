@@ -6,8 +6,9 @@
         </head-top>
         <!-- password -->
         <section class="password">
-             <input type="password" minlength="6" maxlength="20" placeholder="6~20位字母、数字或组合" ref="password1" class="passwords" v-model="password1" v-on:blur="ckeckpassword(password1)" v-on:focus="focus()">
+             <input type="password" minlength="6" maxlength="20" placeholder="请输入登录密码，6~20位字母、数字或组合" ref="password1" class="passwords" v-model="password1" v-on:blur="ckeckpassword(password1)" v-on:focus="focus()">
         </section>
+        <div class="line" style="margin-left:.4rem;margin-right:.4rem;"></div>
         <!-- tip -->
         <section class="tip" v-show="check_password"><span><img src="static/images/bingding-error.png" alt=""></span>密码格式不正确，请输入6～20位字母、数字或组合</section>
         <!-- password2 -->

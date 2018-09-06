@@ -49,8 +49,8 @@
             <section class="squ">
                 <img src="static/images/shopmsadd.png" alt="">
                 <h4 style="margin-top:.42rem;">店铺资料已提交</h4>
-                <p>审核信息将在3个工作日内发送到您的</p>
-                <p>手机上，请留意查收短信</p>
+                <p>店铺审核通过后，将以短信的形式</p>
+                <p>通知您，请留意查看。</p>
             </section>
         </div>
         <!-- 店铺审核失败 -->

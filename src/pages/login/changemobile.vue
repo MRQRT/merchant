@@ -103,6 +103,9 @@ export default {
         },
     },
     methods: {
+        ...mapMutations([
+            'RECORD_MOBILE'
+        ]),
         //提交信息
         async commit(){
             let a = this.check_tels(this.tel);
@@ -129,6 +132,7 @@ export default {
             var md5password = md5(this.password);
             const res = await change_mobile(this.tel,this.vercode,md5password);
             if(res.code=='000000'){
+                this.RECORD_MOBILE(this.tel)
                 MessageBox({
                     title: '修改成功',
                     message: '绑定手机号已修改，下次登录可使用新手机号码登录' ,

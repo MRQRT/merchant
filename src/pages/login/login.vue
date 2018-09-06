@@ -116,12 +116,15 @@
                 }
                 if(val.match(reg)){
                     this.rightShow_1 = 1
-                }else if(val ==''){
+                }else if(val==''){
                     this.rightShow_1 = 0
                     this.highLight=false;this.dark=true;
                 }else{
                     this.rightShow_1 = 0
                     this.highLight=false;this.dark=true;
+                }
+                if(this.rightShow_1&&this.code.length==6&&this.code!=''){
+                    this.highLight=true;this.dark=false;
                 }
             },
             //控制验证码长度
@@ -439,7 +442,7 @@ input{
     text-align: center;
 }
 .logoPart img{
-    width: 2rem;
+    width: 1.83rem;
 }
 .loginPart{
     height:5.3rem;
@@ -612,18 +615,18 @@ input{
 /*placeholder颜色*/
 input::-webkit-input-placeholder{
     color:#BCBCBC;
-    font-size: .32rem;
+    font-size: .28rem;
 }
 input::-moz-placeholder{   /* Mozilla Firefox 19+ */
     color:#BCBCBC;
-    font-size: .32rem;
+    font-size: .28rem;
 }
 input:-moz-placeholder{    /* Mozilla Firefox 4 to 18 */
     color:#BCBCBC;
-    font-size: .32rem;
+    font-size: .28rem;
 }
 input:-ms-input-placeholder{  /* Internet Explorer 10-11 */ 
     color:#BCBCBC;
-    font-size: .32rem;
+    font-size: .28rem;
 }
 </style>
