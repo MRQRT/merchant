@@ -51,7 +51,7 @@
             </div>
             <!-- 商户号 -->
             <div class="merchantnum" style="margin-top:.1rem;">
-                <span>商户号：{{detailInfo.merchantId}}</span>
+                <span>商户号：{{detailInfo.merchantCode}}</span>
             </div>
         </div>
     </div>

@@ -229,6 +229,8 @@ export default{
 									from:'account'
 								}
 							})
+						}else{
+							this.$router.push('/addresslist');
 						}
 					}
 				//修改地址
