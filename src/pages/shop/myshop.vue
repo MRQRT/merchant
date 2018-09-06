@@ -12,7 +12,7 @@
                     <swiper-slide class="banner-item" v-for="(item,index) in detailInfo.facadePaths" :key="index">
                         <img :src="item" alt="" class="swiper_image">
                     </swiper-slide>
-                    <div class="swiper-pagination" slot="pagination"></div>
+                    <div class="swiper-pagination" slot="pagination">{{currentpage}}/{{detailInfo.facadePaths.length}}</div>
                 </swiper>
                  <section class="headimg">
                     <img :src="detailInfo.logoPath" alt="">
@@ -67,9 +67,11 @@ import back from 'static/images/hgdBg.jpg';
     export default {
         data(){
             return{
+                currentpage:1,
+                total:3,
                 id:'',
                 className:'',
-                name:'周大福（中关村店）',
+                name:'',
                 lat:'',
                 lng:'',
                 swiperOption:{
@@ -79,11 +81,14 @@ import back from 'static/images/hgdBg.jpg';
                     effect:'slide',
                     pagination:'.swiper-pagination',
                     paginationType:'fraction',
+                    slideChangeTransitionEnd:swiper=>{
+                        this.currentpage = swiper.realIndex+1;
+                    }
                 },
                 detailInfo:{
                     facadePaths:[],
                     logoPath:'',
-                    introduce:'我卖黄金、收黄金、维修各种金银首饰等等等等等等，我卖黄金、收黄金、维修各种金银首饰等等等等等等，我卖黄金、收黄金、维修各种金银',
+                    introduce:'',
                     star:'',
                     address:'',
                     mobile:'',
