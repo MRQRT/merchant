@@ -323,4 +323,7 @@ export default {
 .mint-datetime-action{
     color: #666666;
 }
+.picker .mint-datetime-picker{
+    background-color:#fff;
+}
 </style>
