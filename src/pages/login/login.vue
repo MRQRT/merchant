@@ -116,12 +116,15 @@
                 }
                 if(val.match(reg)){
                     this.rightShow_1 = 1
-                }else if(val ==''){
+                }else if(val==''){
                     this.rightShow_1 = 0
                     this.highLight=false;this.dark=true;
                 }else{
                     this.rightShow_1 = 0
                     this.highLight=false;this.dark=true;
+                }
+                if(this.rightShow_1&&this.code.length==6&&this.code!=''){
+                    this.highLight=true;this.dark=false;
                 }
             },
             //控制验证码长度
