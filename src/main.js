@@ -6,13 +6,14 @@ import App from './App'
 import router from './router'
 import store from './store'
 import MintUI from 'mint-ui'
+import 'mint-ui/lib/style.css'
 import VueAwesomeSwiper from 'vue-awesome-swiper'//swiper4
 
 
 import './config/rem'
 import './style/common.css'
 import 'swiper/dist/css/swiper.css'
-import 'mint-ui/lib/style.css'
+
 // import './config/vconsole.min.js'
 Vue.use(VueAwesomeSwiper)
 Vue.use(MintUI)

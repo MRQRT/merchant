@@ -215,3 +215,6 @@ textarea:-ms-input-placeholder{  /* Internet Explorer 10-11 */
 .anchorBL {
     display: none;
 }
+.picker{
+    background-color:#fff;
+}

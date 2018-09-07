@@ -113,11 +113,30 @@ export default {
         async business_qc(){
             const res = await business_qualification();
             //未获取营业资质
-            let isobj = isEmptyObject(res.data);
-            if(res.code=='100001'){
+            if(res.code=='100001'){//未获取到营业资质
                 return
-            }else if(res.code=='000000'&&!isobj){
-                this.ms = res.data
+            }else if(res.code=='000000'&&res.data){
+                if(res.data.businessLicenseBeginDate){
+                    this.ms.businessLicenseBeginDate=res.data.businessLicenseBeginDate
+                }
+                if(res.data.businessLicenseCode){
+                    this.ms.businessLicenseCode=res.data.businessLicenseCode
+                }
+                if(res.data.businessLicenseEndDate){
+                    this.ms.businessLicenseEndDate=res.data.businessLicenseEndDate
+                }
+                if(res.data.companyName){
+                    this.ms.companyName=res.data.companyName
+                }
+                if(res.data.personCardEndDate){
+                    this.ms.personCardEndDate=res.data.personCardEndDate
+                }
+                if(res.data.personCode){
+                    this.ms.personCode=res.data.personCode
+                }
+                if(res.data.personName){
+                    this.ms.personName=res.data.personName
+                }
             }
         },
         //打开开始时间选取框
