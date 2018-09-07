@@ -21,7 +21,7 @@
             <section class="line"></section>
         </div>
         <!-- 注册协议 -->
-        <div class="agr"><img :src="readicon" alt="" @click="isread">我已阅读并接受<span @click="$router.push('/registerArg')">《存金通商户版用户协议》</span></div>
+        <!-- <div class="agr"><img :src="readicon" alt="" @click="isread">我已阅读并接受<span @click="$router.push('/registerArg')">《存金通商户版用户协议》</span></div> -->
         <!-- 按钮 -->
         <div class="create_acount">
             <section class="noActived" :class="{'hasActived':isSubmit==true}" @click="commit">立即绑定</section>
@@ -46,7 +46,7 @@ import md5 from 'js-md5'
                 vercode: '',//验证码
                 check_vercode: false,//验证码正确与否
                 readicon: store_readed,
-                arg:true,//存金通用户协议是否勾选
+                // arg:true,//存金通用户协议是否勾选
                 isSubmit: false,
                 clickText: '获取验证码',
                 openid: '',//用户的openid
@@ -74,7 +74,7 @@ import md5 from 'js-md5'
                 }else{
                     this.check_tel=false
                 }
-                if(this.check_tel&&this.check_vercode&&this.arg){
+                if(this.check_tel&&this.check_vercode){
                     this.isSubmit=true
                 }else{
                     this.isSubmit=false
@@ -83,34 +83,34 @@ import md5 from 'js-md5'
             //验证码
             vercode(val){
                val.length==6?this.check_vercode=true:this.check_vercode=false;
-               if(this.check_vercode&&this.check_tel&&this.arg){
+               if(this.check_vercode&&this.check_tel){
                     this.isSubmit=true
                 }else{
                     this.isSubmit=false
                 }
             },
             //
-            arg(val){
-               if(this.check_vercode&&this.check_tel&&this.arg){
-                    this.isSubmit=true
-                }else{
-                    this.isSubmit=false
-                } 
-            }
+            // arg(val){
+            //    if(this.check_vercode&&this.check_tel&&this.arg){
+            //         this.isSubmit=true
+            //     }else{
+            //         this.isSubmit=false
+            //     } 
+            // }
         },
         methods: {
             ...mapMutations([
                 'RECORD_USERID','RECORD_MOBILE','RECORD_MERCHANTID','RECORD_ACCESSTOKEN'
             ]),
-            isread(){
-                if(this.readicon==store_readed){
-                    this.readicon=store_read;
-                    this.arg=0
-                }else{
-                    this.readicon=store_readed;
-                    this.arg=1
-                }
-            },
+            // isread(){
+            //     if(this.readicon==store_readed){
+            //         this.readicon=store_read;
+            //         this.arg=0
+            //     }else{
+            //         this.readicon=store_readed;
+            //         this.arg=1
+            //     }
+            // },
             async get_vercode(){
                 if(this.iNow==false)return//还在读秒不能点击
                 let send_smscode = this.$refs.send_smscode;
@@ -193,10 +193,10 @@ import md5 from 'js-md5'
                 if(!this.isSubmit)return
                 const res = await wechat_bind_mobile(this.openid,this.tel,this.vercode);
                 if(res.code=='000000'){
-                    this.RECORD_USERID(res.userVo.userId)
-                    this.RECORD_ACCESSTOKEN(res.userVo.accessToken)
-                    this.RECORD_MOBILE(res.userVo.mobile)
-                    this.RECORD_MERCHANTID(res.userVo.merchantId)
+                    this.RECORD_USERID(res.data.userId)
+                    this.RECORD_ACCESSTOKEN(res.data.accessToken)
+                    this.RECORD_MOBILE(res.data.mobile)
+                    this.RECORD_MERCHANTID(res.data.merchantId)
                     this.$router.push('/index');
                 }else if(res.code=='300111'){
                     Toast({

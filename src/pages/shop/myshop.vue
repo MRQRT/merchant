@@ -83,7 +83,7 @@ import back from 'static/images/hgdBg.jpg';
                         type:'fraction',
                     },
                     autoplay:{
-                        stopOnlastSlide: true,
+                        stopOnlastSlide: false,
                     },
                 },
                 detailInfo:{

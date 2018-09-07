@@ -11,7 +11,7 @@
         </div>
         <div class="message">
             <div class="password">
-                <input type="password" maxlength="20" placeholder="请输入新密码，6-18位数字、字母组合" v-model="newPassword1">
+                <input type="password" maxlength="20" placeholder="请输入新密码，6-20位数字、字母或组合" v-model="newPassword1">
                 <span class="clear" v-show="newPassword1" style="z-index:3"><img src="static/images/clearinput.png" alt="" @click="clears('new1')"></span>
             </div>
             <section class="line"></section>
