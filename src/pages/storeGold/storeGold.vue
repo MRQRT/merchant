@@ -601,6 +601,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                           message:text4,
                           confirmButtonText: '确认',
                           showCancelButton:true,
+                          closeOnClickModal:false,
                       }).then(action => {
                             if(action == 'confirm'){
                                 this.directlyOrder()
@@ -615,6 +616,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                           message:text5,
                           confirmButtonText: '确认',
                           showCancelButton:true,
+                          closeOnClickModal:false,
                         }).then(action => {
                             if(action == 'confirm'){
                                 this.lockPriceOrder()
