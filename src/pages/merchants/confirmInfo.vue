@@ -51,10 +51,10 @@
         <mt-datetime-picker @click="startpicker" ref="picker" type="date" :startDate="new Date('1990-01-01')" @confirm="handleConfirm" v-model="ms.businessLicenseBeginDate">
         </mt-datetime-picker>
         <!-- 时间选取框(结束时间) -->
-        <mt-datetime-picker @click="endpicker" ref="picker2" type="date" :startDate="new Date('2018-01-01')" :endDate="new Date('2050-01-01')" @confirm="handleConfirm2" v-model="ms.businessLicenseEndDate">
+        <mt-datetime-picker @click="endpicker" ref="picker2" type="date" :startDate="new Date('2016-01-01')" :endDate="new Date('2050-01-01')" @confirm="handleConfirm2" v-model="ms.businessLicenseEndDate">
         </mt-datetime-picker>
         <!-- 时间选取框(身份证有效期) -->
-        <mt-datetime-picker @click="terms" ref="picker3" type="date" :startDate="new Date('2019-01-01')" :endDate="new Date('2050-01-01')"  @confirm="handleConfirm3">
+        <mt-datetime-picker @click="terms" ref="picker3" type="date" :startDate="new Date('2018-09-01')" :endDate="new Date('2050-01-01')"  @confirm="handleConfirm3">
         </mt-datetime-picker>
     </div>
 </template>
@@ -339,10 +339,10 @@ export default {
 }
 </style>
 <style type="text/css">
-.mint-datetime-action,.mint-datetime-cancel{
+.picker-toolbar>.mint-datetime-cancel{
     color: #666666;
 }
-.mint-datetime-action,.mint-datetime-confirm{
+.picker-toolbar>.mint-datetime-confirm{
     color: #666666;
 }
 .mint-popup>.picker{
