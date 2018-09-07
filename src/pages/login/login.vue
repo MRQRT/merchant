@@ -242,6 +242,9 @@
                             if(action=='cancel'){
                                 document.getElementById("target").click()
                             }
+                            if(action=='confirm'){
+                                this.$router.replace({path:'/login'})
+                            }
                         })
                     }else{
                         Toast({
