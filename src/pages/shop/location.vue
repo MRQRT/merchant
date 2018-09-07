@@ -112,7 +112,7 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
                 this.area_show?this.area_show=false:this.area_show=true
             },  
             chooseCity(val){
-                console.log(val)
+                // console.log(val)
                 this.location=val.cityName
                 this.area_show=false
             },
