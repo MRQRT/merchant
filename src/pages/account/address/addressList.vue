@@ -80,6 +80,9 @@
 
 		},
 		methods:{
+			...mapMutations([
+				'RECORD_ADDRESSID'
+			]),
 			//点击返回按钮
 			backWard(){
 				if(this.$route.query.from=='account'){
