@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <a href="tel:4008196199" id="target"></a>
     <router-view/>
   </div>
 </template>

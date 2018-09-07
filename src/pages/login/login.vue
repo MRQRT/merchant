@@ -61,7 +61,6 @@
         <img src="static/images/wx.png" class="weixin_img" @click="weixinLogin">
         <span>微信登录</span>
     </div>
-    <a href="tel:4008196199" id="target"></a>
 	</div>
 </template>
 <script>
@@ -282,6 +281,9 @@
                         }).then((action)=>{
                             if(action=='cancel'){
                                 document.getElementById("target").click()
+                            }
+                            if(action=='confirm'){
+                                this.$router.replace({path:'/login'})
                             }
                         })
                     }else{

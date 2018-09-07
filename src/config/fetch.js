@@ -59,6 +59,28 @@ axios.interceptors.response.use(
                 router.replace({path:'/login'})
             })
         }
+        if(res.data.code=='000006'){//用户登录异常
+            var html='<div style="text-align:center">您的账户出现了一些异常，我们已暂时对账户做出了封禁处理，如有疑问，请您联系客服</div>'
+             MessageBox({
+                title: '警告',
+                message: html,
+                confirmButtonText: '我知道了',
+                showCancelButton: true,
+                cancelButtonText:'联系客服',
+            }).then((action)=>{
+                if(action=='cancel'){
+                    document.getElementById("target").click()
+                }
+                if(action=='confirm'){
+                    router.replace({path:'/login'})
+                }
+            })
+        }
+
+
+
+
+
         return Promise.resolve(response)
     },error => {
         if (error.response) {
