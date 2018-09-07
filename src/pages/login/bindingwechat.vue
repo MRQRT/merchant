@@ -211,7 +211,11 @@ import md5 from 'js-md5'
                         duration: 3000
                     });
                 }else{
-                    
+                    Toast({
+                         message: res.message,
+                        position: 'bottom',
+                        duration: 3000
+                    })
                 }
             }
         },
