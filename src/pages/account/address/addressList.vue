@@ -36,7 +36,7 @@
 	import { Toast } from 'mint-ui'
 	import { query_shop_address_list, update_default_address, del_shop_address, update_shop_address } from '@/service/getData.js'
 	import { setStore,getStore,getRem } from '@/config/mUtils.js'
-	import { mapState, mapMutations } from 'vuex'
+	import { mapState, mapMutations, mapActions } from 'vuex'
 
 	import del from "static/images/del.png"
 	import compile from "static/images/compile.png"
@@ -61,9 +61,13 @@
 			var from=this.$route.query.from;
 			if(this.$route.query.addressId){
 				this.has_checked = this.$route.query.addressId;
+				this.RECORD_ADDRESSID(this.has_checked);
 			}
 		},
 		mounted(){
+			if(this.addressid){
+				this.has_checked=this.addressid
+			}
 			this.getAddress();
 			const continer = document.getElementsByClassName('address')[0];
 			continer.style.minHeight=(document.documentElement.clientHeight)+'px';
@@ -77,7 +81,9 @@
 			}
 		},
 		computed:{
-
+			...mapState([
+				'addressid'
+			])
 		},
 		methods:{
 			...mapMutations([
