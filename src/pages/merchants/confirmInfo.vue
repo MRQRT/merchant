@@ -254,8 +254,7 @@ export default {
 }
 </script>
 
-<style scoped lang="css">
-/* @import '../../sass/mixin'; */
+<style scoped>
 .confirminfo{
     padding-top: .88rem;
     min-height: 100vh;
@@ -340,7 +339,10 @@ export default {
 }
 </style>
 <style type="text/css">
-.mint-datetime-action{
+.mint-datetime-action,.mint-datetime-cancel{
+    color: #666666;
+}
+.mint-datetime-action,.mint-datetime-confirm{
     color: #666666;
 }
 .mint-popup>.picker{
