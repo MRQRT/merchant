@@ -2,6 +2,13 @@ import {fetch} from '../config/fetch.js'
 import {getStore} from '../config/mUtils.js'
 
 /**
+ * 判断是否在交易时段
+ */
+
+export const bizCloseCheck = (bizCode) => fetch('/TradeCalendar/bizCloseCheck',{'bizCode':bizCode},'post')
+
+
+/**
  * 发送验证码
  */
 

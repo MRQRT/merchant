@@ -12,8 +12,8 @@
                     <li class="order-item" v-for="(item,index) in orderList" :key="index" @click="$router.push({path:'/storeorderdetail',query:{id:item.id,status:item.status}})">
                         <!-- 左侧图片 -->
                         <div class="left-img">
-                            <img src="static/images/order-touzijin.png" alt="" v-if="item.productType==0">
-                            <img src="static/images/order-shoushi.png" alt="" v-else>
+                            <img src="static/images/order-jintiao.png" alt="" v-if="item.productType==0">
+                            <img src="static/images/order-shiping.png" alt="" v-else>
                         </div>
                         <!-- 右侧文字 -->
                         <div class="right-text">
