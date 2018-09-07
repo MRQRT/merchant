@@ -12,7 +12,7 @@
                     <swiper-slide class="banner-item" v-for="(item,index) in detailInfo.facadePaths" :key="index">
                         <img :src="item" alt="" class="swiper_image">
                     </swiper-slide>
-                    <div class="swiper-pagination" slot="pagination">{{currentpage}}/{{detailInfo.facadePaths.length}}</div>
+                    <div class="swiper-pagination" slot="pagination"></div>
                 </swiper>
                  <section class="headimg">
                     <img :src="detailInfo.logoPath" alt="">
@@ -59,16 +59,14 @@
 
 <script>
 import headTop from '@/components/header/head.vue'
-import '@/style/swiper.min.css'
+import 'swiper/dist/css/swiper.css'
+// import '@/style/swiper.min.css'
 import {shopDetail} from '@/service/getData.js';
 import { mapState,mapMutations } from 'vuex';
 import back from 'static/images/hgdBg.jpg';
-
     export default {
         data(){
             return{
-                currentpage:1,
-                total:3,
                 id:'',
                 className:'',
                 name:'',
@@ -79,11 +77,14 @@ import back from 'static/images/hgdBg.jpg';
                     slidesPerView: 1,
                     loop:true,
                     effect:'slide',
-                    pagination:'.swiper-pagination',
-                    paginationType:'fraction',
-                    slideChangeTransitionEnd:swiper=>{
-                        this.currentpage = swiper.realIndex+1;
-                    }
+                    pagination:{
+                        el:'.swiper-pagination',
+                        clickable:true,
+                        type:'fraction',
+                    },
+                    autoplay:{
+                        stopOnlastSlide: false,
+                    },
                 },
                 detailInfo:{
                     facadePaths:[],

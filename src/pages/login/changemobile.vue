@@ -22,7 +22,7 @@
             </div>
         </div>
         <div class="password">
-            <input type="text" maxlength="20" placeholder="请输入登录密码" ref="password" v-model="password">
+            <input type="password" maxlength="20" placeholder="请输入登录密码" ref="password" v-model="password">
         </div>
         <!-- 按钮 -->
         <div class="create_acount">

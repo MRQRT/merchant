@@ -1,11 +1,12 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
+import "babel-polyfill"
 import Vue from 'vue'
 import App from './App'
 import router from './router'
 import store from './store'
 import MintUI from 'mint-ui'
-import VueAwesomeSwiper from 'vue-awesome-swiper'
+import VueAwesomeSwiper from 'vue-awesome-swiper'//swiper4
 
 
 import './config/rem'
@@ -81,7 +82,7 @@ router.beforeEach((to, from, next) => {
 	if (to.matched.some(r => r.meta.requireAuth)) {
         if (store.state.accessToken) {    // 已登录
             next(true);
-        } else {   // 未登录
+        }else {   // 未登录
             if(from.fullPath == '/storegold'){ //存金页点击绑卡和新增地址后仍跳转回存金页
                 next({
                     path: '/login',
