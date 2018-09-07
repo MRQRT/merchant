@@ -5,7 +5,7 @@ import App from './App'
 import router from './router'
 import store from './store'
 import MintUI from 'mint-ui'
-import VueAwesomeSwiper from 'vue-awesome-swiper'
+import VueAwesomeSwiper from 'vue-awesome-swiper'//swiper4
 
 
 import './config/rem'
