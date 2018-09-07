@@ -16,18 +16,18 @@
         <section class="shop_mess">
             <div class="one">
                 <span>店铺名称</span>
-                <input type="text" v-model="shop_message.name" placeholder="请输入店铺名称，不超过16个汉字">
+                <input type="text" v-model="shop_message.name" placeholder="请输入店铺名称，不超过16个汉字" style="margin-top:.03rem">
             </div>
             <div class="line"></div>
             <div class="one" style="position:relative;" @click="selectassress">
                 <span>店铺地址</span>
-                <input type="text" v-model="shop_message.address" placeholder="请选择店铺地址" readonly="value">
+                <input type="text" v-model="shop_message.address" placeholder="请选择店铺地址" readonly="value" style="margin-top:.03rem"> 
                 <img :src="right" class="right_jiantou">
             </div>
             <div class="line"></div>
             <div class="one">
                 <span>预约电话</span>
-                <input type="text" v-model="shop_message.mobile" placeholder="固定电话/手机" maxlength="11">
+                <input type="text" v-model="shop_message.mobile" placeholder="固定电话/手机" maxlength="11" style="margin-top:.03rem">
             </div>
             <div class="line"></div>
             <div class="one" style="display:flex">
