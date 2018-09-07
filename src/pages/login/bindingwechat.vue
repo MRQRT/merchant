@@ -314,6 +314,7 @@ import md5 from 'js-md5'
     height: .88rem;
     padding-left: .4rem;
     padding-right: .4rem;
+    margin-top:2rem;
 }
 .create_acount section{
     width: 100%;
