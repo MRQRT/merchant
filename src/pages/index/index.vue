@@ -770,7 +770,7 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
         	color:#C09C60;
         	font-size:.88rem;
         	text-align: center;
-        	font-weight:800;
+        	font-weight:bold;
             font-family:DINAlternate-Bold;
         	margin-top:.1rem;
         }
@@ -907,7 +907,7 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
                 color:#fff;
                 text-align: center;
                 font-size: .24rem;
-                padding:.35rem 0 .4rem;
+                padding:.35rem 0;
                 margin-bottom: .2rem;
                 &:nth-of-type(1){
                     @include bg-image('/static/images/service-1.png');
@@ -1341,7 +1341,7 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
                         p{
                             margin:0 !important;
                             line-height: 20px;
-                            font-size: 10px;
+                            font-size: 12px;
                         }
 
                     }
@@ -1442,6 +1442,7 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
                 	text-align: left;
                     div{
                     	line-height: 30px;
+                        font-size: 12px;
                     }
                 }
                 .pc_footer_content_right{
@@ -1466,6 +1467,7 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
             width:888px;
             margin:0 auto;
         	color: #999999;
+            font-size: 12px;
         	line-height: 73px;
         	text-align: left;
             border-top: 1px solid #999;

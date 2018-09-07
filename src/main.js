@@ -23,7 +23,9 @@ Vue.config.productionTip = false
 
 /* 保留2位小数 */
 Vue.filter('formatPriceTwo' , function(val) {
-    return (val*1).toFixed(2)
+    // return (val*1).toFixed(2)
+    var newVal = parseFloat(val).toFixed(3);
+    return newVal.substring(0,newVal.toString().length - 1)
 });
 /* 保留4位小数 */
 Vue.filter('formatPriceFour' , function(val) {
@@ -46,7 +48,7 @@ Vue.filter('changeTime',function(val){
 Vue.filter('deleteSec',function(val){
     var arr=val.split(' ');
     var timeArr1 = arr[0];
-    
+
     var timeArr2=arr[1].split(':');
     timeArr2.pop();
     timeArr2=timeArr2.join(':');
@@ -81,7 +83,7 @@ router.beforeEach((to, from, next) => {
 	if (to.matched.some(r => r.meta.requireAuth)) {
         if (store.state.accessToken) {    // 已登录
             next(true);
-        } else {   // 未登录
+        }else {   // 未登录
             if(from.fullPath == '/storegold'){ //存金页点击绑卡和新增地址后仍跳转回存金页
                 next({
                     path: '/login',

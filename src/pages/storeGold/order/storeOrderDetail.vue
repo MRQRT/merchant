@@ -317,6 +317,19 @@
                 <p>处理中，请稍候...</p>
             </div>
         </mt-popup>
+        <!-- 重试验证码弹窗 -->
+        <mt-popup v-model="popupVisible3" popup-transition="popup-fade" :closeOnClickModal="false">
+            <div class="verifi-popup-wrap">
+                <div class="top-text">
+                    验证码错误，请重试
+                </div>
+                <div class="btn-wrap">
+                    <span @click="cancleVerifi()">取消</span>
+                    <span v-if="!countdownStatus">重试<b>({{countDownSec}}s)</b></span>
+                    <span v-else @click="againVerifi()" class="active">重试</span>
+                </div>
+            </div>
+        </mt-popup>
     </div>
 </template>
 
@@ -344,6 +357,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 popupVisible:false,    // 信息弹窗显示隐藏
                 popupVisible1:false,   // 支付验证码弹窗
                 popupVisible2:false,   // 正在支付中弹窗
+                popupVisible3:false,   // 重试验证码弹窗
                 popupNum:'',           // 哪个弹窗显示
                 reportClick:true,      // 确认检测报告按钮状态
                 trackingStatus:false,  // 订单追踪显示、隐藏
@@ -353,13 +367,15 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 minu:'--',             // 倒计时分
                 secd:'--',             // 倒计时秒
                 verifiCode:[],         // 验证码
+                countDownSec:50,       // 重试验证码倒计时
+                countdownStatus:false, // 重试按钮是否可以点击
                 bankInfo:{             // 未支付银行卡信息
                     code:'0820',
                     name:'中国工商银行'
                 },
                 typeJson:{
-                    '0':'投资金',
-                    '1':'首饰',
+                    '0':'金条',
+                    '1':'饰品',
                 },
                 stepList:[
                     {name:'订单审核'},
@@ -609,6 +625,18 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     })
                 })
             },
+            //关闭重试验证码弹窗
+            cancleVerifi(){
+                this.popupVisible3 = false;
+                this.verifiCode = []; // 将之前验证码清除
+            },
+            // 显示重试验证码弹窗
+            againVerifi(){
+                this.popupVisible3 = false;  // 将重试验证码弹窗关闭
+                this.popupVisible1 = true;   // 显示重试验证码弹窗
+                this.verifiCode = [];        // 将之前验证码清除
+                this.pay_beforehand_order(1) // 调用另一个获取短信验证码接口
+            },
             // 请求订单详情数据
             async query_detail(){
                 var that = this;
@@ -755,23 +783,18 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     window.timer = setInterval(function(){
                         that.query_status()    // 隔一秒查询一次状态
                     },1000)
-                }else if(res.code=='200211'){ // 验证码错误显示重试对话框
-                    this.popupVisible2 = false; // 关闭处理中动画
-                    var html = '<div style="color:000;font-size:.32rem;font-family:PingFangSC-Medium;text-align:center">验证码错误，请重试</div>'
-                    MessageBox({
-                        title:'',
-                        message:html,
-                        showCancelButton: true,
-                        confirmButtonText:'重试'
-                    }).then(action => {
-                        if(action=='confirm'){ // 重新发送验证码函数
-                            this.popupVisible1 = true;
-                            this.verifiCode = []; // 将之前验证码清除
-                            this.pay_beforehand_order(1) // 调用另一个获取短信验证码接口
-                        }else{
-                            this.verifiCode = []; // 将之前验证码清除
+                }else if(res.code=='200211'){    // 验证码错误显示重试对话框
+                    this.popupVisible2 = false;  // 关闭处理中动画
+                    this.countdownStatus = false;// 将重试按钮置为不可点击
+                    this.popupVisible3 = true;   // 显示重试弹窗
+                    var timer1 = setInterval(function(){
+                        that.countDownSec--
+                        if(that.countDownSec<=0){
+                            clearInterval(timer1);
+                            that.countdownStatus=true;
+                            that.countDownSec=50;
                         }
-                    })
+                    },1000)
                 }else{
                     Toast(res.message)
                 }
@@ -1324,6 +1347,43 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             }
         }
     }
+    // 重试验证码弹窗
+    .verifi-popup-wrap{
+        width: 4.9rem;
+        text-align: center;
+        background-color: #fff;
+        border-radius: 0;
+        .top-text{
+            color: #000;
+            font-size: .32rem;
+            padding:.4rem 0;
+            font-family:PingFangSC-Medium;
+        }
+        .btn-wrap{
+            height: .88rem;
+            line-height: .88rem;
+            border-top:1px solid #eee;
+            @include flex-box();
+            @include justify-content();
+            span{
+                display: inline-block;
+                width: 50%;
+                height: .88rem;
+                color: #666;
+                line-height: .88rem;
+                &:nth-of-type(1){
+                    color: #C09C60;
+                    border-right:1px solid #eee;
+                }
+                b{
+                    margin-left:.1rem;
+                }
+            }
+            .active{
+                color: #C09C60;
+            }
+        }
+    }
     // 支付验证码弹窗
     .verifi-wrap{
         width: 6.7rem;
@@ -1471,7 +1531,8 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     position: absolute;
                     left:1.1rem;
                     top:.3rem;
-                    background-color: #999999;
+                    z-index: 100;
+                    background-color: #ddd;
                 }
                 .delivery-item{
                     width:100%;
@@ -1492,6 +1553,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                         width: .24rem;
                         height: .24rem;
                         margin:-.05rem .2rem 0 .1rem;
+                        z-index: 100;
                         @include bg-image('/static/images/delivery-nomal.png');
                     }
                     .text{

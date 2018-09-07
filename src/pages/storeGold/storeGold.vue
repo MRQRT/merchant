@@ -34,8 +34,8 @@
                         <div class="gold-box gold-type">
                             <div class="left">黄金类型</div>
                             <div class="type-right">
-                                <span :class="{'type-active':typeNum==0}" @click="chooseType(0)">投资金</span>
-                                <span :class="{'type-active':typeNum==1}" @click="chooseType(1)">首饰</span>
+                                <span :class="{'type-active':typeNum==0}" @click="chooseType(0)">金条</span>
+                                <span :class="{'type-active':typeNum==1}" @click="chooseType(1)">饰品</span>
                             </div>
                         </div>
                         <!-- 黄金总重 -->
@@ -237,6 +237,19 @@
                 <p>处理中，请稍候...</p>
             </div>
         </mt-popup>
+        <!-- 重试验证码弹窗 -->
+        <mt-popup v-model="popupVisible3" popup-transition="popup-fade" :closeOnClickModal="false">
+            <div class="verifi-popup-wrap">
+                <div class="top-text">
+                    验证码错误，请重试
+                </div>
+                <div class="btn-wrap">
+                    <span @click="cancleVerifi()">取消</span>
+                    <span v-if="!countdownStatus">重试<b>({{countDownSec}}s)</b></span>
+                    <span v-else @click="againVerifi()" class="active">重试</span>
+                </div>
+            </div>
+        </mt-popup>
     </div>
 </template>
 
@@ -245,13 +258,14 @@ import headTop from '@/components/header/head.vue'
 import { clearNoNum } from '../../config/mUtils.js';
 import { MessageBox,Toast,Popup } from 'mint-ui';
 import { mapState,mapMutations } from 'vuex'
-import { shop_status, query_card_info, query_shop_address_list, add_recycle_order_check, add_recycle_order, pay_beforehand_order, pay_formal_order, query_status,query_shop_address_detail } from '@/service/getData.js'
+import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, add_recycle_order_check, add_recycle_order, pay_beforehand_order, pay_formal_order, query_status,query_shop_address_detail } from '@/service/getData.js'
 
 
     export default {
         data(){
             return{
                 loginStatus:true,    // 是否登录
+                dealStatus:true,     // 是否在交易时段
                 bankStatus:false,    // 是否绑定银行卡
                 addressStatus:false, // 是否选择地址
                 typeNum:null,        // 存金类型选择样式
@@ -263,6 +277,7 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                 btnCtroller:true,    // 按钮是否可以点击
                 popupVisible1:false, // 验证码弹窗
                 popupVisible2:false, // 支付中弹窗
+                popupVisible3:false, // 重试验证码弹窗
                 orderId:'',          // 订单创建成功后的ID
                 ensureCash:'',       // 支付时的保证金
                 lockPrice:'',        // 支付时的锁定金价
@@ -273,6 +288,8 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                 bankInfo:'',         // 银行卡信息
                 receiverInfo:'',     // 收货人信息
                 addressId:'',        // 地址id
+                countDownSec:50,     // 重试验证码倒计时
+                countdownStatus:false,// 重试按钮是否可以点击
             }
         },
         components:{
@@ -288,11 +305,13 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
             },
             // 保证金
             guaranteeCash(){
-                return (this.estimatePrice * 0.1).toFixed(2);
+                var val = this.estimatePrice * 0.1;
+                var newVal = parseFloat(val).toFixed(3);
+                return newVal.substring(0,newVal.toString().length - 1);
             },
             // 提交按钮是否可以点击
             submitStatus(){
-                if(this.typeNum==null || !this.weight || !this.bg || !this.bankStatus || !this.addressStatus){
+                if(this.typeNum==null || this.weight==0 || !this.bg || !this.bankStatus || !this.addressStatus){
                     return false;
                 }else{
                     return true;
@@ -407,6 +426,25 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                     })
                 }
             },
+            //关闭重试验证码弹窗
+            cancleVerifi(){
+                this.popupVisible3 = false;
+                this.verifiCode = []; // 将之前验证码清除
+                this.$router.push({ // 跳转待支付订单详情页
+                    path:'/storeorderdetail',
+                    query:{
+                        id:this.orderId,
+                        status:10
+                    }
+                })
+            },
+            //显示重试验证码弹窗
+            againVerifi(){
+                this.popupVisible3 = false; // 将重试验证码弹窗关闭
+                this.popupVisible1 = true;  // 显示验证码弹窗
+                this.verifiCode = [];       // 将之前验证码清除
+                this.requestVerifi(1);      // 调用另一个获取短信验证码接口
+            },
             //判断店铺状态
             async shop_status(){
                 var res = await shop_status();
@@ -416,6 +454,25 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                     this.RECORD_ACCESSTOKEN('');
                 }else{
                     Toast(res.message);
+                }
+            },
+            //判断是否在交易时段
+            async bizCloseCheck(){
+                var res = await bizCloseCheck(4);
+                if(res.code=='000000'){
+                    this.dealStatus = res.data == 0 ? true : false;
+                    if(this.dealStatus){
+                        if(this.btnCtroller){
+                            this.btnCtroller=false
+                            this.showMessage(5);
+                        }else{
+                            Toast('频繁操作～')
+                        }
+                    }else{
+                        Toast('非交易时段不能锁价提交，可以直接提交')
+                    }
+                }else{
+                    Toast(res.message)
                 }
             },
             //获取银行卡信息
@@ -481,11 +538,15 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                 if(res.code=='000000'){
                     this.RECORD_SHOPSTATUS(true)
                     if(this.submitStatus){     // 按钮可点击状态
-                        if(this.btnCtroller){
-                            this.btnCtroller=false
-                            num == 1 ? this.showMessage(4) : this.showMessage(5);
+                        if(num==2){            // 如果是锁价提交，判断是否在交易时段内
+                            this.bizCloseCheck();
                         }else{
-                            Toast('频繁操作～')
+                            if(this.btnCtroller){
+                                this.btnCtroller=false
+                                this.showMessage(4);
+                            }else{
+                                Toast('频繁操作～')
+                            }
                         }
                     }
                 }else{
@@ -641,28 +702,16 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
                     },1000)
                 }else if(res.code=='200211'){ // 验证码错误显示重试对话框
                     this.popupVisible2 = false; // 关闭处理中动画
-                    var html = '<div style="color:000;font-size:.32rem;font-family:PingFangSC-Medium;text-align:center">验证码错误，请重试</div>'
-                    MessageBox({
-                        title:'',
-                        message:html,
-                        showCancelButton: true,
-                        confirmButtonText:'重试'
-                    }).then(action => {
-                        if(action=='confirm'){ // 重新发送验证码函数
-                            this.popupVisible1 = true;
-                            this.verifiCode = []; // 将之前验证码清除
-                            this.requestVerifi(1);// 调用另一个获取短信验证码接口
-                        }else{
-                            this.verifiCode = []; // 将之前验证码清除
-                            this.$router.push({ // 跳转待支付订单详情页
-                                path:'/storeorderdetail',
-                                query:{
-                                    id:this.orderId,
-                                    status:10
-                                }
-                            })
+                    this.countdownStatus = false; // 将重试按钮置为不可点击
+                    this.popupVisible3 = true;  // 显示重试弹窗
+                    var timer1 = setInterval(function(){
+                        that.countDownSec--
+                        if(that.countDownSec<=0){
+                            clearInterval(timer1);
+                            that.countdownStatus=true;
+                            that.countDownSec=50;
                         }
-                    })
+                    },1000)
                 }else{
                     this.popupVisible2 = false;
                     Toast(res.message)
@@ -1392,6 +1441,42 @@ import { shop_status, query_card_info, query_shop_address_list, add_recycle_orde
             color: #666;
             font-size: .28rem;
             text-align: center;
+        }
+    }
+    .verifi-popup-wrap{
+        width: 4.9rem;
+        text-align: center;
+        background-color: #fff;
+        border-radius: 0;
+        .top-text{
+            color: #000;
+            font-size: .32rem;
+            padding:.4rem 0;
+            font-family:PingFangSC-Medium;
+        }
+        .btn-wrap{
+            height: .88rem;
+            line-height: .88rem;
+            border-top:1px solid #eee;
+            @include flex-box();
+            @include justify-content();
+            span{
+                display: inline-block;
+                width: 50%;
+                height: .88rem;
+                color: #666;
+                line-height: .88rem;
+                &:nth-of-type(1){
+                    color: #C09C60;
+                    border-right:1px solid #eee;
+                }
+                b{
+                    margin-left:.1rem;
+                }
+            }
+            .active{
+                color: #C09C60;
+            }
         }
     }
 }
