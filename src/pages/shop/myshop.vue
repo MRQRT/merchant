@@ -12,7 +12,7 @@
                     <swiper-slide class="banner-item" v-for="(item,index) in detailInfo.facadePaths" :key="index">
                         <img :src="item" alt="" class="swiper_image">
                     </swiper-slide>
-                    <div class="swiper-pagination" slot="pagination"></div>
+                    <div class="swiper-pagination" slot="pagination" style="width:.8rem;"></div>
                 </swiper>
                  <section class="headimg">
                     <img :src="detailInfo.logoPath" alt="">
