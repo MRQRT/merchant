@@ -100,8 +100,8 @@ import { query_detail, query_card_info} from '@/service/getData.js'
                 orderStatus:null,  // 订单是否成功
                 paysFailReason:'', // 失败原因
                 typeJson:{
-                    '0':'投资金',
-                    '1':'首饰',
+                    '0':'金条',
+                    '1':'饰品',
                 },
                 orderInfo:'',
                 bankInfo:{
