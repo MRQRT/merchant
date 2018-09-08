@@ -58,7 +58,7 @@ import { query_card_info, query_ensure_cash} from '@/service/getData.js'
             return{
                 bankStatus:false,  // 是否绑卡
                 bankInfo:'',      // 银行卡信息
-                ensureCash:'',    // 保证金
+                ensureCash:0,    // 保证金
             }
         },
         components:{

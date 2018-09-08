@@ -774,6 +774,12 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             async pay_beforehand_order(countType){
                 this.popupVisible1 = true;
                 var res = await pay_beforehand_order(this.orderId,countType);
+                if(res.code=='000000'){
+                    this.popupVisible1 = true;    // 显示验证码弹窗
+                }else{
+                    this.popupVisible1 = false;  // 关闭验证码弹窗
+                    Toast(res.message)
+                }
             },
             // 支付正式下单
             async pay_formal_order(){
