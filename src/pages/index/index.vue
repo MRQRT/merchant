@@ -866,7 +866,7 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
             @include flex-box();
             @include justify-content();
             img{
-            	width:.81rem;
+            	width:.8rem;
                 height:.8rem;
             }
             .each_flow_container{
