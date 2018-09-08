@@ -173,8 +173,8 @@
             //微信登录
             weixinLogin(){
                 // const url = 'http://192.168.1.114:8080/tran'
-                const url = 'http://cjtshtest.au32.cn/tran'
-                window.location.href="http://cjtshmerchant.au32.cn/api/user/auth/login?redirectUrl="+url;
+                const url = 'http://cjtsh.au32.cn/tran'
+                window.location.href="https://cjtsh.au32.cn/api/user/auth/login?redirectUrl="+url;
             },
             //点击左上角关闭按钮
             backWard(){
@@ -421,7 +421,7 @@
                 }
             }
         },
-		
+
 	}
 </script>
 <style scoped>
@@ -630,7 +630,7 @@ input:-moz-placeholder{    /* Mozilla Firefox 4 to 18 */
     color:#BCBCBC;
     font-size: .28rem;
 }
-input:-ms-input-placeholder{  /* Internet Explorer 10-11 */ 
+input:-ms-input-placeholder{  /* Internet Explorer 10-11 */
     color:#BCBCBC;
     font-size: .28rem;
 }
