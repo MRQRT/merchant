@@ -1529,7 +1529,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     width:1px;
                     height: 185%;
                     position: absolute;
-                    left:1.1rem;
+                    left:.95rem;
                     top:.3rem;
                     z-index: 100;
                     background-color: #ddd;
@@ -1547,7 +1547,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     }
                     .time{
                         font-size: .2rem;
-                        width: 1rem;
+                        width: .8rem;
                     }
                     .dot{
                         width: .24rem;
