@@ -307,7 +307,7 @@
                 <div class="part flow">
                     <h3>黄金回收流程</h3>
                     <div class="flow-img">
-                        <img src="static/images/pc-flow-bg.png" alt="">
+                        <!-- <img src="static/images/pc-flow-bg.png" alt=""> -->
                     </div>
                     <div class="flow-list-wrap">
                         <ul class="flow-list">
@@ -1266,9 +1266,9 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
                 width: 100%;
                 height: 376px;
                 margin-top:50px;
+                @include bg-image('/static/images/pc-flow-bg.png');
                 img{
                     width: 100%;
-                    height: 100%;
                 }
             }
             .flow-list-wrap{

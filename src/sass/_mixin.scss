@@ -130,6 +130,12 @@ $media-stack:
     -ms-transform: rotate($rotate);
     -o-transform: rotate($rotate);
 }
+//转化为行内块元素
+@mixin inline-block($width,$height){
+    display: inline-block;
+    width: $width;
+    height: $height;
+}
 //透明度
 @mixin opacity($opacity) {
     opacity: $opacity;

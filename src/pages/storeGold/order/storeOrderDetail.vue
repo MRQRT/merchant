@@ -452,9 +452,9 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     this.$nextTick().then(function () { // 物流信息
                         if(that.squreNum==3 && (that.status==9 || that.status==13)){ // 退货中、已关闭既有报告，又有物流
                             that.showReport();
-                            that.showDelivery();
+                            that.showDelivery(1);
                         }else if(that.squreNum==1){ // 物流信息
-                            that.showDelivery();
+                            that.showDelivery(0);
                         }else if((that.squreNum==2 || that.squreNum==3) && that.status!=4){ // 检测报告
                             that.showReport();
                         }
@@ -472,12 +472,12 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 }
             },
             // 物流信息弹窗
-            showDelivery(){
+            showDelivery(typeNum){
                 var that = this;
 
                 document.getElementById('delivery').onclick=function(){
                     that.lookPopup(0);
-                    that.query_express_mess(); // 调用物流信息
+                    that.query_express_mess(typeNum); // 调用物流信息
                 }
             },
             // 锁价解释弹窗
@@ -688,15 +688,14 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                         this.expressNo2 = res.data.expressNo;
                         this.expressCode2 = res.data.expressCode;
                     }
-
                 }else{
                     Toast(res.message)
                 }
             },
             // 查询具体物流信息
-            async query_express_mess(){
+            async query_express_mess(typeNum){
                 var res;
-                if(this.deliveryType==0){
+                if(typeNum==0){
                     res = await query_express_mess(this.expressNo1,this.expressCode1)
                 }else{
                     res = await query_express_mess(this.expressNo2,this.expressCode2)
