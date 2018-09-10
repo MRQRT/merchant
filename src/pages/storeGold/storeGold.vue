@@ -284,6 +284,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                 verifiCode:[],       // 验证码
                 bankCardId:2,        // 银行卡ID
                 addressId:'',        // 查询地址ID
+                detailAddress:'',    // 传给后台的详细地址
                 screenHeight: document.documentElement.clientHeight,//记录高度值(这里是给到了一个默认值)
                 bankInfo:'',         // 银行卡信息
                 receiverInfo:'',     // 收货人信息
@@ -501,11 +502,13 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                     }else{
                         this.addressStatus = true;
                         this.receiverInfo = addressArray[0];
+                        this.detailAddress = addressArray[0].address;
                         this.addressId = addressArray[0].id;
                         // 如果有默认地址取默认
                         for(let i=0; i<addressArray.length;i++){
                             if(addressArray[i].defaults){
                                 this.receiverInfo = addressArray[i];
+                                this.detailAddress = addressArray[i].address;
                                 this.addressId = addressArray[i].id;
                             }
                         }
@@ -530,6 +533,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                 if(res.code=='000000'){
                     this.addressStatus = true;
                     this.receiverInfo = res.data;
+                    this.detailAddress = res.data.provinceCityAreaDetail + res.data.address;
                 }
             },
             //点击按钮提交函数
@@ -630,7 +634,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
             },
             //直接提交创建订单
             async directlyOrder(){
-                var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,false,true,this.receiverInfo.contact,this.receiverInfo.telephone,this.receiverInfo.address)
+                var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,false,true,this.receiverInfo.contact,this.receiverInfo.telephone,this.detailAddress)
                 if(res.code=='000000'){
                     this.orderId = res.data.id;
                     this.$router.push({
@@ -649,7 +653,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
             async lockPriceOrder(){
                 var that = this;
                 // 创建订单
-                var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,true,true,this.receiverInfo.contact,this.receiverInfo.telephone,this.receiverInfo.address)
+                var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,true,true,this.receiverInfo.contact,this.receiverInfo.telephone,this.detailAddress)
                 if(res.code=='000000'){
                     this.orderId = res.data.id;
                     this.ensureCash = res.data.ensureCash;

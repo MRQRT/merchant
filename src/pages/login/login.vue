@@ -173,7 +173,7 @@
             //微信登录
             weixinLogin(){
                 // const url = 'http://192.168.1.114:8080/tran'
-                const url = 'http://cjtsh.au32.cn/tran'
+                const url = 'https://cjtsh.au32.cn/tran'
                 window.location.href="https://cjtsh.au32.cn/api/user/auth/login?redirectUrl="+url;
             },
             //点击左上角关闭按钮
