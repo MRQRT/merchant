@@ -577,7 +577,7 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
                 this.shop_status();            // 判断店铺状态
                 this.checkShopStatus();        // 店铺信息
                 this.query_index_statistics(); // 首页统计数据
-                console.log('accessToken',this.accessToken)
+                // console.log('accessToken',this.accessToken)
             }
             // 判断是pc还是移动端
             if(this.clientWidth>1000){
