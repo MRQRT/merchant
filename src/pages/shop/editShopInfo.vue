@@ -262,8 +262,8 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 }
             },
             //根据区域解出id
-            async area_id(val){
-                const res = await cityName(val);
+            async area_id(privince,city,county){
+                const res = await cityName(privince,city,county);
                 if(res.code=='000000'){
                     if(res.data){
                        this.shop_message.areaId=res.data.id
@@ -279,8 +279,9 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 var geoc = new BMap.Geocoder();
                 geoc.getLocation(pt, function(rs){//解析格式：城市，区县，街道
                     // console.log(rs.addressComponents.district)//根据区域反解区域id
+                    // console.log(rs.addressComponents.province)//省
                     // console.log(rs.addressComponents.city)//城市
-                    v_this.area_id(rs.addressComponents.district)//解出id
+                    v_this.area_id(rs.addressComponents.province,rs.addressComponents.city,rs.addressComponents.district)//解出id
                 })
             },
             //店铺信息校验
