@@ -179,7 +179,8 @@ export const area_list = () => fetch('/area/city_area_list',{},'get')
 * 区域县查询id
 */
 
-export const cityName = (privinceName,cityName,countyName) => fetch('/area/city_name?privinceName='+privinceName+'&&cityName='+cityName+'&&countyName='+countyName,{},'get')
+// export const cityName = (privinceName,cityName,countyName) => fetch('/area/city_name?privinceName='+privinceName+'&&cityName='+cityName+'&&countyName='+countyName,{},'get')
+export const cityName = (countyName) => fetch('/area/city_name?countyName='+countyName,{},'get')
 
 /*
 * 查询地址列表

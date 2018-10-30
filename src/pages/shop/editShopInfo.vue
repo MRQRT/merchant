@@ -263,7 +263,8 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
             },
             //根据区域解出id
             async area_id(privince,city,county){
-                const res = await cityName(privince,city,county);
+                // const res = await cityName(privince,city,county);
+                const res = await cityName(county);
                 if(res.code=='000000'){
                     if(res.data){
                        this.shop_message.areaId=res.data.id
