@@ -180,7 +180,7 @@ export const area_list = () => fetch('/area/city_area_list',{},'get')
 */
 
 // export const cityName = (privinceName,cityName,countyName) => fetch('/area/city_name?privinceName='+privinceName+'&&cityName='+cityName+'&&countyName='+countyName,{},'get')
-export const cityName = (countyName) => fetch('/area/city_name?countyName='+countyName,{},'get')
+export const cityName = (cityName) => fetch('/area/city_name?cityName='+cityName,{},'get')
 
 /*
 * 查询地址列表
