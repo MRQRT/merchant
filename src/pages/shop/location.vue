@@ -91,7 +91,7 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
                     var local = new BMap.LocalSearch(map, {
                         // renderOptions:{map: map},
                         onSearchComplete : function(r) {
-                            v_this.surroundingPois=r.Br;//将搜索结果放入地址选取列表中
+                            v_this.surroundingPois=r.Ar;//将搜索结果放入地址选取列表中
                         }
                     });    
                     local.search(v_this.input_address);
@@ -150,7 +150,7 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
                                     var local = new BMap.LocalSearch(map, {    
                                         // renderOptions:{map: map},
                                         onSearchComplete : function(r) {
-                                            v_this.surroundingPois=r.Br;//将搜索结果放入地址选取列表中
+                                            v_this.surroundingPois=r.Ar;//将搜索结果放入地址选取列表中
                                         }
                                     });    
                                     local.search(rs.address);
@@ -166,7 +166,7 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
                                     var local = new BMap.LocalSearch(map, {    
                                         // renderOptions:{map: map},
                                         onSearchComplete : function(r) {
-                                            v_this.surroundingPois=r.Br;//将搜索结果放入地址选取列表中
+                                            v_this.surroundingPois=r.Ar;//将搜索结果放入地址选取列表中
                                         }
                                     });    
                                     local.search(rs.address);
@@ -187,7 +187,7 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
                         var local = new BMap.LocalSearch(map, {    
                             // renderOptions:{map: map},
                             onSearchComplete : function(r) {
-                                v_this.surroundingPois=r.Br;//将搜索结果放入地址选取列表中
+                                v_this.surroundingPois=r.Ar;//将搜索结果放入地址选取列表中
                             }
                         });    
                         local.search(rs.address);
@@ -271,6 +271,7 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
     margin-top: .2rem;
     margin-left: .1rem;
     font-size: .28rem;
+    width: 4.2rem;
 }
 .allmap{
     width: 100%;
