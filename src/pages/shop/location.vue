@@ -90,8 +90,12 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
                     //
                     var local = new BMap.LocalSearch(map, {
                         // renderOptions:{map: map},
-                        onSearchComplete : function(r) {
-                            v_this.surroundingPois=r.Ar;//将搜索结果放入地址选取列表中
+                        onSearchComplete : function(results) {
+                            let pois = [];
+                                for (let i = 0; i < results.getCurrentNumPois(); i++) {
+                                    pois.push(results.getPoi(i));
+                                }
+                            v_this.surroundingPois=pois;//将搜索结果放入地址选取列表中
                         }
                     });    
                     local.search(v_this.input_address);
@@ -149,8 +153,12 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
                                 v_this.location=rs.addressComponents.city//城市
                                     var local = new BMap.LocalSearch(map, {    
                                         // renderOptions:{map: map},
-                                        onSearchComplete : function(r) {
-                                            v_this.surroundingPois=r.Ar;//将搜索结果放入地址选取列表中
+                                        onSearchComplete : function(results) {
+                                            let pois = [];
+                                            for (let i = 0; i < results.getCurrentNumPois(); i++) {
+                                                pois.push(results.getPoi(i));
+                                            }
+                                            v_this.surroundingPois=pois;//将搜索结果放入地址选取列表中
                                         }
                                     });    
                                     local.search(rs.address);
@@ -165,8 +173,12 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
                                 v_this.location=rs.addressComponents.city//城市
                                     var local = new BMap.LocalSearch(map, {    
                                         // renderOptions:{map: map},
-                                        onSearchComplete : function(r) {
-                                            v_this.surroundingPois=r.Ar;//将搜索结果放入地址选取列表中
+                                        onSearchComplete : function(results) {
+                                            let pois = [];
+                                            for (let i = 0; i < results.getCurrentNumPois(); i++) {
+                                                pois.push(results.getPoi(i));
+                                            }
+                                            v_this.surroundingPois=pois;//将搜索结果放入地址选取列表中
                                         }
                                     });    
                                     local.search(rs.address);
@@ -186,8 +198,12 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
                     v_this.location=rs.addressComponents.city//城市
                         var local = new BMap.LocalSearch(map, {    
                             // renderOptions:{map: map},
-                            onSearchComplete : function(r) {
-                                v_this.surroundingPois=r.Ar;//将搜索结果放入地址选取列表中
+                            onSearchComplete : function(results) {
+                                let pois = [];
+                                for (let i = 0; i < results.getCurrentNumPois(); i++) {
+                                    pois.push(results.getPoi(i));
+                                }
+                                v_this.surroundingPois=pois;//将搜索结果放入地址选取列表中
                             }
                         });    
                         local.search(rs.address);
