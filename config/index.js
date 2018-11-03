@@ -12,7 +12,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
         "/api": {
-            target:"http://192.168.10.100:8088",
+            target:"https://sh-test.au32.cn",
             // target:"http://10.88.88.20:8088",
             changeOrigin: true,
             pathRewrite: {
@@ -24,8 +24,8 @@ module.exports = {
     // host: '10.88.88.8', // can be overwritten by process.env.HOST
     // host:'192.168.1.114',//comp guo
     // host:'192.168.1.110',//home guo
-    host: '192.168.1.181', // can be overwritten by process.env.HOST
-    port: 8082, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
+    host: '10.88.88.8', // can be overwritten by process.env.HOST
+    port: 8083, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: true,
     errorOverlay: true,
     notifyOnErrors: true,
