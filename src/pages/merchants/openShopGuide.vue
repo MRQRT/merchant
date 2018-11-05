@@ -32,36 +32,80 @@
         </div>
         <!-- footer -->
         <footer>
-            <section @click="$router.push('/uploadcertificate')">立即入驻</section>
+            <section @click="locatdShop()">立即入驻</section>
         </footer>
     </div>
 </template>
 <script>
 import headTop from '@/components/header/head.vue'
+import { mapState,mapMutations } from 'vuex'
+import { shop_status } from '@/service/getData.js'
+
+
 
     export default {
         data(){
             return{
-
+                loginStatus:false,
             }
         },
         components:{
             headTop,
         },
         computed: {
-
+            ...mapState([
+                'accessToken','shopStatus','applyShopId'
+            ]),
         },
         watch:{
 
         },
         methods: {
-
+            ...mapMutations([
+                'RECORD_SHOPSTATUS','RECORD_APPLYSHOPID'
+            ]),
+            locatdShop(){
+                if(!this.loginStatus){ //未登录
+                    this.$router.push({
+                        path:'/login',
+                        query:{
+                            redirect:'/pagetransfer'
+                        }
+                    })
+                }else{ // 已登录
+                    if(this.shopStatus){ //如果是认领店铺则跳转填写店铺信息页面
+                        if(this.applyShopId!=''&&this.applyShopId!=null){
+                            this.$router.push('/editshopinfo')
+                        }else{
+                            this.$router.push('/uploadcertificate')
+                        }
+                    }
+                }
+            },
+            // 判断店铺状态
+            async shop_status(){
+                var res = await shop_status();
+                if(res.code=='000000'){
+                    this.RECORD_SHOPSTATUS(res.data)
+                }else if(res.code=='000004'){ // 用户未登录
+                    this.RECORD_ACCESSTOKEN('');
+                    this.RECORD_SHOPSTATUS(false);
+                }else{
+                    Toast(res.message);
+                }
+            },
         },
         created(){
+            this.loginStatus = this.accessToken ? true : false;
 
         },
         mounted(){
-
+            if(this.loginStatus){
+                this.shop_status();
+            }
+            if(this.$route.query.shopId){ //如果是从商户版 我要认领 跳转过来
+                this.RECORD_APPLYSHOPID(this.$route.query.shopId);
+            }
         },
     }
 
@@ -73,7 +117,7 @@ import headTop from '@/components/header/head.vue'
     padding-top: .88rem;
     min-height: 100vh;
     width: 100%;
-    background-color: #fff; 
+    background-color: #fff;
 }
 .banner{
     width: 100%;

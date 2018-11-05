@@ -4,13 +4,30 @@
 
 
 <script>
-import {  merchant_open_apply_status, shop} from '@/service/getData.js'
+import { mapState,mapMutations } from 'vuex'
+import {  merchant_open_apply_status, shop_status} from '@/service/getData.js'
 
 export default {
     data(){
         return{}
     },
+    computed: {
+        ...mapState([
+            'shopStatus'
+        ]),
+    },
     methods: {
+        ...mapMutations([
+            'RECORD_SHOPSTATUS'
+        ]),
+        //判断路由跳转函数
+        pagetransfer(){
+            if(this.shopStatus){ // 如果已经有店铺
+                this.$router.push('/myshop');
+            }else{
+                this.merchant_open_apply_status();
+            }
+        },
         // 获取最新商户审核信息
         async merchant_open_apply_status(){
             var res = await merchant_open_apply_status();
@@ -22,10 +39,22 @@ export default {
                 }
             }
         },
+        // 判断店铺状态
+        async shop_status(){
+            var res = await shop_status();
+            if(res.code=='000000'){
+                this.RECORD_SHOPSTATUS(res.data)
+            }else if(res.code=='000004'){ // 用户未登录
+                this.RECORD_ACCESSTOKEN('');
+                this.RECORD_SHOPSTATUS(false);
+            }else{
+                Toast(res.message);
+            }
+        },
     },
     mounted() {
-      //do something after mounting vue instance
-      this.merchant_open_apply_status();
+        this.shop_status();
+        this.pagetransfer();
     }
 }
 </script>

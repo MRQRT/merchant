@@ -60,7 +60,7 @@
                     <span class="left-txt">我的店铺</span>
                     <span class="right-icon"></span>
                 </div>
-                <div class="nav-item" v-for="(item,index) in navArr" :key="index" @click="goNav(item.url)">
+                <div class="nav-item" v-for="(item,index) in navArr" :key="index" @click="goNav(item.url,item.requireAuth,item.requireShop)">
                     <span class="left-txt">{{item.name}}</span>
                     <span class="right-icon"></span>
                 </div>
@@ -83,7 +83,7 @@
 import foot from '@/components/footer/foot.vue'
 import { mapState,mapMutations } from 'vuex'
 import { MessageBox,Toast} from 'mint-ui';
-import { query_card_info, query_ensure_cash, merchant_open_apply_status,logout,query_index_statistics,shop} from '@/service/getData.js'
+import { query_card_info,query_ensure_cash, merchant_open_apply_status,logout,query_index_statistics,shop,shop_status} from '@/service/getData.js'
 
     export default {
         data(){
@@ -93,10 +93,11 @@ import { query_card_info, query_ensure_cash, merchant_open_apply_status,logout,q
                 bankInfo:'',      // 银行卡信息
                 ensureCash:0,    // 保证金
                 navArr:[
-                    {'name':'银行卡管理','url':'/mybank'},
-                    {'name':'地址管理','url':'/addresslist'},
-                    {'name':'密码管理','url':'/changepassword'},
-                    {'name':'关于我们','url':'/aboutus'},
+                    {'name':'银行卡管理','url':'/mybank','requireAuth':true,'requireShop':true},
+                    {'name':'地址管理','url':'/addresslist','requireAuth':true,'requireShop':true},
+                    {'name':'密码管理','url':'/changepassword','requireAuth':true,'requireShop':false},
+                    {'name':'绑定手机号','url':'/changemobile','requireAuth':true,'requireShop':false},
+                    {'name':'关于我们','url':'/aboutus','requireAuth':false,'requireShop':false},
                 ],
                 dealObject:{          // 近一月交易量
                     totalCashAmount:0,
@@ -126,13 +127,35 @@ import { query_card_info, query_ensure_cash, merchant_open_apply_status,logout,q
                 'RECORD_ACCESSTOKEN','RECORD_SHOPID','RECORD_SHOPSTATUS'
             ]),
             //导航路由跳转
-            goNav(url){
-                this.$router.push({
-                    path:url,
-                    query:{
-                        from:'mine'
+            goNav(url,auth,requireShop){
+                if(auth && !this.loginStatus){ //未登录情况去登录
+                    this.$router.push({
+                        path:'/login',
+                        query:{
+                            redirect:'/mine'
+                        }
+                    })
+                }else{
+                    if(requireShop && !this.shopStatus){ //需要店铺审核通过才能进行后续操作
+                        if(url=='/mybank'){
+                            var text = `<div style="text-align:center">店铺审核通过后，再进行绑卡操作</div>`;
+                        }else{
+                            var text = `<div style="text-align:center">店铺审核通过后，再进行地址操作</div>`;
+                        }
+                        MessageBox({
+                          title: '温馨提示',
+                          message:text,
+                          confirmButtonText: '我知道了'
+                        })
+                    }else{
+                        this.$router.push({
+                            path:url,
+                            query:{
+                                from:'mine'
+                            }
+                        })
                     }
-                })
+                }
             },
             // 点击我要入驻
             shopLocated(){
@@ -143,6 +166,18 @@ import { query_card_info, query_ensure_cash, merchant_open_apply_status,logout,q
                     })
                 }else{
                     this.merchant_open_apply_status();
+                }
+            },
+            // 判断店铺状态
+            async shop_status(){
+                var res = await shop_status();
+                if(res.code=='000000'){
+                    this.RECORD_SHOPSTATUS(res.data)
+                }else if(res.code=='000004'){ // 用户未登录
+                    this.RECORD_ACCESSTOKEN('');
+                    this.RECORD_SHOPSTATUS(false);
+                }else{
+                    Toast(res.message);
                 }
             },
             // 获取店铺信息
@@ -170,7 +205,12 @@ import { query_card_info, query_ensure_cash, merchant_open_apply_status,logout,q
                 var res = await merchant_open_apply_status();
                 if(res.code=='000000'){
                     if(res.data){
-                        this.$router.push('/applicationresults') //审核结果页
+                        this.$router.push({ //审核结果页
+                            path:'/applicationresults',
+                            query:{
+                                from:'mine'
+                            }
+                        })
                     }else{
                         this.$router.push('/openshopguide') // 商户入驻引导页
                     }
@@ -229,6 +269,7 @@ import { query_card_info, query_ensure_cash, merchant_open_apply_status,logout,q
                 this.checkShopStatus();        // 店铺信息
                 this.query_ensure_cash();      // 保证金
                 this.query_index_statistics(); // 近一月成交量
+                this.shop_status();            // 是否有店铺
             }
         },
     }

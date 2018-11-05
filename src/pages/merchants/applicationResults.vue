@@ -2,7 +2,7 @@
     <div class="applicationresults">
         <!-- 头部标题部分 -->
         <head-top headTitle='商户入驻' class="head-top nomal-font" ref="topHead">
-            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.push('/index')">
+            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="goback()">
         </head-top>
         <!-- model -->
         <!-- 开通商户 -->
@@ -103,6 +103,14 @@ import {merchant_open_apply_status,shop_open_apply_status} from '@/service/getDa
 
         },
         methods: {
+            //返回按钮
+            goback(){
+                if(this.$route.query.from=='mine'){
+                    this.$router.push('/mine')
+                }else{
+                    this.$router.push('/index')
+                }
+            },
             async merhcant_status(){
                 const res = await merchant_open_apply_status();
                 if(res.code=='000000'){

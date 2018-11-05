@@ -2,12 +2,8 @@
     <div class="outer-wrap">
         <!-- 移动端显示样式 -->
         <div class="index" v-if="!pcStatus">
-            <!-- 导航按钮 -->
-            <div class="navigator" @click="navPopup">
-                <img src="static/images/nav-icon.png" alt="">
-            </div>
             <!-- 悬浮入驻店铺按钮 -->
-            <div class="shops-located" v-show="!loginStatus || shopStatus" @click="goShop()">
+            <div class="shops-located" v-show="!loginStatus || !shopStatus" @click="goShop()">
                 <img src="static/images/shops-located.png" alt="">
             </div>
     		<!--存金banner-->
@@ -112,54 +108,6 @@
     		</section>
             <!-- 底部固定导航 -->
             <foot></foot>
-
-            <!-- 左侧导航 -->
-            <mt-popup v-model="popupVisible" position="left">
-                <div class="nav-wrap">
-                    <!-- 未登录情况 -->
-                    <div class="top-info" v-if="!loginStatus">
-                        <div class="cjt-logo">
-                            <img src="static/images/cjt-logo.png" alt="">
-                        </div>
-                        <!-- 登录注册按钮 -->
-                        <div class="login-btn"  @click="$router.push({path:'/login',query:{redirect:'/index'}})">登录/注册</div>
-                    </div>
-                    <!-- 已登录：店铺图标名称 -->
-                    <div class="top-info" @click="goShop()" v-else>
-                        <div class="shop-logo">
-                            <img src="static/images/shop-logo.png" alt="" v-if="!shopStatus">
-                            <img :src="shopInfo.logoPath" alt="" v-else>
-                        </div>
-                        <!-- 登录且审核通过提示 -->
-                        <p v-if="shopStatus">{{shopInfo.name}}</p>
-                        <!-- 未开店/店铺正在审核中显示 -->
-                        <p v-else>我的店铺</p>
-                    </div>
-                    <!-- 导航路由 -->
-                    <ul class="nav-list">
-                        <li @click="$router.push('/assets')">
-                            <span class="icon1"></span>
-                            <span>我的资产</span>
-                        </li>
-                        <li @click="$router.push('/storeorderlist')">
-                            <span class="icon2"></span>
-                            <span>我的订单</span>
-                        </li>
-                        <li @click="$router.push('/account')">
-                            <span class="icon3"></span>
-                            <span>帐户管理</span>
-                        </li>
-                        <li @click="$router.push('/aboutus')">
-                            <span class="icon4"></span>
-                            <span>关于我们</span>
-                        </li>
-                        <li @click="quitLogin()" v-if="loginStatus">
-                            <span class="icon5"></span>
-                            <span>退出登录</span>
-                        </li>
-                    </ul>
-                </div>
-            </mt-popup>
         </div>
         <!-- pc端显示样式 -->
         <div class="pc-index" v-else>
@@ -415,20 +363,14 @@ import headTop from '@/components/header/head.vue'
 import foot from '@/components/footer/foot.vue'
 import { Popup,Toast,MessageBox } from 'mint-ui';
 import { mapState,mapMutations } from 'vuex'
-import { shop_status, shop,} from '@/service/getData.js'
+import { shop_status, shop, merchant_open_apply_status} from '@/service/getData.js'
 
 
     export default {
         data(){
             return{
-                popupVisible:false,   // 左侧导航显示
                 loginStatus:false,    // 是否登录
                 pcStatus:false,      // 是否是pc端
-                shopInfo:{
-                    shopId:'',
-                    logoPath:'',
-                    name:'我的店铺'
-                },
                 clientWidth:document.documentElement.clientWidth,//页面宽度
             }
         },
@@ -447,31 +389,28 @@ import { shop_status, shop,} from '@/service/getData.js'
 			currentPrice(val){
 				return val
 			},
-            popupVisible:function(val){
-                if(!this.pcStatus){
-                    val ? this.fixed(true) : this.fixed(false)
-                }
-            },
         },
         methods: {
             ...mapMutations([
                 'RECORD_ACCESSTOKEN','RECORD_SHOPID','RECORD_SHOPSTATUS'
             ]),
-            // 显示导航
-            navPopup(){
-                this.popupVisible = true;
-            },
-            // 点击我的店铺logo跳转操作
+            // 点击我要入驻跳转操作
             goShop(){
-                if(this.loginStatus){//已登录
-                    this.$router.push('/pagetransfer');
-                }else{ //未登录
-                    this.$router.push({
-                        path:'/login',
-                        query:{
-                            redirect:'/pagetransfer'
-                        }
-                    })
+                if(this.loginStatus){
+                    this.merchant_open_apply_status();
+                }else{
+                    this.$router.push('/openshopguide');
+                }
+            },
+            // 获取最新商户审核信息
+            async merchant_open_apply_status(){
+                var res = await merchant_open_apply_status();
+                if(res.code=='000000'){
+                    if(res.data){
+                        this.$router.push('/applicationresults') //审核结果页
+                    }else{
+                        this.$router.push('/openshopguide') // 商户入驻引导页
+                    }
                 }
             },
             // 判断店铺状态
@@ -486,50 +425,6 @@ import { shop_status, shop,} from '@/service/getData.js'
                     Toast(res.message);
                 }
             },
-            // 获取店铺信息
-            async checkShopStatus(){
-                var res = await shop();
-                if(res.code=='000000'){
-                    if(res.data){
-                        this.shopInfo = res.data;
-                        this.RECORD_SHOPID(res.data.id); // 保存店铺ID
-                    }else{
-                        this.RECORD_SHOPID('');        // 保存店铺ID
-                        this.RECORD_SHOPSTATUS(false); // 店铺不存在或未通过审核
-                    }
-                }
-            },
-            //退出登录
-            async quitLogin(){
-                var html='<div style="text-align:center">确定要退出登录？</div>'
-                MessageBox({
-                    title: '提示',
-                    message: html,
-                    confirmButtonText: '取消',
-                    showCancelButton: true,
-                    cancelButtonText:'退出登录',
-                }).then((action)=>{
-                    if(action=='cancel'){
-                        this.logout();//接口触发
-                    }
-                })
-            },
-            async logout(){
-                const res = await logout();
-                if(res.code=='000000'){
-                    this.RECORD_ACCESSTOKEN('');
-                    this.$router.push('/login');
-                }else if(res.code=='000004'){
-                    this.RECORD_ACCESSTOKEN('');
-                    this.$router.push('/login');
-                }else{
-                    Toast({
-                        message: res.message,
-                        position: 'bottom',
-                        duration: 3000
-                    });
-                }
-            }
         },
         created(){
             if(!this.pcStatus){
@@ -543,7 +438,6 @@ import { shop_status, shop,} from '@/service/getData.js'
             this.loginStatus = this.accessToken ? true : false;
             if(this.loginStatus){              // 登录状态下请求
                 this.shop_status();            // 判断店铺状态
-                this.checkShopStatus();        // 店铺信息
                 console.log('accessToken',this.accessToken)
             }
             // 判断是pc还是移动端
@@ -561,11 +455,6 @@ import { shop_status, shop,} from '@/service/getData.js'
     				that.pcStatus=false
     			}
             }
-        },
-        beforeRouteLeave (to, from, next) {
-            this.popupVisible = false;
-            this.fixed(false)
-            next()
         },
     }
 

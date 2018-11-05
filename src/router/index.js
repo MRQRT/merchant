@@ -97,9 +97,9 @@ const router = new Router({
         {
             path: '/uploadcertificate',  // 上传资质页
             component: uploadcertificate,
-            meta: {
-                requireAuth: true,
-            }
+            // meta: {
+            //     requireAuth: true,
+            // }
         },
         {
             path: '/confirminfo',  // 核实信息页

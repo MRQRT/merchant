@@ -9,6 +9,7 @@ import {
 	RECORD_SHOPSTATUS,
 	RECORD_STOREORDERINFO,
 	RECORD_ADDRESSID,
+	RECORD_APPLYSHOPID,
 } from './mutation-types.js'
 
 import {setStore, getStore, setCookie ,getCookie, removeCookie, removeStore} from '../config/mUtils'
@@ -61,5 +62,10 @@ export default {
 	[RECORD_ADDRESSID](state,addressid){
 		state.addressid=addressid
 		setStore('addressid',addressid,'session')
+	},
+	//要认领的店铺id
+	[RECORD_APPLYSHOPID](state,applyShopId){
+		state.applyShopId = applyShopId;
+		setStore('applyShopId',applyShopId,'session')
 	}
 }
