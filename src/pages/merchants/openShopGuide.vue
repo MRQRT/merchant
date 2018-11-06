@@ -73,12 +73,10 @@ import { shop_status } from '@/service/getData.js'
                         }
                     })
                 }else{ // 已登录
-                    if(this.shopStatus){ //如果是认领店铺则跳转填写店铺信息页面
-                        if(this.applyShopId!=''&&this.applyShopId!=null){
-                            this.$router.push('/editshopinfo')
-                        }else{
-                            this.$router.push('/uploadcertificate')
-                        }
+                    if(this.applyShopId!=''&&this.applyShopId!=null){ //如果是认领店铺则跳转填写店铺信息页面
+                        this.$router.push('/editshopinfo')
+                    }else{
+                        this.$router.push('/uploadcertificate')
                     }
                 }
             },
