@@ -113,7 +113,7 @@ import {business_license,person_card_back,person_card_front} from '@/service/get
             },
             //图片上传
             async uploadimg(val,type){
-                Indicator.open();
+                Indicator.open('上传中...');
                 if(type=='lic'){
                     const res = await business_license(val);//上传营业执照
                     if(res.code=='000000'){

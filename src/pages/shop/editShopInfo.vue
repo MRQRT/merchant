@@ -204,7 +204,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
             },
             //图片上传
             async uploadimg(val,val2){
-                Indicator.open();
+                Indicator.open('上传中...');
                 if(val2=='headimg'){
                     const res = await upload_shop_pro(val);//头像上传
                     if(res.code=='000000'){
@@ -314,18 +314,19 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
             },
             //校验手机号是否正确
             check_tels(val){
-                let reg = /^(0|86|17951)?(13[0-9]|15[0-9]|17[0-9]|18[0-9]|14[0-9]|19[0-9])[0-9]{8}$/;
+                // let reg = /^(0|86|17951)?(13[0-9]|15[0-9]|17[0-9]|18[0-9]|14[0-9]|19[0-9])[0-9]{8}$/;
+                let reg = /^(\(\d{3,4}\)|\d{3,4}-|\s)?\d{11}$/;
                 if(val.length<11&&val.length>0){
-                    Toast('手机号格式不正确')
+                    Toast('手机号/电话号格式不正确')
                     return false
                 }
                 if(val.match(reg)){
                     return true
                 }else if(val ==''){
-                    Toast('请输入手机号')
+                    Toast('请输入手机号/电话号(加区号)')
                     return false
                 }else{
-                    Toast('手机号格式不正确')
+                    Toast('手机号/电话号格式不正确')
                     return false
                 }
             },

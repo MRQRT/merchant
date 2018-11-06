@@ -5,7 +5,6 @@ import axios from 'axios'
 import qs from 'qs'
 import { Toast, MessageBox,Indicator} from 'mint-ui'
 import store from '../store'
-
 // axios.defaults.baseURL = process.env.API_ROOT   //配置接口地址
 
 axios.defaults.baseURL = '/api'   //配置接口地址
@@ -115,9 +114,11 @@ export function fetch(url, params, method) {
         .then(response => {
             resolve(response.data)
         }, err => {
+            Indicator.close();
             reject(err)
         })
         .catch((error) => {
+            Indicator.close();
            reject(error)
        })
     })
