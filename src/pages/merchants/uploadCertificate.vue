@@ -2,7 +2,7 @@
     <div class="uploadCertificate">
         <!-- 头部标题部分 -->
         <head-top headTitle='上传营业资质证书' class="head-top nomal-font" ref="topHead">
-            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
+            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.push('/openshopguide')">
         </head-top>
         <!-- tip -->
         <section class="tip">请按照图示上传证件图片</section>

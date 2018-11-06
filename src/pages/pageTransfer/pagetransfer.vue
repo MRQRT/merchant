@@ -13,7 +13,7 @@ export default {
     },
     computed: {
         ...mapState([
-            'shopStatus'
+            'shopStatus','applyShopId'
         ]),
     },
     methods: {
@@ -35,7 +35,11 @@ export default {
                 if(res.data){
                     this.$router.push('/applicationresults') //审核结果页
                 }else{
-                    this.$router.push('/openshopguide') // 商户入驻引导页
+                    if(this.applyShopId!=''&&this.applyShopId!=null){ //如果是认领店铺则跳转填写店铺信息页面
+                        this.$router.push('/editshopinfo')
+                    }else{
+                        this.$router.push('/uploadcertificate') // 上传资质页
+                    }
                 }
             }
         },
