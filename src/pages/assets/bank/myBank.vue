@@ -7,15 +7,15 @@
         <!-- 主体部分 -->
         <div class="main-cont">
             <!-- 未绑卡状态 -->
-            <!-- <div class="no-binding" v-if="!bindingStatus">
+            <div class="no-binding" v-if="bindingStatus">
                 <div class="top-img">
                     <img src="static/images/no-binding.png" alt="">
                 </div>
                 <p>您没有绑定银行卡，立即绑卡！</p>
                 <div class="binding-btn" @click="$router.push('/bindingbank')">立即绑卡</div>
-            </div> -->
+            </div>
             <!-- 已绑卡状态 -->
-            <div class="has-binding">
+            <div class="has-binding" v-else>
                 <div class="card">
                     <div class="top-part">
                         <div class="left-icon">
@@ -45,7 +45,7 @@ import {query_card_info,} from '@/service/getData.js'
     export default {
         data(){
             return{
-                // bindingStatus:false,
+                bindingStatus:false,
                 bankInfo:{
                     code:'0820',
                     icon:'',
@@ -69,7 +69,12 @@ import {query_card_info,} from '@/service/getData.js'
             async request(){
             	const res = await query_card_info();
             	if(res.code=='000000'){
-					this.bankInfo = res.data;
+                    if(res.data){
+                        this.bindingStatus = true;
+                        this.bankInfo = res.data;
+                    }else{
+                        this.bindingStatus = false;
+                    }
 				}
             },
         },

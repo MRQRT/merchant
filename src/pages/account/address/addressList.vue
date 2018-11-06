@@ -91,8 +91,8 @@
 			]),
 			//点击返回按钮
 			backWard(){
-				if(this.$route.query.from=='account'){
-					this.$router.push('/account')
+				if(this.$route.query.from=='mine'){
+					this.$router.push('/mine')
 				}else{
 					this.$router.push('/storegold')
 				}
@@ -133,16 +133,16 @@
 			putAddress(val){
 				if(this.$route.query.from=='storegold'){
 					this.$router.push({
-						path:'addAddress',  
-						query: { 
+						path:'addAddress',
+						query: {
 							modify: val.id,
 							from:'storegold'
 						}
 					})
 				}else if(this.$route.query.from=='account'){
 					this.$router.push({
-						path:'addAddress',  
-						query: { 
+						path:'addAddress',
+						query: {
 							modify: val.id,
 							from:'account'
 						}

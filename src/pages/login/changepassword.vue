@@ -80,7 +80,7 @@ import md5 from 'js-md5'
                 }else{
                     this.isSubmit=false
                 }
-            }  
+            }
         },
         methods: {
             //提交信息
@@ -95,7 +95,7 @@ import md5 from 'js-md5'
                 const res = await change_password(a,b);
                 if(res.code=='000000'){
                     MessageBox.alert('登录密码已更新').then(action => {
-                       this.$router.push('/account')
+                       this.$router.push('/mine')
                     });
                 }else{
                     Toast(res.message)
@@ -204,7 +204,7 @@ import md5 from 'js-md5'
     width: 100%;
     height: 1.1rem;
     padding-top: .3rem;
-    position: relative; 
+    position: relative;
 }
 .message div{
     width: 100%;
@@ -241,5 +241,5 @@ import md5 from 'js-md5'
 }
 .clear img{
     width: .36rem;
-}   
+}
 </style>

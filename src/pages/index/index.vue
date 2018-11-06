@@ -2,9 +2,9 @@
     <div class="outer-wrap">
         <!-- 移动端显示样式 -->
         <div class="index" v-if="!pcStatus">
-            <!-- 导航按钮 -->
-            <div class="navigator" @click="navPopup">
-                <img src="static/images/nav-icon.png" alt="">
+            <!-- 悬浮入驻店铺按钮 -->
+            <div class="shops-located" v-show="!loginStatus || !shopStatus" @click="goShop()">
+                <img src="static/images/shops-located.png" alt="">
             </div>
     		<!--存金banner-->
     		<div class="storBanner">
@@ -15,30 +15,10 @@
     						<span>实时金价&回收金价(元/克)</span>
     					</p>
     					<p class="price_amount">{{currentPrice | formatPriceTwo}}</p>
-    					<button class="goStore" @click="$router.push('/storegold')">一键存金</button>
+    					<button class="goStore" @click="$router.push('/storegold')">一键回收</button>
     				</div>
     			</div>
     		</div>
-    		<!-- 成交数量 -->
-    		<section class="dealNum" v-if="loginStatus && shopStatus">
-                <p class="title">近一月成交量</p>
-                <div class="deal-num">
-                    <div class="total-price">
-                        <p>累计成交金额(元)</p>
-                        <p class="price">{{dealObject.totalCashAmount | formatPriceTwo}}</p>
-                    </div>
-                    <div class="bottom-num">
-                        <div class="left-weight">
-                            <p>累计成交克重(克)</p>
-                            <p class="weight">{{dealObject.totalWeight}}</p>
-                        </div>
-                        <div class="right-count">
-                            <p>累计成交笔数(笔)</p>
-                            <p class="price">{{dealObject.totalCount}}</p>
-                        </div>
-                    </div>
-                </div>
-    		</section>
     		<!--存金流程-->
     		<div class="store_flow">
     			<section class="subtitle">黄金回收流程</section>
@@ -122,56 +102,12 @@
     				<p>黄金管家QQ群：673646474</p>
     				<p>黄金管家官方微信：13651098613</p>
     				<p>客服电话：4008-196-199</p>
+    				<p>检测中心：东莞市凤岗镇五联村碧湖大道新绮腾金银珠宝产业园A栋</p>
     				<p>公司地址：北京市海淀区中关村SOHO B座 1209室</p>
     			</div>
     		</section>
-            <!-- 左侧导航 -->
-            <mt-popup v-model="popupVisible" position="left">
-                <div class="nav-wrap">
-                    <!-- 未登录情况 -->
-                    <div class="top-info" v-if="!loginStatus">
-                        <div class="cjt-logo">
-                            <img src="static/images/cjt-logo.png" alt="">
-                        </div>
-                        <!-- 登录注册按钮 -->
-                        <div class="login-btn"  @click="$router.push({path:'/login',query:{redirect:'/index'}})">登录/注册</div>
-                    </div>
-                    <!-- 已登录：店铺图标名称 -->
-                    <div class="top-info" @click="goShop()" v-else>
-                        <div class="shop-logo">
-                            <img src="static/images/shop-logo.png" alt="" v-if="!shopStatus">
-                            <img :src="shopInfo.logoPath" alt="" v-else>
-                        </div>
-                        <!-- 登录且审核通过提示 -->
-                        <p v-if="shopStatus">{{shopInfo.name}}</p>
-                        <!-- 未开店/店铺正在审核中显示 -->
-                        <p v-else>我的店铺</p>
-                    </div>
-                    <!-- 导航路由 -->
-                    <ul class="nav-list">
-                        <li @click="$router.push('/assets')">
-                            <span class="icon1"></span>
-                            <span>我的资产</span>
-                        </li>
-                        <li @click="$router.push('/storeorderlist')">
-                            <span class="icon2"></span>
-                            <span>我的订单</span>
-                        </li>
-                        <li @click="$router.push('/account')">
-                            <span class="icon3"></span>
-                            <span>帐户管理</span>
-                        </li>
-                        <li @click="$router.push('/aboutus')">
-                            <span class="icon4"></span>
-                            <span>关于我们</span>
-                        </li>
-                        <li @click="quitLogin()" v-if="loginStatus">
-                            <span class="icon5"></span>
-                            <span>退出登录</span>
-                        </li>
-                    </ul>
-                </div>
-            </mt-popup>
+            <!-- 底部固定导航 -->
+            <foot></foot>
         </div>
         <!-- pc端显示样式 -->
         <div class="pc-index" v-else>
@@ -424,33 +360,24 @@
 
 <script>
 import headTop from '@/components/header/head.vue'
+import foot from '@/components/footer/foot.vue'
 import { Popup,Toast,MessageBox } from 'mint-ui';
 import { mapState,mapMutations } from 'vuex'
-import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_status } from '@/service/getData.js'
+import { shop_status, shop, merchant_open_apply_status} from '@/service/getData.js'
 
 
     export default {
         data(){
             return{
-                popupVisible:false,   // 左侧导航显示
                 loginStatus:false,    // 是否登录
                 pcStatus:false,      // 是否是pc端
-                dealObject:{          // 近一月交易量
-                    totalCashAmount:0,
-                    totalWeight:0,
-                    totalCount:0
-                },
-                shopInfo:{
-                    shopId:'',
-                    logoPath:'',
-                    name:'我的店铺'
-                },
                 clientWidth:document.documentElement.clientWidth,//页面宽度
             }
         },
         components:{
             headTop,
-            Popup
+            Popup,
+            foot
         },
         computed: {
             ...mapState([
@@ -462,26 +389,28 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
 			currentPrice(val){
 				return val
 			},
-            popupVisible:function(val){
-                if(!this.pcStatus){
-                    val ? this.fixed(true) : this.fixed(false)
-                }
-            },
         },
         methods: {
             ...mapMutations([
                 'RECORD_ACCESSTOKEN','RECORD_SHOPID','RECORD_SHOPSTATUS'
             ]),
-            // 显示导航
-            navPopup(){
-                this.popupVisible = true;
-            },
-            // 点击我的店铺logo跳转操作
+            // 点击我要入驻跳转操作
             goShop(){
-                if(this.shopStatus){
-                    this.$router.push('/myshop') // 跳转我的店铺页
-                }else{
+                if(this.loginStatus){
                     this.merchant_open_apply_status();
+                }else{
+                    this.$router.push('/openshopguide');
+                }
+            },
+            // 获取最新商户审核信息
+            async merchant_open_apply_status(){
+                var res = await merchant_open_apply_status();
+                if(res.code=='000000'){
+                    if(res.data){
+                        this.$router.push('/applicationresults') //审核结果页
+                    }else{
+                        this.$router.push('/openshopguide') // 商户入驻引导页
+                    }
                 }
             },
             // 判断店铺状态
@@ -496,72 +425,6 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
                     Toast(res.message);
                 }
             },
-            // 近一月统计数据
-            async query_index_statistics(){
-                var res = await query_index_statistics();
-                if(res.code=='000000'){
-                    this.dealObject=res.data;
-                }else if(res.code=='200206'){
-                    this.RECORD_SHOPSTATUS(false); // 店铺不存在或未通过审核
-                }else{
-                    // Toast(res.message)
-                }
-            },
-            // 获取店铺信息
-            async checkShopStatus(){
-                var res = await shop();
-                if(res.code=='000000'){
-                    if(res.data){
-                        this.shopInfo = res.data;
-                        this.RECORD_SHOPID(res.data.id); // 保存店铺ID
-                    }else{
-                        this.RECORD_SHOPID('');        // 保存店铺ID
-                        this.RECORD_SHOPSTATUS(false); // 店铺不存在或未通过审核
-                    }
-                }
-            },
-            // 获取最新商户审核信息
-            async merchant_open_apply_status(){
-                var res = await merchant_open_apply_status();
-                if(res.code=='000000'){
-                    if(res.data){
-                        this.$router.push('/applicationresults') //审核结果页
-                    }else{
-                        this.$router.push('/openshopguide') // 商户入驻引导页
-                    }
-                }
-            },
-            //退出登录
-            async quitLogin(){
-                var html='<div style="text-align:center">确定要退出登录？</div>'
-                MessageBox({
-                    title: '提示',
-                    message: html,
-                    confirmButtonText: '取消',
-                    showCancelButton: true,
-                    cancelButtonText:'退出登录',
-                }).then((action)=>{
-                    if(action=='cancel'){
-                        this.logout();//接口触发
-                    }
-                })
-            },
-            async logout(){
-                const res = await logout();
-                if(res.code=='000000'){
-                    this.RECORD_ACCESSTOKEN('');
-                    this.$router.push('/login');
-                }else if(res.code=='000004'){
-                    this.RECORD_ACCESSTOKEN('');
-                    this.$router.push('/login');
-                }else{
-                    Toast({
-                        message: res.message,
-                        position: 'bottom',
-                        duration: 3000
-                    });
-                }
-            }
         },
         created(){
             if(!this.pcStatus){
@@ -575,9 +438,9 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
             this.loginStatus = this.accessToken ? true : false;
             if(this.loginStatus){              // 登录状态下请求
                 this.shop_status();            // 判断店铺状态
-                this.checkShopStatus();        // 店铺信息
+                // this.checkShopStatus();        // 店铺信息
                 this.query_index_statistics(); // 首页统计数据
-                // console.log('accessToken',this.accessToken)
+                console.log('accessToken',this.accessToken)
             }
             // 判断是pc还是移动端
             if(this.clientWidth>1000){
@@ -595,11 +458,6 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
     			}
             }
         },
-        beforeRouteLeave (to, from, next) {
-            this.popupVisible = false;
-            this.fixed(false)
-            next()
-        },
     }
 
 </script>
@@ -608,10 +466,34 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
 @import '../../sass/mixin';
 .index{
 	width: 100%;
+    padding-bottom: .68rem;
 	position: relative;
 	top: 0;
 	background-color: #fff;
 	text-align: center;
+
+    @keyframes scaleLoop1{
+        0%{ transform: scale(1); }
+        50%{ transform: scale(0.9); }
+        100%{ transform: scale(1); }
+    }
+    @keyframes patt4{
+        0%{ transform: rotate(-2deg);}
+        50%{ transform: rotate(1deg);}
+        100%{ transform: rotate(-2deg);}
+    }
+    .shops-located{
+        width: 2.2rem;
+        height: 2.4rem;
+        position: fixed;
+        right:0;
+        top:65%;
+        z-index: 1000;
+        animation: scaleLoop1 .7s infinite;
+        img{
+            width: 100%;
+        }
+    }
     .navigator{
         width: .44rem;
         height: .44rem;
@@ -1031,7 +913,7 @@ import { shop_status, query_index_statistics, shop, logout,merchant_open_apply_s
             }
             p{
             	text-align: left;
-                padding-left:.3rem;
+                padding:0 .3rem;
             }
         }
     }

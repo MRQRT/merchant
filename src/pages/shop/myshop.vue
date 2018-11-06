@@ -2,7 +2,7 @@
     <div class="shop-detail">
         <!-- 头部标题部分 -->
         <head-top headTitle='店铺信息' class="head-top nomal-font" ref="topHead">
-            <img slot='head_goback' src='/static/images/back.png' class="head_goback" @click="$router.go(-1)">
+            <img slot='head_goback' src='/static/images/back.png' class="head_goback" @click="$router.push('/mine')">
         </head-top>
         <!-- 主体部分 -->
         <div class="main-cont">

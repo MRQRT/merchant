@@ -12,7 +12,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
         "/api": {
-            target:"https://sh-test.au32.cn/",
+            target:"https://sh-test.au32.cn",
             changeOrigin: true,
             pathRewrite: {
                 "^/api": ""
@@ -20,7 +20,6 @@ module.exports = {
         }
     },
     // Various Dev Server settings
-    // host: '10.88.88.8', // can be overwritten by process.env.HOST
     host:'192.168.1.113',//comp guo
     // host:'192.168.1.110',//home guo
     // host: '192.168.1.181', // can be overwritten by process.env.HOST

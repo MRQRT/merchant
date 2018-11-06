@@ -10,6 +10,10 @@ const systemError = r => require.ensure([], () => r(require('../pages/error/500'
 
 /* 首页 */
 const index = r => require.ensure([], () => r(require('../pages/index/index')), 'index')
+/* 我的 */
+const mine = r => require.ensure([], () => r(require('../pages/mine/mine')), 'mine')
+/*路由分发页面*/
+const pagetransfer = r => require.ensure([], () => r(require('../pages/pageTransfer/pagetransfer')), 'pagetransfer')
 
 /* 商铺相关 */
 const openshopguide = r => require.ensure([], () => r(require('../pages/merchants/openShopGuide')), 'openshopguide')
@@ -79,12 +83,23 @@ const router = new Router({
             component: index,
         },
         {
+            path: '/mine',  // 我的
+            component: mine,
+        },
+        {
+            path: '/pagetransfer',  // 路由分发页
+            component: pagetransfer,
+        },
+        {
             path: '/openshopguide',  // 入驻引导页
             component: openshopguide,
         },
         {
             path: '/uploadcertificate',  // 上传资质页
             component: uploadcertificate,
+            // meta: {
+            //     requireAuth: true,
+            // }
         },
         {
             path: '/confirminfo',  // 核实信息页
@@ -97,6 +112,9 @@ const router = new Router({
         {
             path: '/applicationresults',  // 审核结果页
             component: applicationresults,
+            meta: {
+                requireAuth: true,
+            }
         },
         {
             path: '/myshop',  // 我的店铺页
@@ -117,9 +135,6 @@ const router = new Router({
         {
             path: '/storeorderlist',  // 存金订单列表页
             component: storeOrderList,
-            meta: {
-                requireAuth: true,
-            }
         },
         {
             path: '/storeorderdetail',  // 存金订单详情页
@@ -139,6 +154,9 @@ const router = new Router({
         {
             path: '/mybank',   // 我的银行卡页
             component: myBank,
+            meta: {
+                requireAuth: true,
+            }
         },
         {
             path: '/bindingbank',  // 绑定银行卡页
@@ -157,6 +175,9 @@ const router = new Router({
         {
             path: '/addresslist',  // 地址列表页
             component: addressList,
+            meta: {
+                requireAuth: true,
+            }
         },
         {
             path: '/addaddress',  // 新增地址页
@@ -199,7 +220,10 @@ const router = new Router({
         },
         {
             path: '/changepassword', //修改密码
-            component: changepassword
+            component: changepassword,
+            meta: {
+                requireAuth: true,
+            }
         },
         {
             path: '/location', //选择店铺地址页

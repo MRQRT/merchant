@@ -2,7 +2,7 @@
     <div class="bindingBank">
         <!-- 头部标题部分 -->
         <head-top headTitle='添加银行卡' class="head-top nomal-font" ref="topHead">
-            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="goBack()">
+            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
         </head-top>
         <!-- 主体部分 -->
         <div class="main-cont">
@@ -307,7 +307,7 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
                             if(this.$route.query.from=='storegold'){
                                 this.$router.replace('/storegold')
     						}else{
-    							this.$router.replace('/assets')
+    							this.$router.replace('/mybank')
     						}
                         }, 1000);
 					}else{

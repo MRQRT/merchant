@@ -15,7 +15,8 @@ const state = {
 	now:'',										 //当前时间
 	currentPrice:getStore('currentPrice','session'),// 当前实时金价
 	storeOrderInfo:'',							 //保存的存金填写信息
-	addressid:getStore('addressid','session'),//所选的地址id
+	addressid:getStore('addressid','session'),	 //所选的地址id
+	applyShopId:getStore('applyShopId','session'), //要认领的店铺id
 }
 
 export default new Vuex.Store({
