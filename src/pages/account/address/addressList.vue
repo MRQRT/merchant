@@ -514,8 +514,6 @@
 	font-weight:400;
 	color:rgba(192,156,96,1);
 	font-size: .32rem;
-}
-.button span{
 	position: relative;
 }
 </style>
