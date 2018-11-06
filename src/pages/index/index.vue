@@ -439,7 +439,7 @@ import { shop_status, shop, merchant_open_apply_status} from '@/service/getData.
             if(this.loginStatus){              // 登录状态下请求
                 this.shop_status();            // 判断店铺状态
                 // this.checkShopStatus();        // 店铺信息
-                this.query_index_statistics(); // 首页统计数据
+                // this.query_index_statistics(); // 首页统计数据
                 console.log('accessToken',this.accessToken)
             }
             // 判断是pc还是移动端

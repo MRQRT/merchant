@@ -8,6 +8,7 @@
 <script>
 import {query_gold_price} from './service/getData.js'
 import { mapState,mapMutations } from 'vuex'
+import { Indicator } from 'mint-ui'
 
 export default {
         name: 'app',
@@ -21,6 +22,7 @@ export default {
         },
         watch:{
             $route(to,from){
+                Indicator.close();
                 this.messageBoxRemove();
                 if(to.path=='/index' || to.path=='/storegold'){
                     if(window.queryPrice){
