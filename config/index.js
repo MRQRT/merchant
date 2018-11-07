@@ -20,9 +20,15 @@ module.exports = {
         }
     },
     // Various Dev Server settings
+<<<<<<< HEAD
     // host:'192.168.1.113',//comp guo
     // host:'192.168.1.107',//home guo
     host: '10.88.88.8', // can be overwritten by process.env.HOST
+=======
+    host:'192.168.1.113',//comp guo
+    // host:'192.168.1.107',//home guo
+    // host: '192.168.1.181', // can be overwritten by process.env.HOST
+>>>>>>> bd5f69eba22a7d14d951c0917bd9ca20a5badcb2
     port: 8082, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: true,
     errorOverlay: true,
