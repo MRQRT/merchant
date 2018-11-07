@@ -236,12 +236,37 @@
                 if(this.fast){
                     var res = await quicklogin(this.num,this.code);
                     if(res.code=='000000'){
-                        //登录成功后获取用户基本概况
-                        // this.userInforma();
                         this.RECORD_USERID(res.data.userId)
                         this.RECORD_ACCESSTOKEN(res.data.accessToken)
                         this.RECORD_MOBILE(res.data.mobile)
                         this.RECORD_MERCHANTID(res.data.merchantId)
+                        if(res.data.hasPassword==true){//有密码
+                            this.toNext();
+                        }else if(res.data.hasPassword==false){//没有密码
+                            var quickphone=window.localStorage.getItem('quickphone');
+                            var logtim=window.localStorage.getItem('logtim');
+                            if(quickphone){
+                                if(quickphone==this.num){
+                                    if(logtim==0){
+                                        this.logtim=true
+                                        window.localStorage.setItem('logtim',1);
+                                    }else if(logtim==1){
+                                        this.cover_show=true
+                                        window.localStorage.setItem('logtim',2);
+                                    }else{
+                                        this.toNext();
+                                    }
+                                }else if(quickphone!=this.num){
+                                    window.localStorage.setItem('quickphone',this.num);
+                                    window.localStorage.setItem('logtim',0);
+                                    this.toNext();
+                                }
+                            }else{
+                                window.localStorage.setItem('quickphone',this.num);
+                                window.localStorage.setItem('logtim',0);
+                                this.toNext();
+                            }
+                        }
                         //登录成功后去获取登录页的上一页,再跳转回去(带上对应的参数)
                         // this.toNext();
                     }else if(res.code=='000006'){//用户登录异常
@@ -398,13 +423,6 @@
                 //         duration: 3000
                 //     });
                 // }
-            },
-            //获取用户基本概况
-            async userInforma(){
-                const res = await queryMyProfil()
-                if(res.code==100){
-                    this.RECORD_USERINFO(res.content)
-                }
             },
             //清除账户或手机号输入框
             clearAccIpt(val){
