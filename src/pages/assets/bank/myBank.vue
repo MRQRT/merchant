@@ -7,7 +7,7 @@
         <!-- 主体部分 -->
         <div class="main-cont">
             <!-- 未绑卡状态 -->
-            <div class="no-binding" v-if="bindingStatus">
+            <div class="no-binding" v-if="!bindingStatus">
                 <div class="top-img">
                     <img src="static/images/no-binding.png" alt="">
                 </div>
