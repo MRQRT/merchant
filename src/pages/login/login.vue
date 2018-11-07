@@ -248,7 +248,7 @@
                             if(quickphone){
                                 if(quickphone==this.num){
                                     if(logtim==0){
-                                        this.logtim=true
+                                        this.cover_show=true
                                         window.localStorage.setItem('logtim',1);
                                     }else if(logtim==1){
                                         this.cover_show=true
