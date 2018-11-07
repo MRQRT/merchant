@@ -83,7 +83,7 @@
 import foot from '@/components/footer/foot.vue'
 import { mapState,mapMutations } from 'vuex'
 import { MessageBox,Toast} from 'mint-ui';
-import { query_card_info,query_ensure_cash, merchant_open_apply_status,logout,query_index_statistics,shopDetail,shop_status} from '@/service/getData.js'
+import { query_card_info,query_ensure_cash, merchant_open_apply_status,logout,query_index_statistics,shopDetail,shop_status,check_password} from '@/service/getData.js'
 
     export default {
         data(){
@@ -109,6 +109,7 @@ import { query_card_info,query_ensure_cash, merchant_open_apply_status,logout,qu
                     logoPath:'',
                     name:'我的店铺'
                 },
+                password_Exist:'',
             }
         },
         components:{
@@ -148,8 +149,12 @@ import { query_card_info,query_ensure_cash, merchant_open_apply_status,logout,qu
                           confirmButtonText: '我知道了'
                         })
                     }else{
+                        var rewurl=ur;
+                        if(url=='/changepassword'){
+                            (this.password_Exist)?rewurl='/changepassword':'/setpassword'
+                        }
                         this.$router.push({
-                            path:url,
+                            path:rewurl,
                             query:{
                                 from:'mine'
                             }
@@ -258,6 +263,16 @@ import { query_card_info,query_ensure_cash, merchant_open_apply_status,logout,qu
                         duration: 3000
                     });
                 }
+            },
+            async check_password(){
+                const res = await check_password();
+                if(res.code=='000000'){
+                    if(res.data.isExist){
+                        this.password_Exist=true
+                    }else{
+                        this.password_Exist=false
+                    }
+                }
             }
         },
         created(){
@@ -270,6 +285,7 @@ import { query_card_info,query_ensure_cash, merchant_open_apply_status,logout,qu
                 this.query_ensure_cash();      // 保证金
                 this.query_index_statistics(); // 近一月成交量
                 this.shop_status();            // 是否有店铺
+                this.check_password();//检查是否设置密码
             }
         },
     }

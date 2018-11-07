@@ -264,7 +264,7 @@
                             }else{
                                 window.localStorage.setItem('quickphone',this.num);
                                 window.localStorage.setItem('logtim',0);
-                                this.toNext();
+                                this.$router.push('/setpassword');
                             }
                         }
                         //登录成功后去获取登录页的上一页,再跳转回去(带上对应的参数)
