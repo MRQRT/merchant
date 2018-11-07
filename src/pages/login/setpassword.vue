@@ -1,9 +1,14 @@
 <template>
     <div class="account">
         <!-- 头部标题部分 -->
-        <head-top headTitle='设置登录密码' class="head-top nomal-font" ref="topHead">
+        <head-top headTitle='设置密码' class="head-top nomal-font" ref="topHead">
             <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
         </head-top>
+        <!-- header -->
+        <!-- <header class="header">
+            <img src="static/images/tip.png" alt="">
+            <p>设置密码后，您就可以使用手机号+密码登录</p>
+        </header> -->
         <!-- password -->
         <section class="password">
              <input type="password" minlength="6" maxlength="20" placeholder="请输入登录密码，6~20位字母、数字或组合" ref="password1" class="passwords" v-model="password1" v-on:blur="ckeckpassword(password1)" v-on:focus="focus()">
@@ -159,5 +164,24 @@ padding-top:.88rem;
     display:inline-block;
     background-color:#DDC899;
     border-radius:4px;
+}
+.header{
+    width: 100%;
+    height: .63rem;
+    line-height: .63rem;
+    background:rgba(242,182,67,1);
+    padding-left: .4rem;
+}
+.header img{
+    width: .24rem;
+    height: .24rem;
+    float: left;
+    margin-top: .18rem;
+    margin-right: .08rem;
+}
+.header p{
+    font-size: .22rem;
+    color: #C09C60;
+    float: left;
 }
 </style>

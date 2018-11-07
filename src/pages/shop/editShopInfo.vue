@@ -207,7 +207,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
             },
             //图片上传
             async uploadimg(val,val2){
-                Indicator.open();
+                Indicator.open('上传中...');
                 if(val2=='headimg'){
                     const res = await upload_shop_pro(val);//头像上传
                     if(res.code=='000000'){
@@ -265,8 +265,9 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 }
             },
             //根据区域解出id
-            async area_id(val){
-                const res = await cityName(val);
+            async area_id(privince,city,county){
+                // const res = await cityName(privince,city,county);
+                const res = await cityName(county);
                 if(res.code=='000000'){
                     if(res.data){
                        this.shop_message.areaId=res.data.id
@@ -282,8 +283,9 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 var geoc = new BMap.Geocoder();
                 geoc.getLocation(pt, function(rs){//解析格式：城市，区县，街道
                     // console.log(rs.addressComponents.district)//根据区域反解区域id
+                    // console.log(rs.addressComponents.province)//省
                     // console.log(rs.addressComponents.city)//城市
-                    v_this.area_id(rs.addressComponents.district)//解出id
+                    v_this.area_id(rs.addressComponents.province,rs.addressComponents.city,rs.addressComponents.district)//解出id
                 })
             },
             //店铺信息校验
@@ -315,18 +317,19 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
             },
             //校验手机号是否正确
             check_tels(val){
-                let reg = /^(0|86|17951)?(13[0-9]|15[0-9]|17[0-9]|18[0-9]|14[0-9]|19[0-9])[0-9]{8}$/;
+                // let reg = /^(0|86|17951)?(13[0-9]|15[0-9]|17[0-9]|18[0-9]|14[0-9]|19[0-9])[0-9]{8}$/;
+                let reg = /^(\(\d{3,4}\)|\d{3,4}-|\s)?\d{11}$/;
                 if(val.length<11&&val.length>0){
-                    Toast('手机号格式不正确')
+                    Toast('手机号/电话号格式不正确')
                     return false
                 }
                 if(val.match(reg)){
                     return true
                 }else if(val ==''){
-                    Toast('请输入手机号')
+                    Toast('请输入手机号/电话号(加区号)')
                     return false
                 }else{
-                    Toast('手机号格式不正确')
+                    Toast('手机号/电话号格式不正确')
                     return false
                 }
             },

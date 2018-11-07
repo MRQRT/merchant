@@ -10,7 +10,7 @@
 				<p>
 					<input type="radio" v-model="picked" :id="index" :value="index" @click="putDefault(item.id,index)">
 					<label :for="index" @click="putDefault(item.id,index)">{{picked==index?'默认地址':'设为默认'}}</label>
-					<span class="del" @click="delAddress(item.id,index)">
+					<span class="del" @click="deladr(item.id,index)">
 						<img :src="del">
 						<span>删除</span>
 					</span>
@@ -29,11 +29,22 @@
 			<div @click="addNewAddr" class="s">添加地址</div>
 		</div>
 		<a class="add" @click="addNewAddr" v-show='hasAddress'><img :src="add3">新建地址</a>
+		<!-- 遮罩层 -->
+		<section class="cover" v-show="cover_show">
+		</section>
+		<div class="message_box" v-show="cover_show">
+			<h4>提示</h4>
+			<p>确定要删除该地址吗？</p>
+			<div class="button">
+				<span class="left" @click="butt('cancel')">取消</span>
+				<span class="right" @click="butt('confirm')">确定</span>
+			</div>
+		</div>
 	</div>
 </template>
 <script type="text/javascript">
 	import headTop from "@/components/header/head"
-	import { Toast } from 'mint-ui'
+	import { Toast,MessageBox } from 'mint-ui'
 	import { query_shop_address_list, update_default_address, del_shop_address, update_shop_address } from '@/service/getData.js'
 	import { setStore,getStore,getRem } from '@/config/mUtils.js'
 	import { mapState, mapMutations, mapActions } from 'vuex'
@@ -55,6 +66,9 @@
 				 empty: false, //无地址
                  hasAddress:true, //有地址
 				 has_checked: '',//已经选中地址的id
+				 cover_show: false,//遮罩层开关
+				 id: '',//要删除的地址id
+				 index: '',//要删除的地址 index
 			}
 		},
 		created(){
@@ -70,6 +84,7 @@
 			}
 			this.getAddress();
 			const continer = document.getElementsByClassName('address')[0];
+			const cover = document.getElementsByClassName('cover')[0];
 			continer.style.minHeight=(document.documentElement.clientHeight)+'px';
 		},
 		watch: {
@@ -111,6 +126,11 @@
 							break;
 						}
 					}
+					const continer = document.getElementsByClassName('address')[0];
+					const cover = document.getElementsByClassName('cover')[0];
+					setTimeout(function(){
+						cover.style.height=(continer.offsetHeight)+'px';
+					},10)
 				}else{
 					this.addre = [];
 					this.empty=true
@@ -123,11 +143,27 @@
 				let res = await update_default_address(val);
 				// this.RECORD_ADDRESS(item)
 			},
+			//点击删除按钮
+			deladr(val1,val2){
+				this.cover_show=true
+				this.id=val1
+				this.index=val2
+			},
+			butt(val1){
+				if(val1=='confirm'){
+					this.delAddress(this.id,this.index);
+				}else{
+					this.cover_show=false
+				}
+			},
 			//删除地址
 			async delAddress(val,val2){
 				let res = await del_shop_address(val);
 				this.getAddress();
+				this.cover_show=false;
 				(val2==this.picked)?this.picked='':'';
+				this.id=''
+				this.index=''
 			},
 			//编辑地址
 			putAddress(val){
@@ -198,7 +234,7 @@
 }
 .address{
 	width: 100%;
-	position: absolute;
+	position: relative;
 	top: 0;
 	z-index: 11;
 	background-color: #f5f5f5;
@@ -253,6 +289,30 @@
 		-moz-transform: scaleY(0.7);
 		transform:scaleY(0.7);
 	}
+	.button:before{
+		content: '';
+		display: inline-block;
+		width: 100%;
+		border-top: 1px solid #eeeeee;
+		-webkit-transform: scaleY(0.7);
+		-o-transform: scaleY(0.7);
+		-moz-transform: scaleY(0.7);
+		transform:scaleY(0.7);
+		position: absolute;
+		top:0;
+	}
+	.button span:nth-child(1):before{
+		content: '';
+		display: inline-block;
+		height: .88rem;
+		border-right: 1px solid #eeeeee;
+		-webkit-transform: scaleX(0.7);
+		-o-transform: scaleX(0.7);
+		-moz-transform: scaleX(0.7);
+		transform:scaleX(0.7);
+		position: absolute;
+		right:0;
+	}
 }
 @media(-webkit-min-device-pixel-ratio:2),(-moz-min-device-pixel-ratio:2),(-o-min-device-pixel-ratio:1.5){
 	.address_list>.addressDe>div:nth-child(2):after{
@@ -264,6 +324,30 @@
 		-o-transform: scaleY(0.5);
 		-moz-transform: scaleY(0.5);
 		transform:scaleY(0.5);
+	}
+	.button:before{
+		content: '';
+		display: inline-block;
+		width: 100%;
+		border-top: 1px solid #eeeeee;
+		-webkit-transform: scaleY(0.5);
+		-o-transform: scaleY(0.5);
+		-moz-transform: scaleY(0.5);
+		transform:scaleY(0.5);
+		position: absolute;
+		top:0;
+	}
+	.button span:nth-child(1):before{
+		content: '';
+		display: inline-block;
+		height: .88rem;
+		border-right: 1px solid #eeeeee;
+		-webkit-transform: scaleX(0.5);
+		-o-transform: scaleX(0.5);
+		-moz-transform: scaleX(0.5);
+		transform:scaleX(0.5);
+		position: absolute;
+		right:0;
 	}
 }
 .add{
@@ -383,5 +467,53 @@
 	right: .4rem;
 	top: .4rem;
 	position: absolute;
+}
+.cover{
+	position: fixed;
+	top:0;
+	width:100%;
+	min-height: 100vh;
+	background-color:rgba(0, 0, 0, .5);
+	z-index:1000;
+}
+.message_box{
+	width: 4.9rem;
+	height: 2.53rem;
+	background-color: #fff;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	margin-left: -2.45rem;
+	margin-top: -1.25rem;
+	z-index: 1001;
+}
+.message_box h4{
+	font-size:.32rem;
+	font-weight: bold;
+	color:#333;
+	text-align: center;
+	line-height: 1rem;
+}
+.message_box p{
+	font-size: .26rem;
+	color:#333;
+	text-align: center;
+	line-height: .3rem;
+}
+.button{
+	width: 100%;
+	height: .88rem;
+	position: absolute;
+	bottom:0;
+	display: flex;
+}
+.button span{
+	flex-grow: 1;
+	text-align:center;
+	line-height: .88rem;
+	font-weight:400;
+	color:rgba(192,156,96,1);
+	font-size: .32rem;
+	position: relative;
 }
 </style>

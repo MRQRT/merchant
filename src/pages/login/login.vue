@@ -1,8 +1,8 @@
 <template>
 	<div class="loginIn">
-		<div class="head-top" id="head_top">
-            <img src='static/images/close.png' @click="backWard">
-		</div>
+    <div class="head-top" id="head_top">
+        <img src='static/images/close.png' @click="backWard">
+    </div>
     <!--logo模块-->
     <section class="logoPart">
         <img src="static/images/logo.png">
@@ -45,6 +45,7 @@
                    <input type="text" id="identifyCode" placeholder="请输入验证码" v-model="code" style="width:100%;" maxlength="6" @input="checkInput(code,'code')">
                    <span class="getIdenCode" @click="getCode" ref="send_smscode">获取验证码</span>
                </div>
+               <p style="test-align:center;color:#FF6D39;line-height:.8rem;font-size:.23rem;">首次快捷登录即视为注册</p>
            </div>
          </div>
     </section>
@@ -53,13 +54,25 @@
         <section ref="login" @click="goToNext" class="login_click" type="default" :class="{'hasActived':highLight,'noActived':dark}">立即登录</section>
     </div>
     <!-- 注册按钮 -->
-    <div class="register">
+    <!-- <div class="register">
         <span @click="$router.push('/register')">注册新用户</span>
-    </div>
+    </div> -->
     <!--微信登录-->
     <div class="weixin_login" v-show="isWeixin">
         <img src="static/images/wx.png" class="weixin_img" @click="weixinLogin">
         <span>微信登录</span>
+    </div>
+    <!-- 遮罩层 -->
+    <section class="cover" v-show="cover_show">
+    </section>
+    <div class="message_box" v-show="cover_show">
+        <h4>温馨提示</h4>
+        <p>设置密码后就可以用密码</p>
+        <p>进行登录了哦～</p>
+        <div class="button">
+            <span class="left" @click="butt('cancel')">暂时不用</span>
+            <span class="right" @click="butt('confirm')">前往设置</span>
+        </div>
     </div>
 	</div>
 </template>
@@ -93,6 +106,7 @@
                 iNow: true,//解决重复点击问题
                 second: 60,//获取验证码的毫秒数
                 isWeixin: false,//是否是微信环境
+                cover_show: false,//遮罩层开关
 			}
 		},
         created() {
@@ -229,7 +243,7 @@
                         this.RECORD_MOBILE(res.data.mobile)
                         this.RECORD_MERCHANTID(res.data.merchantId)
                         //登录成功后去获取登录页的上一页,再跳转回去(带上对应的参数)
-                        this.toNext();
+                        // this.toNext();
                     }else if(res.code=='000006'){//用户登录异常
                         var html='<div style="text-align:center">您的账户出现了一些异常，我们已暂时对账户做出了封禁处理，如有疑问，请您联系客服</div>'
                          MessageBox({
@@ -289,6 +303,12 @@
                                 this.$router.replace({path:'/login'})
                             }
                         })
+                    }else if(res.code=="000005"){//用户不存在(未注册)
+                        Toast({
+                            message: '您还没有注册哦～',
+                            position: 'middle',
+                            duration: 3000
+                        });
                     }else{
                         Toast({
                             message: res.message,
@@ -307,54 +327,77 @@
                     Toast('请输入正确的手机号')
                     return;
                 }
-                //验证手机号是否注册
-                const res = await checkexist(this.num);//检验是否已注册
-                if(res.code=="000000"&&(res.data&&!res.data.isExist)){//请求成功且注册
-                    var send_smscode = this.$refs.send_smscode;
-                    var that=this;
-                    this.iNow = false;
-                    let timer = setInterval(function(){
-                        send_smscode.style.color="#666";
-                        that.second--;
-                        send_smscode.innerHTML = that.second+'s';
-                        if(that.second==-1){
-                            clearInterval(timer);
-                            that.iNow=true;
-                            send_smscode.style.color="#C09C60";
-                            send_smscode.innerHTML = '重新获取';
-                            that.second = 60;
-                        }
-                    },1000)
-                    let res1 = await sendsms(this.num,1);
-                    if(res1.code!='000000'){
-                        Toast({
-                            message: res1.message,
-                            position: 'bottom',
-                            duration: 3000
-                        });
+                var send_smscode = this.$refs.send_smscode;
+                var that=this;
+                this.iNow = false;
+                let timer = setInterval(function(){
+                    send_smscode.style.color="#666";
+                    that.second--;
+                    send_smscode.innerHTML = that.second+'s';
+                    if(that.second==-1){
+                        clearInterval(timer);
+                        that.iNow=true;
+                        send_smscode.style.color="#C09C60";
+                        send_smscode.innerHTML = '重新获取';
+                        that.second = 60;
                     }
-                }else if(res.code=="000000"&&(res.data&&res.data.isExist)){//请求成功且未注册
-                    var html = '<div style="text-align:center;">手机号未注册</div>'
-                    MessageBox({
-                        title: '提示',
-                        message: html,
-                        confirmButtonText: '去注册',
-                        showCancelButton: true,
-                        cancelButtonText: '我知道了',
-                    }).then((action)=>{
-                        if(action=='confirm'){
-                            this.$router.push('/register')
-                        }
-                    })
-                    // Toast('手机号未注册');
-                    return
-                }else{
+                },1000)
+                let res = await sendsms(this.num,1);
+                if(res.code!='000000'){
                     Toast({
-                        message: res.message,
+                        message: res1.message,
                         position: 'bottom',
                         duration: 3000
                     });
                 }
+                //验证手机号是否注册
+                // const res = await checkexist(this.num);//检验是否已注册
+                // if(res.code=="000000"&&(res.data&&!res.data.isExist)){//请求成功且注册
+                //     var send_smscode = this.$refs.send_smscode;
+                //     var that=this;
+                //     this.iNow = false;
+                //     let timer = setInterval(function(){
+                //         send_smscode.style.color="#666";
+                //         that.second--;
+                //         send_smscode.innerHTML = that.second+'s';
+                //         if(that.second==-1){
+                //             clearInterval(timer);
+                //             that.iNow=true;
+                //             send_smscode.style.color="#C09C60";
+                //             send_smscode.innerHTML = '重新获取';
+                //             that.second = 60;
+                //         }
+                //     },1000)
+                //     let res1 = await sendsms(this.num,1);
+                //     if(res1.code!='000000'){
+                //         Toast({
+                //             message: res1.message,
+                //             position: 'bottom',
+                //             duration: 3000
+                //         });
+                //     }
+                // }else if(res.code=="000000"&&(res.data&&res.data.isExist)){//请求成功且未注册
+                //     var html = '<div style="text-align:center;">手机号未注册</div>'
+                //     MessageBox({
+                //         title: '提示',
+                //         message: html,
+                //         confirmButtonText: '去注册',
+                //         showCancelButton: true,
+                //         cancelButtonText: '我知道了',
+                //     }).then((action)=>{
+                //         if(action=='confirm'){
+                //             this.$router.push('/register')
+                //         }
+                //     })
+                //     // Toast('手机号未注册');
+                //     return
+                // }else{
+                //     Toast({
+                //         message: res.message,
+                //         position: 'bottom',
+                //         duration: 3000
+                //     });
+                // }
             },
             //获取用户基本概况
             async userInforma(){
@@ -388,6 +431,14 @@
                     if(val2=="code"){
                         this.code=ss
                     }
+                }
+            },
+            //
+            butt(val){
+                if(val=='confirm'){
+                    this.$router.push('/setpassword');
+                }else{
+                    this.toNext();
                 }
             },
             //登录完成后进行页面跳转
@@ -633,5 +684,108 @@ input:-moz-placeholder{    /* Mozilla Firefox 4 to 18 */
 input:-ms-input-placeholder{  /* Internet Explorer 10-11 */
     color:#BCBCBC;
     font-size: .28rem;
+}
+/*遮罩层*/
+.cover{
+	position: fixed;
+	top:0;
+	width:100%;
+	min-height: 100vh;
+	background-color:rgba(0, 0, 0, .5);
+	z-index:1000;
+}
+.message_box{
+	width: 4.9rem;
+	height: 2.83rem;
+	background-color: #fff;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	margin-left: -2.45rem;
+	margin-top: -1.25rem;
+	z-index: 1001;
+}
+.message_box h4{
+	font-size:.32rem;
+	font-weight: bold;
+	color:#333;
+	text-align: center;
+	line-height: 1rem;
+}
+.message_box p{
+	font-size: .26rem;
+	color:#333;
+	text-align: center;
+    line-height: .3rem;
+}
+.button{
+	width: 100%;
+	height: .88rem;
+	position: absolute;
+	bottom:0;
+}
+.button span{
+    float: left;
+    width: 50%;
+	text-align:center;
+	line-height: .88rem;
+	font-weight:400;
+	color:rgba(192,156,96,1);
+	font-size: .32rem;
+    position: relative;
+    left:0;
+    top:0;
+}
+@media(-webkit-min-device-pixel-ratio:1.5),(-moz-min-device-pixel-ratio:1.5),(-o-min-device-pixel-ratio:1.5){
+	.button:before{
+		content: '';
+		display: inline-block;
+		width: 100%;
+		border-top: 1px solid #eeeeee;
+		-webkit-transform: scaleY(0.7);
+		-o-transform: scaleY(0.7);
+		-moz-transform: scaleY(0.7);
+		transform:scaleY(0.7);
+		position: absolute;
+		top:0;
+	}
+	.button span:nth-child(1):before{
+		content: '';
+		display: inline-block;
+		height: .88rem;
+		border-right: 1px solid #eeeeee;
+		-webkit-transform: scaleX(0.7);
+		-o-transform: scaleX(0.7);
+		-moz-transform: scaleX(0.7);
+		transform:scaleX(0.7);
+		position: absolute;
+		right:0;
+	}
+}
+@media(-webkit-min-device-pixel-ratio:2),(-moz-min-device-pixel-ratio:2),(-o-min-device-pixel-ratio:1.5){
+	.button:before{
+		content: '';
+		display: inline-block;
+		width: 100%;
+		border-top: 1px solid #eeeeee;
+		-webkit-transform: scaleY(0.5);
+		-o-transform: scaleY(0.5);
+		-moz-transform: scaleY(0.5);
+		transform:scaleY(0.5);
+		position: absolute;
+		top:0;
+	}
+	.button span:nth-child(1):before{
+		content: '';
+		display: inline-block;
+		height: .88rem;
+		border-right: 1px solid #eeeeee;
+		-webkit-transform: scaleX(0.5);
+		-o-transform: scaleX(0.5);
+		-moz-transform: scaleX(0.5);
+		transform:scaleX(0.5);
+		position: absolute;
+		right:0;
+	}
 }
 </style>

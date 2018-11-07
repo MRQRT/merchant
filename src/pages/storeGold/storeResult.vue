@@ -168,7 +168,7 @@ import { query_detail, query_card_info} from '@/service/getData.js'
         },
         mounted(){
             this.orderStatus = this.$route.query.status; // 支付成功 or 失败
-            console.log(this.orderStatus)
+            // console.log(this.orderStatus)
             this.query_detail();
         },
     }
