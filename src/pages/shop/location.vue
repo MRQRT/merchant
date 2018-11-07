@@ -76,16 +76,16 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
                 this.area_show=false
                 if(this.input_address){//如果输入框有值，进行搜索，同时清空选中的地址
                     this.first_address='';
-                    var map = new BMap.Map("container");      
-                    map.centerAndZoom(new BMap.Point(116.404, 39.915), 11);   
-                    // 创建地址解析器实例     
-                    var myGeo = new BMap.Geocoder();      
-                    // 将地址解析结果显示在地图上，并调整地图视野    
+                    var map = new BMap.Map("container");
+                    map.centerAndZoom(new BMap.Point(116.404, 39.915), 11);
+                    // 创建地址解析器实例
+                    var myGeo = new BMap.Geocoder();
+                    // 将地址解析结果显示在地图上，并调整地图视野
                     myGeo.getPoint(v_this.location+v_this.input_address, function(point){
                         if(point){
-                            map.centerAndZoom(point, 15);      
+                            map.centerAndZoom(point, 15);
                             v_this.v_mark(map,point.lng,point.lat);
-                        }      
+                        }
                     }, v_this.location);
                     //
                     var local = new BMap.LocalSearch(map, {
@@ -97,7 +97,7 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
                                 }
                             v_this.surroundingPois=pois;//将搜索结果放入地址选取列表中
                         }
-                    });    
+                    });
                     local.search(v_this.input_address);
                 }else{//如果输入框没有地址，进行定位
                     this.first_address='';
@@ -114,7 +114,7 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
             //点击
             click_left(){
                 this.area_show?this.area_show=false:this.area_show=true
-            },  
+            },
             chooseCity(val){
                 // console.log(val)
                 this.location=val.cityName
@@ -123,7 +123,12 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
             //地址选择
             select_address(val){
                 setStore('select_address',val,'session');
-                this.$router.push('/editshopinfo')
+                this.$router.push({
+                    path:'/editshopinfo',
+                    query:{
+                        from:'location'
+                    }
+                })
             },
             //创建地图
             creatmap(val){
@@ -151,7 +156,7 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
                                 geoc.getLocation(pt1, function(rs){//解析格式：城市，区县，街道
                                 // console.log(rs.addressComponents.district)//根据区域反解区域id
                                 v_this.location=rs.addressComponents.city//城市
-                                    var local = new BMap.LocalSearch(map, {    
+                                    var local = new BMap.LocalSearch(map, {
                                         // renderOptions:{map: map},
                                         onSearchComplete : function(results) {
                                             let pois = [];
@@ -160,7 +165,7 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
                                             }
                                             v_this.surroundingPois=pois;//将搜索结果放入地址选取列表中
                                         }
-                                    });    
+                                    });
                                     local.search(rs.address);
                                 });
                                 v_this.v_mark(map,depault.lng,depault.lat);
@@ -171,7 +176,7 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
                                 geoc.getLocation(pt2, function(rs){//解析格式：城市，区县，街道
                                 // console.log(rs.addressComponents.district)//根据区域反解区域id
                                 v_this.location=rs.addressComponents.city//城市
-                                    var local = new BMap.LocalSearch(map, {    
+                                    var local = new BMap.LocalSearch(map, {
                                         // renderOptions:{map: map},
                                         onSearchComplete : function(results) {
                                             let pois = [];
@@ -180,14 +185,14 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
                                             }
                                             v_this.surroundingPois=pois;//将搜索结果放入地址选取列表中
                                         }
-                                    });    
+                                    });
                                     local.search(rs.address);
                                 });
                                 v_this.v_mark(map,r.point.lng,r.point.lat);
                             }
                         }else{
                             alert('failed'+this.getStatus());//定位失败
-                        }        
+                        }
                     });
                 }else{
                     var pt3 = new BMap.Point(val.lng,val.lat);
@@ -196,7 +201,7 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
                     geoc.getLocation(pt3, function(rs){//解析格式：城市，区县，街道
                     // console.log(rs.addressComponents.district)//根据区域反解区域id
                     v_this.location=rs.addressComponents.city//城市
-                        var local = new BMap.LocalSearch(map, {    
+                        var local = new BMap.LocalSearch(map, {
                             // renderOptions:{map: map},
                             onSearchComplete : function(results) {
                                 let pois = [];
@@ -205,7 +210,7 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
                                 }
                                 v_this.surroundingPois=pois;//将搜索结果放入地址选取列表中
                             }
-                        });    
+                        });
                         local.search(rs.address);
                     });
                     v_this.v_mark(map,val.lng,val.lat);
@@ -218,13 +223,13 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
             },
             //自定义标注
             v_zidingyi_marker(val,val1){
-                // 创建图标对象   
-                var myIcon = new BMap.Icon(icons, new BMap.Size(23, 25), { 
-                    anchor: new BMap.Size(10, 25),    
-                    // imageOffset: new BMap.Size(0, 0 - index * 25)   // 设置图片偏移 
-                });      
-                // 创建标注对象并添加到地图   
-                var marker = new BMap.Marker(val1, {icon: myIcon}); 
+                // 创建图标对象
+                var myIcon = new BMap.Icon(icons, new BMap.Size(23, 25), {
+                    anchor: new BMap.Size(10, 25),
+                    // imageOffset: new BMap.Size(0, 0 - index * 25)   // 设置图片偏移
+                });
+                // 创建标注对象并添加到地图
+                var marker = new BMap.Marker(val1, {icon: myIcon});
                 val.addOverlay(marker);
                 val.panTo(val1);
             },
@@ -303,7 +308,7 @@ input::-moz-placeholder{   /* Mozilla Firefox 19+ */
 input:-moz-placeholder{    /* Mozilla Firefox 4 to 18 */
     font-size: .28rem;
 }
-input:-ms-input-placeholder{  /* Internet Explorer 10-11 */ 
+input:-ms-input-placeholder{  /* Internet Explorer 10-11 */
     font-size: .28rem;
 }
 .address_list{
@@ -330,7 +335,7 @@ input:-ms-input-placeholder{  /* Internet Explorer 10-11 */
 }
 .item_address{
     font-size: .25rem;
-    
+
 }
 .address_list .around:nth-child(1)>.title{
     color: #C09C60;
@@ -366,7 +371,7 @@ input:-ms-input-placeholder{  /* Internet Explorer 10-11 */
 .search_icon{
     width:.6rem;
     height: .7rem;;
-    float: right; 
+    float: right;
     position: relative;
 }
 .search_icon:before{

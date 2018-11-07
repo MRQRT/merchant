@@ -212,7 +212,7 @@
                     <div class="top-wrap" >
                         <h3>物流信息</h3>
                         <mt-spinner type="triple-bounce" v-if="!deliveryStatus" color="#C09C60"></mt-spinner>
-                        <ul class="delivery-list" v-else>
+                        <ul class="delivery-list" v-else-if="deliveryStatus && !deliveryError">
                             <div class="line"></div>
                             <li class="delivery-item" :class="{'recent':index==0}"v-for="(item,index) in deliveryList" :key="index">
                                 <span class="time">{{item.time | changeTime}}</span>
@@ -220,6 +220,8 @@
                                 <span class="text">{{item.status}}</span>
                             </li>
                         </ul>
+                        <!-- 查询不到物流信息时显示 -->
+                        <p v-else>物流信息出错啦，您可联系客服进行沟通<br/>客服电话：4008-196-199</p>
                     </div>
                     <div class="close-icon" @click="closePopup"></div>
                 </div>
@@ -364,6 +366,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 stepTipText:'',        // 进度提示文字
                 deliveryType:'',       // 查询快递单号时所需类型：0-取货/1-退货
                 deliveryStatus:false,  // 物流正在加载中
+                deliveryError:false,   // 物流信息出错
                 minu:'--',             // 倒计时分
                 secd:'--',             // 倒计时秒
                 verifiCode:[],         // 验证码
@@ -704,8 +707,12 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     this.deliveryStatus = true;
                     this.deliveryList = res.data.result.list;
                 }else{
-                    this.popupVisible = false;
-                    Toast(res.message)
+                    this.deliveryStatus = true;
+                    this.deliveryError = true;
+                    Toast({
+                        message:res.message,
+                        position:'bottom'
+                    })
                 }
             },
             // 查询检测报告
@@ -1566,6 +1573,11 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                         width:85%;
                     }
                 }
+            }
+            p{
+                text-align: center;
+                color: #999;
+                font-size: .28rem;
             }
 
         }

@@ -682,6 +682,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                     this.popupVisible1 = true;    // 显示验证码弹窗
                 }else{
                     this.popupVisible1 = false;  // 关闭验证码弹窗
+                    this.btnCtroller = true;     // 按钮恢复可点状态
                     Toast(res.message)
                 }
             },
@@ -720,6 +721,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                     },1000)
                 }else{
                     this.popupVisible2 = false;
+                    this.btnCtroller = true;
                     Toast(res.message)
                 }
             },

@@ -48,7 +48,7 @@
             <div class="uploadPho_photo">
                 <div class="upload_image_preview">
                     <section v-for="(image, index) in shop_message.images" :key="index" :class="{'cover':index==0}">
-                        <img :src="image" class="thing_img">
+                        <img :src="image.src" class="thing_img">
                         <span @click='delImage(index)' class="del_image"></span>
                     </section>
                     <input type="file" accept="image/*" @change="selectImage($event)" ref="file" style="display: none" name="file" id="storImg" multiple>
@@ -186,6 +186,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
 						if(this.index<6||this.index==6){ //图片已达到6张 不在执行添加上传操作
                             this.shop_message.images.push(item)
                         }
+                        console.log('上传后的images数组',this.shop_message.images)
                         this.compressimg(reader,item)//图片压缩
 					}
 					reader.readAsDataURL(e.target.files[i])
@@ -229,10 +230,12 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                     if(res.code=='000000'){
                         this.shop_message.facadeId.push(res.data.id);
                     }
+                    console.log(this.shop_message.facadeId)
                 }
             },
             /*删除图片*/
 			delImage: function(index){
+                console.log(this.shop_message.facadeId)
                 this.shop_message.images.splice(index,1);
                 if(this.shop_message.images.length<6){
                     this.canPhoto=true
@@ -357,21 +360,71 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                         position: 'bottom',
                         duration: 3000
                     });
+                    // res.data.forEach(item=>{
+                    //     Toast({
+                    //         message:item.data.name + ' 绑定错误',
+                    //         position: 'bottom',
+                    //         duration: 3000
+                    //     })
+                    // })
                 }
             },
-
+            //如果内存中有选择的地址
+            selectAddress(){
+                if(getStore('select_address','session')){
+                    var ad_obj=getStore('select_address','session')
+                    this.shop_message.areaId='';
+                    this.shop_message.address=ad_obj.title+'('+ad_obj.address+')';
+                    this.shop_message.lat=ad_obj.point.lat;
+                    this.shop_message.lng=ad_obj.point.lng;
+                    this.area_tran(ad_obj.point);//地址解析
+                }
+            },
             // 我要认领入口
             applyshop(){
                 if(this.applyShopId!=''&&this.applyShopId!=null){ //如果本地会话存有店铺ID，则信息回填
                     this.shopDetail();
                 }
             },
+            // 店铺信息反写函数
             async shopDetail(){
+                var that = this;
                 var res = await shopDetail(this.applyShopId);
                 if(res.code=='000000'){
-                    this.shop_message = res.data;
-                    this.shop_message.images = res.data.facadePaths;
-                    this.shop_message.businessScopeId = res.data.businessScopeId.split(',');
+                    // this.shop_message = res.data;
+                    this.headimg_url = res.data.logoPath;
+                    this.shop_message.loginId = res.data.logoId;
+                    this.shop_message.name = res.data.name;
+                    this.shop_message.areaId = res.data.areaId;
+                    this.shop_message.address = res.data.address;
+                    this.shop_message.lat = res.data.lat;
+                    this.shop_message.lng = res.data.lng;
+                    this.shop_message.mobile = res.data.mobile;
+                    this.shop_message.introduce = res.data.introduce;
+                    this.shop_message.facadeId = res.data.facadeIds;
+                    this.shop_message.businessScopeId = res.data.businessScopeIds;
+                    this.shop_message.images = [];
+
+                    res.data.facadePaths.forEach(itemSrc=>{ // 门店图片
+                        if(itemSrc!=null){
+                            let item = {
+                  				key: '',
+                  				name: '',
+                  				size: '',
+                                file: '',
+                                src:itemSrc
+                			}
+                            that.shop_message.images.push(item)
+                        }else{
+                            that.shop_message.images = [];
+                        }
+                    })
+                    this.shop_message.businessScopeId.forEach(item=>{ //标签反选
+                        that.business_scope[item-1].checkid = item
+                    })
+                    if(this.$route.query.from=='location'){ // 如果是从选择地址页跳转过来，则查询存储在本地的地址
+                        this.selectAddress();
+                    }
                 }else{
                     Toast(res.message)
                 }
@@ -381,7 +434,6 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
 
         },
         mounted(){
-            this.applyshop();
             //如果内存中有地址，进行返显
             if(getStore('headimg','session')){//头像地址反显
                 this.headimg = getStore('headimg','session');
@@ -390,17 +442,13 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
             if(getStore('shop_message','session')){//店铺门面图反显
                 this.shop_message=getStore('shop_message','session');
             }
+
             //查询店铺地址经营范围字典
             this.businessScope_list();
-            //如果内存中有选择的地址
-            if(getStore('select_address','session')){
-                var ad_obj=getStore('select_address','session')
-                this.shop_message.areaId='';
-                this.shop_message.address=ad_obj.title+'('+ad_obj.address+')';
-                this.shop_message.lat=ad_obj.point.lat;
-                this.shop_message.lng=ad_obj.point.lng;
-                this.area_tran(ad_obj.point);//地址解析
-            }
+            this.applyshop();
+
+            this.selectAddress();//判断内存中是否已存在地址
+
             var height=document.documentElement.clientHeight;
             window.onresize=function(){
                 var h=document.documentElement.clientHeight
