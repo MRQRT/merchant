@@ -39,7 +39,7 @@
 <script>
 import headTop from '@/components/header/head.vue'
 import { mapState,mapMutations } from 'vuex'
-import { shop_status } from '@/service/getData.js'
+import { merchant_open_apply_status, shop_status } from '@/service/getData.js'
 
 
 
@@ -67,7 +67,8 @@ import { shop_status } from '@/service/getData.js'
             // 点击返回
             goBack(){
                 if(this.$route.query.from){
-                    window.location.href = this.$route.query.from;
+                    window.location.href = this.$route.query.from
+                    // window.location.href = this.$route.query.from+'/#/shopDetail?id='+this.$route.query.shopId
                 }else{
                     this.$router.push('/index');
                 }
@@ -82,10 +83,26 @@ import { shop_status } from '@/service/getData.js'
                         }
                     })
                 }else{ // 已登录
-                    if(this.applyShopId!=''&&this.applyShopId!=null){ //如果是认领店铺则跳转填写店铺信息页面
-                        this.$router.push('/editshopinfo')
+                    // if(this.applyShopId!=''&&this.applyShopId!=null){ //如果是认领店铺则跳转填写店铺信息页面
+                    //     this.$router.push('/editshopinfo')
+                    // }else{
+                    //     this.$router.push('/uploadcertificate')
+                    // }
+                    this.merchant_open_apply_status();
+                }
+            },
+            // 获取最新商户审核信息
+            async merchant_open_apply_status(){
+                var res = await merchant_open_apply_status();
+                if(res.code=='000000'){
+                    if(res.data){
+                        if(this.applyShopId!=''&&this.applyShopId!=null){ //如果是认领店铺则跳转填写店铺信息页面
+                            this.$router.push('/editshopinfo')
+                        }else{
+                            this.$router.push('/applicationresults') //审核结果页
+                        }
                     }else{
-                        this.$router.push('/uploadcertificate')
+                        this.$router.push('/uploadcertificate') // 上传资质页
                     }
                 }
             },
