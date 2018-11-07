@@ -64,7 +64,7 @@
     .custom{
         position:absolute;
         right:0.28rem;
-        font-size:.24rem;
+        font-size:.28rem;
         color:#333;
         z-index: 1;
     }

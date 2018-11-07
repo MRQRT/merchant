@@ -3,6 +3,7 @@
         <!-- 头部标题部分 -->
         <head-top headTitle='设置密码' class="head-top nomal-font" ref="topHead">
             <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
+            <span slot="custom" class="custom" @click="stride">跳过</span>
         </head-top>
         <!-- header -->
         <!-- <header class="header">
@@ -76,7 +77,7 @@ export default {
                     confirmButtonText: '确定',
                 }).then((action)=>{
                     if(action=='confirm'){
-                        this.$router.push('/account')
+                        this.$router.push('/index')
                     }
                 })
             }else{
@@ -107,6 +108,9 @@ export default {
         },
         focus(){
             this.check_password=false
+        },
+        stride(){
+            this.$router.push('/index')
         }
     },
     created(){
