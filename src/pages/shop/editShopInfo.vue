@@ -21,7 +21,7 @@
             <div class="line"></div>
             <div class="one" style="position:relative;" @click="selectassress">
                 <span>店铺地址</span>
-                <input type="text" v-model="shop_message.address" placeholder="请选择店铺地址" readonly="value" style="margin-top:.05rem"> 
+                <input type="text" v-model="shop_message.address" placeholder="请选择店铺地址" readonly="value" style="margin-top:.05rem">
                 <img :src="right" class="right_jiantou">
             </div>
             <div class="line"></div>
@@ -73,7 +73,8 @@ import headimg from 'static/images/deheadpro.png'
 import	right from 'static/images/next.png'
 import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
 import {MessageBox,Indicator,Toast} from 'mint-ui'
-import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityName} from '@/service/getData.js'
+import { mapState,mapMutations } from 'vuex';
+import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityName,shopDetail} from '@/service/getData.js'
     export default {
         data(){
             return{
@@ -106,7 +107,9 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
             headTop,
         },
         computed: {
-
+            ...mapState([
+                'applyShopId'
+            ])
         },
         watch:{
 
@@ -132,7 +135,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                         element.checkid=''
                         this.shop_message.businessScopeId.remove(val.id);
                     }
-                })                
+                })
             },
             //头像图片选择
             selectheadimg(e){
@@ -179,7 +182,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
         			}
         			let reader = new FileReader()
         			reader.onload = (e) => {
-						this.$set(item, 'src', e.target.result)  
+						this.$set(item, 'src', e.target.result)
 						if(this.index<6||this.index==6){ //图片已达到6张 不在执行添加上传操作
                             this.shop_message.images.push(item)
                         }
@@ -339,7 +342,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 removeStore('shop_message','session');
                 removeStore('headimg','session');
                 removeStore('select_address','session');
-                const res = await shop_open_apply(this.shop_message.logoId,this.shop_message.name,this.shop_message.areaId,this.shop_message.address,this.shop_message.lat,this.shop_message.lng,this.shop_message.mobile,this.shop_message.introduce,this.shop_message.facadeId,this.shop_message.businessScopeId);
+                const res = await shop_open_apply(this.shop_message.logoId,this.shop_message.name,this.shop_message.areaId,this.shop_message.address,this.shop_message.lat,this.shop_message.lng,this.shop_message.mobile,this.shop_message.introduce,this.shop_message.facadeId,this.shop_message.businessScopeId,this.applyShopId);
                 if(res.code=='000000'){
                     MessageBox({
                         title:'店铺信息已提交',
@@ -356,11 +359,21 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                     });
                 }
             },
+            // 我要认领入口
+            applyshop(){
+                if(this.applyShopId!=''&&this.applyShopId!=null){ //如果本地会话存有店铺ID，则信息回填
+                    this.shopDetail();
+                }
+            },
+            async shopDetail(){
+                
+            },
         },
         created(){
 
         },
         mounted(){
+            this.applyshop();
             //如果内存中有地址，进行返显
             if(getStore('headimg','session')){//头像地址反显
                 this.headimg = getStore('headimg','session');
@@ -438,7 +451,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
     width: 100%;
     padding: 0 .4rem 0 .4rem;
     background-color: #fff;
-}   
+}
 .one{
     width: 100%;
     height: 1.1rem;
@@ -447,7 +460,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
     padding-top: .35rem;
 }
 .one>span{
-    margin-right: .1rem; 
+    margin-right: .1rem;
     float: left;
 }
 .one input{
@@ -484,7 +497,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
 .shop_photo{
     width: 100%;
     margin-top: .2rem;
-    background-color: #fff; 
+    background-color: #fff;
     min-height: 5.68rem;
     padding: 0 .0rem 0 0.3rem;
 }
@@ -547,7 +560,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
 	width: 2.1rem;
 	height: 2.1rem;
 	border: 1px solid #eaeaea;
-}	
+}
 .upload_image_preview>section>.del_image{
 	width: .35rem;
 	height: .35rem;
@@ -558,19 +571,19 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
     @include bg-image("/static/images/delImg.png");
 	background-position: center;
 	background-size: 100%;
-} 
+}
 .button{
     width: 100%;
     height: 1.28rem;
     background-color: #fff;
-    font-size: .34rem; 
+    font-size: .34rem;
     position: fixed;
     bottom: 0;
     color: #fff;
     display:flex;
     justify-content: center;
     padding-top: .2rem;
-}  
+}
 .button div{
     width: 6.7rem;
     height: .88rem;
@@ -578,14 +591,14 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
     line-height: .88rem;
     text-align: center;
     border-radius: 4px;
-}   
+}
 .right_jiantou{
     width:.4rem;
     margin-top: .25rem;
     position: absolute;
     right: 0rem;
     top: .1rem;
-} 
+}
 textarea::-webkit-input-placeholder{
     font-size: .28rem;
 }
@@ -595,14 +608,14 @@ textarea::-moz-placeholder{   /* Mozilla Firefox 19+ */
 textarea:-moz-placeholder{    /* Mozilla Firefox 4 to 18 */
     font-size: .28rem;
 }
-textarea:-ms-input-placeholder{  /* Internet Explorer 10-11 */ 
+textarea:-ms-input-placeholder{  /* Internet Explorer 10-11 */
     font-size: .28rem;
 }
 .cover{
     position: relative;
 }
 .cover:after{
-    content:''; 
+    content:'';
     width:1.18rem;
     height:.45rem;
     position: absolute;

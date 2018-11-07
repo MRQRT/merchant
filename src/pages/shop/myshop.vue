@@ -130,7 +130,7 @@ import back from 'static/images/hgdBg.jpg';
             },
             // 请求详情数据
             async shopDetail(){
-                var res = await shopDetail();
+                var res = await shopDetail('');
                 // console.log(res)
                 if(res.code=='000000'){
                     this.detailInfo = res.data;

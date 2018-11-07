@@ -35,7 +35,7 @@
                 </div>
                 <!-- 保证金 -->
                 <div class="ensureCash">
-                    <span>保证金(元)：{{ensureCash}}</span>
+                    <span>保证金(元)：{{ensureCash | formatPriceTwo}}</span>
                     <span class="txt" v-show="ensureCash>0">当前进行中订单保证金总额</span>
                 </div>
             </div>
@@ -83,7 +83,7 @@
 import foot from '@/components/footer/foot.vue'
 import { mapState,mapMutations } from 'vuex'
 import { MessageBox,Toast} from 'mint-ui';
-import { query_card_info,query_ensure_cash, merchant_open_apply_status,logout,query_index_statistics,shop,shop_status} from '@/service/getData.js'
+import { query_card_info,query_ensure_cash, merchant_open_apply_status,logout,query_index_statistics,shopDetail,shop_status} from '@/service/getData.js'
 
     export default {
         data(){
@@ -182,7 +182,7 @@ import { query_card_info,query_ensure_cash, merchant_open_apply_status,logout,qu
             },
             // 获取店铺信息
             async checkShopStatus(){
-                var res = await shop();
+                var res = await shopDetail('');
                 if(res.code=='000000'){
                     if(res.data){
                         this.shopInfo = res.data;
@@ -303,6 +303,8 @@ import { query_card_info,query_ensure_cash, merchant_open_apply_status,logout,qu
             h3{
                 color: #333;
                 font-size: .36rem;
+                font-family:PingFangSC-Medium;
+                font-weight:500;
                 margin:.3rem 0 .1rem;
             }
             p{
