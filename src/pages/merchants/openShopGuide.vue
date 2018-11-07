@@ -2,7 +2,7 @@
     <div class="openshopguide">
         <!-- 头部标题部分 -->
         <head-top headTitle='商户入驻' class="head-top nomal-font" ref="topHead">
-            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.go(-1)">
+            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="goBack">
         </head-top>
         <!-- banner -->
         <div class="banner"></div>
@@ -64,6 +64,15 @@ import { shop_status } from '@/service/getData.js'
             ...mapMutations([
                 'RECORD_SHOPSTATUS','RECORD_APPLYSHOPID'
             ]),
+            // 点击返回
+            goBack(){
+                if(this.$route.query.from){
+                    window.location.href = this.$route.query.from;
+                }else{
+                    this.$router.push('/index');
+                }
+            },
+            // 认领店铺
             locatdShop(){
                 if(!this.loginStatus){ //未登录
                     this.$router.push({
@@ -101,9 +110,8 @@ import { shop_status } from '@/service/getData.js'
             if(this.loginStatus){
                 this.shop_status();
             }
-            if(this.$route.query.shopId){ //如果是从商户版 我要认领 跳转过来
-                this.RECORD_APPLYSHOPID(this.$route.query.shopId);
-            }
+            //如果是从商户版 我要认领 跳转过来
+            this.$route.query.shopId ? this.RECORD_APPLYSHOPID(this.$route.query.shopId) : this.RECORD_APPLYSHOPID('');
         },
     }
 

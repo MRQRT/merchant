@@ -260,7 +260,7 @@
                             </p>
                             <p>
                                 <span>检测结果：</span>
-                                <span>{{reportInfo.operationResult==0?'通过':'拒绝'}}</span>
+                                <span>{{reportInfo.operationResult==0?'通过':'未通过'}}</span>
                             </p>
                         </div>
                         <div class="report-img">
@@ -704,6 +704,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     this.deliveryStatus = true;
                     this.deliveryList = res.data.result.list;
                 }else{
+                    this.popupVisible = false;
                     Toast(res.message)
                 }
             },
