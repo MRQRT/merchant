@@ -33,11 +33,7 @@ export default {
             var res = await merchant_open_apply_status();
             if(res.code=='000000'){
                 if(res.data){
-                    if(this.applyShopId!=''&&this.applyShopId!=null){ //如果是认领店铺则跳转填写店铺信息页面
-                        this.$router.push('/editshopinfo')
-                    }else{
-                        this.$router.push('/applicationresults') //审核结果页
-                    }
+                    this.$router.push('/applicationresults') //审核结果页
                 }else{
                     // if(this.applyShopId!=''&&this.applyShopId!=null){ //如果是认领店铺则跳转填写店铺信息页面
                     //     this.$router.push('/editshopinfo')
