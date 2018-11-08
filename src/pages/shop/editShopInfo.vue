@@ -213,6 +213,10 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                     const res = await upload_shop_pro(val);//头像上传
                     if(res.code=='000000'){
                         Indicator.close();
+                        Toast({
+                            message:'上传成功',
+                            duration: 800,
+                        });
                         setStore('headimg',res.data.url,'session');
                         this.headimg_url=res.data.url;//头像地址
                         this.shop_message.logoId=res.data.id
@@ -227,6 +231,10 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 }else if(val2=='shopphoto'){//店铺门面上传
                     const res = await upload_shop_photo(val);
                     Indicator.close()
+                    Toast({
+                        message:'上传成功',
+                        duration: 800,
+                    });
                     if(res.code=='000000'){
                         this.shop_message.facadeId.push(res.data.id);
                     }
