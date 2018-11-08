@@ -77,9 +77,7 @@ export default {
                     message: text ,
                     confirmButtonText: '确定',
                 }).then((action)=>{
-                    if(action=='confirm'){
-                        this.$router.push('/index')
-                    }
+                    this.toNext();
                 })
             }else{
                 Toast({
@@ -110,8 +108,39 @@ export default {
         focus(){
             this.check_password=false
         },
+        //跳过
         stride(){
-            this.$router.push('/index')
+            this.toNext();
+        },
+        //登录完成后进行页面跳转
+        toNext(){
+            //登录成功后去获取进入登录页的上一页,再跳转回去(带上对应的参数)
+            var path="",id="";
+            if(this.$route.query.redirect){
+                path=this.$route.query.redirect
+            }
+            if(this.$route.query.from){
+                path=this.$route.query.from
+            }
+            if(this.$route.query.id){
+                id=this.$route.query.id
+            }
+            if(path!=''&&id==''){
+                this.$router.replace({
+                    path:path
+                })
+                return;
+            }else if(path!=''&&id!=''){
+                this.$router.replace({
+                    path:path,
+                    query: {
+                        id: id
+                    }
+                })
+                return
+            }else{
+                this.$router.push('/index');
+            }
         }
     },
     created(){

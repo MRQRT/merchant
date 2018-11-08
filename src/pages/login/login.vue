@@ -243,32 +243,19 @@
                         if(res.data.hasPassword==true){//有密码
                             this.toNext();
                         }else if(res.data.hasPassword==false){//没有密码
-                            var quickphone=window.localStorage.getItem('quickphone');
-                            var logtim=window.localStorage.getItem('logtim');
-                            if(quickphone){
-                                if(quickphone==this.num){
-                                    if(logtim==0){
-                                        this.cover_show=true
-                                        window.localStorage.setItem('logtim',1);
-                                    }else if(logtim==1){
-                                        this.cover_show=true
-                                        window.localStorage.setItem('logtim',2);
-                                    }else{
-                                        this.toNext();
+                            if(res.data.quickLoginCount==1){//第一次登录
+                                this.$router.push({
+                                    path:'/setpassword',
+                                    query:{
+                                        redirect:'/pagetransfer'
                                     }
-                                }else if(quickphone!=this.num){
-                                    window.localStorage.setItem('quickphone',this.num);
-                                    window.localStorage.setItem('logtim',0);
-                                    this.toNext();
-                                }
+                                });
+                            }else if(res.data.quickLoginCount==2||res.data.quickLoginCount==3){//第二/三次登录
+                                this.cover_show=true
                             }else{
-                                window.localStorage.setItem('quickphone',this.num);
-                                window.localStorage.setItem('logtim',0);
-                                this.$router.push('/setpassword');
+                                this.toNext();
                             }
                         }
-                        //登录成功后去获取登录页的上一页,再跳转回去(带上对应的参数)
-                        // this.toNext();
                     }else if(res.code=='000006'){//用户登录异常
                         var html='<div style="text-align:center">您的账户出现了一些异常，我们已暂时对账户做出了封禁处理，如有疑问，请您联系客服</div>'
                          MessageBox({
@@ -456,7 +443,12 @@
             //
             butt(val){
                 if(val=='confirm'){
-                    this.$router.push('/setpassword');
+                     this.$router.push({
+                        path:'/setpassword',
+                        query:{
+                            redirect:'/pagetransfer'
+                        }
+                    });
                 }else{
                     this.toNext();
                 }
