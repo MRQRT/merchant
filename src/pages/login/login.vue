@@ -330,10 +330,12 @@
                         })
                     }else if(res.code=="000005"){//用户不存在(未注册)
                         Toast({
-                            message: '您还没有注册哦～',
+                            message: '您还未注册过哦～',
                             position: 'middle',
                             duration: 3000
                         });
+                    }else if(res.code=='300121'){
+                        Toast('您还未设置过密码哦～')
                     }else{
                         Toast({
                             message: res.message,

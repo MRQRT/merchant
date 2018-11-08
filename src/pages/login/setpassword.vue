@@ -71,9 +71,10 @@ export default {
             var md5password = md5(this.password1);
             const res = await set_password(md5password);
             if(res.code=='000000'){
+                var text = `<div style="text-align:center">登录密码已设置</div>`
                 MessageBox({
                     title: '设置成功',
-                    message: '登录密码已设置' ,
+                    message: text ,
                     confirmButtonText: '确定',
                 }).then((action)=>{
                     if(action=='confirm'){
