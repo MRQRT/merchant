@@ -149,7 +149,7 @@ import { query_card_info,query_ensure_cash, merchant_open_apply_status,logout,qu
                           confirmButtonText: '我知道了'
                         })
                     }else{
-                        var rewurl=ur;
+                        var rewurl=url;
                         if(url=='/changepassword'){
                             (this.password_Exist)?rewurl='/changepassword':'/setpassword'
                         }

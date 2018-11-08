@@ -55,7 +55,16 @@ axios.interceptors.response.use(
                 confirmButtonText: '登录',
                 type: 'warning'
             }).then(() => {
-                router.replace({path:'/login'})
+                if(a.$route.path=='/openshopguide'){
+                    router.replace({
+                        path:'/login',
+                        query:{
+                            redirect:'/pagetransfer'
+                        }
+                    })
+                }else{
+                    router.replace({path:'/login'})
+                }
             })
         }
         if(res.data.code=='000006'){//用户登录异常
