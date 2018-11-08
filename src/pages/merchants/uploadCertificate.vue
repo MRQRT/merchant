@@ -118,6 +118,10 @@ import {business_license,person_card_back,person_card_front} from '@/service/get
                     const res = await business_license(val);//上传营业执照
                     if(res.code=='000000'){
                         Indicator.close();
+                        Toast({
+                            message:'上传成功',
+                            duration: 800,
+                        });
                         this.back_license_url=res.data;
                     }else{
                         Indicator.close();
@@ -131,6 +135,10 @@ import {business_license,person_card_back,person_card_front} from '@/service/get
                     const res = await person_card_front(val);//上传身份证正面
                     if(res.code=='000000'){
                         Indicator.close();
+                        Toast({
+                            message:'上传成功',
+                            duration: 800,
+                        });
                         this.back_idcard1_url=res.data;
                     }else{
                         Indicator.close();
@@ -144,6 +152,10 @@ import {business_license,person_card_back,person_card_front} from '@/service/get
                     const res = await person_card_back(val);//上传身份证反面
                     if(res.code=='000000'){
                         Indicator.close();
+                        Toast({
+                            message:'上传成功',
+                            duration: 800,
+                        });
                         this.back_idcard2_url=res.data;
                     }else{
                         Indicator.close();

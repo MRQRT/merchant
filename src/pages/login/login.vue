@@ -244,12 +244,18 @@
                             this.toNext();
                         }else if(res.data.hasPassword==false){//没有密码
                             if(res.data.quickLoginCount==1){//第一次登录
-                                this.$router.push({
-                                    path:'/setpassword',
-                                    query:{
-                                        redirect:'/pagetransfer'
-                                    }
-                                });
+                                if(this.$route.query.redirect=='/pagetransfer'){//如果当前页有参数，带上
+                                    this.$router.push({
+                                        path:'/setpassword',
+                                        query:{
+                                            redirect:'/pagetransfer'
+                                        }
+                                    });
+                                }else{
+                                    this.$router.push({
+                                        path:'/setpassword',
+                                    })
+                                }
                             }else if(res.data.quickLoginCount==2||res.data.quickLoginCount==3){//第二/三次登录
                                 this.cover_show=true
                             }else{
@@ -321,8 +327,6 @@
                             position: 'middle',
                             duration: 3000
                         });
-                    }else if(res.code=='300121'){
-                        Toast('您还未设置过密码哦～')
                     }else{
                         Toast({
                             message: res.message,
@@ -359,7 +363,7 @@
                 let res = await sendsms(this.num,1);
                 if(res.code!='000000'){
                     Toast({
-                        message: res1.message,
+                        message: res.message,
                         position: 'bottom',
                         duration: 3000
                     });
@@ -443,12 +447,18 @@
             //
             butt(val){
                 if(val=='confirm'){
-                     this.$router.push({
-                        path:'/setpassword',
-                        query:{
-                            redirect:'/pagetransfer'
-                        }
-                    });
+                    if(this.$route.query.redirect=='/pagetransfer'){//如果当前页有参数，带上
+                        this.$router.push({
+                            path:'/setpassword',
+                            query:{
+                                redirect:'/pagetransfer'
+                            }
+                        });
+                    }else{
+                        this.$router.push({
+                            path:'/setpassword',
+                        })
+                    }
                 }else{
                     this.toNext();
                 }
