@@ -5,6 +5,7 @@
 
 <script>
 import { mapState,mapMutations } from 'vuex'
+import { MessageBox,Toast} from 'mint-ui';
 import {  merchant_open_apply_status, shop_status} from '@/service/getData.js'
 
 export default {
@@ -42,6 +43,9 @@ export default {
                     // }
                     this.$router.push('/uploadcertificate') // 上传资质页
                 }
+            }else{
+                Toast(res.message)
+                this.$router.push('/index');
             }
         },
         // 判断店铺状态

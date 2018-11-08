@@ -39,6 +39,7 @@
 <script>
 import headTop from '@/components/header/head.vue'
 import { mapState,mapMutations } from 'vuex'
+import { MessageBox,Toast} from 'mint-ui';
 import { merchant_open_apply_status, shop_status } from '@/service/getData.js'
 
 
@@ -103,6 +104,8 @@ import { merchant_open_apply_status, shop_status } from '@/service/getData.js'
                     }else{
                         this.$router.push('/uploadcertificate') // 上传资质页
                     }
+                }else{
+                    Toast('商户审核：'+res.message)
                 }
             },
             // 判断店铺状态
@@ -127,7 +130,7 @@ import { merchant_open_apply_status, shop_status } from '@/service/getData.js'
                 this.shop_status();
             }
             //如果是从商户版 我要认领 跳转过来
-            this.$route.query.shopId ? this.RECORD_APPLYSHOPID(this.$route.query.shopId) : this.RECORD_APPLYSHOPID('');
+            this.$route.query.shopId ? this.RECORD_APPLYSHOPID(this.$route.query.shopId) : '';
         },
     }
 

@@ -411,6 +411,8 @@ import { shop_status, shop, merchant_open_apply_status} from '@/service/getData.
                     }else{
                         this.$router.push('/openshopguide') // 商户入驻引导页
                     }
+                }else{
+                    Toast('商户审核：'+res.message)
                 }
             },
             // 判断店铺状态
