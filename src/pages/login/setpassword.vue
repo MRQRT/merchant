@@ -110,7 +110,11 @@ export default {
         },
         //返回上一页
         goback(){
-            this.$router.push('/mine')
+            if(this.$route.query.redirect=='/pagetransfer'){
+                this.toNext();
+            }else{
+                this.$router.push('/mine')
+            }
         },
         //跳过
         stride(){
