@@ -321,8 +321,6 @@
                             position: 'middle',
                             duration: 3000
                         });
-                    }else if(res.code=='300121'){
-                        Toast('您还未设置过密码哦～')
                     }else{
                         Toast({
                             message: res.message,
