@@ -71,14 +71,13 @@ export default {
             var md5password = md5(this.password1);
             const res = await set_password(md5password);
             if(res.code=='000000'){
+                var text = `<div style="text-align:center">登录密码已设置</div>`
                 MessageBox({
                     title: '设置成功',
-                    message: '登录密码已设置' ,
+                    message: text ,
                     confirmButtonText: '确定',
                 }).then((action)=>{
-                    if(action=='confirm'){
-                        this.$router.push('/index')
-                    }
+                    this.toNext();
                 })
             }else{
                 Toast({
@@ -109,8 +108,39 @@ export default {
         focus(){
             this.check_password=false
         },
+        //跳过
         stride(){
-            this.$router.push('/index')
+            this.toNext();
+        },
+        //登录完成后进行页面跳转
+        toNext(){
+            //登录成功后去获取进入登录页的上一页,再跳转回去(带上对应的参数)
+            var path="",id="";
+            if(this.$route.query.redirect){
+                path=this.$route.query.redirect
+            }
+            if(this.$route.query.from){
+                path=this.$route.query.from
+            }
+            if(this.$route.query.id){
+                id=this.$route.query.id
+            }
+            if(path!=''&&id==''){
+                this.$router.replace({
+                    path:path
+                })
+                return;
+            }else if(path!=''&&id!=''){
+                this.$router.replace({
+                    path:path,
+                    query: {
+                        id: id
+                    }
+                })
+                return
+            }else{
+                this.$router.push('/index');
+            }
         }
     },
     created(){
@@ -134,11 +164,15 @@ padding-top:.88rem;
     width:100%;
     height: 1.1rem;
     background:#fff;
-    padding: .32 .4rem 0 .4rem;
+    padding: .32rem .4rem 0 .4rem;
 }
 .password input{
+    float:left;
     width: 100%;
-    padding: .4rem;
+    padding-left: .4rem;
+    font-size: .32rem;
+    height: .4rem;
+    line-height: .4rem;
 }
 .tip{
     color:#333;
