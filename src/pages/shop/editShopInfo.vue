@@ -115,6 +115,9 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
 
         },
         methods: {
+            ...mapMutations([
+                'RECORD_APPLYSHOPID'
+            ]),
             goback(){
                 this.$router.push('/applicationresults')
             },
@@ -355,6 +358,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 removeStore('select_address','session');
                 const res = await shop_open_apply(this.shop_message.logoId,this.shop_message.name,this.shop_message.areaId,this.shop_message.address,this.shop_message.lat,this.shop_message.lng,this.shop_message.mobile,this.shop_message.introduce,this.shop_message.facadeId,this.shop_message.businessScopeId,this.applyShopId);
                 if(res.code=='000000'){
+                    this.RECORD_APPLYSHOPID('');//将认领店铺ID置为空
                     MessageBox({
                         title:'店铺信息已提交',
                         message:'审核信息将在3个工作日内发到您的手机上，请留意短信',
