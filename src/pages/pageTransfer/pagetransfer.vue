@@ -45,7 +45,7 @@ export default {
                 }
             }else{
                 Toast(res.message)
-                this.$router.push('/index');
+                this.$router.push('/index')
             }
         },
         // 判断店铺状态
