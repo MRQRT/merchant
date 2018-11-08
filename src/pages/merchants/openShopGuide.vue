@@ -130,7 +130,7 @@ import { merchant_open_apply_status, shop_status } from '@/service/getData.js'
                 this.shop_status();
             }
             //如果是从商户版 我要认领 跳转过来
-            this.$route.query.shopId ? this.RECORD_APPLYSHOPID(this.$route.query.shopId) : this.RECORD_APPLYSHOPID('');
+            this.$route.query.shopId ? this.RECORD_APPLYSHOPID(this.$route.query.shopId) : '';
         },
     }
 
