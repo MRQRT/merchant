@@ -221,7 +221,7 @@
                             </li>
                         </ul>
                         <!-- 查询不到物流信息时显示 -->
-                        <p v-else>物流信息出错啦，您可联系客服进行沟通<br/>客服电话：4008-196-199</p>
+                        <p v-else class="deliveryError">物流信息出错啦，您可联系客服进行沟通<br/>客服电话：4008-196-199</p>
                     </div>
                     <div class="close-icon" @click="closePopup"></div>
                 </div>
@@ -1574,7 +1574,7 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                     }
                 }
             }
-            p{
+            .deliveryError{
                 text-align: center;
                 color: #999;
                 font-size: .28rem;
