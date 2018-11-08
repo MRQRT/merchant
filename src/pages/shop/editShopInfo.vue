@@ -225,7 +225,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                         Toast({
                             message: res.message,
                             position: 'bottom',
-                            duration: 3000
+                            duration: 800
                         });
                     }
                 }else if(val2=='shopphoto'){//店铺门面上传
@@ -368,13 +368,6 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                         position: 'bottom',
                         duration: 3000
                     });
-                    // res.data.forEach(item=>{
-                    //     Toast({
-                    //         message:item.data.name + ' 绑定错误',
-                    //         position: 'bottom',
-                    //         duration: 3000
-                    //     })
-                    // })
                 }
             },
             //如果内存中有选择的地址
