@@ -68,7 +68,10 @@ import { merchant_open_apply_status, shop_status } from '@/service/getData.js'
             goBack(){
                 if(this.$route.query.from){
                     window.location.href = this.$route.query.from
-                    // window.location.href = this.$route.query.from+'/#/shopDetail?id='+this.$route.query.shopId
+                    // var id = this.$route.query.shopId;
+                    // var className = this.$route.query.className;
+                    // var name = this.$route.query.name;
+                    // window.location.href = this.$route.query.from+'/#/shopDetail?id='+id+'&className='+className+'&name='+name;
                 }else{
                     this.$router.push('/index');
                 }
