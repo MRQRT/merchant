@@ -55,6 +55,7 @@ axios.interceptors.response.use(
                 confirmButtonText: '登录',
                 type: 'warning'
             }).then(() => {
+                MessageBox.close();
                 if(a.$route.path=='/openshopguide'){
                     router.replace({
                         path:'/login',
@@ -77,9 +78,11 @@ axios.interceptors.response.use(
                 cancelButtonText:'联系客服',
             }).then((action)=>{
                 if(action=='cancel'){
+                    MessageBox.close();
                     document.getElementById("target").click()
                 }
                 if(action=='confirm'){
+                    MessageBox.close();
                     router.replace({path:'/login'})
                 }
             })
