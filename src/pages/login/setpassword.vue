@@ -134,11 +134,15 @@ padding-top:.88rem;
     width:100%;
     height: 1.1rem;
     background:#fff;
-    padding: .32 .4rem 0 .4rem;
+    padding: .32rem .4rem 0 .4rem;
 }
 .password input{
+    float:left;
     width: 100%;
-    padding: .4rem;
+    padding-left: .4rem;
+    font-size: .32rem;
+    height: .4rem;
+    line-height: .4rem;
 }
 .tip{
     color:#333;
