@@ -271,7 +271,7 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
                     			},1000)
                             }else if(res.code=='100035'){
                                 that.iNow = true;
-                                Toast('预留手机号错误')
+                                Toast('绑卡信息有误，请核实')
                             }else{
                                 that.iNow = true;
                                 Toast(res.message)
