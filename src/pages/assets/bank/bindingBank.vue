@@ -233,8 +233,8 @@ import { merchant, return_card_info, bind_card,captcha } from '@/service/getData
                         this.cardType=res.data.type==0?'储蓄卡':'';
                     }else{
                         this.bankTypeStatus=false
-    					this.errorTipStatus=true
-    					this.errorTip='暂不支持该卡'
+    					          this.errorTipStatus=true
+    					          this.errorTip='暂不支持该卡'
                     }
                 }else{
                     this.bankTypeStatus=false

@@ -574,9 +574,9 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                 var text1 = `<div style="text-align:center">店铺审核通过后，再进行绑卡操作</div>`;
                 var text2 = `<div style="text-align:center">店铺审核通过后，再进行新增地址操作</div>`;
                 var text3 = `<div style="text-align:center">店铺审核通过后，方可存金</div>`;
-                var text4 = '订单提交后，我们将通知顺丰小哥上门收件，运费将由黄金管家承担，且运输过程中全额保价。'
-                var text5 = `<div>订单提交后，我们将通知顺丰小哥上门收件，运费将由黄金管家承担，且运输过程中全额保价。</div>
-                             <div>锁价后，将收取预估金价的10%作为订金，订金会在成交后退还至您的付款银行卡。</div>`
+                var text4 = '订单提交后，我们将通知顺丰小哥上门收件并按照您的订单金额全额保价，快递费和保价费将由您自己承担，在确认订单后收取快递费和保价费。'
+                var text5 = `<div>订单提交后，我们将通知顺丰小哥上门收件并按照您的订单金额全额保价，快递费和保价费将由您自己承担，在确认订单后收取快递费和保价费。</div>
+                             <div>您选择锁价后，将收取预估金价的10%作为保证金，订单完成后保证金将退回到您绑定的银行卡中。</div>`
                 switch(num){
                     case 1:
                         MessageBox({
