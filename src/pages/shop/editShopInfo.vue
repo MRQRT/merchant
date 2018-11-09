@@ -332,7 +332,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
             //校验手机号是否正确
             check_tels(val){
                 // let reg = /^(0|86|17951)?(13[0-9]|15[0-9]|17[0-9]|18[0-9]|14[0-9]|19[0-9])[0-9]{8}$/;
-                let reg = /^((400[0-9]{7})|(800[0-9]{7})|(0\d{2,3}-\d{7,8})|(1[3584]\d{9}))$/;
+                let reg = /^((400[0-9]{7})|(800[0-9]{7})|(0\d{2,3}\d{7,8})|(1[3584]\d{9}))$/;
                 if(val)val=val.trim();
                 if(reg.test(val)){
                     return true
