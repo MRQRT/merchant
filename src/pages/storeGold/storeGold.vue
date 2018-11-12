@@ -41,7 +41,7 @@
                         <!-- 黄金总重 -->
                         <div class="gold-box gold-weight">
                             <div class="left">黄金总重</div>
-                            <input type="number" name="" v-model="weight" @keyup="checkInput(weight+'')" placeholder="请输入黄金克重">
+                            <input type="number" name="" v-model="weight" @keyup="checkInput(weight+'')"  @blur="blurInput" placeholder="请输入黄金克重">
                             <span>克</span>
                         </div>
                         <!-- 黄金数量 -->
@@ -349,6 +349,17 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                     this.weight = 100000;
                 }
             },
+            blurInput(){
+                var value = this.weight;
+                var flagRex =/^0/;
+                if(value>=1){
+                    if(flagRex.test(value)){
+                       Toast('请输入正确克重')
+                       this.weight = '';
+                   }
+                }
+
+            },
             //提金数量减1
             decreaseCount(){
                 if(this.extractNum==1){
@@ -552,6 +563,8 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                                 Toast('频繁操作～')
                             }
                         }
+                    }else{
+                        this.checkInfo();
                     }
                 }else{
                     this.showMessage(3);
@@ -568,6 +581,18 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                 //         Toast('频繁操作～')
                 //     }
                 // }
+            },
+            //检测页面哪一项信息未填写
+            checkInfo(){
+                if(this.typeNum==null){
+                    Toast('请选择黄金类型～')
+                }else if(this.weight==''){
+                    Toast('请输入黄金克重～')
+                }else if(!this.bankStatus){
+                    Toast('请完善银行卡信息～')
+                }else if(!this.addressStatus){
+                    Toast('请完善地址信息～')
+                }
             },
             //各类提示弹窗
             showMessage(num){
