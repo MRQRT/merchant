@@ -244,10 +244,10 @@
                                 <span>实测总净重：</span>
                                 <span>{{reportInfo.realNetWeight}}克</span>
                             </p>
-                            <p>
+                            <!-- <p>
                                 <span>克重损耗：</span>
                                 <span>{{reportInfo.realLoss}}克</span>
-                            </p>
+                            </p> -->
                             <p>
                                 <span>检测人：</span>
                                 <span>{{reportInfo.operator}}</span>
