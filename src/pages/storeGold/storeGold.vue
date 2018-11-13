@@ -343,7 +343,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
             },
             //输入内容保留1位小数
 			checkInput(val){
-				this.weight = clearNoNum(val,1);
+				this.weight = clearNoNum(val,2);
                 if(this.weight>100000){
                     Toast('单笔订单不得超过100000克')
                     this.weight = 100000;
