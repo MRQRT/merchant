@@ -38,8 +38,8 @@
                 </p>
             </div>
             <div class="report-img">
-                <img src="static/images/storeGold-banner.png" alt="检测报告" preview="1">
-                <!-- <img :src="reportInfo.attachmentPath" alt="检测报告" preview="1"> -->
+                <!-- <img src="static/images/storeGold-banner.png" alt="检测报告" preview="1"> -->
+                <img :src="reportInfo.attachmentPath" alt="检测报告" preview="1">
             </div>
             <!-- 异常情况 -->
             <div class="report-tel-btn" v-if="status==5 || status==9 || status==13"><a href="tel:4008196199">联系客服</a></div>
@@ -80,7 +80,7 @@
 
 <script>
 import headTop from '@/components/header/head.vue'
-import { MessageBox,Toast,Popup } from 'mint-ui';
+import { MessageBox,Toast,Popup,Lazyload } from 'mint-ui';
 import { query_process_mess,confirm_order } from '@/service/getData.js'
     export default {
     	data(){
@@ -102,12 +102,13 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
         methods: {
             // 关闭确认失败弹窗
             closePopup(){
-                this.popupVisible2 = false;
+                this.popupVisible2 = false;  // 关闭失败弹窗
+                this.reportClick = false;   // 确认按钮恢复默认样式
             },
             // 确认失败重试
             tryAgain(){
-                this.popupVisible2 = false;
-                this.confirm_order();
+                this.popupVisible2 = false;  // 关闭失败弹窗
+                this.report_confirm();        // 再次调用确认函数
             },
             // 查询检测报告
             async query_process_mess(){
@@ -125,7 +126,7 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
                 this.popupVisible1 = true;
                 setTimeout(function(){
                     that.confirm_order();
-                },2000)
+                },1500)
             },
             // 订单确认函数
             async confirm_order(){
@@ -223,11 +224,20 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
     }
     .report-tel-btn{
         a{
+            display: inline-block;
             color: #fff;
-            text-align: center;
-            line-height: .88rem;
             font-size: .34rem;
             border:1px solid #DDC899;
+            width: 6.7rem;
+            height: .88rem;
+            text-align: center;
+            line-height: .88rem;
+            position: fixed;
+            bottom:.3rem;
+            left:50%;
+            margin-left: -3.35rem;
+            background-color: #DDC899;
+            @include border-radius(4px);
         }
     }
 }

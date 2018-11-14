@@ -723,14 +723,14 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 }
             },
             // 查询检测报告
-            async query_process_mess(){
-                var res = await query_process_mess(this.orderId,this.deliveryType);
-                if(res.code=='000000'){
-                    this.reportInfo = res.data;
-                }else{
-                    Toast(res.message)
-                }
-            },
+            // async query_process_mess(){
+            //     var res = await query_process_mess(this.orderId,this.deliveryType);
+            //     if(res.code=='000000'){
+            //         this.reportInfo = res.data;
+            //     }else{
+            //         Toast(res.message)
+            //     }
+            // },
             // 查询订单追踪
             async query_status_flow_mess(){
                 var res = await query_status_flow_mess(this.orderId);
@@ -742,16 +742,16 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                 }
             },
             // 确认订单(用户点击确认检测报告调用)
-            async confirm_order(){
-                var res = await confirm_order(this.orderId);
-                if(res.code=='000000'){
-                    this.reportClick = false; // 确认订单 => 已确认
-                    this.query_detail();      // 再次调用详情函数
-                }else{
-                    this.popupVisible = false;
-                    Toast(res.message)
-                }
-            },
+            // async confirm_order(){
+            //     var res = await confirm_order(this.orderId);
+            //     if(res.code=='000000'){
+            //         this.reportClick = false; // 确认订单 => 已确认
+            //         this.query_detail();      // 再次调用详情函数
+            //     }else{
+            //         this.popupVisible = false;
+            //         Toast(res.message)
+            //     }
+            // },
             // 修改订单状态(未支付倒计时结束)
             async update_status(){
                 var res = await update_status(this.orderId);
