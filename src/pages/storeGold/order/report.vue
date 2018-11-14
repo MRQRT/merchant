@@ -45,8 +45,8 @@
             <div class="report-tel-btn" v-if="status==5 || status==9 || status==13"><a href="tel:4008196199">联系客服</a></div>
             <!-- 待确认、已完成情况 -->
             <div class="report-btn" v-else>
-                <span v-if="status==7 || !reportClick" style="color:#E1D1BA;border:1px solid #EEE3CC">已确认</span>
-                <span v-else @click="report_confirm()">确认订单</span>
+                <span v-if="status==7" style="color:#E1D1BA;border:1px solid #EEE3CC">已确认</span>
+                <span v-else @click="report_confirm()" :class="{'click-active':reportClick}">确认订单</span>
                 <span><a href="tel:4008196199">联系客服</a></span>
             </div>
         </div>
@@ -88,7 +88,7 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
                 orderId:'',
                 reportInfo:'',
                 status:'',
-                reportClick:true,      // 确认检测报告按钮状态
+                reportClick:false,      // 确认检测报告按钮状态
                 popupVisible1:false,   // 订单确认中弹窗
                 popupVisible2:false,   // 确认失败弹窗
             }
@@ -118,14 +118,16 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
                     Toast(res.message)
                 }
             },
-            // 确认订单(用户点击确认检测报告调用)
+            // 点击确认订单
             report_confirm(){
                 var that = this;
+                this.reportClick = true;
                 this.popupVisible1 = true;
                 setTimeout(function(){
                     that.confirm_order();
-                },1500)
+                },2000)
             },
+            // 订单确认函数
             async confirm_order(){
                 var res = await confirm_order(this.orderId);
                 if(res.code=='000000'){
@@ -214,6 +216,9 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
                 }
                 background-color: #DDC899;
             }
+        }
+        .click-active{
+            background-color: rgba(242,182,67,0.1);
         }
     }
     .report-tel-btn{
