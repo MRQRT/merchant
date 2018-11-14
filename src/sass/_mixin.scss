@@ -194,9 +194,19 @@ $media-stack:
         transform: translateX(-50%);
     }
 }
-//边框
-@mixin border($color){
-    border:1px solid $color;
+//细线
+@mixin line($color){
+    height:1px;
+    -webkit-transform: scaleY(0.5);
+    -webkit-transform-origin:0 0;
+    -o-transform: scaleY(0.5);
+    -o-transform-origin:0 0;
+    -moz-transform: scaleY(0.5);
+    -moz-transform-origin:0 0;
+    transform: scaleY(0.5);
+    transform-origin:0 0;
+    overflow: hidden;
+    background: $color;
 }
 //背景图片
 @mixin bg-image($url){
