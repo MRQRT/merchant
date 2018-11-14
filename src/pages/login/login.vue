@@ -608,6 +608,7 @@ input{
     outline-style: none;
     padding-left:.22rem;
     width: 88%;
+    background: #fff;
 }
 #inputPwd.visibleYN{
     background-color: transparent;
