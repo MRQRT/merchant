@@ -2,7 +2,7 @@
     <div class="report">
         <!-- 头部标题部分 -->
         <head-top class="head-top nomal-font" ref="topHead">
-            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.push({path:'/storeorderdetail',query:{id:orderId}})">
+            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.push({path:'/storeorderdetail',query:{id:orderId,status:status}})">
         </head-top>
         <!-- 主体部分 -->
         <div class="main-cont">
@@ -38,15 +38,15 @@
                 </p>
             </div>
             <div class="report-img">
-                <img src="static/images/storeGold-banner.png" alt="">
-                <!-- <img :src="reportInfo.attachmentPath" alt=""> -->
+                <img src="static/images/storeGold-banner.png" alt="检测报告" preview="1">
+                <!-- <img :src="reportInfo.attachmentPath" alt="检测报告" preview="1"> -->
             </div>
             <!-- 异常情况 -->
             <div class="report-tel-btn" v-if="status==5 || status==9 || status==13"><a href="tel:4008196199">联系客服</a></div>
             <!-- 待确认、已完成情况 -->
             <div class="report-btn" v-else>
                 <span v-if="status==7 || !reportClick" style="color:#E1D1BA;border:1px solid #EEE3CC">已确认</span>
-                <span v-else @click="confirm_order()">确认订单</span>
+                <span v-else @click="report_confirm()">确认订单</span>
                 <span><a href="tel:4008196199">联系客服</a></span>
             </div>
         </div>
@@ -66,12 +66,12 @@
         <mt-popup v-model="popupVisible2" popup-transition="popup-fade" :closeOnClickModal="false">
             <div class="report-error-wrap">
                 <div class="top-img">
-                    <img src="static/images/report-error.png" alt="">
+                    <img src="static/images/report-error.png" alt="" >
                 </div>
                 <h4>订单确认失败</h4>
                 <div class="report-btn">
-                    <span>取消</span>
-                    <span>重试</span>
+                    <span @click="closePopup">取消</span>
+                    <span @click="tryAgain">重试</span>
                 </div>
             </div>
         </mt-popup>
@@ -85,12 +85,12 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
     export default {
     	data(){
             return{
-                orderId:'2c93809766f307f50166f39013dc0026',
+                orderId:'',
                 reportInfo:'',
-                status:6,
+                status:'',
                 reportClick:true,      // 确认检测报告按钮状态
-                popupVisible1:false,
-                popupVisible2:false,
+                popupVisible1:false,   // 订单确认中弹窗
+                popupVisible2:false,   // 确认失败弹窗
             }
         },
         components:{
@@ -100,6 +100,15 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
 
         },
         methods: {
+            // 关闭确认失败弹窗
+            closePopup(){
+                this.popupVisible2 = false;
+            },
+            // 确认失败重试
+            tryAgain(){
+                this.popupVisible2 = false;
+                this.confirm_order();
+            },
             // 查询检测报告
             async query_process_mess(){
                 var res = await query_process_mess(this.orderId);
@@ -110,19 +119,33 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
                 }
             },
             // 确认订单(用户点击确认检测报告调用)
-            async confirm_order(){
+            report_confirm(){
+                var that = this;
                 this.popupVisible1 = true;
+                setTimeout(function(){
+                    that.confirm_order();
+                },1500)
+            },
+            async confirm_order(){
                 var res = await confirm_order(this.orderId);
                 if(res.code=='000000'){
                     this.popupVisible1 = false;
                     this.reportClick = false; // 确认订单 => 已确认
+                    this.$router.push({       // 自动跳转订单详情页
+                        path:'/storeorderdetail',
+                        query:{
+                            id:this.orderId,
+                            status:7
+                        }
+                    })
                 }else{
                     this.popupVisible2 = true;
                 }
             },
         },
         created() {
-
+            this.orderId = this.$route.query.id;
+            this.status = this.$route.query.status;
         },
         mounted(){
             this.query_process_mess();
@@ -163,6 +186,9 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
         width: 100%;
         height: 5rem;
         margin-top:.5rem;
+        img{
+            width: 100%;
+        }
     }
     .report-btn{
         width: 100%;

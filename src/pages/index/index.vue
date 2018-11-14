@@ -13,7 +13,7 @@
                         <img src="/static/images/index-bg.png" alt="">
                     </mt-swipe-item>
                     <mt-swipe-item>
-                        <img src="/static/images/hgdBg.jpg" alt="">
+                        <img src="/static/images/index-bg1.jpg" alt="">
                     </mt-swipe-item>
                 </mt-swipe>
 

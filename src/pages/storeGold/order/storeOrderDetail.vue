@@ -470,8 +470,15 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
             showReport(){
                 var that = this;
                 document.getElementById('report').onclick=function(){
-                    that.lookPopup(1);
-                    that.query_process_mess();
+                    // that.lookPopup(1);
+                    // that.query_process_mess();
+                    that.$router.push({
+                        path:'/report',
+                        query:{
+                            id:that.orderId,
+                            status:that.status,
+                        }
+                    })
                 }
             },
             // 物流信息弹窗
