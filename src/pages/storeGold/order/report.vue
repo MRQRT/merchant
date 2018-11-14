@@ -87,7 +87,6 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
             return{
                 orderId:'2c93809766f307f50166f39013dc0026',
                 reportInfo:'',
-                deliveryType:0,
                 status:6,
                 reportClick:true,      // 确认检测报告按钮状态
                 popupVisible1:false,
@@ -103,7 +102,7 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
         methods: {
             // 查询检测报告
             async query_process_mess(){
-                var res = await query_process_mess(this.orderId,this.deliveryType);
+                var res = await query_process_mess(this.orderId);
                 if(res.code=='000000'){
                     this.reportInfo = res.data;
                 }else{
@@ -118,7 +117,7 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
                     this.popupVisible1 = false;
                     this.reportClick = false; // 确认订单 => 已确认
                 }else{
-                    this.popupVisible2 = true;    
+                    this.popupVisible2 = true;
                 }
             },
         },
