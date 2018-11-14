@@ -225,11 +225,11 @@ export default{
 									from:'storegold'
 								}
 							})
-						}else if(this.$route.query.from=='account'){
+						}else if(this.$route.query.from=='mine'){
 							this.$router.push({
 								path:'/addresslist',
 								query:{
-									from:'account'
+									from:'mine'
 								}
 							})
 						}else{
@@ -247,11 +247,11 @@ export default{
 									from:'storegold'
 								}
 							})
-						}else if(this.$route.query.from=='account'){
+						}else if(this.$route.query.from=='mine'){
 							this.$router.push({
 								path:'/addresslist',
 								query:{
-									from:'account'
+									from:'mine'
 								}
 							})
 						}
