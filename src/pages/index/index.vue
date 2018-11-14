@@ -8,7 +8,15 @@
             </div>
     		<!--存金banner-->
     		<div class="storBanner">
-                <img src="/static/images/index-bg.png" alt="">
+                <mt-swipe :auto="2000" :prevent="true">
+                    <mt-swipe-item>
+                        <img src="/static/images/index-bg.png" alt="">
+                    </mt-swipe-item>
+                    <mt-swipe-item>
+                        <img src="/static/images/index-bg1.jpg" alt="">
+                    </mt-swipe-item>
+                </mt-swipe>
+
     			<div class="price_container">
     				<div>
     					<p class="price_in">
@@ -361,7 +369,7 @@
 <script>
 import headTop from '@/components/header/head.vue'
 import foot from '@/components/footer/foot.vue'
-import { Popup,Toast,MessageBox } from 'mint-ui';
+import { Popup,Toast,MessageBox,Swipe, SwipeItem } from 'mint-ui';
 import { mapState,mapMutations } from 'vuex'
 import { shop_status, shop, merchant_open_apply_status} from '@/service/getData.js'
 
