@@ -20,7 +20,7 @@
                 <mt-loadmore :bottom-method="loadBottom" :bottom-all-loaded="allLoaded" :auto-fill="false"
                     bottomPullText="上滑加载更多" bottomDropText="松开加载" ref="loadmore" class="loadmore">
                     <ul class="order-list">
-                        <li class="order-item" v-for="(item,index) in orderList" :key="index" @click="$router.push({path:'/storeorderdetail',query:{id:item.id,status:item.status}})">
+                        <li class="order-item" v-for="(item,index) in orderList" :key="index" @click="goOrderDetail(item)">
                             <!-- 左侧图片 -->
                             <div class="left-img">
                                 <img src="static/images/order-jintiao.png" alt="" v-if="item.productType==0">
@@ -277,6 +277,18 @@ import { Indicator,Toast } from 'mint-ui';
                     path:'/login',
                     query:{
                         'redirect':'/storeorderlist'
+                    }
+                })
+            },
+            //跳转订单详情
+            goOrderDetail(item){
+                var path = item.status == 6 ? '/report' : '/storeorderdetail';
+
+                this.$router.push({
+                    path:path,
+                    query:{
+                        id:item.id,
+                        status:item.status
                     }
                 })
             },
