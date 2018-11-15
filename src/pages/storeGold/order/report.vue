@@ -126,7 +126,7 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
                 this.popupVisible1 = true;
                 setTimeout(function(){
                     that.confirm_order();
-                },1500)
+                },2000)
             },
             // 订单确认函数
             async confirm_order(){
@@ -158,6 +158,13 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
 
 </script>
 
+<style media="screen">
+    .mint-popup{
+        background: #fff !important;
+        border-radius: 4px !important;
+    }
+</style>
+
 <style scoped lang="scss">
 @import '../../../sass/mixin';
 .main-cont{
@@ -187,7 +194,7 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
     }
     .report-img{
         width: 100%;
-        height: 5rem;
+        // height: 5rem;
         margin-top:.5rem;
         img{
             width: 100%;
@@ -245,6 +252,7 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
     width: 4.9rem;
     text-align: center;
     padding-bottom: .5rem;
+    background-color: #fff;
     @include border-radius(4px);
 
     @keyframes roundLoop2{
@@ -264,7 +272,7 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
                 left:0;
             }
             &:nth-of-type(2){
-                animation: roundLoop2 1s linear infinite;
+                animation: roundLoop2 .7s linear infinite;
             }
         }
     }

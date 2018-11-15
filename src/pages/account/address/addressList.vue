@@ -175,12 +175,12 @@
 							from:'storegold'
 						}
 					})
-				}else if(this.$route.query.from=='account'){
+				}else if(this.$route.query.from=='mine'){
 					this.$router.push({
 						path:'addAddress',
 						query: {
 							modify: val.id,
-							from:'account'
+							from:'mine'
 						}
 					})
 				}
@@ -204,11 +204,11 @@
 			},
 			//点击添加新地址
 			addNewAddr(){
-				if(this.$route.query.from=='account'){
+				if(this.$route.query.from=='mine'){
 					this.$router.push({
 						path:'/addAddress',
 						query:{
-							from:'account'
+							from:'mine'
 						}
 					})
 				}else{
