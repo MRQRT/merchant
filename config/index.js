@@ -19,6 +19,7 @@ module.exports = {
             },
         }
     },
+    host:'10.88.88.24',//comp guo
     // host:'192.168.1.113',//comp guo
     host: '10.88.88.8', // can be overwritten by process.env.HOST
     // host: '192.168.1.181', // can be overwritten by process.env.HOST
