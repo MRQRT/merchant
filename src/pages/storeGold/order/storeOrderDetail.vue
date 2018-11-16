@@ -592,7 +592,17 @@ import { query_detail, query_logistics_mess, query_express_mess, query_status_fl
                             var that = this;
                             switch(index){
                                 case 0:
-                                    this.stepTipText = status==0?text0:text1; // 避免在当前状态点击切换
+                                    switch (status) {
+                                        case 0:
+                                            this.stepTipText = text0;
+                                            break;
+                                        case 1:
+                                            that.stepTipText = text2;
+                                            break;
+                                        default:
+                                            this.stepTipText = text1;
+                                            break;
+                                    }
                                     break;
                                 case 1:
                                     this.query_logistics_mess(0);

@@ -159,7 +159,7 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
 </script>
 
 <style media="screen">
-    .mint-popup{
+    .report .mint-popup{
         background: #fff !important;
         border-radius: 4px !important;
     }

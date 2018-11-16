@@ -394,8 +394,9 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 var res = await shopDetail(this.applyShopId);
                 if(res.code=='000000'){
                     // this.shop_message = res.data;
+                    this.headimg = res.data.logoPath;
                     this.headimg_url = res.data.logoPath;
-                    this.shop_message.loginId = res.data.logoId;
+                    this.shop_message.logoId = res.data.logoId;
                     this.shop_message.name = res.data.name;
                     this.shop_message.areaId = res.data.areaId;
                     this.shop_message.address = res.data.address;
