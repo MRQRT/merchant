@@ -44,7 +44,7 @@ export default {
 	//记录店铺审核状态
 	[RECORD_SHOPSTATUS](state,shopStatus){
 		state.shopStatus = shopStatus;
-		setStore('shopStatus',shopStatus,'local');
+		setStore('shopStatus',shopStatus,'session');
 	},
 	// 记录当前时间
 	[RECORD_CURRENTIME](state,now){
