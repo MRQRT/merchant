@@ -8,7 +8,15 @@
             </div>
     		<!--存金banner-->
     		<div class="storBanner">
-                <img src="/static/images/index-bg.png" alt="">
+                <mt-swipe :auto="2000" :prevent="true">
+                    <mt-swipe-item>
+                        <img src="/static/images/index-bg.png" alt="">
+                    </mt-swipe-item>
+                    <mt-swipe-item>
+                        <img src="/static/images/index-bg1.jpg" alt="">
+                    </mt-swipe-item>
+                </mt-swipe>
+
     			<div class="price_container">
     				<div>
     					<p class="price_in">
@@ -89,7 +97,7 @@
                     </div>
                 </div>
             </div>
-    		<!-- 公司介绍 -->
+            <!-- 公司介绍 -->
     		<section class="jieshao">
     			<section class="subtitle">公司介绍</section>
                 <div class="jieshao-img">
@@ -361,7 +369,7 @@
 <script>
 import headTop from '@/components/header/head.vue'
 import foot from '@/components/footer/foot.vue'
-import { Popup,Toast,MessageBox } from 'mint-ui';
+import { Popup,Toast,MessageBox,Swipe, SwipeItem } from 'mint-ui';
 import { mapState,mapMutations } from 'vuex'
 import { shop_status, shop, merchant_open_apply_status} from '@/service/getData.js'
 
@@ -518,90 +526,6 @@ import { shop_status, shop, merchant_open_apply_status} from '@/service/getData.
         }
         .nav{
 
-        }
-    }
-    // 左侧导航
-    .nav-wrap{
-        width:5rem;
-        height: 100vh;
-        padding:1.4rem .5rem 0 .6rem;
-        background-color: #fff;
-        overflow:scroll;
-        .top-info{
-            margin-bottom: 1.3rem;
-            .cjt-logo{
-                width: 2.1rem;
-                height: .58rem;
-
-                img{
-                    width: 100%;
-                }
-            }
-            .login-btn{
-                width: 3rem;
-                height: .7rem;
-                line-height: .7rem;
-                text-align: center;
-                color: #fff;
-                font-size: .3rem;
-                margin-top:.3rem;
-                background: -webkit-linear-gradient(left, #C09C60, #DDC899);
-                @include border-radius(.35rem);
-            }
-            .shop-logo{
-                width: 1.6rem;
-                height: 1.6rem;
-                background-color: #eee;
-                img{
-                    width: 100%;
-                    height:100%;
-                }
-            }
-            p{
-                color: #333;
-                font-size: .34rem;
-                line-height: .54rem;
-                text-align: left;
-                margin-top:.38rem;
-                font-weight: bold;
-                font-family:PingFangSC-Medium;
-            }
-        }
-        .nav-list{
-            width:100%;
-            li{
-                height: 1rem;
-                line-height: 1rem;
-                align-items: center;
-                @include flex-box();
-                span{
-                    color:#333;
-                    font-size: .3rem;
-                    margin-right:.3rem;
-                    font-family:PingFangSC-Regular;
-                    &:nth-of-type(1){
-                        display: inline-block;
-                        width: .36rem;
-                        height: .37rem;
-                    }
-                }
-                .icon1{
-                    @include bg-image('/static/images/assets-icon.png');
-                }
-                .icon2{
-                    @include bg-image('/static/images/order-icon.png');
-                }
-                .icon3{
-                    @include bg-image('/static/images/account-icon.png');
-                }
-                .icon4{
-                    @include bg-image('/static/images/us-icon.png');
-                }
-                .icon5{
-                    @include bg-image('/static/images/quit-login.png');
-                }
-
-            }
         }
     }
     .storBanner{

@@ -351,6 +351,11 @@ import { query_card_info,query_ensure_cash, merchant_open_apply_status,logout,qu
                     margin-right: .2rem;
                     @include border-radius(50%);
                     @include inline-block(.8rem,.8rem);
+                    img{
+                        width: 100%;
+                        height: 100%;
+                        @include border-radius(50%);
+                    }
                 }
                 .shop-name{
                     font-size: .34rem;
