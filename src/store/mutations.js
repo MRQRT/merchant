@@ -12,7 +12,7 @@ import {
 	RECORD_APPLYSHOPID,
 } from './mutation-types.js'
 
-import {setStore, getStore, setCookie ,getCookie, removeCookie, removeStore} from '../config/mUtils'
+import {setStore} from '../config/mUtils'
 
 
 export default {
@@ -28,12 +28,12 @@ export default {
 	},
 	//记录用户的的登录手机号
 	[RECORD_MOBILE](state,mobile){
-		setStore('mobile',mobile,'session')
+		setStore('mobile',mobile,'local')
 		state.mobile=mobile
 	},
 	//记录用户的商户号
 	[RECORD_MERCHANTID](state,merchantId){
-		setStore('merchantId',merchantId,'session')
+		setStore('merchantId',merchantId,'local')
 		state.merchantId=merchantId
 	},
 	//记录店铺ID
@@ -44,7 +44,7 @@ export default {
 	//记录店铺审核状态
 	[RECORD_SHOPSTATUS](state,shopStatus){
 		state.shopStatus = shopStatus;
-		setStore('shopStatus',shopStatus,'session');
+		setStore('shopStatus',shopStatus,'local');
 	},
 	// 记录当前时间
 	[RECORD_CURRENTIME](state,now){
