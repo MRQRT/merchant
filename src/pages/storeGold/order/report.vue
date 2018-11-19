@@ -14,11 +14,42 @@
                 </p>
                 <p>
                     <span>实测总毛重</span>
-                    <span>{{reportInfo.realGrossWeight}}克</span>
+                    <span>{{reportInfo.realGrossWeight | formatPriceTwo}}克</span>
                 </p>
                 <p>
                     <span>实测总净重</span>
-                    <span>{{reportInfo.realNetWeight}}克</span>
+                    <span>{{reportInfo.realNetWeight | formatPriceTwo}}克</span>
+                </p>
+                <p>
+                    <span>实收金价</span>
+                    <span>{{reportInfo.realPrice | formatPriceTwo}}元</span>
+                </p>
+                <p class="service-price" @click="showList">
+                    <span>总服务费<b :class="{'rotate':servicePriceStatus}"></b></span>
+                    <span>{{reportInfo.realNetWeight | formatPriceTwo}}元</span>
+                </p>
+                <!-- 具体服务费 -->
+                <div class="service-price-item" :class="{'showList':servicePriceStatus}">
+                    <p>
+                        <span>物流费</span>
+                        <span><b v-if="reportInfo.expressFee>0">- </b>{{reportInfo.expressFee | formatPriceTwo}}元</span>
+                    </p>
+                    <p>
+                        <span>保险费</span>
+                        <span><b v-if="reportInfo.insuranceFee>0">- </b>{{reportInfo.insuranceFee | formatPriceTwo}}元</span>
+                    </p>
+                    <p>
+                        <span>检测费</span>
+                        <span><b v-if="reportInfo.verifyFee>0">- </b>{{reportInfo.verifyFee | formatPriceTwo}}元</span>
+                    </p>
+                    <p>
+                        <span>手续费</span>
+                        <span><b v-if="reportInfo.fee>0">- </b>{{reportInfo.fee | formatPriceTwo}}元</span>
+                    </p>
+                </div>
+                <p>
+                    <span>回收总金额</span>
+                    <span style="color:#c09c60">{{reportInfo.cashAmount | formatPriceTwo}}元</span>
                 </p>
                 <p>
                     <span>检测人</span>
@@ -91,6 +122,7 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
                 reportClick:false,      // 确认检测报告按钮状态
                 popupVisible1:false,   // 订单确认中弹窗
                 popupVisible2:false,   // 确认失败弹窗
+                servicePriceStatus:false,  // 是否显示总服务费
             }
         },
         components:{
@@ -100,6 +132,10 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
 
         },
         methods: {
+            // 显示总服务费
+            showList(){
+                this.servicePriceStatus = !this.servicePriceStatus;
+            },
             // 关闭确认失败弹窗
             closePopup(){
                 this.popupVisible2 = false;  // 关闭失败弹窗
@@ -190,6 +226,32 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
                 color: #666;
                 font-size: .28rem;
             }
+        }
+        .service-price{
+            span{
+                b{
+                    display: inline-block;
+                    width: .24rem;
+                    height: .24rem;
+                    margin-left:.2rem;
+                    @include bg-image('/static/images/order-pull.png');
+                }
+                .rotate{
+                    @include transition(.3s);
+                    @include rotate(180deg);
+                }
+            }
+        }
+        .service-price-item{
+            height: 0;
+            display: none;
+            padding-left:.26rem;
+            @include transition(.3s);
+        }
+        .showList{
+            height: auto;
+            display: block;
+            @include transition(.3s);
         }
     }
     .report-img{
