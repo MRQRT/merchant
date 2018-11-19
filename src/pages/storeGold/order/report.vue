@@ -26,7 +26,7 @@
                 </p>
                 <p class="service-price" @click="showList">
                     <span>总服务费<b :class="{'rotate':servicePriceStatus}"></b></span>
-                    <span>{{reportInfo.realNetWeight | formatPriceTwo}}元</span>
+                    <span>{{servicePrice | formatPriceTwo}}元</span>
                 </p>
                 <!-- 具体服务费 -->
                 <div class="service-price-item" :class="{'showList':servicePriceStatus}">
@@ -129,7 +129,9 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
             headTop,
         },
         computed: {
-
+            servicePrice(){
+                return (this.reportInfo.expressFee + this.reportInfo.insuranceFee + this.reportInfo.verifyFee + this.reportInfo.fee)
+            }
         },
         methods: {
             // 显示总服务费
