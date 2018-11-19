@@ -26,7 +26,7 @@
                 </p>
                 <p class="service-price" @click="showList">
                     <span>总服务费<b :class="{'rotate':servicePriceStatus}"></b></span>
-                    <span>{{servicePrice | formatPriceTwo}}元</span>
+                    <span><b v-if="servicePrice>0">- </b>{{servicePrice | formatPriceTwo}}元</span>
                 </p>
                 <!-- 具体服务费 -->
                 <div class="service-price-item" :class="{'showList':servicePriceStatus}">
@@ -231,23 +231,25 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
         }
         .service-price{
             span{
-                b{
-                    display: inline-block;
-                    width: .24rem;
-                    height: .24rem;
-                    margin-left:.2rem;
-                    @include bg-image('/static/images/order-pull.png');
-                }
-                .rotate{
-                    @include transition(.3s);
-                    @include rotate(180deg);
+                &:nth-of-type(1){
+                    b{
+                        display: inline-block;
+                        width: .24rem;
+                        height: .24rem;
+                        margin-left:.2rem;
+                        @include bg-image('/static/images/order-pull.png');
+                    }
+                    .rotate{
+                        @include transition(.3s);
+                        @include rotate(180deg);
+                    }
                 }
             }
         }
         .service-price-item{
             height: 0;
             display: none;
-            padding-left:.26rem;
+            padding-left:.28rem;
             @include transition(.3s);
         }
         .showList{
