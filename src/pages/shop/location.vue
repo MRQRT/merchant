@@ -151,44 +151,10 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
                             if(r.point.lng=='116.4037397'||r.point.lat=='39.91488908'){//定位失败
                                 var depault = {lng:116.404,lat:39.9146}
                                 var pt1 = new BMap.Point(depault.lng,depault.lat);
-                                //创建一个地理位置解析器
-                                var geoc = new BMap.Geocoder();
-                                geoc.getLocation(pt1, function(rs){//解析格式：城市，区县，街道
-                                // console.log(rs.addressComponents.district)//根据区域反解区域id
-                                v_this.location=rs.addressComponents.city//城市
-                                    var local = new BMap.LocalSearch(map, {
-                                        // renderOptions:{map: map},
-                                        onSearchComplete : function(results) {
-                                            let pois = [];
-                                            for (let i = 0; i < results.getCurrentNumPois(); i++) {
-                                                pois.push(results.getPoi(i));
-                                            }
-                                            v_this.surroundingPois=pois;//将搜索结果放入地址选取列表中
-                                        }
-                                    });
-                                    local.search(rs.address);
-                                });
-                                v_this.v_mark(map,depault.lng,depault.lat);
+                                v_this.analyze(pt1,map,depault);
                             }else{
                                 var pt2 = new BMap.Point(r.point.lng,r.point.lat);
-                                //创建一个地理位置解析器
-                                var geoc = new BMap.Geocoder();
-                                geoc.getLocation(pt2, function(rs){//解析格式：城市，区县，街道
-                                // console.log(rs.addressComponents.district)//根据区域反解区域id
-                                v_this.location=rs.addressComponents.city//城市
-                                    var local = new BMap.LocalSearch(map, {
-                                        // renderOptions:{map: map},
-                                        onSearchComplete : function(results) {
-                                            let pois = [];
-                                            for (let i = 0; i < results.getCurrentNumPois(); i++) {
-                                                pois.push(results.getPoi(i));
-                                            }
-                                            v_this.surroundingPois=pois;//将搜索结果放入地址选取列表中
-                                        }
-                                    });
-                                    local.search(rs.address);
-                                });
-                                v_this.v_mark(map,r.point.lng,r.point.lat);
+                                this.analyze(pt2,map,point);
                             }
                         }else{
                             alert('failed'+this.getStatus());//定位失败
@@ -196,26 +162,32 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
                     });
                 }else{
                     var pt3 = new BMap.Point(val.lng,val.lat);
-                    //创建一个地理位置解析器
-                    var geoc = new BMap.Geocoder();
-                    geoc.getLocation(pt3, function(rs){//解析格式：城市，区县，街道
-                    // console.log(rs.addressComponents.district)//根据区域反解区域id
-                    v_this.location=rs.addressComponents.city//城市
-                        var local = new BMap.LocalSearch(map, {
-                            // renderOptions:{map: map},
-                            onSearchComplete : function(results) {
-                                let pois = [];
-                                for (let i = 0; i < results.getCurrentNumPois(); i++) {
-                                    pois.push(results.getPoi(i));
-                                }
-                                v_this.surroundingPois=pois;//将搜索结果放入地址选取列表中
-                            }
-                        });
-                        local.search(rs.address);
-                    });
-                    v_this.v_mark(map,val.lng,val.lat);
+                    this.analyze(pt3,map,val);
                 }
             },
+            //地理位置解析
+            analyze(val,val2,val3){
+                var v_this=this;
+                //创建一个地理位置解析器
+                var geoc = new BMap.Geocoder();
+                geoc.getLocation(val, function(rs){//解析格式：城市，区县，街道
+                // console.log(rs.addressComponents.district)//根据区域反解区域id
+                v_this.location=rs.addressComponents.city//城市
+                    var local = new BMap.LocalSearch(val2, {
+                        // renderOptions:{map: map},
+                        onSearchComplete : function(results) {
+                            let pois = [];
+                            for (let i = 0; i < results.getCurrentNumPois(); i++) {
+                                pois.push(results.getPoi(i));
+                            }
+                            v_this.surroundingPois=pois;//将搜索结果放入地址选取列表中
+                        }
+                    });
+                    local.search(rs.address);
+                });
+                v_this.v_mark(val2,val3.lng,val3.lat);
+            },
+            //地图标记
             v_mark(val,val1,val2){
                 var point = new BMap.Point(val1, val2);
                 val.centerAndZoom(point, 17);
