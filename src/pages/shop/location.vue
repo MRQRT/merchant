@@ -131,17 +131,22 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
                 })
             },
             //创建地图
-            creatmap(val){
-                var map = new BMap.Map("container");
-                var point = new BMap.Point(val.latitude, val.longitude);
-                map.centerAndZoom(point, 17);
-            },
+            // creatmap(val){
+            //     var map = new BMap.Map("container");
+            //     var point = new BMap.Point(val.latitude, val.longitude);
+            //     map.centerAndZoom(point, 17);
+            // },
             //定位
             map(val,val2){
                 let v_this = this;
                 var map = new BMap.Map("container");
+                map.addEventListener("dragend", function(){    
+                    var center = map.getCenter();    
+                    // alert("地图中心点变更为：" + center.lng + ", " + center.lat);  
+                });
                 var point = new BMap.Point(val.latitude, val.longitude);
                 map.centerAndZoom(point, 17);
+                this.control(map);
                 //获取定位
                 if(val2=='one'){
                     var geolocation = new BMap.Geolocation();
@@ -207,7 +212,15 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
                 var marker = new BMap.Marker(val1, {icon: myIcon});
                 val.addOverlay(marker);
                 val.panTo(val1);
+                marker.enableDragging();  //设置可拖拽
+                marker.addEventListener("dragend", function(e){
+                    console.log(e)
+                })  //拖动事件 
             },
+            //添加一个标记
+            control(map){
+                
+            }
         },
         created(){
 
