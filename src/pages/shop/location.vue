@@ -151,10 +151,12 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
                             if(r.point.lng=='116.4037397'||r.point.lat=='39.91488908'){//定位失败
                                 var depault = {lng:116.404,lat:39.9146}
                                 var pt1 = new BMap.Point(depault.lng,depault.lat);
+                                //地理位置解析
                                 v_this.analyze(pt1,map,depault);
                             }else{
                                 var pt2 = new BMap.Point(r.point.lng,r.point.lat);
-                                this.analyze(pt2,map,point);
+                                //地理位置解析
+                                v_this.analyze(pt2,map,point);
                             }
                         }else{
                             alert('failed'+this.getStatus());//定位失败
@@ -162,7 +164,8 @@ import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
                     });
                 }else{
                     var pt3 = new BMap.Point(val.lng,val.lat);
-                    this.analyze(pt3,map,val);
+                    //地理位置解析
+                    v_this.analyze(pt3,map,val);
                 }
             },
             //地理位置解析
