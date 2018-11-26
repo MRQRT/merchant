@@ -32,7 +32,6 @@ const storeGold = r => require.ensure([], () => r(require('../pages/storeGold/st
 const storeResult = r => require.ensure([], () => r(require('../pages/storeGold/storeResult')), 'storeResult')
 const storeOrderList = r => require.ensure([], () => r(require('../pages/storeGold/order/storeOrderList')), 'storeOrderList')
 const storeOrderDetail = r => require.ensure([], () => r(require('../pages/storeGold/order/storeOrderDetail')), 'storeOrderDetail')
-const orderDetail = r => require.ensure([], () => r(require('../pages/storeGold/order/orderDetail')), 'orderDetail')
 const waitPayOrder = r => require.ensure([], () => r(require('../pages/storeGold/order/waitPayOrder')), 'waitPayOrder')
 const report = r => require.ensure([], () => r(require('../pages/storeGold/order/report')), 'report')
 
@@ -141,10 +140,6 @@ const router = new Router({
         {
             path: '/storeorderdetail',  // 存金订单详情页
             component: storeOrderDetail,
-        },
-        {
-            path:'/orderDetail',   // 订单详情（新）
-            component:orderDetail,
         },
         {
             path: '/waitPayOrder',  // 存金订单待支付页
