@@ -30,14 +30,6 @@
                     </div>
                     <!-- 表单部分 -->
                     <div class="form-wrap">
-                        <!-- 类型选择 -->
-                        <div class="gold-box gold-type">
-                            <div class="left">黄金类型</div>
-                            <div class="type-right">
-                                <span :class="{'type-active':typeNum==0}" @click="chooseType(0)">金条</span>
-                                <span :class="{'type-active':typeNum==1}" @click="chooseType(1)">饰品</span>
-                            </div>
-                        </div>
                         <!-- 黄金总重 -->
                         <div class="gold-box gold-weight">
                             <div class="left">黄金总重</div>
@@ -268,7 +260,6 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                 dealStatus:true,     // 是否在交易时段
                 bankStatus:false,    // 是否绑定银行卡
                 addressStatus:false, // 是否选择地址
-                typeNum:null,        // 存金类型选择样式
                 weight:'',           // 存金克重
                 extractNum:1,        // 存金数量
                 bg:true,             // 协议是否已读
@@ -291,6 +282,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                 addressId:'',        // 地址id
                 countDownSec:50,     // 重试验证码倒计时
                 countdownStatus:false,// 重试按钮是否可以点击
+                marginRate:0,         // 锁加保证金比例
             }
         },
         components:{
@@ -306,13 +298,13 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
             },
             // 保证金
             guaranteeCash(){
-                var val = this.estimatePrice * 0.1;
+                var val = this.estimatePrice * (this.marginRate/100);
                 var newVal = parseFloat(val).toFixed(3);
                 return newVal.substring(0,newVal.toString().length - 1);
             },
             // 提交按钮是否可以点击
             submitStatus(){
-                if(this.typeNum==null || this.weight==0 || !this.bg || !this.bankStatus || !this.addressStatus){
+                if(this.weight==0 || !this.bg || !this.bankStatus || !this.addressStatus){
                     return false;
                 }else{
                     return true;
@@ -385,10 +377,6 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                     Toast('单笔订单不得超过100件');
                     this.extractNum = 100;
                 }
-            },
-            //选择存金类型
-            chooseType(num){
-                this.typeNum = num;
             },
             //协议阅读与否
             changeBg(){
@@ -476,7 +464,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                     if(this.dealStatus){
                         if(this.btnCtroller){
                             this.btnCtroller=false
-                            this.showMessage(5);
+                            this.marginRate == 0 ? this.showMessage(6) : this.showMessage(5);
                         }else{
                             Toast('频繁操作～')
                         }
@@ -584,9 +572,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
             },
             //检测页面哪一项信息未填写
             checkInfo(){
-                if(this.typeNum==null){
-                    Toast('请选择黄金类型～')
-                }else if(this.weight==''){
+                if(this.weight==''){
                     Toast('请输入黄金克重～')
                 }else if(!this.bankStatus){
                     Toast('请完善银行卡信息～')
@@ -601,7 +587,10 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                 var text3 = `<div style="text-align:center">店铺审核通过后，方可存金</div>`;
                 var text4 = '订单提交后，我们将通知顺丰小哥上门收件并按照您的订单金额全额保价，快递费和保价费将由您自己承担，在确认订单后收取快递费和保价费。'
                 var text5 = `<div>订单提交后，我们将通知顺丰小哥上门收件并按照您的订单金额全额保价，快递费和保价费将由您自己承担，在确认订单后收取快递费和保价费。</div>
-                             <div>您选择锁价后，将收取预估金价的10%作为保证金，订单完成后保证金将退回到您绑定的银行卡中。</div>`
+                             <div>您选择锁价后，将收取预估金价的${this.marginRate}%作为保证金，订单完成后保证金将退回到您绑定的银行卡中。</div>`
+                var text6 = `<div>订单提交后，我们将通知顺丰小哥上门收件并按照您的订单金额全额保价，快递费和保价费将由您自己承担，在确认订单后收取快递费和保价费。</div>
+                             <div>您当前选择锁价提交，平台已将您的锁价保证金优惠至0元。</div>`
+
                 switch(num){
                     case 1:
                         MessageBox({
@@ -633,7 +622,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                           closeOnClickModal:false,
                       }).then(action => {
                             if(action == 'confirm'){
-                                this.directlyOrder()
+                                this.directlyOrder(false)
                             }else{
                                 this.btnCtroller = true;
                             }
@@ -654,12 +643,28 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                             }
                         })
                     break;
+                    case 6:
+                        MessageBox({
+                          title: '温馨提示',
+                          message:text6,
+                          confirmButtonText: '确认',
+                          showCancelButton:true,
+                          closeOnClickModal:false,
+                        }).then(action => {
+                            if(action == 'confirm'){
+                                this.directlyOrder(true);
+                            }else{
+                                this.btnCtroller = true;
+                            }
+                        })
+                    break;
+
                 }
 
             },
             //直接提交创建订单
-            async directlyOrder(){
-                var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,false,true,this.receiverInfo.contact,this.receiverInfo.telephone,this.detailAddress)
+            async directlyOrder(isLockOrder){
+                var res = await add_recycle_order(this.extractNum,this.weight,isLockOrder,true,this.receiverInfo.contact,this.receiverInfo.telephone,this.detailAddress)
                 if(res.code=='000000'){
                     this.orderId = res.data.id;
                     this.$router.push({
@@ -678,7 +683,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
             async lockPriceOrder(){
                 var that = this;
                 // 创建订单
-                var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,true,true,this.receiverInfo.contact,this.receiverInfo.telephone,this.detailAddress)
+                var res = await add_recycle_order(this.extractNum,this.weight,true,true,this.receiverInfo.contact,this.receiverInfo.telephone,this.detailAddress)
                 if(res.code=='000000'){
                     this.orderId = res.data.id;
                     this.ensureCash = res.data.ensureCash;
@@ -781,7 +786,6 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
         },
         created(){
             if(this.storeOrderInfo){
-                this.typeNum = this.storeOrderInfo.typeNum;
                 this.weight = this.storeOrderInfo.weight;
                 this.extractNum = this.storeOrderInfo.extractNum;
             }
@@ -835,7 +839,6 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
             // 跳转路由时需保存所填写的订单信息
             if(to.path=='/addaddress' || to.path=='/addresslist' || to.path=='/bindingbank' || to.path=='/storearg'){
                 var obj = {
-                    typeNum:this.typeNum,
                     weight:this.weight,
                     extractNum:this.extractNum
                 }
@@ -930,7 +933,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
 
             .inner-box{
                 width:100%;
-                height: 7.54rem;
+                height:6.4rem;
                 margin-top:-2.4rem;
                 padding-top:.5rem;
                 background-color: #fff;
