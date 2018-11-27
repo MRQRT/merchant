@@ -15,7 +15,7 @@
                 <!-- 文字信息部分 -->
                 <div class="info-text">
                     <div class="left-img">
-                        <img src="" alt="">
+                        <img src="static/images/order-info-basic.png" alt="">
                     </div>
                     <div class="center-txt">
                         <p>
@@ -94,6 +94,35 @@
                     <span class="bank">中国工商银行（尾号0123）</span>
                 </p>
             </div>
+            <!-- part4:物流包裹信息 -->
+            <div class="delivery-info-wrap">
+                <h4>物流信息</h4>
+                <ul class="outer-delivery-list">
+                    <li class="outer-delivery-item">
+                        <div class="item-title">
+                            <span>包裹1——物流中</span>
+                            <span></span>
+                        </div>
+                        <div class="item-detail">
+                            <p>快递公司：顺丰快递</p>
+                            <p>快递单号：123456789</p>
+                        </div>
+                        <div class="delivery-point">
+                            <mt-spinner type="triple-bounce" v-if="!deliveryStatus" color="#C09C60"></mt-spinner>
+                            <ul class="inner-delivery-list" v-else-if="deliveryStatus && !deliveryError">
+                                <div class="line"></div>
+                                <li class="inner-delivery-item" :class="{'recent':index==0}"v-for="(item,index) in deliveryList" :key="index">
+                                    <span class="time">{{item.time | changeTime}}</span>
+                                    <span class="dot" :class="{'recent-icon':index==0}"></span>
+                                    <span class="text">{{item.status}}</span>
+                                </li>
+                            </ul>
+                            <!-- 查询不到物流信息时显示 -->
+                            <p v-else class="deliveryError">物流信息出错啦，您可联系客服进行沟通<br/>客服电话：4008-196-199</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
             <!-- part5:订单追踪 -->
             <div class="order-tracking">
                 <div class="title" @click="showList">
@@ -139,8 +168,9 @@ import { query_detail, query_card_info} from '@/service/getData.js'
         data(){
             return{
                 orderId:'',              // 订单ID
-                status:2,                // 订单当前状态
+                status:3,                // 订单当前状态
                 popupVisible:false,      // 禁止取消订单弹窗
+                deliveryStatus:true,
                 trackingStatus:false,    // 订单追踪显示、隐藏
                 stepList:[               // 进度icon对应文字
                     {name:'订单审核'},
@@ -169,6 +199,20 @@ import { query_detail, query_card_info} from '@/service/getData.js'
                     '12':{name:'物流异常',status:0,iconType:'',beforeStatus:1},
                     '13':{name:'已关闭',status:4,iconType:4,beforeStatus:1},
                 },
+                deliveryList:[
+                    {
+                        time:'2018-12-12 12:12:12',
+                        status:'快递已发货'
+                    },
+                    {
+                        time:'2018-12-12 12:12:12',
+                        status:'快递已发货'
+                    },
+                    {
+                        time:'2018-12-12 12:12:12',
+                        status:'快递已发货'
+                    },
+                ],
                 newTrackList:[
                     {
                         'name':'订单已提交审核',
@@ -543,6 +587,86 @@ import { query_detail, query_card_info} from '@/service/getData.js'
                 }
             }
         }
+        .delivery-info-wrap{
+            padding:0 .4rem;
+            background-color: #fff;
+            margin-bottom: .2rem;
+            h4{
+                color: #333;
+                font-size: .32rem;
+                padding:.3rem 0;
+            }
+            .outer-delivery-list{
+                .outer-delivery-item{
+                    color: #666;
+                    font-size: .28rem;
+                    .item-title{
+                        height: .86rem;
+                        line-height: .86rem;
+                        align-items: center;
+                        @include flex-box();
+                        @include justify-content();
+                        span{
+                            &:nth-of-type(2){
+                                display: inline-block;
+                                width: .24rem;
+                                height: .24rem;
+                                background: url(/static/images/order-pull.png) no-repeat;
+                                background-size: 100%;
+                            }
+                        }
+                    }
+                    .delivery-point{
+                        margin-top:.2rem;
+                        .inner-delivery-list{
+                            height: 100%;
+                            padding-left:.18rem;
+                            position: relative;
+                            .line{
+                                width:1px;
+                                height: 185%;
+                                position: absolute;
+                                left:.95rem;
+                                top:.3rem;
+                                z-index: 100;
+                                background-color: #ddd;
+                            }
+                            .inner-delivery-item{
+                                width:100%;
+                                margin-bottom: .3rem;
+                                align-items: center;
+                                justify-content: flex-start;
+                                @include flex-box();
+                                span{
+                                    display: inline-block;
+                                    color: #999;
+                                    font-size: .24rem;
+                                }
+                                .time{
+                                    font-size: .2rem;
+                                    width: .8rem;
+                                }
+                                .dot{
+                                    width: .24rem;
+                                    height: .24rem;
+                                    margin:-.05rem .2rem 0 .1rem;
+                                    z-index: 100;
+                                    @include bg-image('/static/images/delivery-nomal.png');
+                                }
+                                .text{
+                                    width:85%;
+                                }
+                            }
+                        }
+                        .deliveryError{
+                            text-align: center;
+                            color: #999;
+                            font-size: .28rem;
+                        }
+                    }
+                }
+            }
+        }
         .order-tracking{
             width: 100%;
             padding:0 .4rem;
@@ -676,6 +800,7 @@ import { query_detail, query_card_info} from '@/service/getData.js'
                 background-color: #eee;
                 margin-right: .1rem;
                 @include inline-block(.28rem,.28rem);
+                @include bg-image('/static/images/refresh-icon.png');
             }
         }
     }
