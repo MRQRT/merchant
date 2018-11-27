@@ -9,7 +9,7 @@ import {getStore} from '../config/mUtils.js'
 * 商户锁价保证金比例
 */
 
-export const margin_rate = () => fetch(' /merchant/margin_rate',{},'get')
+export const margin_rate = () => fetch('/merchant/margin_rate',{},'get')
 
 
 /**
