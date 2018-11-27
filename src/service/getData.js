@@ -306,7 +306,7 @@ export const add_recycle_order_check = () => fetch('/order/add_recycle_order_che
  * 创建订单
  */
 
-export const add_recycle_order = (applyQuantity,applyWeight,isLockPrice,isCash,contact,telephone,address) => fetch('/order/add_recycle_order',{'applyQuantity':applyQuantity,'applyWeight':applyWeight,'isLockPrice':isLockPrice,'isCash':isCash,'contact':contact,'telephone':telephone,'address':address},'post');
+ export const add_recycle_order = (applyQuantity,applyWeight,productType,isLockPrice,isCash,contact,telephone,address) => fetch('/order/add_recycle_order',{'applyQuantity':applyQuantity,'applyWeight':applyWeight,'productType':productType,'isLockPrice':isLockPrice,'isCash':isCash,'contact':contact,'telephone':telephone,'address':address},'post');
 
 /**
  * 支付预下单(发送短信验证码)

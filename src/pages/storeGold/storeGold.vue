@@ -30,6 +30,14 @@
                     </div>
                     <!-- 表单部分 -->
                     <div class="form-wrap">
+                        <!-- 类型选择 -->
+                        <div class="gold-box gold-type">
+                            <div class="left">黄金类型</div>
+                            <div class="type-right">
+                                <span :class="{'type-active':typeNum==0}" @click="chooseType(0)">金条</span>
+                                <span :class="{'type-active':typeNum==1}" @click="chooseType(1)">饰品</span>
+                            </div>
+                        </div>
                         <!-- 黄金总重 -->
                         <div class="gold-box gold-weight">
                             <div class="left">黄金总重</div>
@@ -250,7 +258,7 @@ import headTop from '@/components/header/head.vue'
 import { clearNoNum } from '../../config/mUtils.js';
 import { MessageBox,Toast,Popup } from 'mint-ui';
 import { mapState,mapMutations } from 'vuex'
-import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, add_recycle_order_check, add_recycle_order, pay_beforehand_order, pay_formal_order, query_status,query_shop_address_detail,margin_rate } from '@/service/getData.js'
+import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, add_recycle_order_check, add_recycle_order, pay_beforehand_order, pay_formal_order, query_status,query_shop_address_detail,margin_rate,merchant_open_apply_status } from '@/service/getData.js'
 
 
     export default {
@@ -260,6 +268,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                 dealStatus:true,     // 是否在交易时段
                 bankStatus:false,    // 是否绑定银行卡
                 addressStatus:false, // 是否选择地址
+                typeNum:null,        // 存金类型选择样式
                 weight:'',           // 存金克重
                 extractNum:1,        // 存金数量
                 bg:true,             // 协议是否已读
@@ -304,7 +313,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
             },
             // 提交按钮是否可以点击
             submitStatus(){
-                if(this.weight==0 || !this.bg || !this.bankStatus || !this.addressStatus){
+                if(this.typeNum==null || this.weight==0 || !this.bg || !this.bankStatus || !this.addressStatus){
                     return false;
                 }else{
                     return true;
@@ -378,6 +387,10 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                     this.extractNum = 100;
                 }
             },
+            //选择存金类型
+            chooseType(num){
+                this.typeNum = num;
+            },
             //协议阅读与否
             changeBg(){
                 this.bg=!this.bg;
@@ -445,11 +458,22 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                 this.verifiCode = [];       // 将之前验证码清除
                 this.requestVerifi(1);      // 调用另一个获取短信验证码接口
             },
+            // 获取最新商户审核信息
+            async merchant_open_apply_status(){
+                var res = await merchant_open_apply_status();
+                if(res.code=='000000'){
+                    if(res.data){
+                        this.margin_rate();
+                    }
+                }else{
+                    Toast(res.message)
+                }
+            },
             //请求锁价保证金比例
             async margin_rate(){
                 var res = await margin_rate();
                 if(res.code=='000000'){
-                    this.marginRate = res.data ? res.data : 10;
+                    this.marginRate = res.data;
                 }else{
                     Toast(res.message)
                 }
@@ -581,7 +605,9 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
             },
             //检测页面哪一项信息未填写
             checkInfo(){
-                if(this.weight==''){
+                if(this.typeNum==null){
+                    Toast('请选择黄金类型～')
+                }else if(this.weight==''){
                     Toast('请输入黄金克重～')
                 }else if(!this.bankStatus){
                     Toast('请完善银行卡信息～')
@@ -673,7 +699,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
             },
             //直接提交创建订单
             async directlyOrder(isLockOrder){
-                var res = await add_recycle_order(this.extractNum,this.weight,isLockOrder,true,this.receiverInfo.contact,this.receiverInfo.telephone,this.detailAddress)
+                var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,isLockOrder,true,this.receiverInfo.contact,this.receiverInfo.telephone,this.detailAddress)
                 if(res.code=='000000'){
                     this.orderId = res.data.id;
                     this.$router.push({
@@ -692,7 +718,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
             async lockPriceOrder(){
                 var that = this;
                 // 创建订单
-                var res = await add_recycle_order(this.extractNum,this.weight,true,true,this.receiverInfo.contact,this.receiverInfo.telephone,this.detailAddress)
+                var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,true,true,this.receiverInfo.contact,this.receiverInfo.telephone,this.detailAddress)
                 if(res.code=='000000'){
                     this.orderId = res.data.id;
                     this.ensureCash = res.data.ensureCash;
@@ -805,7 +831,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
             if(this.loginStatus){
                 this.shop_status();
                 this.queryBank();
-                this.margin_rate();
+                this.merchant_open_apply_status();
                 if(this.$route.query.addressId){
                     this.addressId = this.$route.query.addressId;
                     this.query_shop_address_detail()
@@ -943,7 +969,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
 
             .inner-box{
                 width:100%;
-                height:6.4rem;
+                height: 7.54rem;
                 margin-top:-2.4rem;
                 padding-top:.5rem;
                 background-color: #fff;
