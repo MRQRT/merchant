@@ -384,6 +384,7 @@ export default{
 .mint-popup{
 	width: 100%;
 }
+/*地区弹出层*/
 .area{
 	width: 100%;
 	height: 8rem;

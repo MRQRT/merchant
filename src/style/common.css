@@ -208,6 +208,7 @@ textarea:-ms-input-placeholder{  /* Internet Explorer 10-11 */
     transform-origin:0 0;
     overflow: hidden;
     background: #dddddd;
+    position: relative;
 }
 .BMap_cpyCtrl {
     display: none;

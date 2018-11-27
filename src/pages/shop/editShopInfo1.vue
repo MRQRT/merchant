@@ -15,43 +15,36 @@
         <!-- shop-message -->
         <section class="shop_mess">
             <div class="one">
-                <div>店铺名称</div>
-                <input type="text" v-model="shop_message.name" placeholder="请输入店铺名称，不超过16个汉字">
+                <span>店铺名称</span>
+                <input type="text" v-model="shop_message.name" placeholder="请输入店铺名称，不超过16个汉字" style="margin-top:.05rem">
             </div>
             <div class="line"></div>
-            <div class="one two" style="position:relative;">
-                <div>店铺地址</div>
-                <span class="three">*</span>
-                <input type="text" v-model="shop_message.address" placeholder="请选择您的店铺所在地区" readonly="value" @click="check_city">
+            <div class="one" style="position:relative;" @click="selectassress">
+                <span>店铺地址</span>
+                <input type="text" v-model="shop_message.address" placeholder="请选择店铺地址" readonly="value" style="margin-top:.05rem">
                 <img :src="right" class="right_jiantou">
-                <div class="line"></div>
-                <span class="three_2">*</span>
-                <input type="text" v-model="shop_message.detail_address" placeholder="请输入您的详细地址，例：育知东路30号院">
-                <span class="right_jiantou2" @click="check_map">地图选取</span>
-                <div class="line"></div>
-                <input type="text" style="margin-left:0" v-model="shop_message.nearby" placeholder="(可选)请输入您的邻居位置,例:中国移动旗舰店南300米">
-                <div class="line"></div>
-            </div>
-            <div class="one">
-                <div>预约电话</div>
-                <input type="text" v-model="shop_message.mobile" placeholder="固定电话/手机" maxlength="11">
             </div>
             <div class="line"></div>
             <div class="one">
-                <div>店铺简介</div>
-                <textarea type="text" v-model="shop_message.introduce" maxlength="144" placeholder="店铺简介不可为空，最大长度144个汉字"></textarea>
+                <span>预约电话</span>
+                <input type="text" v-model="shop_message.mobile" placeholder="固定电话/手机" maxlength="11" style="margin-top:.05rem">
+            </div>
+            <div class="line"></div>
+            <div class="one" style="display:flex">
+                <span style="float:left;">店铺简介</span>
+                <textarea type="text" v-model="shop_message.introduce" maxlength="144" style="float:left;flex-grow:1" placeholder="店铺简介不可为空，最大长度144个汉字"></textarea>
             </div>
             <div class="line"></div>
             <div class="one" style="padding:0;">
-                <div style="margin-top:.25rem;">营业范围</div>
+                <span style="line-height:1.1rem;">营业范围</span>
                 <p class="operation">
-                    <span v-for="(item,index) in business_scope" class="nochecked" :class="{'checked_1':item.checkid==item.id}" @click="select(item)" :key="index">{{item.name}}</span>
+                    <span v-for="(item,index) in business_scope" class="nochecked" :class="{'checked':item.checkid==item.id}" @click="select(item)" :key="index">{{item.name}}</span>
                 </p>
             </div>
         </section>
         <!-- shop-photo -->
         <section class="shop_photo">
-            <p>店铺门面图<span style="font-size:.24rem;color:#999999;">（让用户对您的店铺更感兴趣）</span></p>
+            <p>店铺门面图</p>
             <div class="uploadPho_photo">
                 <div class="upload_image_preview">
                     <section v-for="(image, index) in shop_message.images" :key="index" :class="{'cover':index==0}">
@@ -71,64 +64,17 @@
         <section class="button">
             <div @click="submit()">提交</div>
         </section>
-        <!-- 地区弹出区域 -->
-		<mt-popup v-model="popupVisible" position="bottom" :closeOnClickModal="false">
-			<div class="area_box">
-					<p class="head_title"><img src="static/images/close.png" @click="closepop">所在地区</p>
-				<div class="checked">
-					<span @click="has_checked_click('province')">{{province}}</span>
-					<span @click="has_checked_click('city')">{{city}}</span>
-					<span @click="has_checked_click('area')">{{area}}</span>
-					<span class="checkedtext" v-show="!area">请选择</span>
-				</div>
-				<div class="line" stlye="margin-top:.1rem;"></div>
-				<div class="province" v-show="province_show">
-					<ul class="list" style="over-flow:auto;">
-						<li class="list_li" :class="{'has_checked':item.id==provinceId}" v-for="(item,index) in provinces" @click="checkprov(item)" :key="index">
-							{{item.cityName}}
-							<img src="static/images/address_checked.png" class="haschecked_tip" v-show="item.id==provinceId">
-						</li>
-					</ul>
-				</div>
-				<div class="citylist" v-show="city_show">
-					<ul class="list">
-						<li class="list_li" :class="{'has_checked':item.id==cityId}" v-for="(item,index) in citys" @click="checkcity(item)" :key="index">
-							{{item.cityName}}
-							<img src="static/images/address_checked.png" class="haschecked_tip" v-show="item.id==cityId">
-						</li>
-					</ul>
-				</div>
-				<div class="area" v-show="area_show">
-					<ul class="list">
-						<li class="list_li" :class="{'has_checked':item.id==areaId}" v-for="(item,index) in areas" @click="checkarea(item)" :key="index">
-							{{item.cityName}}
-							<img src="static/images/address_checked.png" class="haschecked_tip" v-show="item.id==areaId">
-						</li>
-					</ul>
-				</div>
-			</div>
-		</mt-popup>
-        <!-- 地图 -->
-        <section class="cover" v-show="map_show">
-            <div class="map_box" v-show="map_show">
-                <p class="map_title"><span><img @click="close_map" src="static/images/close.png" alt=""></span>请选择您的经纬度</p>
-                <!-- 地图 -->
-                <div class="allmaps" id="container"></div>
-                <div class="check_latlong"><section @click="submit_latlong">我选好啦</section></div>
-            </div>
-        </section>
     </div>
 </template>
+
 <script>
 import headTop from '@/components/header/head.vue'
 import headimg from 'static/images/deheadpro.png'
 import	right from 'static/images/next.png'
-import	loca from 'static/images/location.png'
 import {compress,getStore,setStore,removeStore} from '@/config/mUtils.js'
-import {MessageBox,Indicator,Toast,Popup} from 'mint-ui'
-import { mapState,mapMutations } from 'vuex'
-import icons from "static/images/move.png"
-import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityName,shopDetail,province_area_list} from '@/service/getData.js'
+import {MessageBox,Indicator,Toast} from 'mint-ui'
+import { mapState,mapMutations } from 'vuex';
+import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityName,shopDetail} from '@/service/getData.js'
     export default {
         data(){
             return{
@@ -136,7 +82,6 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 headimg:headimg,
                 headimg_url:'',//上传完返回的头像地址
                 hui:'',
-                location:loca,//定位icon
                 ti:'',
                 huan:'',
                 wei:'',
@@ -145,10 +90,8 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 shop_message:{
                           logoId:'',//店铺头像地址
                             name:'',//店铺名称
-                          areaId:'',//店铺区主键
+                          areaId:'',//店铺区域主键
                          address:'',//店铺地址
-                  detail_address:'',//店铺详细地址
-                          nearby:'',//附近
                              lat:'',//店铺经度
                              lng:'',//店铺纬度
                           mobile:'',//店铺预约电话
@@ -157,27 +100,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                         facadeId:[],//店铺门面图地址数组（上传数据用）
                  businessScopeId:[],//营业范围
                 },
-                popupVisible:false,//地区弹出层控制
-                province_show:false,
-                city_show:false,
-                area_show:false,
-                provinces:[],//省数组
-                citys:[],//市数组
-                areas:[],//县数组
-                province: '',//省
-			    provinceId: '',//省Id
-			    city: '',//市
-			    cityId: '',//城市Id
-			    area: '',//区/县
-			    areaId: '',//地区Id
                 index: 0, // 序列号 可记录一共上传了多少张
-                map_show:false,//地图弹出层显示开关
-                location: '',
-                default_address: {
-                    latitude:116.504,
-                    longitude:39.915,
-                },//默认北京的中心
-                point:'',//选取经纬度的点
             }
         },
         components:{
@@ -430,7 +353,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 removeStore('shop_message','session');
                 removeStore('headimg','session');
                 removeStore('select_address','session');
-                const res = await shop_open_apply(this.shop_message.logoId,this.shop_message.name,this.shop_message.areaId,this.shop_message.detail_address,this.shop_message.nearby,this.shop_message.lat,this.shop_message.lng,this.shop_message.mobile,this.shop_message.introduce,this.shop_message.facadeId,this.shop_message.businessScopeId,this.applyShopId);
+                const res = await shop_open_apply(this.shop_message.logoId,this.shop_message.name,this.shop_message.areaId,this.shop_message.address,this.shop_message.lat,this.shop_message.lng,this.shop_message.mobile,this.shop_message.introduce,this.shop_message.facadeId,this.shop_message.businessScopeId,this.applyShopId);
                 if(res.code=='000000'){
                     this.RECORD_APPLYSHOPID('');//将认领店铺ID置为空
                     MessageBox({
@@ -470,6 +393,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 var that = this;
                 var res = await shopDetail(this.applyShopId);
                 if(res.code=='000000'){
+                    // this.shop_message = res.data;
                     this.headimg = res.data.logoPath;
                     this.headimg_url = res.data.logoPath;
                     this.shop_message.logoId = res.data.logoId;
@@ -508,182 +432,9 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                     Toast(res.message)
                 }
             },
-            // 已选择地址点击事件
-			has_checked_click(val){
-				if(val=='province'){
-					this.province_show=true
-					this.city_show=false
-					this.area_show=false
-					this.city=''
-					this.area=''
-				}else if(val=='city'){
-					this.city_show=true
-					this.province_show=false
-					this.area_show=false
-					this.area=''
-				}else if(val=='area'){
-					this.province_show=false
-					this.city_show=false
-					this.area_show=true
-				}
-			},
-			closepop: function(){
-				this.popupVisible=false;
-            },
-            //关闭地图
-            close_map(){
-                this.map_show=false;
-            },
-            //点击我选好啦
-            submit_latlong(){
-                this.map_show=false;
-            },
-            //店铺所在区域选取
-			check_city: function(){
-				this.popupVisible=true;
-                this.province_show=true;
-            },
-            //查询省市
-			async province_list(val,val2){//参数一：查询id 参数二：查询条件 参数三：反查寻查询ID
-				if(val===100000){
-					const res = await province_area_list(val);//查询省
-					if(res.code=='000000'){
-						this.provinces=res.data
-					}
-				}else if(val2=='市'){
-					const res = await province_area_list(val);//查询市
-					if(res.code=='000000'){
-						this.citys=res.data
-					}
-				}else if(val2=='县'){
-					const res = await province_area_list(val);//查询市
-					if(res.code=='000000'){
-						this.areas=res.data
-					}
-				}
-			},
-			//选择省份
-			checkprov(val){//参数：省份对象
-				this.province=val.cityName
-				this.provinceId=val.id
-				this.city=''
-				this.area=''
-				this.province_show=false
-				this.city_show=true
-				this.province_list(val.id,'市');
-			},
-			// 选择城市
-			checkcity(val){//参数：城市对象
-				this.city=val.cityName
-				this.cityId=val.id
-				this.area=''
-				this.city_show=false
-				this.area_show=true
-				this.province_list(val.id,'县');
-			},
-			//选择县区
-			checkarea(val){
-				this.area=val.cityName
-                this.areaId=val.id
-                this.shop_message.areaId=val.id
-                this.popupVisible=false
-                this.area_box_show=false
-				this.shop_message.address=this.province+this.city+this.area
-            },
-            //地图选取
-            check_map(){
-                var v_this=this
-                this.map_show=true
-                setTimeout(function(){
-                    v_this.analysis_area();
-                },100)
-            },
-            //用户选取的地址进行解析
-            analysis_area(){
-                let v_this=this
-                if(this.shop_message.detail_address&&this.shop_message.address&&!this.point){//有地址和详细地址进行定位
-                    var map = new BMap.Map("container");
-                    map.centerAndZoom(new BMap.Point(116.404, 39.915), 11);
-                    // 创建地址解析器实例
-                    var myGeo = new BMap.Geocoder();
-                    // 将地址解析结果显示在地图上，并调整地图视野
-                    myGeo.getPoint(v_this.shop_message.address+v_this.shop_message.detail_address, function(point){
-                        if(point){
-                            map.centerAndZoom(point, 17);
-                            v_this.v_mark(map,point.lng,point.lat);
-                        }
-                    }, v_this.province);
-                }else{//如果输入框没有地址，进行定位
-                    if(v_this.point){//有选好的经纬度
-                        v_this.map(v_this.point,'two');
-                    }else{
-                        v_this.map(v_this.default_address,'one');                      
-                    }
-                }
-            },
-            //定位
-            map(val,val2){
-                let v_this = this;
-                var map = new BMap.Map("container");
-                var point = new BMap.Point(val.latitude, val.longitude);
-                map.centerAndZoom(point, 15);
-                //获取定位
-                if(val2=='one'){
-                    var geolocation = new BMap.Geolocation();
-                    geolocation.getCurrentPosition(function(r){
-                        if(this.getStatus() == BMAP_STATUS_SUCCESS){
-                            //以指定的经度与纬度创建一个坐标点
-                            if(r.point.lng=='116.4037397'||r.point.lat=='39.91488908'){//定位失败
-                                var depault = {lng:116.404,lat:39.9146}
-                                var pt1 = new BMap.Point(depault.lng,depault.lat);
-                                //地图标记
-                                //1、map  2、经度  3、纬度 
-                                v_this.v_mark(map,pt1.lng,pt1.lat);
-                            }else{
-                                alert(100)
-                                var pt2 = new BMap.Point(r.point.lng,r.point.lat);
-                                //地图标记
-                                //1、map  2、经度  3、纬度 
-                                v_this.v_mark(map,pt2.lng,pt2.lat)
-                            }
-                        }else{
-                            alert('failed'+this.getStatus());//定位失败
-                        }
-                    });
-                }else{
-                    var pt3 = new BMap.Point(val.lng,val.lat);
-                    //地图标记
-                    //1、map  2、经度  3、纬度 
-                    v_this.v_mark(map,pt3.lng,pt3.lat)
-                }
-            },
-            //地图标记(map，经度，纬度)
-            v_mark(val,val1,val2){
-                var point = new BMap.Point(val1, val2);
-                val.centerAndZoom(point, 17);
-                //自定义标注  1、map  2、经纬度对象
-                this.v_zidingyi_marker(val,point)
-            },
-            //自定义标注
-            v_zidingyi_marker(val,val1){
-                var v_this=this
-                // 创建图标对象
-                var myIcon = new BMap.Icon(icons, new BMap.Size(23, 45), {
-                    anchor: new BMap.Size(10, 25),
-                    // imageOffset: new BMap.Size(0, 0 - index * 25)   // 设置图片偏移
-                });
-                // 创建标注对象并添加到地图
-                var marker = new BMap.Marker(val1, {icon: myIcon});
-                val.addOverlay(marker);
-                val.panTo(val1);
-                marker.enableDragging();  //设置可拖拽
-                marker.addEventListener("dragend", function(e){
-                    v_this.point=e.point;
-                })  //拖动事件 
-            },
         },
         created(){
-            this.province_list(100000);
+
         },
         mounted(){
             //如果内存中有地址，进行返显
@@ -694,6 +445,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
             if(getStore('shop_message','session')){//店铺门面图反显
                 this.shop_message=getStore('shop_message','session');
             }
+
             //查询店铺地址经营范围字典
             this.businessScope_list();
             this.applyshop();
@@ -761,51 +513,25 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
 }
 .one{
     width: 100%;
-    height: 1.64rem;
+    height: 1.1rem;
     color: #000;
     font-size: .28rem;
     padding-top: .35rem;
 }
-.two{
-    height: 3.21rem;
+.one>span{
+    margin-right: .1rem;
+    float: left;
 }
 .one input{
-    width: 98%;
+    width: 75%;
     font-size: .28rem;
     overflow:hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    margin-top:.25rem;
-    margin-bottom:.25rem;
-    position: relative;
-}
-.two input{
-    margin-left:.25rem;
-}
-.three{
-    display: inline-block;
-    width: 0.55rem;
-    height: 0.55rem;
-    color:#f00;
-    font-size:.24rem;
-    position: absolute;
-    left:0;
-    top:1rem;
-}
-.three_2{
-    display: inline-block;
-    width: 0.55rem;
-    height: 0.55rem;
-    color:#f00;
-    font-size:.24rem;
-    position: absolute;
-    left:0;
-    top:1.95rem;
 }
 .one textarea{
     width: 75%;
     font-size: .28rem;
-    margin-top: .25rem;
 }
 .operation{
     float: left;
@@ -823,7 +549,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
     margin-right: .15rem;
     margin-top: .3rem;
 }
-.checked_1{
+.checked{
     border: 1px solid #C09C60;
     background-color: #f3e6d2;
     color: #C09C60;
@@ -931,18 +657,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
     margin-top: .25rem;
     position: absolute;
     right: 0rem;
-    top: .7rem;
-}
-.right_jiantou2{
-    width: 1.2rem;
-    margin-top: .25rem;
-    position: absolute;
-    right: 0rem;
-    top: 1.62rem;
-    font-size: .28rem;
-    color: #ff8a5a;
-    background-color: #fff;
-    text-align: right;
+    top: .1rem;
 }
 textarea::-webkit-input-placeholder{
     font-size: .28rem;
@@ -967,132 +682,5 @@ textarea:-ms-input-placeholder{  /* Internet Explorer 10-11 */
     top:-0.08rem;
     left:0;
     @include bg-image('/static/images/cover.png')
-}
-/*地区弹出层*/
-.area_box{
-	width: 100%;
-	height: 8rem;
-	background-color: #fff;
-}
-.head_title{
-	width: 100%;
-	height: 1rem;
-	font-size: .32rem;
-	text-align: center;font-weight:bold;
-	line-height: 1rem;
-	position: relative;
-}
-.head_title img{
-	width: .26rem;
-	position: absolute;
-	top: .3rem;
-	left: .35rem;
-}
-.checked{
-	width: 100%;
-	height: .5rem;
-	line-height: .3rem;
-	font-size: .28rem;
-	padding-left: .4rem;
-}
-.checked span{
-	padding: 0 .18rem 0 .18rem;
-	float: left;
-}
-.checked .checkedtext{
-	display: inline-block;
-	height: .5rem;
-	color: #C09C60;
-	font-size: .28rem;
-	position: relative;
-}
-.checkedtext:after{
-	content: '';
-	width: 80%;
-	border: 1px solid #C09C60;
-	position: absolute;
-	bottom: 0;
-	left: 10%;
-}
-.list{
-	height:6.5rem;
-	overflow:auto;
-}
-.list_li{
-	width: 100%;
-	height: .75rem;
-	line-height: .75rem;
-	color: #333;
-	font-size: .26rem;
-	padding-left: .4rem;
-}
-.has_checked{
-	color: #C09C60;
-}
-.haschecked_tip{
-	width: .24rem;
-	margin-left: .2rem;
-}
-/*
-地图弹出层
-*/
-.cover{
-    width: 100%;
-    min-height: 100vh;
-    background-color: rgba(0, 0, 0, .5);
-    position: fixed;
-    top:0;
-}
-.map_box{
-    width: 100%;
-    height: 7.4rem;
-    position: absolute;
-    bottom:0;
-    z-index: 1000;
-    background-color:#fff;
-}
-.map_title{
-    font-size:.32rem;
-    font-family:'PingFangSC-Medium';
-    font-weight:500;
-    color:rgba(51,51,51,1);
-    text-align:center;
-    height: 1.12rem;
-    line-height: 1.12rem;
-}
-.map_title>span>img{
-    width:.26rem;
-    float: left;
-    margin-top:.42rem;
-    margin-left:.4rem;
-}
-.allmaps{
-    width: 100%;
-    height: 5rem;
-}
-.check_latlong{
-    width: 100%;
-    height:1.28rem;
-    position:absolute;
-    bottom:0;
-    text-align:center;
-    display: flex;
-    justify-content: center;
-}
-.check_latlong>section{
-    width: 95%;
-    height: .88rem;
-    background-color: #dac094;
-    color: #fff;
-    font-size: .32rem;
-    text-align: center;
-    line-height: .88rem;
-    margin-top: .2rem;
-    border-radius: 5px;
-}
-</style>
-<style lang="">
-.mint-popup,.mint-popup-bottom{
-    width: 100%;
 }
 </style>
