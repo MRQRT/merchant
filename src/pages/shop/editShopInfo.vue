@@ -303,7 +303,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                             message:'上传成功',
                             duration: 800,
                         });
-                        setStore('headimg',res.data.url,'session');
+                        // setStore('headimg',res.data.url,'session');
                         this.headimg_url=res.data.url;//头像地址
                         this.shop_message.logoId=res.data.id
                     }else{
@@ -337,7 +337,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
             },
             //地址选择
             selectassress(){
-                setStore('shop_message',this.shop_message,'session');//跳转地图保存当前页数据
+                // setStore('shop_message',this.shop_message,'session');//跳转地图保存当前页数据
                 this.$router.push('/location');
             },
             //查询商店标签
@@ -348,15 +348,15 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                     this.business_scope.forEach(element => {
                         this.$set(element,'checkid','');
                     });
-                    if(getStore('shop_message','session')){//经营范围反显
-                        this.shop_message.businessScopeId.forEach(e=>{
-                            this.business_scope.forEach(element => {
-                                if(e==element.id){
-                                    this.$set(element,'checkid',e);
-                                }
-                            })
-                        })
-                    }
+                    // if(getStore('shop_message','session')){//经营范围反显
+                    //     this.shop_message.businessScopeId.forEach(e=>{
+                    //         this.business_scope.forEach(element => {
+                    //             if(e==element.id){
+                    //                 this.$set(element,'checkid',e);
+                    //             }
+                    //         })
+                    //     })
+                    // }
                 }
             },
             //根据区域解出id
@@ -393,6 +393,9 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                     return false
                 }else if(this.shop_message.address==''){
                     Toast('请选择店铺地址')
+                    return false
+                }else if(this.shop_message.detail_address==''){
+                    Toast('请输入详细地址')
                     return false
                 }else if(this.shop_message.lng==''&&this.shop_message.lat==''){
                     Toast('请进行地图经纬度选取')
@@ -434,9 +437,9 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 if(!a)return
                 let b = this.check_tels(this.shop_message.mobile);//检查手机号
                 if(!b)return
-                removeStore('shop_message','session');
-                removeStore('headimg','session');
-                removeStore('select_address','session');
+                // removeStore('shop_message','session');
+                // removeStore('headimg','session');
+                // removeStore('select_address','session');
                 const res = await shop_open_apply(this.shop_message.logoId,this.shop_message.name,this.shop_message.areaId,this.shop_message.detail_address,this.shop_message.nearby,this.shop_message.lat,this.shop_message.lng,this.shop_message.mobile,this.shop_message.introduce,this.shop_message.facadeId,this.shop_message.businessScopeId,this.applyShopId);
                 if(res.code=='000000'){
                     this.RECORD_APPLYSHOPID('');//将认领店铺ID置为空
@@ -517,9 +520,9 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                     this.shop_message.businessScopeId.forEach(item=>{ //标签反选
                         that.business_scope[item-1].checkid = item
                     })
-                    if(this.$route.query.from=='location'){ // 如果是从选择地址页跳转过来，则查询存储在本地的地址
-                        this.selectAddress();
-                    }
+                    // if(this.$route.query.from=='location'){ // 如果是从选择地址页跳转过来，则查询存储在本地的地址
+                    //     this.selectAddress();
+                    // }
                 }else{
                     Toast(res.message)
                 }
@@ -711,19 +714,17 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
         },
         mounted(){
             //如果内存中有地址，进行返显
-            if(getStore('headimg','session')){//头像地址反显
-                this.headimg = getStore('headimg','session');
-                this.headimg_url = getStore('headimg','session');
-            }
-            if(getStore('shop_message','session')){//店铺门面图反显
-                this.shop_message=getStore('shop_message','session');
-            }
+            // if(getStore('headimg','session')){//头像地址反显
+            //     this.headimg = getStore('headimg','session');
+            //     this.headimg_url = getStore('headimg','session');
+            // }
+            // if(getStore('shop_message','session')){//店铺门面图反显
+            //     this.shop_message=getStore('shop_message','session');
+            // }
             //查询店铺地址经营范围字典
+            // this.selectAddress();//判断内存中是否已存在地址
             this.businessScope_list();
             this.applyshop();
-
-            this.selectAddress();//判断内存中是否已存在地址
-
             var height=document.documentElement.clientHeight;
             window.onresize=function(){
                 var h=document.documentElement.clientHeight
