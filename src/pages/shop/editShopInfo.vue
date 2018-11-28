@@ -29,7 +29,7 @@
                 <input type="text" v-model="shop_message.detail_address" placeholder="请输入您的详细地址，例：育知东路30号院">
                 <div class="line"></div>
                 <span class="three_3">*</span>
-                <input @click="check_map" type="text" style="margin-left:.31rem" :placeholder="placeholder" readonly="value">
+                <input @click="check_map" type="text" style="margin-left:.31rem" v-model="tips_has_check_lng" placeholder="请选择您的经纬度，方便用户找到您的地理位置" readonly="value">
                 <span class="right_jiantou2"><img :src="right" class="right_jiantou"></span>
                 <div class="line"></div>
                 <input type="text" style="margin-left:0" v-model="shop_message.nearby" placeholder="(可选)请输入您的邻居位置,例:中国移动旗舰店南300米">
@@ -176,7 +176,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 index: 0, // 序列号 可记录一共上传了多少张
                 map_show:false,//地图弹出层显示开关
                 location: '',
-                placeholder:'请选择您的经纬度，方便用户找到您的地理位置',
+                tips_has_check_lng:'',
                 default_address: {
                     lng:116.504,//经度
                     lat:39.915,//纬度
@@ -498,7 +498,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                     this.shop_message.businessScopeId = res.data.businessScopeIds;
                     this.shop_message.images = [];
                     if(res.data.lat&&res.data.lng){
-                        this.placeholder="已经精准定位到店铺所在位置"
+                        this.tips_has_check_lng="已经精准定位到店铺所在位置"
                     }
                     res.data.facadePaths.forEach(itemSrc=>{ // 门店图片
                         if(itemSrc!=null){
@@ -554,7 +554,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
             submit_latlong(){
                 this.shop_message.lat=this.point.lat;
                 this.shop_message.lng=this.point.lng;
-                this.placeholder="已经精准定位到店铺所在位置"
+                this.tips_has_check_lng="已经精准定位到店铺所在位置"
                 this.map_show=false;
             },
             //店铺所在区域选取
@@ -701,8 +701,6 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 val.panTo(val1);
                 marker.enableDragging();  //设置可拖拽
                 marker.addEventListener("dragend", function(e){
-                    console.log(e.point.lng)
-                    console.log(e.point.lat)
                     v_this.point.lng=e.point.lng;//经度
                     v_this.point.lat=e.point.lat;//维度
                 })  //拖动事件
