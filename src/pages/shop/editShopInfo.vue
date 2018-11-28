@@ -439,7 +439,8 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 // removeStore('shop_message','session');
                 // removeStore('headimg','session');
                 // removeStore('select_address','session');
-                const res = await shop_open_apply(this.shop_message.logoId,this.shop_message.name,this.shop_message.areaId,this.shop_message.detail_address,this.shop_message.nearby,this.shop_message.lat,this.shop_message.lng,this.shop_message.mobile,this.shop_message.introduce,this.shop_message.facadeId,this.shop_message.businessScopeId,this.applyShopId);
+                var addresses = this.shop_message.address+this.shop_message.detail_address
+                const res = await shop_open_apply(this.shop_message.logoId,this.shop_message.name,this.shop_message.areaId,addresses,this.shop_message.nearby,this.shop_message.lat,this.shop_message.lng,this.shop_message.mobile,this.shop_message.introduce,this.shop_message.facadeId,this.shop_message.businessScopeId,this.applyShopId);
                 if(res.code=='000000'){
                     this.RECORD_APPLYSHOPID('');//将认领店铺ID置为空
                     MessageBox({
