@@ -29,7 +29,7 @@
                 <input type="text" v-model="shop_message.detail_address" placeholder="请输入您的详细地址，例：育知东路30号院">
                 <div class="line"></div>
                 <span class="three_3">*</span>
-                <input @click="check_map" type="text" style="margin-left:.31rem" v-model="shop_message.nearby" :placeholder="placeholder" readonly="value">
+                <input @click="check_map" type="text" style="margin-left:.31rem" :placeholder="placeholder" readonly="value">
                 <span class="right_jiantou2"><img :src="right" class="right_jiantou"></span>
                 <div class="line"></div>
                 <input type="text" style="margin-left:0" v-model="shop_message.nearby" placeholder="(可选)请输入您的邻居位置,例:中国移动旗舰店南300米">
