@@ -282,7 +282,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                 addressId:'',        // 地址id
                 countDownSec:50,     // 重试验证码倒计时
                 countdownStatus:false,// 重试按钮是否可以点击
-                marginRate:0,         // 锁加保证金比例
+                marginRate:10,         // 锁加保证金比例
             }
         },
         components:{
