@@ -273,7 +273,6 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
 						if(this.index<6||this.index==6){ //图片已达到6张 不在执行添加上传操作
                             this.shop_message.images.push(item)
                         }
-                        console.log('上传后的images数组',this.shop_message.images)
                         this.compressimg(reader,item)//图片压缩
 					}
 					reader.readAsDataURL(e.target.files[i])
@@ -325,12 +324,10 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                     if(res.code=='000000'){
                         this.shop_message.facadeId.push(res.data.id);
                     }
-                    console.log(this.shop_message.facadeId)
                 }
             },
             /*删除图片*/
 			delImage: function(index){
-                console.log(this.shop_message.facadeId)
                 this.shop_message.images.splice(index,1);
                 if(this.shop_message.images.length<6){
                     this.canPhoto=true
@@ -485,7 +482,8 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                     this.shop_message.logoId = res.data.logoId;
                     this.shop_message.name = res.data.name;
                     this.shop_message.areaId = res.data.areaId;
-                    this.shop_message.address = res.data.address;
+                    this.shop_message.detail_address = res.data.address;
+                    this.shop_message.nearby = res.data.nearby;
                     this.shop_message.lat = res.data.lat;
                     this.shop_message.lng = res.data.lng;
                     this.shop_message.mobile = res.data.mobile;
@@ -831,7 +829,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
     top:2.85rem;
 }
 .one textarea{
-    width: 75%;
+    width: 100%;
     font-size: .28rem;
     margin-top: .25rem;
 }
