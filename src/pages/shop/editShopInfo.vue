@@ -405,11 +405,11 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 }else if(this.shop_message.introduce==''){
                     Toast('请输入店铺介绍')
                     return false
-                }else if(this.shop_message.facadeId==''){
-                    Toast('请上传店铺门面图')
-                    return false
                 }else if(this.shop_message.businessScopeId==''){
                     Toast('请选择营业范围')
+                    return false
+                }else if(this.shop_message.facadeId==''){
+                    Toast('请上传店铺门面图')
                     return false
                 }else{
                     return true
