@@ -164,7 +164,7 @@
             </div>
             <div class="distans"></div>
             <!-- 交易流水号等 -->
-            <div class="deal-other-info" v-if="orderInfo.lockprice">
+            <div class="deal-other-info" v-if="orderInfo.lockprice && orderInfo.ensureCash!=0">
                 <p>
                     <span>交易流水号</span>
                     <span>{{orderInfo.tradeSerialNo}}</span>

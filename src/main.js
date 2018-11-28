@@ -18,16 +18,12 @@ import 'swiper/dist/css/swiper.css'
 import Raven from 'raven-js';
 import RavenVue from 'raven-js/plugins/vue';
 
-const sentyDSN = 'https://8161ef921ff74aecb9b453971890da59@sentry.au32.cn/13';
-process.env.NODE_ENV === 'production' && window.location.host == "cjtsh.au32.cn" && Raven.config(sentyDSN,
-{
-    environment: 'prod'
-},
-{
-    release:'3.1.0'
-})
-.addPlugin(RavenVue, Vue)
-.install()
+Raven
+    .config('https://8161ef921ff74aecb9b453971890da59@sentry.au32.cn/13')
+    .addPlugin(RavenVue, Vue)
+    .install()
+
+// 注意,一定记得区分开发环境,否则开发环境的错误也会被提交到sntry去,并且本地是不会显示错误信息的
 if(process.env.NODE_ENV == 'production' && window.location.host == "cjtsh.au32.cn"){
     Vue.config.errorHandler = function(err, vm, info) {
         Raven.captureException(err)

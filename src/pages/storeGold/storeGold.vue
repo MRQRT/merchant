@@ -258,7 +258,7 @@ import headTop from '@/components/header/head.vue'
 import { clearNoNum } from '../../config/mUtils.js';
 import { MessageBox,Toast,Popup } from 'mint-ui';
 import { mapState,mapMutations } from 'vuex'
-import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, add_recycle_order_check, add_recycle_order, pay_beforehand_order, pay_formal_order, query_status,query_shop_address_detail } from '@/service/getData.js'
+import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, add_recycle_order_check, add_recycle_order, pay_beforehand_order, pay_formal_order, query_status,query_shop_address_detail,margin_rate,merchant_open_apply_status } from '@/service/getData.js'
 
 
     export default {
@@ -291,6 +291,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                 addressId:'',        // 地址id
                 countDownSec:50,     // 重试验证码倒计时
                 countdownStatus:false,// 重试按钮是否可以点击
+                marginRate:10,         // 锁加保证金比例
             }
         },
         components:{
@@ -306,7 +307,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
             },
             // 保证金
             guaranteeCash(){
-                var val = this.estimatePrice * 0.1;
+                var val = this.estimatePrice * (this.marginRate/100);
                 var newVal = parseFloat(val).toFixed(3);
                 return newVal.substring(0,newVal.toString().length - 1);
             },
@@ -457,6 +458,26 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                 this.verifiCode = [];       // 将之前验证码清除
                 this.requestVerifi(1);      // 调用另一个获取短信验证码接口
             },
+            // 获取最新商户审核信息
+            async merchant_open_apply_status(){
+                var res = await merchant_open_apply_status();
+                if(res.code=='000000'){
+                    if(res.data){
+                        this.margin_rate();
+                    }
+                }else{
+                    Toast(res.message)
+                }
+            },
+            //请求锁价保证金比例
+            async margin_rate(){
+                var res = await margin_rate();
+                if(res.code=='000000'){
+                    this.marginRate = res.data;
+                }else{
+                    Toast(res.message)
+                }
+            },
             //判断店铺状态
             async shop_status(){
                 var res = await shop_status();
@@ -476,7 +497,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                     if(this.dealStatus){
                         if(this.btnCtroller){
                             this.btnCtroller=false
-                            this.showMessage(5);
+                            this.marginRate == 0 ? this.showMessage(6) : this.showMessage(5);
                         }else{
                             Toast('频繁操作～')
                         }
@@ -601,7 +622,10 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                 var text3 = `<div style="text-align:center">店铺审核通过后，方可存金</div>`;
                 var text4 = '订单提交后，我们将通知顺丰小哥上门收件并按照您的订单金额全额保价，快递费和保价费将由您自己承担，在确认订单后收取快递费和保价费。'
                 var text5 = `<div>订单提交后，我们将通知顺丰小哥上门收件并按照您的订单金额全额保价，快递费和保价费将由您自己承担，在确认订单后收取快递费和保价费。</div>
-                             <div>您选择锁价后，将收取预估金价的10%作为保证金，订单完成后保证金将退回到您绑定的银行卡中。</div>`
+                             <div>您选择锁价后，将收取预估金价的${this.marginRate}%作为保证金，订单完成后保证金将退回到您绑定的银行卡中。</div>`
+                var text6 = `<div>订单提交后，我们将通知顺丰小哥上门收件并按照您的订单金额全额保价，快递费和保价费将由您自己承担，在确认订单后收取快递费和保价费。</div>
+                             <div>您当前选择锁价提交，平台已将您的锁价保证金优惠至0元。</div>`
+
                 switch(num){
                     case 1:
                         MessageBox({
@@ -633,7 +657,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                           closeOnClickModal:false,
                       }).then(action => {
                             if(action == 'confirm'){
-                                this.directlyOrder()
+                                this.directlyOrder(false)
                             }else{
                                 this.btnCtroller = true;
                             }
@@ -654,12 +678,28 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                             }
                         })
                     break;
+                    case 6:
+                        MessageBox({
+                          title: '温馨提示',
+                          message:text6,
+                          confirmButtonText: '确认',
+                          showCancelButton:true,
+                          closeOnClickModal:false,
+                        }).then(action => {
+                            if(action == 'confirm'){
+                                this.directlyOrder(true);
+                            }else{
+                                this.btnCtroller = true;
+                            }
+                        })
+                    break;
+
                 }
 
             },
             //直接提交创建订单
-            async directlyOrder(){
-                var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,false,true,this.receiverInfo.contact,this.receiverInfo.telephone,this.detailAddress)
+            async directlyOrder(isLockOrder){
+                var res = await add_recycle_order(this.extractNum,this.weight,this.typeNum,isLockOrder,true,this.receiverInfo.contact,this.receiverInfo.telephone,this.detailAddress)
                 if(res.code=='000000'){
                     this.orderId = res.data.id;
                     this.$router.push({
@@ -781,7 +821,6 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
         },
         created(){
             if(this.storeOrderInfo){
-                this.typeNum = this.storeOrderInfo.typeNum;
                 this.weight = this.storeOrderInfo.weight;
                 this.extractNum = this.storeOrderInfo.extractNum;
             }
@@ -792,6 +831,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
             if(this.loginStatus){
                 this.shop_status();
                 this.queryBank();
+                this.merchant_open_apply_status();
                 if(this.$route.query.addressId){
                     this.addressId = this.$route.query.addressId;
                     this.query_shop_address_detail()
@@ -835,7 +875,6 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
             // 跳转路由时需保存所填写的订单信息
             if(to.path=='/addaddress' || to.path=='/addresslist' || to.path=='/bindingbank' || to.path=='/storearg'){
                 var obj = {
-                    typeNum:this.typeNum,
                     weight:this.weight,
                     extractNum:this.extractNum
                 }
