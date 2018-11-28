@@ -663,12 +663,12 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                                 var depault = {lng:116.404,lat:39.9146}
                                 var pt1 = new BMap.Point(depault.lng,depault.lat);
                                 //地图标记
-                                //1、map  2、经度  3、纬度 
+                                //1、map  2、经度  3、纬度
                                 v_this.v_mark(map,pt1.lng,pt1.lat);
                             }else{
                                 var pt2 = new BMap.Point(r.point.lng,r.point.lat);
                                 //地图标记
-                                //1、map  2、经度  3、纬度 
+                                //1、map  2、经度  3、纬度
                                 v_this.v_mark(map,pt2.lng,pt2.lat)
                             }
                         }else{
@@ -678,7 +678,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 }else{
                     var pt3 = new BMap.Point(lng,lat);
                     //地图标记
-                    //1、map  2、经度  3、纬度 
+                    //1、map  2、经度  3、纬度
                     v_this.v_mark(map,pt3.lng,pt3.lat)
                 }
             },
@@ -705,7 +705,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 marker.addEventListener("dragend", function(e){
                     v_this.shop_message.lat=e.point.lat;
                     v_this.shop_message.lng=e.point.lng;
-                })  //拖动事件 
+                })  //拖动事件
             },
         },
         created(){
@@ -1128,7 +1128,7 @@ textarea:-ms-input-placeholder{  /* Internet Explorer 10-11 */
 }
 </style>
 <style lang="">
-.mint-popup,.mint-popup-bottom{
+.editshopinfo .mint-popup,.mint-popup-bottom{
     width: 100%;
 }
 </style>
