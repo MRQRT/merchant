@@ -547,8 +547,8 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
             //点击“我选好啦“
             submit_latlong(){
                 if(this.shop_message.lat==''&&this.shop_message.lng==''){
-                    this.shop_message.lat='';
-                    this.shop_message.lng='';
+                    this.shop_message.lat=this.default_address.lat;
+                    this.shop_message.lng=this.default_address.lng;
                 }
                 this.placeholder="已经精准定位到店铺所在位置"
                 this.map_show=false;
@@ -635,7 +635,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                     if(this.shop_message.lng&&this.shop_message.lat){//有选好的经纬度
                         v_this.map(v_this.shop_message.lng,v_this.shop_message.lat,'two');
                     }else{//用默认的经纬度--进行定位
-                        v_this.map(v_this.default_address.lng,v_this.default_address.lat,'one');                      
+                        v_this.map(v_this.default_address.lng,v_this.default_address.lat,'one');
                     }
                 }
             },
