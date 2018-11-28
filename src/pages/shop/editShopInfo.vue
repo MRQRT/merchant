@@ -553,8 +553,8 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
             //点击“我选好啦“
             submit_latlong(){
                 if(this.shop_message.lat==''&&this.shop_message.lng==''){
-                    this.shop_message.lat=this.default_address.lat;
-                    this.shop_message.lng=this.default_address.lng;
+                    this.shop_message.lat=this.point.lat;
+                    this.shop_message.lng=this.point.lng;
                 }
                 this.placeholder="已经精准定位到店铺所在位置"
                 this.map_show=false;
@@ -631,8 +631,8 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                     // 将地址解析结果显示在地图上，并调整地图视野
                     myGeo.getPoint(v_this.shop_message.address+v_this.shop_message.detail_address, function(point){
                         if(point){
-                            v_this.shop_message.lng=point.lng//经度
-                            v_this.shop_message.lat=point.lat//维度
+                            v_this.point.lng=point.lng//经度
+                            v_this.point.lat=point.lat//维度
                             map.centerAndZoom(point, 17);
                             v_this.v_mark(map,point.lng,point.lat);
                         }
@@ -642,6 +642,8 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                         v_this.map(v_this.shop_message.lng,v_this.shop_message.lat,'two');
                     }else{//用默认的经纬度--进行定位
                         v_this.map(v_this.default_address.lng,v_this.default_address.lat,'one');
+                        v_this.point.lng=point.lng//经度
+                        v_this.point.lat=point.lat//维度
                     }
                 }
             },
