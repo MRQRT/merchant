@@ -703,8 +703,8 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 val.panTo(val1);
                 marker.enableDragging();  //设置可拖拽
                 marker.addEventListener("dragend", function(e){
-                    v_this.shop_message.lat=e.point.lat;
-                    v_this.shop_message.lng=e.point.lng;
+                    v_this.point.lng=e.point.lng;//经度
+                    v_this.point.lat=e.point.lat;//维度
                 })  //拖动事件
             },
         },
