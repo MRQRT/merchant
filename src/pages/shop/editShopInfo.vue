@@ -27,7 +27,10 @@
                 <div class="line"></div>
                 <span class="three_2">*</span>
                 <input type="text" v-model="shop_message.detail_address" placeholder="请输入您的详细地址，例：育知东路30号院">
-                <span class="right_jiantou2" @click="check_map">地图选取</span>
+                <div class="line"></div>
+                <span class="three_3">*</span>
+                <input @click="check_map" type="text" style="margin-left:.31rem" v-model="shop_message.nearby" :placeholder="placeholder" readonly="value">
+                <span class="right_jiantou2"><img :src="right" class="right_jiantou"></span>
                 <div class="line"></div>
                 <input type="text" style="margin-left:0" v-model="shop_message.nearby" placeholder="(可选)请输入您的邻居位置,例:中国移动旗舰店南300米">
                 <div class="line"></div>
@@ -54,7 +57,7 @@
             <p>店铺门面图<span style="font-size:.24rem;color:#999999;">（让用户对您的店铺更感兴趣）</span></p>
             <div class="uploadPho_photo">
                 <div class="upload_image_preview">
-                    <section v-for="(image, index) in shop_message.images" :key="index" :class="{'cover':index==0}">
+                    <section v-for="(image, index) in shop_message.images" :key="index" :class="{'covers':index==0}">
                         <img :src="image.src" class="thing_img">
                         <span @click='delImage(index)' class="del_image"></span>
                     </section>
@@ -173,11 +176,15 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 index: 0, // 序列号 可记录一共上传了多少张
                 map_show:false,//地图弹出层显示开关
                 location: '',
+                placeholder:'请选择您的经纬度，方便用户找到您的地理位置',
                 default_address: {
-                    latitude:116.504,
-                    longitude:39.915,
+                    lng:116.504,//经度
+                    lat:39.915,//纬度
                 },//默认北京的中心
-                point:'',//选取经纬度的点
+                point:{
+                    lng:'',//店铺经度
+                    lat:'',//店铺纬度
+                },//选取经纬度的点
             }
         },
         components:{
@@ -390,6 +397,9 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 }else if(this.shop_message.address==''){
                     Toast('请选择店铺地址')
                     return false
+                }else if(this.shop_message.lng==''&&this.shop_message.lat==''){
+                    Toast('请进行地图经纬度选取')
+                    return false
                 }else if(this.shop_message.mobile==''){
                     Toast('请输入预约电话')
                     return false
@@ -534,8 +544,13 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
             close_map(){
                 this.map_show=false;
             },
-            //点击我选好啦
+            //点击“我选好啦“
             submit_latlong(){
+                if(this.shop_message.lat==''&&this.shop_message.lng==''){
+                    this.shop_message.lat='';
+                    this.shop_message.lng='';
+                }
+                this.placeholder="已经精准定位到店铺所在位置"
                 this.map_show=false;
             },
             //店铺所在区域选取
@@ -601,7 +616,8 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
             //用户选取的地址进行解析
             analysis_area(){
                 let v_this=this
-                if(this.shop_message.detail_address&&this.shop_message.address&&!this.point){//有地址和详细地址进行定位
+                //用户进行了省市取的选取，而且填写了详细地址，但是没有进行经纬度选取，通过详细地址--进行定位
+                if(this.shop_message.detail_address&&this.shop_message.address&&!this.shop_message.lat&&!this.shop_message.lng){//有地址和详细地址进行定位
                     var map = new BMap.Map("container");
                     map.centerAndZoom(new BMap.Point(116.404, 39.915), 11);
                     // 创建地址解析器实例
@@ -609,23 +625,25 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                     // 将地址解析结果显示在地图上，并调整地图视野
                     myGeo.getPoint(v_this.shop_message.address+v_this.shop_message.detail_address, function(point){
                         if(point){
+                            v_this.shop_message.lng=point.lng//经度
+                            v_this.shop_message.lat=point.lat//维度
                             map.centerAndZoom(point, 17);
                             v_this.v_mark(map,point.lng,point.lat);
                         }
                     }, v_this.province);
-                }else{//如果输入框没有地址，进行定位
-                    if(v_this.point){//有选好的经纬度
-                        v_this.map(v_this.point,'two');
-                    }else{
-                        v_this.map(v_this.default_address,'one');                      
+                }else{//有经纬度，通过经纬度--进行定位
+                    if(this.shop_message.lng&&this.shop_message.lat){//有选好的经纬度
+                        v_this.map(v_this.shop_message.lng,v_this.shop_message.lat,'two');
+                    }else{//用默认的经纬度--进行定位
+                        v_this.map(v_this.default_address.lng,v_this.default_address.lat,'one');                      
                     }
                 }
             },
             //定位
-            map(val,val2){
+            map(lng,lat,val2){
                 let v_this = this;
                 var map = new BMap.Map("container");
-                var point = new BMap.Point(val.latitude, val.longitude);
+                var point = new BMap.Point(lng,lat);
                 map.centerAndZoom(point, 15);
                 //获取定位
                 if(val2=='one'){
@@ -640,7 +658,6 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                                 //1、map  2、经度  3、纬度 
                                 v_this.v_mark(map,pt1.lng,pt1.lat);
                             }else{
-                                alert(100)
                                 var pt2 = new BMap.Point(r.point.lng,r.point.lat);
                                 //地图标记
                                 //1、map  2、经度  3、纬度 
@@ -651,7 +668,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                         }
                     });
                 }else{
-                    var pt3 = new BMap.Point(val.lng,val.lat);
+                    var pt3 = new BMap.Point(lng,lat);
                     //地图标记
                     //1、map  2、经度  3、纬度 
                     v_this.v_mark(map,pt3.lng,pt3.lat)
@@ -678,7 +695,8 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 val.panTo(val1);
                 marker.enableDragging();  //设置可拖拽
                 marker.addEventListener("dragend", function(e){
-                    v_this.point=e.point;
+                    v_this.shop_message.lat=e.point.lat;
+                    v_this.shop_message.lng=e.point.lng;
                 })  //拖动事件 
             },
         },
@@ -767,7 +785,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
     padding-top: .35rem;
 }
 .two{
-    height: 3.21rem;
+    height: 4.21rem;
 }
 .one input{
     width: 98%;
@@ -801,6 +819,16 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
     position: absolute;
     left:0;
     top:1.95rem;
+}
+.three_3{
+    display: inline-block;
+    width: 0.55rem;
+    height: 0.55rem;
+    color:#f00;
+    font-size:.24rem;
+    position: absolute;
+    left:0;
+    top:2.85rem;
 }
 .one textarea{
     width: 75%;
@@ -931,11 +959,11 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
     margin-top: .25rem;
     position: absolute;
     right: 0rem;
-    top: .7rem;
+    top: .68rem;
 }
 .right_jiantou2{
     width: 1.2rem;
-    margin-top: .25rem;
+    margin-top: .22rem;
     position: absolute;
     right: 0rem;
     top: 1.62rem;
@@ -956,10 +984,10 @@ textarea:-moz-placeholder{    /* Mozilla Firefox 4 to 18 */
 textarea:-ms-input-placeholder{  /* Internet Explorer 10-11 */
     font-size: .28rem;
 }
-.cover{
+.covers{
     position: relative;
 }
-.cover:after{
+.covers:after{
     content:'';
     width:1.18rem;
     height:.45rem;
