@@ -21,18 +21,26 @@
             <div class="line"></div>
             <div class="one two" style="position:relative;">
                 <div>店铺地址</div>
-                <span class="three">*</span>
-                <input type="text" v-model="shop_message.address" placeholder="请选择您的店铺所在地区" readonly="value" @click="check_city">
-                <img :src="right" class="right_jiantou">
+                <section class="shop_address_module">
+                    <span class="three">*</span>
+                    <input type="text" v-model="shop_message.address" placeholder="请选择您的店铺所在地区" readonly="value" @click="check_city">
+                    <img :src="right" class="right_jiantou">
+                </section>
                 <div class="line"></div>
-                <span class="three_2">*</span>
-                <input type="text" v-model="shop_message.detail_address" placeholder="请输入您的详细地址，例：育知东路30号院">
+                <section class="shop_address_module">
+                    <span class="three_2">*</span>
+                    <input type="text" v-model="shop_message.detail_address" placeholder="请输入您的详细地址，例：育知东路30号院">
+                </section>
                 <div class="line"></div>
-                <span class="three_3">*</span>
-                <input @click="check_map" type="text" style="margin-left:.31rem" v-model="tips_has_check_lng" placeholder="请选择您的经纬度，方便用户找到您的地理位置" readonly="value">
-                <span class="right_jiantou2"><img :src="right" class="right_jiantou"></span>
+                <section class="shop_address_module">
+                    <span class="three_3">*</span>
+                    <input @click="check_map" type="text" style="margin-left:.31rem" v-model="tips_has_check_lng" placeholder="请选择您的经纬度，方便用户找到您的地理位置" readonly="value">
+                    <span class="right_jiantou2"><img :src="right" class="right_jiantou"></span>
+                </section>
                 <div class="line"></div>
-                <input type="text" style="margin-left:0" v-model="shop_message.nearby" placeholder="(可选)请输入您的邻居位置,例:中国移动旗舰店南300米">
+                <section class="shop_address_module">
+                    <input type="text" style="margin-left:0" v-model="shop_message.nearby" placeholder="(可选)请输入您的邻居位置,例:中国移动旗舰店南300米">
+                </section>
                 <div class="line"></div>
             </div>
             <div class="one">
@@ -815,7 +823,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
     font-size:.24rem;
     position: absolute;
     left:0;
-    top:1rem;
+    top:.3rem;
 }
 .three_2{
     display: inline-block;
@@ -825,7 +833,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
     font-size:.24rem;
     position: absolute;
     left:0;
-    top:1.95rem;
+    top:.3rem;
 }
 .three_3{
     display: inline-block;
@@ -835,7 +843,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
     font-size:.24rem;
     position: absolute;
     left:0;
-    top:2.85rem;
+    top:.3rem;
 }
 .one textarea{
     width: 100%;
@@ -966,18 +974,18 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
     margin-top: .25rem;
     position: absolute;
     right: 0rem;
-    top: .68rem;
+    top:0;
 }
 .right_jiantou2{
     width: 1.2rem;
     margin-top: .22rem;
     position: absolute;
     right: 0rem;
-    top: 1.62rem;
     font-size: .28rem;
     color: #ff8a5a;
     background-color: #fff;
     text-align: right;
+    top: -.25rem;
 }
 textarea::-webkit-input-placeholder{
     font-size: .28rem;
@@ -1118,6 +1126,9 @@ textarea:-ms-input-placeholder{  /* Internet Explorer 10-11 */
     border-radius: 5px;
     float: right;
     margin-right: .2rem;
+}
+.shop_address_module{
+    position: relative;
 }
 </style>
 <style lang="">
