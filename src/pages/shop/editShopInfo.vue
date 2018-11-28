@@ -114,10 +114,9 @@
         <!-- 地图 -->
         <section class="cover" v-show="map_show">
             <div class="map_box" v-show="map_show">
-                <p class="map_title"><span><img @click="close_map" src="static/images/close.png" alt=""></span>请选择您的经纬度</p>
+                <p class="map_title"><span><img @click="close_map" src="static/images/close.png" alt=""></span>请选择您的经纬度<section @click="submit_latlong" class="check_latlong" style="line-height:.48rem;">我选好啦</section></p>
                 <!-- 地图 -->
                 <div class="allmaps" id="container"></div>
-                <div class="check_latlong"><section @click="submit_latlong">我选好啦</section></div>
             </div>
         </section>
     </div>
@@ -1103,27 +1102,21 @@ textarea:-ms-input-placeholder{  /* Internet Explorer 10-11 */
 }
 .allmaps{
     width: 100%;
-    height: 5rem;
+    height: 6.25rem;
 }
 .check_latlong{
-    width: 100%;
-    height:1.28rem;
-    position:absolute;
-    bottom:0;
-    text-align:center;
-    display: flex;
-    justify-content: center;
-}
-.check_latlong>section{
-    width: 95%;
-    height: .88rem;
+    width: 1.2rem;
+    height: .48rem;
+    line-height: .48rem;
     background-color: #dac094;
     color: #fff;
-    font-size: .32rem;
+    font-size: .24rem;
     text-align: center;
     line-height: .88rem;
-    margin-top: .2rem;
+    margin-top: .3rem;
     border-radius: 5px;
+    float: right;
+    margin-right: .2rem;
 }
 </style>
 <style lang="">
