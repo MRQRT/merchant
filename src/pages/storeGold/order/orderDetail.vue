@@ -39,7 +39,9 @@
                             <span>2018-12-12 12:12:12</span>
                         </p>
                     </div>
-                    <div class="right-status">{{iconJson[status].name}}</div>
+                    <!-- 已完成图标 -->
+                    <div class="order-end-icon" v-if="status==7"></div>
+                    <div class="right-status" v-else>{{iconJson[status].name}}</div>
                 </div>
                 <div class="line"></div>
                 <!-- 操作按钮部分 -->
@@ -48,6 +50,7 @@
                         <!-- 待审核时显示 -->
                         <span v-if="status==0" class="border-btn" @click="cancelOrder">取消订单</span>
                         <span class="border-btn" @click="goStoreGold">再来一单</span>
+                        <span class="border-btn" v-if="status==6">确认订单</span>
                         <span class="bg-btn"><a href="tel:4008-196-199">联系客服</a></span>
                     </div>
                 </div>
@@ -98,36 +101,174 @@
             <div class="delivery-info-wrap">
                 <h4>物流信息</h4>
                 <ul class="outer-delivery-list">
-                    <li class="outer-delivery-item">
-                        <div class="item-title">
+                    <li class="outer-delivery-item" v-for="(item,index) in stepList" :key="index">
+                        <div class="item-title" @click="showDelivery(index)">
                             <span>包裹1——物流中</span>
-                            <span></span>
+                            <span class="show-more" :class="{'rotate':index==deliveryNum}"></span>
                         </div>
-                        <div class="item-detail">
-                            <p>快递公司：顺丰快递</p>
-                            <p>快递单号：123456789</p>
-                        </div>
-                        <div class="delivery-point">
-                            <mt-spinner type="triple-bounce" v-if="!deliveryStatus" color="#C09C60"></mt-spinner>
-                            <ul class="inner-delivery-list" v-else-if="deliveryStatus && !deliveryError">
-                                <div class="line"></div>
-                                <li class="inner-delivery-item" :class="{'recent':index==0}"v-for="(item,index) in deliveryList" :key="index">
-                                    <span class="time">{{item.time | changeTime}}</span>
-                                    <span class="dot" :class="{'recent-icon':index==0}"></span>
-                                    <span class="text">{{item.status}}</span>
-                                </li>
-                            </ul>
-                            <!-- 查询不到物流信息时显示 -->
-                            <p v-else class="deliveryError">物流信息出错啦，您可联系客服进行沟通<br/>客服电话：4008-196-199</p>
+                        <!-- 隐藏掉的具体物流信息 -->
+                        <div class="hideDelivery" :class="{'showDelivery':index==deliveryNum}">
+                            <p style="margin-bottom:.3rem;font-size:.26rem">异常原因：吧啦吧啦吧啦～～</p>
+                            <div class="item-detail">
+                                <p>快递公司：顺丰快递</p>
+                                <p>快递单号：123456789</p>
+                            </div>
+                            <div class="delivery-point">
+                                <mt-spinner type="triple-bounce" v-if="!deliveryStatus" color="#C09C60"></mt-spinner>
+                                <ul class="inner-delivery-list" v-else-if="deliveryStatus && !deliveryError">
+                                    <div class="line"></div>
+                                    <li class="inner-delivery-item" :class="{'recent':index==0}"v-for="(item,index) in deliveryList" :key="index">
+                                        <span class="time">{{item.time | changeTime}}</span>
+                                        <span class="dot" :class="{'recent-icon':index==0}"></span>
+                                        <span class="text">{{item.status}}</span>
+                                    </li>
+                                </ul>
+                                <!-- 查询不到物流信息时显示 -->
+                                <p v-else class="deliveryError">物流信息出错啦，您可联系客服进行沟通<br/>客服电话：4008-196-199</p>
+                            </div>
                         </div>
                     </li>
                 </ul>
+            </div>
+            <!-- part4:检测中样式 -->
+            <div class="detection-ing" v-if="status==4">
+                <div class="left-img"></div>
+                <div class="right-text">
+                    <h3>正在检测中</h3>
+                    <p>请静候佳音～</p>
+                </div>
+            </div>
+            <!-- part4:待确认样式 -->
+            <div class="wait-confirm">
+                <!-- 订单信息 -->
+                <div class="order-info">
+                    <h4>订单信息</h4>
+                    <p>
+                        <span>订单编号</span>
+                        <span>MR12345555666</span>
+                    </p>
+                    <p>
+                        <span>实收总额</span>
+                        <span style="color:#C09C60">10000.00元</span>
+                    </p>
+                    <div class="detail-info" :class="{'showOrderList':orderDetailStatus}">
+                        <p>
+                            <span>卖金总额</span>
+                            <span>10000.00元</span>
+                        </p>
+                        <p>
+                            <span>物流费</span>
+                            <span>0.00元</span>
+                        </p>
+                        <p>
+                            <span>报价费</span>
+                            <span>0.00元</span>
+                        </p>
+                        <p>
+                            <span>检测费</span>
+                            <span>0.00元</span>
+                        </p>
+                        <p>
+                            <span>手续费</span>
+                            <span>0.00元</span>
+                        </p>
+                        <p>
+                            <span>优惠金额</span>
+                            <span>0.00元</span>
+                        </p>
+                    </div>
+                    <div class="show-more-btn" @click="showOrderList">
+                        <span v-if="!this.orderDetailStatus">查看详情</span>
+                        <span v-else>收起</span>
+                        <span class="show-more" :class="{'rotate':orderDetailStatus}"></span>
+                    </div>
+                </div>
+                <!-- 检测信息 -->
+                <div class="report-info" v-if="status==6">
+                    <h4>检测信息</h4>
+                    <p>
+                        <span>实测总毛重</span>
+                        <span>10.00克</span>
+                    </p>
+                    <p>
+                        <span>成色</span>
+                        <span>999.9‰</span>
+                    </p>
+                    <p>
+                        <span>实测总净重</span>
+                        <span>10.00克</span>
+                    </p>
+                    <!-- 检测报告详情 -->
+                    <div class="detail-info" :class="{'showOrderList':reportListStatus}">
+                        <p>
+                            <span>实收金价</span>
+                            <span>10000.00元/克</span>
+                        </p>
+                        <p>
+                            <span>检测结果</span>
+                            <span style="color:#C09C60">合格</span>
+                        </p>
+                        <p>
+                            <span>检测员</span>
+                            <span>小可爱</span>
+                        </p>
+                        <p>
+                            <span>检测时间</span>
+                            <span>2018-11-26 12:12:12</span>
+                        </p>
+                        <!-- 检测明细 -->
+                        <div class="report-detail">
+                            <h4 @click="showReportDetail">
+                                <span class="txt">查看检测明细</span>
+                                <span class="show-more" :class="{'rotate':reportDetialStatus}"></span>
+                            </h4>
+                            <!-- 具体检测明细列表 -->
+                            <ul class="report-more-detail" :class="{'showReportDetail':reportDetialStatus}">
+                                <li class="more-detail-item" v-for="(item,index) in stepList">
+                                    <p class="title" @click="showEachReport(index)">
+                                        <span>产品1——卖金总额：330.36元</span>
+                                        <span class="show-more" :class="{'rotate':index==eachReportNum}"></span>
+                                    </p>
+                                    <div class="list" :class="{'showEachReport':index==eachReportNum}">
+                                        <p>
+                                            <span>检测编号</span>
+                                            <span>MR12345678901234</span>
+                                        </p>
+                                        <p>
+                                            <span>产品名称</span>
+                                            <span>金条</span>
+                                        </p>
+                                        <p>
+                                            <span>质量</span>
+                                            <span>12克</span>
+                                        </p>
+                                        <p>
+                                            <span>黄金含量</span>
+                                            <span>999.9‰</span>
+                                        </p>
+                                    </div>
+                                </li>
+                            </ul>
+                            <!-- 检测报告图片 -->
+                            <ul class="report-img-list">
+                                <li class="img-item" v-for="(item,index) in 5">
+                                    <img src="static/images/report-defalut.jpeg" alt="">
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="show-more-btn" @click="showReportList">
+                        <span v-if="!this.reportListStatus">查看详情</span>
+                        <span v-else>收起</span>
+                        <span class="show-more" :class="{'rotate':reportListStatus}"></span>
+                    </div>
+                </div>
             </div>
             <!-- part5:订单追踪 -->
             <div class="order-tracking">
                 <div class="title" @click="showList">
                     <span>订单追踪</span>
-                    <span :class="{'rotate':trackingStatus}"></span>
+                    <span class="show-more" :class="{'rotate':trackingStatus}"></span>
                 </div>
                 <ul class="tracking-list" :class="{'showList':trackingStatus}">
                     <div class="line"></div>
@@ -161,16 +302,22 @@
 
 <script>
 import headTop from '@/components/header/head.vue'
-import { MessageBox,Toast, } from 'mint-ui';
+import { MessageBox,Toast,Spinner } from 'mint-ui';
 import { query_detail, query_card_info} from '@/service/getData.js'
 
     export default {
         data(){
             return{
                 orderId:'',              // 订单ID
-                status:3,                // 订单当前状态
+                status:6,                // 订单当前状态
                 popupVisible:false,      // 禁止取消订单弹窗
                 deliveryStatus:true,
+                deliveryError:false,     // 物流信息出错
+                deliveryNum:-1,          // 展开物流详情
+                orderDetailStatus:false, // 订单信息显示、隐藏
+                reportListStatus:false,  // 检测报告显示、隐藏
+                reportDetialStatus:false,// 检测报告明显显示、隐藏
+                eachReportNum:-1,        // 每一个产品的检测报告明细显示、隐藏
                 trackingStatus:false,    // 订单追踪显示、隐藏
                 stepList:[               // 进度icon对应文字
                     {name:'订单审核'},
@@ -206,7 +353,7 @@ import { query_detail, query_card_info} from '@/service/getData.js'
                     },
                     {
                         time:'2018-12-12 12:12:12',
-                        status:'快递已发货'
+                        status:'浙江省金华市义务中转站公司  已发出，下一站北京运转中心'
                     },
                     {
                         time:'2018-12-12 12:12:12',
@@ -245,9 +392,37 @@ import { query_detail, query_card_info} from '@/service/getData.js'
 
         },
         methods: {
+            // 物流包裹显示、隐藏
+            showDelivery(index){
+                if(this.deliveryNum == index){
+                    this.deliveryNum = -1
+                }else{
+                    this.deliveryNum = index
+                }
+            },
+            // 订单详情显示、隐藏
+            showOrderList(){
+                this.orderDetailStatus = !this.orderDetailStatus;
+            },
             // 订单追踪显示、隐藏
             showList(){
                 this.trackingStatus = !this.trackingStatus;
+            },
+            // 检测报告显示、隐藏
+            showReportList(){
+                this.reportListStatus = !this.reportListStatus;
+            },
+            // 检测报告明细显示、隐藏
+            showReportDetail(){
+                this.reportDetialStatus = !this.reportDetialStatus;
+            },
+            // 具体每一项产品的检测报告
+            showEachReport(index){
+                if(this.eachReportNum == index){
+                    this.eachReportNum = -1;
+                }else{
+                    this.eachReportNum = index
+                }
             },
             // 取消订单确认弹窗
             cancelOrder(){
@@ -288,6 +463,13 @@ import { query_detail, query_card_info} from '@/service/getData.js'
 
 </script>
 
+
+<style media="screen">
+    .mint-spinner-triple-bounce{
+        text-align: center;
+    }
+</style>
+
 <style scoped lang="scss">
 @import '../../../sass/mixin';
 .recent {
@@ -304,11 +486,25 @@ import { query_detail, query_card_info} from '@/service/getData.js'
     background:url('/static/images/dot-yes.png') no-repeat !important;
     background-size:100% !important;
 }
+/** 公共展开按钮样式**/
+.show-more{
+    display: inline-block;
+    width: .24rem;
+    height: .24rem;
+    background: url(/static/images/order-pull.png) no-repeat;
+    background-size: 100%;
+    @include transition(.3s);
+    }
+.rotate{
+    @include transition(.3s);
+    @include rotate(180deg);
+}
 .order-detail{
     .main-cont{
         width: 100%;
         min-height: 100vh;
         padding-top:.88rem;
+        padding-bottom: .5rem;
         background-color: #f8f8f8;
         .step-tips{
             color: #C09C60;
@@ -350,6 +546,11 @@ import { query_detail, query_card_info} from '@/service/getData.js'
                     font-size: .32rem;
                     font-family:PingFang-SC-Medium;
                     font-weight:500;
+                }
+                .order-end-icon{
+                    width: 1.44rem;
+                    height: 1.44rem;
+                    @include bg-image('/static/images/order-wancheng-icon.png');
                 }
             }
             .line{
@@ -607,26 +808,35 @@ import { query_detail, query_card_info} from '@/service/getData.js'
                         @include flex-box();
                         @include justify-content();
                         span{
-                            &:nth-of-type(2){
-                                display: inline-block;
-                                width: .24rem;
-                                height: .24rem;
-                                background: url(/static/images/order-pull.png) no-repeat;
-                                background-size: 100%;
-                            }
+                            font-size: .28rem;
                         }
+                    }
+                    .item-detail{
+                        font-size: .26rem;
+                    }
+                    .hideDelivery{
+                        max-height: 0;
+                        overflow: hidden;
+                        @include transition(.4s);
+                    }
+                    .showDelivery{
+                        max-height: 10rem;
+                        overflow-y: scroll;
+                        @include transition(.4s);
                     }
                     .delivery-point{
                         margin-top:.2rem;
+                        padding-bottom: .3rem;
+
                         .inner-delivery-list{
                             height: 100%;
-                            padding-left:.18rem;
+                            padding-left:.1rem;
                             position: relative;
                             .line{
                                 width:1px;
                                 height: 185%;
                                 position: absolute;
-                                left:.95rem;
+                                left:1.05rem;
                                 top:.3rem;
                                 z-index: 100;
                                 background-color: #ddd;
@@ -645,6 +855,7 @@ import { query_detail, query_card_info} from '@/service/getData.js'
                                 .time{
                                     font-size: .2rem;
                                     width: .8rem;
+                                    text-align: center;
                                 }
                                 .dot{
                                     width: .24rem;
@@ -667,6 +878,132 @@ import { query_detail, query_card_info} from '@/service/getData.js'
                 }
             }
         }
+        .detection-ing{
+            padding:.6rem 0;
+            @extend .order-closed
+        }
+        .wait-confirm{
+            .order-info{
+                padding:0 .4rem;
+                margin-bottom: .2rem;
+                background-color: #fff;
+                h4{
+                    color: #333;
+                    font-size: .32rem;
+                    padding:.35rem 0;
+                }
+                p{
+                    color: #666;
+                    font-size: .26rem;
+                    margin-bottom: .2rem;
+                    @include flex-box();
+                    @include justify-content();
+                }
+                .detail-info{
+                    height: 0;
+                    overflow: hidden;
+                    @include transition(.3s);
+                }
+                .showOrderList{
+                    height: auto;
+                    @include transition(.3s);
+                }
+                .show-more-btn{
+                    color: #666;
+                    font-size: .26rem;
+                    height: .84rem;
+                    line-height: .84rem;
+                    text-align: center;
+                    padding:0 .4rem;
+                    margin-top:.2rem;
+                    border-top:1px solid #eee;
+                    align-items: center;
+                    justify-content: center;
+                    @include flex-box();
+                    span{
+                        &:nth-of-type(2){
+                            margin-left:.12rem;
+                        }
+                    }
+                }
+            }
+            .report-info{
+                @extend .order-info;
+                .report-detail{
+                    h4{
+                        color: #C09060;
+                        font-size: .26rem;
+                        align-items: center;
+                        @include flex-box();
+                        .txt{
+                            border-bottom: 1px solid #C09060;
+                        }
+                        .show-more{
+                            margin-left:.12rem;
+                        }
+                    }
+                    .report-more-detail{
+                        height: 0;
+                        display: none;
+                        padding:0 .2rem;
+                        margin-bottom: .4rem;
+                        background-color: #F8F8F8;
+                        .more-detail-item{
+                            &:nth-of-type(1){
+                                .title{
+                                    border-top:none;
+                                }
+                            }
+                        }
+                        .title{
+                            height: .84rem;
+                            line-height: .84rem;
+                            color: #666;
+                            font-size: .26rem;
+                            border-top: 1px solid #eee;
+                            align-items: center;
+                            @include flex-box();
+                            @include justify-content();
+
+                        }
+                        .list{
+                            height: 0;
+                            overflow: hidden;
+                            @include transition(.3s);
+                        }
+                        .showEachReport{
+                            height: 2rem;
+                            @include transition(.3s);
+                        }
+                        p{
+                            color: #999;
+                            font-size: .22rem;
+                            margin-bottom: .08rem;
+                        }
+                    }
+                    .showReportDetail{
+                        height: auto;
+                        display: block;
+                    }
+                    .report-img-list{
+                        flex-wrap: wrap;
+                        @include flex-box();
+                        .img-item{
+                            width: 2.1rem;
+                            height: 1.68rem;
+                            margin-bottom: .2rem;
+                            background-color: #eee;
+                            &:nth-of-type(3n+2){
+                                margin:0 .2rem;
+                            }
+                            img{
+                                width: 100%;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         .order-tracking{
             width: 100%;
             padding:0 .4rem;
@@ -681,16 +1018,6 @@ import { query_detail, query_card_info} from '@/service/getData.js'
                 span{
                     color: #333;
                     font-size: .32rem;
-                    &:nth-of-type(2){
-                        display: inline-block;
-                        width: .24rem;
-                        height: .24rem;
-                        @include bg-image('/static/images/order-pull.png');
-                    }
-                }
-                .rotate{
-                    @include transition(.3s);
-                    @include rotate(180deg);
                 }
             }
             .tracking-list{

@@ -24,7 +24,7 @@ Raven
     .install()
 
 // 注意,一定记得区分开发环境,否则开发环境的错误也会被提交到sntry去,并且本地是不会显示错误信息的
-if(process.env.NODE_ENV !== 'development' ){
+if(process.env.NODE_ENV == 'production' && window.location.host == "cjtsh.au32.cn"){
     Vue.config.errorHandler = function(err, vm, info) {
         Raven.captureException(err)
     }
