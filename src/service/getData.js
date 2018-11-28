@@ -1,6 +1,17 @@
 import {fetch} from '../config/fetch.js'
 import {getStore} from '../config/mUtils.js'
 
+
+
+/***** V2.0新增接口 ******/
+
+/**
+* 商户锁价保证金比例
+*/
+
+export const margin_rate = () => fetch('/merchant/margin_rate',{},'get')
+
+
 /**
  * 判断是否在交易时段
  */
@@ -295,7 +306,7 @@ export const add_recycle_order_check = () => fetch('/order/add_recycle_order_che
  * 创建订单
  */
 
-export const add_recycle_order = (applyQuantity,applyWeight,productType,isLockPrice,isCash,contact,telephone,address) => fetch('/order/add_recycle_order',{'applyQuantity':applyQuantity,'applyWeight':applyWeight,'productType':productType,'isLockPrice':isLockPrice,'isCash':isCash,'contact':contact,'telephone':telephone,'address':address},'post');
+ export const add_recycle_order = (applyQuantity,applyWeight,productType,isLockPrice,isCash,contact,telephone,address) => fetch('/order/add_recycle_order',{'applyQuantity':applyQuantity,'applyWeight':applyWeight,'productType':productType,'isLockPrice':isLockPrice,'isCash':isCash,'contact':contact,'telephone':telephone,'address':address},'post');
 
 /**
  * 支付预下单(发送短信验证码)
