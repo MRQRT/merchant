@@ -484,6 +484,12 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                     this.shop_message.areaId = res.data.areaId;
                     this.shop_message.detail_address = res.data.address;
                     this.shop_message.nearby = res.data.nearby;
+                    this.privince = res.data.privince
+                    this.provinceId = res.data.provinceId
+                    this.city = res.data.city
+                    this.cityId = res.data.cityId
+                    this.area = res.data.area
+                    this.areaId = res.data.areaId
                     this.shop_message.lat = res.data.lat;
                     this.shop_message.lng = res.data.lng;
                     this.shop_message.mobile = res.data.mobile;
@@ -491,7 +497,9 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                     this.shop_message.facadeId = res.data.facadeIds;
                     this.shop_message.businessScopeId = res.data.businessScopeIds;
                     this.shop_message.images = [];
-
+                    if(res.data.lat&&res.data.lng){
+                        this.placeholder="已经精准定位到店铺所在位置"
+                    }
                     res.data.facadePaths.forEach(itemSrc=>{ // 门店图片
                         if(itemSrc!=null){
                             let item = {
