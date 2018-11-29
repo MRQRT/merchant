@@ -21,18 +21,26 @@
             <div class="line"></div>
             <div class="one two" style="position:relative;">
                 <div>店铺地址</div>
-                <span class="three">*</span>
-                <input type="text" v-model="shop_message.address" placeholder="请选择您的店铺所在地区" readonly="value" @click="check_city">
-                <img :src="right" class="right_jiantou">
+                <section class="shop_address_module">
+                    <span class="three">*</span>
+                    <input type="text" v-model="shop_message.address" placeholder="请选择您的店铺所在地区" readonly="value" @click="check_city">
+                    <img :src="right" class="right_jiantou">
+                </section>
                 <div class="line"></div>
-                <span class="three_2">*</span>
-                <input type="text" v-model="shop_message.detail_address" placeholder="请输入您的详细地址，例：育知东路30号院">
+                <section class="shop_address_module">
+                    <span class="three_2">*</span>
+                    <input type="text" v-model="shop_message.detail_address" placeholder="请输入您的详细地址，例：育知东路30号院">
+                </section>
                 <div class="line"></div>
-                <span class="three_3">*</span>
-                <input @click="check_map" type="text" style="margin-left:.31rem" :placeholder="placeholder" readonly="value">
-                <span class="right_jiantou2"><img :src="right" class="right_jiantou"></span>
+                <section class="shop_address_module">
+                    <span class="three_3">*</span>
+                    <input @click="check_map" type="text" style="margin-left:.31rem" v-model="tips_has_check_lng" placeholder="请选择您的经纬度，方便用户找到您的地理位置" readonly="value">
+                    <span class="right_jiantou2"><img :src="right" class="right_jiantou"></span>
+                </section>
                 <div class="line"></div>
-                <input type="text" style="margin-left:0" v-model="shop_message.nearby" placeholder="(可选)请输入您的邻居位置,例:中国移动旗舰店南300米">
+                <section class="shop_address_module">
+                    <input type="text" style="margin-left:0" v-model="shop_message.nearby" placeholder="(可选)请输入您的邻居位置,例:中国移动旗舰店南300米">
+                </section>
                 <div class="line"></div>
             </div>
             <div class="one">
@@ -114,10 +122,9 @@
         <!-- 地图 -->
         <section class="cover" v-show="map_show">
             <div class="map_box" v-show="map_show">
-                <p class="map_title"><span><img @click="close_map" src="static/images/close.png" alt=""></span>请选择您的经纬度</p>
+                <p class="map_title"><span><img @click="close_map" src="static/images/close.png" alt=""></span>请选择您的经纬度<section @click="submit_latlong" class="check_latlong" style="line-height:.48rem;">我选好啦</section></p>
                 <!-- 地图 -->
                 <div class="allmaps" id="container"></div>
-                <div class="check_latlong"><section @click="submit_latlong">我选好啦</section></div>
             </div>
         </section>
     </div>
@@ -176,7 +183,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 index: 0, // 序列号 可记录一共上传了多少张
                 map_show:false,//地图弹出层显示开关
                 location: '',
-                placeholder:'请选择您的经纬度，方便用户找到您的地理位置',
+                tips_has_check_lng:'',
                 default_address: {
                     lng:116.504,//经度
                     lat:39.915,//纬度
@@ -303,7 +310,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                             message:'上传成功',
                             duration: 800,
                         });
-                        setStore('headimg',res.data.url,'session');
+                        // setStore('headimg',res.data.url,'session');
                         this.headimg_url=res.data.url;//头像地址
                         this.shop_message.logoId=res.data.id
                     }else{
@@ -337,7 +344,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
             },
             //地址选择
             selectassress(){
-                setStore('shop_message',this.shop_message,'session');//跳转地图保存当前页数据
+                // setStore('shop_message',this.shop_message,'session');//跳转地图保存当前页数据
                 this.$router.push('/location');
             },
             //查询商店标签
@@ -348,15 +355,15 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                     this.business_scope.forEach(element => {
                         this.$set(element,'checkid','');
                     });
-                    if(getStore('shop_message','session')){//经营范围反显
-                        this.shop_message.businessScopeId.forEach(e=>{
-                            this.business_scope.forEach(element => {
-                                if(e==element.id){
-                                    this.$set(element,'checkid',e);
-                                }
-                            })
-                        })
-                    }
+                    // if(getStore('shop_message','session')){//经营范围反显
+                    //     this.shop_message.businessScopeId.forEach(e=>{
+                    //         this.business_scope.forEach(element => {
+                    //             if(e==element.id){
+                    //                 this.$set(element,'checkid',e);
+                    //             }
+                    //         })
+                    //     })
+                    // }
                 }
             },
             //根据区域解出id
@@ -394,6 +401,9 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 }else if(this.shop_message.address==''){
                     Toast('请选择店铺地址')
                     return false
+                }else if(this.shop_message.detail_address==''){
+                    Toast('请输入详细地址')
+                    return false
                 }else if(this.shop_message.lng==''&&this.shop_message.lat==''){
                     Toast('请进行地图经纬度选取')
                     return false
@@ -403,11 +413,11 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 }else if(this.shop_message.introduce==''){
                     Toast('请输入店铺介绍')
                     return false
-                }else if(this.shop_message.facadeId==''){
-                    Toast('请上传店铺门面图')
-                    return false
                 }else if(this.shop_message.businessScopeId==''){
                     Toast('请选择营业范围')
+                    return false
+                }else if(this.shop_message.facadeId==''){
+                    Toast('请上传店铺门面图')
                     return false
                 }else{
                     return true
@@ -434,10 +444,11 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 if(!a)return
                 let b = this.check_tels(this.shop_message.mobile);//检查手机号
                 if(!b)return
-                removeStore('shop_message','session');
-                removeStore('headimg','session');
-                removeStore('select_address','session');
-                const res = await shop_open_apply(this.shop_message.logoId,this.shop_message.name,this.shop_message.areaId,this.shop_message.detail_address,this.shop_message.nearby,this.shop_message.lat,this.shop_message.lng,this.shop_message.mobile,this.shop_message.introduce,this.shop_message.facadeId,this.shop_message.businessScopeId,this.applyShopId);
+                // removeStore('shop_message','session');
+                // removeStore('headimg','session');
+                // removeStore('select_address','session');
+                var addresses = this.shop_message.address+this.shop_message.detail_address
+                const res = await shop_open_apply(this.shop_message.logoId,this.shop_message.name,this.shop_message.areaId,addresses,this.shop_message.nearby,this.shop_message.lat,this.shop_message.lng,this.shop_message.mobile,this.shop_message.introduce,this.shop_message.facadeId,this.shop_message.businessScopeId,this.applyShopId);
                 if(res.code=='000000'){
                     this.RECORD_APPLYSHOPID('');//将认领店铺ID置为空
                     MessageBox({
@@ -498,7 +509,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                     this.shop_message.businessScopeId = res.data.businessScopeIds;
                     this.shop_message.images = [];
                     if(res.data.lat&&res.data.lng){
-                        this.placeholder="已经精准定位到店铺所在位置"
+                        this.tips_has_check_lng="已经精准定位到店铺所在位置"
                     }
                     res.data.facadePaths.forEach(itemSrc=>{ // 门店图片
                         if(itemSrc!=null){
@@ -517,9 +528,9 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                     this.shop_message.businessScopeId.forEach(item=>{ //标签反选
                         that.business_scope[item-1].checkid = item
                     })
-                    if(this.$route.query.from=='location'){ // 如果是从选择地址页跳转过来，则查询存储在本地的地址
-                        this.selectAddress();
-                    }
+                    // if(this.$route.query.from=='location'){ // 如果是从选择地址页跳转过来，则查询存储在本地的地址
+                    //     this.selectAddress();
+                    // }
                 }else{
                     Toast(res.message)
                 }
@@ -552,11 +563,9 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
             },
             //点击“我选好啦“
             submit_latlong(){
-                if(this.shop_message.lat==''&&this.shop_message.lng==''){
-                    this.shop_message.lat=this.default_address.lat;
-                    this.shop_message.lng=this.default_address.lng;
-                }
-                this.placeholder="已经精准定位到店铺所在位置"
+                this.shop_message.lat=this.point.lat;
+                this.shop_message.lng=this.point.lng;
+                this.tips_has_check_lng="已经精准定位到店铺所在位置"
                 this.map_show=false;
             },
             //店铺所在区域选取
@@ -631,8 +640,8 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                     // 将地址解析结果显示在地图上，并调整地图视野
                     myGeo.getPoint(v_this.shop_message.address+v_this.shop_message.detail_address, function(point){
                         if(point){
-                            v_this.shop_message.lng=point.lng//经度
-                            v_this.shop_message.lat=point.lat//维度
+                            v_this.point.lng=point.lng//经度
+                            v_this.point.lat=point.lat//维度
                             map.centerAndZoom(point, 17);
                             v_this.v_mark(map,point.lng,point.lat);
                         }
@@ -642,6 +651,8 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                         v_this.map(v_this.shop_message.lng,v_this.shop_message.lat,'two');
                     }else{//用默认的经纬度--进行定位
                         v_this.map(v_this.default_address.lng,v_this.default_address.lat,'one');
+                        v_this.point.lng=v_this.default_address.lng//经度
+                        v_this.point.lat=v_this.default_address.lat//维度
                     }
                 }
             },
@@ -701,8 +712,8 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
                 val.panTo(val1);
                 marker.enableDragging();  //设置可拖拽
                 marker.addEventListener("dragend", function(e){
-                    v_this.shop_message.lat=e.point.lat;
-                    v_this.shop_message.lng=e.point.lng;
+                    v_this.point.lng=e.point.lng;//经度
+                    v_this.point.lat=e.point.lat;//维度
                 })  //拖动事件
             },
         },
@@ -711,19 +722,17 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
         },
         mounted(){
             //如果内存中有地址，进行返显
-            if(getStore('headimg','session')){//头像地址反显
-                this.headimg = getStore('headimg','session');
-                this.headimg_url = getStore('headimg','session');
-            }
-            if(getStore('shop_message','session')){//店铺门面图反显
-                this.shop_message=getStore('shop_message','session');
-            }
+            // if(getStore('headimg','session')){//头像地址反显
+            //     this.headimg = getStore('headimg','session');
+            //     this.headimg_url = getStore('headimg','session');
+            // }
+            // if(getStore('shop_message','session')){//店铺门面图反显
+            //     this.shop_message=getStore('shop_message','session');
+            // }
             //查询店铺地址经营范围字典
+            // this.selectAddress();//判断内存中是否已存在地址
             this.businessScope_list();
             this.applyshop();
-
-            this.selectAddress();//判断内存中是否已存在地址
-
             var height=document.documentElement.clientHeight;
             window.onresize=function(){
                 var h=document.documentElement.clientHeight
@@ -814,7 +823,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
     font-size:.24rem;
     position: absolute;
     left:0;
-    top:1rem;
+    top:.3rem;
 }
 .three_2{
     display: inline-block;
@@ -824,7 +833,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
     font-size:.24rem;
     position: absolute;
     left:0;
-    top:1.95rem;
+    top:.3rem;
 }
 .three_3{
     display: inline-block;
@@ -834,7 +843,7 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
     font-size:.24rem;
     position: absolute;
     left:0;
-    top:2.85rem;
+    top:.3rem;
 }
 .one textarea{
     width: 100%;
@@ -965,18 +974,18 @@ import {upload_shop_pro,upload_shop_photo,business_scope,shop_open_apply,cityNam
     margin-top: .25rem;
     position: absolute;
     right: 0rem;
-    top: .68rem;
+    top:0;
 }
 .right_jiantou2{
     width: 1.2rem;
     margin-top: .22rem;
     position: absolute;
     right: 0rem;
-    top: 1.62rem;
     font-size: .28rem;
     color: #ff8a5a;
     background-color: #fff;
     text-align: right;
+    top: -.25rem;
 }
 textarea::-webkit-input-placeholder{
     font-size: .28rem;
@@ -1102,27 +1111,24 @@ textarea:-ms-input-placeholder{  /* Internet Explorer 10-11 */
 }
 .allmaps{
     width: 100%;
-    height: 5rem;
+    height: 6.25rem;
 }
 .check_latlong{
-    width: 100%;
-    height:1.28rem;
-    position:absolute;
-    bottom:0;
-    text-align:center;
-    display: flex;
-    justify-content: center;
-}
-.check_latlong>section{
-    width: 95%;
-    height: .88rem;
+    width: 1.2rem;
+    height: .48rem;
+    line-height: .48rem;
     background-color: #dac094;
     color: #fff;
-    font-size: .32rem;
+    font-size: .24rem;
     text-align: center;
     line-height: .88rem;
-    margin-top: .2rem;
+    margin-top: .3rem;
     border-radius: 5px;
+    float: right;
+    margin-right: .2rem;
+}
+.shop_address_module{
+    position: relative;
 }
 </style>
 <style lang="">
