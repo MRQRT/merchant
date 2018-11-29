@@ -88,15 +88,15 @@
                     <div class="center-txt">
                         <p>
                             <span>总&nbsp;&nbsp;克&nbsp;重：</span>
-                            <span>100.00克</span>
+                            <span>{{orderInfo.weight|formatPriceTwo}}克</span>
                         </p>
                         <p>
                             <span>数&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;量：</span>
-                            <span>3</span>
+                            <span>{{orderInfo.count}}</span>
                         </p>
                         <p>
                             <span>锁定金价：</span>
-                            <span>273.12元/克</span>
+                            <span>{{orderInfo.price}}元/克</span>
                         </p>
                         <p>
                             <span>保&nbsp;&nbsp;证&nbsp;金：</span>
@@ -104,7 +104,7 @@
                         </p>
                         <p>
                             <span>提交时间：</span>
-                            <span>2018-12-12 12:12:12</span>
+                            <span>{{orderInfo.createTime}}</span>
                         </p>
                     </div>
                     <!-- 已完成图标 -->
@@ -118,7 +118,7 @@
                         <!-- 待审核时显示 -->
                         <span v-if="status==0" class="border-btn" @click="cancelOrder">取消订单</span>
                         <span class="border-btn" @click="goStoreGold">再来一单</span>
-                        <span class="border-btn" v-if="status==6">确认订单</span>
+                        <span class="border-btn" v-if="status==6" @click="report_confirm()">确认订单</span>
                         <span class="bg-btn"><a href="tel:4008-196-199">联系客服</a></span>
                     </div>
                 </div>
@@ -151,13 +151,13 @@
             <div class="order-other-info">
                 <p>
                     <span>订单编号</span>
-                    <span>MR2018123455</span>
+                    <span>{{orderInfo.code}}</span>
                 </p>
                 <p>
                     <span>取件地址</span>
                     <span class="user-address">
-                        <b>小可爱   13520841445</b><br/>
-                        <b class="address">北京市海淀区海淀北一街中关村SOHO1209室中关村SOHO1209室</b>
+                        <b>{{orderInfo.address.contact}} &nbsp;&nbsp;&nbsp;&nbsp;{{orderInfo.address.mobile}}</b><br/>
+                        <b class="address">{{orderInfo.address.address}}</b>
                     </span>
                 </p>
                 <p>
@@ -169,30 +169,30 @@
             <div class="delivery-info-wrap">
                 <h4>物流信息</h4>
                 <ul class="outer-delivery-list">
-                    <li class="outer-delivery-item" v-for="(item,index) in stepList" :key="index">
-                        <div class="item-title" @click="showDelivery(index)">
-                            <span>包裹1——物流中</span>
+                    <li class="outer-delivery-item" v-for="(item,index) in packageList" :key="index">
+                        <div class="item-title" @click="showDelivery(index,item.expressCode)">
+                            <span>
+                                <b :class="{'success':packagejson[item.stateCode].type==2,'error':packagejson[item.stateCode].type==3}"></b>
+                                包裹{{index+1}} — {{packagejson[item.stateCode].name}}
+                            </span>
                             <span class="show-more" :class="{'rotate':index==deliveryNum}"></span>
                         </div>
                         <!-- 隐藏掉的具体物流信息 -->
                         <div class="hideDelivery" :class="{'showDelivery':index==deliveryNum}">
-                            <p style="margin-bottom:.3rem;font-size:.26rem">异常原因：吧啦吧啦吧啦～～</p>
+                            <p class="error" v-if="packagejson[item.stateCode].type==3">异常原因：吧啦吧啦吧啦～～</p>
                             <div class="item-detail">
                                 <p>快递公司：顺丰快递</p>
-                                <p>快递单号：123456789</p>
+                                <p>快递单号：{{item.expressCode}}</p>
                             </div>
                             <div class="delivery-point">
-                                <mt-spinner type="triple-bounce" v-if="!deliveryStatus" color="#C09C60"></mt-spinner>
-                                <ul class="inner-delivery-list" v-else-if="deliveryStatus && !deliveryError">
+                                <ul class="inner-delivery-list">
                                     <div class="line"></div>
                                     <li class="inner-delivery-item" :class="{'recent':index==0}"v-for="(item,index) in deliveryList" :key="index">
                                         <span class="time">{{item.time | changeTime}}</span>
                                         <span class="dot" :class="{'recent-icon':index==0}"></span>
-                                        <span class="text">{{item.status}}</span>
+                                        <span class="text">{{item.state}}</span>
                                     </li>
                                 </ul>
-                                <!-- 查询不到物流信息时显示 -->
-                                <p v-else class="deliveryError">物流信息出错啦，您可联系客服进行沟通<br/>客服电话：4008-196-199</p>
                             </div>
                         </div>
                     </li>
@@ -200,7 +200,11 @@
             </div>
             <!-- part4:检测中样式 -->
             <div class="detection-ing" v-if="status==4">
-                <div class="left-img"></div>
+                <div class="left-image">
+                    <img src="static/images/jiance1.png" alt="" class="jiance1">
+                    <img src="static/images/jiance2.png" alt="" class="jiance2">
+                    <img src="static/images/jiance3.png" alt="" class="jiance3">
+                </div>
                 <div class="right-text">
                     <h3>正在检测中</h3>
                     <p>请静候佳音～</p>
@@ -213,36 +217,36 @@
                     <h4>订单信息</h4>
                     <p>
                         <span>订单编号</span>
-                        <span>MR12345555666</span>
+                        <span>{{orderInfo.code}}</span>
                     </p>
                     <p>
                         <span>实收总额</span>
-                        <span style="color:#C09C60">10000.00元</span>
+                        <span style="color:#C09C60">元</span>
                     </p>
                     <div class="detail-info" :class="{'showOrderList':orderDetailStatus}">
                         <p>
                             <span>卖金总额</span>
-                            <span>10000.00元</span>
+                            <span>元</span>
                         </p>
                         <p>
                             <span>物流费</span>
-                            <span>0.00元</span>
+                            <span>{{reportInfo.expressFee}}元</span>
                         </p>
                         <p>
-                            <span>保险费</span>
-                            <span>0.00元</span>
+                            <span>保价费</span>
+                            <span>{{reportInfo.insuranceFee}}元</span>
                         </p>
                         <p>
                             <span>检测费</span>
-                            <span>0.00元</span>
+                            <span>{{reportInfo.detectionFee}}元</span>
                         </p>
                         <p>
                             <span>手续费</span>
-                            <span>0.00元</span>
+                            <span>{{reportInfo.serviceFee}}元</span>
                         </p>
                         <p>
                             <span>优惠金额</span>
-                            <span>0.00元</span>
+                            <span>{{reportInfo.discountAmount}}元</span>
                         </p>
                     </div>
                     <div class="show-more-btn" @click="showList(1)">
@@ -256,33 +260,33 @@
                     <h4>检测信息</h4>
                     <p>
                         <span>实测总毛重</span>
-                        <span>10.00克</span>
+                        <span>{{reportInfo.grossWeight|formatPriceTwo}}克</span>
                     </p>
                     <p>
                         <span>成色</span>
-                        <span>999.9‰</span>
+                        <span>{{reportInfo.colour}}‰</span>
                     </p>
                     <p>
                         <span>实测总净重</span>
-                        <span>10.00克</span>
+                        <span>{{reportInfo.suttleWeight}}克</span>
                     </p>
                     <!-- 检测报告详情 -->
                     <div class="detail-info" :class="{'showOrderList':reportListStatus}">
                         <p>
                             <span>实收金价</span>
-                            <span>10000.00元/克</span>
+                            <span>{{reportInfo.price}}元/克</span>
                         </p>
                         <p>
                             <span>检测结果</span>
-                            <span style="color:#C09C60">合格</span>
+                            <span style="color:#C09C60">{{reportInfo.resultCode=="success"?'合格':'不合格'}}</span>
                         </p>
                         <p>
                             <span>检测员</span>
-                            <span>小可爱</span>
+                            <span>{{reportInfo.operator}}</span>
                         </p>
                         <p>
                             <span>检测时间</span>
-                            <span>2018-11-26 12:12:12</span>
+                            <span>{{reportInfo.operateTime}}</span>
                         </p>
                         <!-- 检测明细 -->
                         <div class="report-detail">
@@ -292,27 +296,27 @@
                             </h4>
                             <!-- 具体检测明细列表 -->
                             <ul class="report-more-detail" :class="{'showReportDetail':reportDetialStatus}">
-                                <li class="more-detail-item" v-for="(item,index) in stepList">
+                                <li class="more-detail-item" v-for="(item,index) in reportDetailInfo">
                                     <p class="title" @click="showEachReport(index)">
-                                        <span>产品1——卖金总额：330.36元</span>
+                                        <span>产品{{index+1}}——卖金总额：{{item.amount|formatPriceTwo}}元</span>
                                         <span class="show-more" :class="{'rotate':index==eachReportNum}"></span>
                                     </p>
                                     <div class="list" :class="{'showEachReport':index==eachReportNum}">
                                         <p>
                                             <span>检测编号</span>
-                                            <span>MR12345678901234</span>
+                                            <span>{{item.code}}</span>
                                         </p>
                                         <p>
                                             <span>产品名称</span>
-                                            <span>金条</span>
+                                            <span>{{item.goodsTypeCode=="jewelry"?'首饰':'金条'}}</span>
                                         </p>
                                         <p>
                                             <span>质量</span>
-                                            <span>12克</span>
+                                            <span>{{item.grossWeight|formatPriceTwo}}克</span>
                                         </p>
                                         <p>
                                             <span>黄金含量</span>
-                                            <span>999.9‰</span>
+                                            <span>{{item.colour}}‰</span>
                                         </p>
                                     </div>
                                 </li>
@@ -345,8 +349,8 @@
                             <span class="dot" :class="{'recent-icon':index==0}"></span>
                         </div>
                         <div class="right-text" :class="{'recent':index==0}">
-                            <p class="progress">{{item.name}}</p>
-                            <p class="time">{{item.time}}</p>
+                            <p class="progress">{{item.remark}}</p>
+                            <p class="time">{{item.createTime}}</p>
                         </div>
                     </li>
                 </ul>
@@ -365,22 +369,33 @@
                 </div>
             </div>
         </mt-popup>
+        <!-- 确认检测报告中弹窗 -->
+        <mt-popup v-model="popupVisible1" popup-transition="popup-fade" :closeOnClickModal="false">
+            <div class="order-popup-wrap">
+                <div class="top-img">
+                    <img src="static/images/report-inner.png" alt="">
+                    <img src="static/images/report-outer.png" alt="">
+                </div>
+                <h4>订单确认中，请稍后...</h4>
+            </div>
+        </mt-popup>
     </div>
 </template>
 
 <script>
 import headTop from '@/components/header/head.vue'
 import { MessageBox,Toast,Spinner } from 'mint-ui';
-import { query_detail, query_card_info,update_status} from '@/service/getData.js'
+import { query_detail, query_card_info,update_status,report_confirm,query_logistics_mess,query_express_mess,query_status_flow_mess,query_process_mess,query_report_detail,confirm_order} from '@/service/getData.js'
 
     export default {
         data(){
             return{
                 showStatus:true,         // 是否显示主体内容
                 orderId:'2c9380976757fe34016758261b1d0004',              // 订单ID
-                status:4,                // 订单当前状态
+                status:6,                // 订单当前状态
                 popupVisible:false,      // 禁止取消订单弹窗
-                deliveryStatus:true,
+                popupVisible1:false,     // 确认检测报告中弹窗
+                deliveryStatus:true,     // 物流数据是否请求成功
                 deliveryError:false,     // 物流信息出错
                 deliveryNum:-1,          // 展开物流详情
                 orderDetailStatus:false, // 订单信息显示、隐藏
@@ -416,43 +431,116 @@ import { query_detail, query_card_info,update_status} from '@/service/getData.js
                     '11':{name:'已失效',status:0,iconType:'',beforeStatus:1},
                     '12':{name:'物流异常',status:0,iconType:'',beforeStatus:1},
                     '13':{name:'已关闭',status:4,iconType:4,beforeStatus:1},
+                },              // 进度icon              // 进度icon对应图标
+                packagejson:{            // 物流状态(doing,success)
+                    'doing':{'name':'物流中','type':1},
+                    'success':{'name':'已收件','type':2},
+                    'failure':{'name':'包裹异常','type':3},
                 },
-                orderInfo:'',            // 订单详情数据
-                bankInfo:{             // 未支付银行卡信息
+                orderInfo:{
+                    code:'MR181127140821571339',
+                    weight:2.3,
+                    count:4,
+                    price:278.12,
+                    amount:52000.23,
+                    discountAmount:13.14,
+                    paidAmount:520.1314,
+                    createTime:'2018-08-20 12:12:12',
+                    address:{
+                        contact:'张艺兴',
+                        mobile:13520842445,
+                        address:'中国北京市朝阳区中关村'
+                    }
+                },                      // 订单详情数据
+                bankInfo:{               // 未支付银行卡信息
                     code:'0820',
                     name:'中国工商银行'
                 },
+                reportInfo:{             // 检测报告信息
+                    grossWeight:12,
+                    colour:999,
+                    suttleWeight:23.3,
+                    price:278.12,
+                    serviceFee:12,
+                    detectionFee:13,
+                    expressFee:14,
+                    insuranceFee:15,
+                    discountAmount:16,
+                    amount:17,
+                    operator:'小可爱',
+                    operateTime:'2018-12-12 12;12;12',
+                    resultCode:'success',
+                    reportPaths:[],
+                },
+                reportDetailInfo:[       // 检测报告明细数组
+                    {
+                        code:'MR2018123455',
+                        goodsTypeCode:'jewelry',
+                        grossWeight:12.12,
+                        colour:9999,
+                        amount:520.12
+                    },
+                    {
+                        code:'MR2018123455',
+                        goodsTypeCode:'bar',
+                        grossWeight:12.12,
+                        colour:9999,
+                        amount:520.12
+                    },
+                    {
+                        code:'MR2018123455',
+                        goodsTypeCode:'jewelry',
+                        grossWeight:12.12,
+                        colour:9999,
+                        amount:520.12
+                    },
+
+                ],
+                packageList:[            // 包裹列表
+                    {
+                        expressCode:'1234567',
+                        stateCode:'doing'
+                    },
+                    {
+                        expressCode:'1234567',
+                        stateCode:'success'
+                    },
+                    {
+                        expressCode:'1234567',
+                        stateCode:'failure'
+                    },
+                ],
                 deliveryList:[
                     {
                         time:'2018-12-12 12:12:12',
-                        status:'快递已发货'
+                        state:'快递已发货'
                     },
                     {
                         time:'2018-12-12 12:12:12',
-                        status:'浙江省金华市义务中转站公司  已发出，下一站北京运转中心'
+                        state:'浙江省金华市义务中转站公司  已发出，下一站北京运转中心'
                     },
                     {
                         time:'2018-12-12 12:12:12',
-                        status:'快递已发货'
+                        state:'快递已发货'
                     },
-                ],
+                ],          // 具体物流信息
                 newTrackList:[
                     {
-                        'name':'订单已提交审核',
-                        'time':'2018-2-12 12:12:12',
+                        'remark':'订单已提交审核',
+                        'createTime':'2018-2-12 12:12:12',
                         'status':1,
                     },
                     {
-                        'name':'订单已提交审核',
-                        'time':'2018-2-12 12:12:12',
+                        'remark':'订单已提交审核',
+                        'createTime':'2018-2-12 12:12:12',
                         'status':1,
                     },
                     {
-                        'name':'订单已提交审核',
-                        'time':'2018-2-12 12:12:12',
+                        'remark':'订单已提交审核',
+                        'createTime':'2018-2-12 12:12:12',
                         'status':1,
                     },
-                ]
+                ]          // 订单追踪信息
             }
         },
         filters:{
@@ -469,11 +557,13 @@ import { query_detail, query_card_info,update_status} from '@/service/getData.js
         },
         methods: {
             // 物流包裹显示、隐藏
-            showDelivery(index){
+            showDelivery(index,expressCode){
                 if(this.deliveryNum == index){
                     this.deliveryNum = -1
                 }else{
-                    this.deliveryNum = index
+                    this.deliveryNum = index;
+                    this.deliveryList = [];
+                    this.query_express_mess(expressCode);
                 }
             },
             // 各项列表显示、隐藏
@@ -566,6 +656,40 @@ import { query_detail, query_card_info,update_status} from '@/service/getData.js
                 },1000);
 
             },
+            // 点击确认订单
+            report_confirm(){
+                var that = this;
+                this.popupVisible1 = true;
+                setTimeout(function(){
+                    that.confirm_order();
+                },2000)
+            },
+            // 顶部显示文字
+            showStepTips(){
+                var text0 = '<p>您的订单已创建，银行正在处理中，最终支付结果以银行实际处理结果为准哦～</p>';
+                var text1 = '<p>我们正在马不停蹄地审核您的订单哦，审核结果将在2个工作日内通知到您！请耐心等待～</p>';
+                var text2 = '<p>恭喜您，订单审核通过！我们已经安排快递小哥上门取件，请留意接听取件电话哦～</p>';
+                var text3 = '<p>您的宝贝已经取到，快递小哥正在用心传递速度送往深圳众恒隆进行检测～</p>'
+                var text4 = '<p>我们已经收到您的宝贝啦～专业检测师紧锣密鼓的开工了！1个工作日内就会有结果哦！</p>';
+
+                var text5 = `<p>万事具备，只欠东风，您确认下方订单信息后，宝贝将成功卖出，同时您将得到实收总额 %金额% 元（若您未及时确认，系统72小时内自动确认）。</p>`;
+                var text6 = `<p>您已确认订单， 实收总额 ${this.orderId} 元将在T+1个工作日内发放到您的${this.orderId}${this.orderId} 银行卡中，记得查收哦～</p>`;
+                var text7 = `<p>订单已确认，实收总额 %金额% 元将在T+1个工作日内发放到您 ${this.orderId}${this.orderId} 银行卡中，记得查收哦～</p>`;
+                var text8 = `<p>实收总额 ${this.orderId} 元已发放到您的 ${this.orderId}${this.orderId} 银行卡中，记得查收哦～（具体到账时间以银行为准）</p>`;
+
+                var text9 = '<p>由于您长时间未支付，订单已关闭～您可以重新发起订单，风里雨里，我们在这里等你！~</p>'
+                var text10 = '<p>您的订单已取消～您可以重新发起订单，风里雨里，我们在这里等你！</p>'
+                var text11 = '<p>您的订单已取消，保证金正在急速退还中～您可以重新发起订单，风里雨里，我们在这里等你！</p>'
+                var text12 = '<p>平台已为您取消订单～您可以重新发起订单，风里雨里，我们在这里等你！</p>'
+                var text13 = '<p>平台已为您取消订单，保证金正在急速退还中～您可以重新发起订单，风里雨里，我们在这里等你！</p>'
+                var text14 = '<p>订单已退款完成，请注意查收保证金到账情况～您可以重新发起订单，风里雨里，我们在这里等你！</p>';
+
+                var text15 = `<p>抱歉哦，您的订单未通过审核，原因：${this.orderId}</p>`;
+                var text16 = `<p>抱歉哦，您的订单未通过审核，原因：${this.orderId}。您支付的保证金正在急速退还中~</p>`;
+                var text17 = `<p>抱歉哦，您的订单未通过审核，原因：${this.orderId}。您支付的保证金正在急速退还中~</p>`;
+
+
+            },
             // 请求银行卡信息
             async query_card_info(){
                 var res = await query_card_info();
@@ -577,24 +701,65 @@ import { query_detail, query_card_info,update_status} from '@/service/getData.js
             async update_status(){
                 var res = await update_status(this.orderId);
                 if(res.code=='000000'){
-                    this.query_detail(); // 取消成功后再次调用详情数据
+                    // this.query_detail(); // 取消成功后再次调用详情数据
                 }else{
                     Toast(res.message)
                 }
             },
-            // 请求订单详情
+            // 订单确认函数
+            async confirm_order(){
+                var res = await confirm_order(this.orderId);
+                if(res.code=='000000'){
+                    this.popupVisible1 = false;
+                    this.query_detail(); // 刷新页面
+                }else{
+                    this.popupVisible1 = false;
+                    Toast('确认失败，请稍后重试～')
+                }
+            },
+            // 请求订单详情数据
             async query_detail(){
                 var res = await query_detail(this.orderId)
                 if(res.code=='000000'){
                     this.orderInfo = res.data
                 }
-            }
+            },
+            // 请求物流单号
+            async query_logistics_mess(typeNum){
+                var res = await query_logistics_mess(this.orderId) // type:0-取货；1-退货
+                if(res.code=='000000'){
+
+                }else{
+                    Toast(res.message)
+                }
+            },
+            // 查询具体物流信息
+            async query_express_mess(expressCode){
+                var res = await query_express_mess(expressCode);
+                if(res.code=='000000'){
+                    this.deliveryList = res.data.result.list;
+                }else{
+                    Toast({
+                        message:res.message,
+                        position:'bottom'
+                    })
+                }
+            },
+            // 查询订单追踪
+            async query_status_flow_mess(){
+                var res = await query_status_flow_mess(this.orderId);
+                if(res.code=='000000'){
+                    this.newTrackList = res.data;
+                }else{
+                    Toast(res.message)
+                }
+            },
         },
         created(){
 
         },
         mounted(){
-            this.query_detail();
+            // this.query_detail();
             this.countDown('2018-11-28 12:08');
         },
     }
@@ -803,8 +968,9 @@ import { query_detail, query_card_info,update_status} from '@/service/getData.js
             background-color: #fff;
             margin-bottom: .2rem;
             .info-text{
+                position: relative;
                 @include flex-box();
-                @include justify-content();
+                // @include justify-content();
                 .left-img{
                     width: 1.2rem;
                     height: 1.2rem;
@@ -832,10 +998,13 @@ import { query_detail, query_card_info,update_status} from '@/service/getData.js
                     font-size: .32rem;
                     font-family:PingFang-SC-Medium;
                     font-weight:500;
+                    margin-left:.2rem;
                 }
                 .order-end-icon{
                     width: 1.44rem;
                     height: 1.44rem;
+                    position: absolute;
+                    right:0;
                     @include bg-image('/static/images/order-wancheng-icon.png');
                 }
             }
@@ -1081,12 +1250,17 @@ import { query_detail, query_card_info,update_status} from '@/service/getData.js
             h4{
                 color: #333;
                 font-size: .32rem;
-                padding:.3rem 0;
+                padding:.25rem 0;
             }
             .outer-delivery-list{
+
                 .outer-delivery-item{
                     color: #666;
                     font-size: .28rem;
+                    border-bottom: 1px solid #eee;
+                    &:last-child{
+                        border-bottom: none;
+                    }
                     .item-title{
                         height: .86rem;
                         line-height: .86rem;
@@ -1095,7 +1269,27 @@ import { query_detail, query_card_info,update_status} from '@/service/getData.js
                         @include justify-content();
                         span{
                             font-size: .28rem;
+                            &:nth-of-type(1){
+                                align-items: center;
+                                @include flex-box();
+                            }
+                            b{
+                                margin-right:.15rem;
+                                margin-bottom: .05rem;
+                                @include inline-block(.4rem,.4rem);
+                                @include bg-image('/static/images/delivery-doing-icon.png');
+                            }
+                            .success{
+                                @include bg-image('/static/images/delivery-success-icon.png');
+                            }
+                            .error{
+                                @include bg-image('/static/images/delivery-fail-icon.png');
+                            }
                         }
+                    }
+                    .error{
+                        margin-bottom:.3rem;
+                        font-size:.26rem
                     }
                     .item-detail{
                         font-size: .26rem;
@@ -1165,8 +1359,46 @@ import { query_detail, query_card_info,update_status} from '@/service/getData.js
             }
         }
         .detection-ing{
-            padding:.6rem 0;
-            @extend .order-closed
+            padding:.4rem 0;
+            @extend .order-closed;
+            .left-image{
+                width: 1.5rem;
+                height: 1.5rem;
+                position: relative;
+                img{
+                    display: inline-block;
+                    position: absolute;
+                }
+                @keyframes scaleLoop1{
+                    0%{ transform: scale(1); }
+                    50%{ transform: scale(1.1); }
+                    100%{ transform: scale(1); }
+                }
+                @keyframes patt4{
+                     0%{ transform: rotate(-2deg);}
+                     50%{ transform: rotate(1deg);}
+                     100%{ transform: rotate(-2deg);}
+                }
+                .jiance1{
+                    z-index:3;
+                    animation: scaleLoop1 1s infinite;
+                }
+                .jiance2{
+                    width:.9rem;
+                    height: .9rem;
+                    overflow: hidden;
+                    left:.21rem;
+                    top:.13rem;
+                    z-index:2;
+                    animation: patt4 .3s infinite;
+                }
+                .jiance3{
+                    z-index:1;
+                }
+            }
+            .right-text{
+                margin-bottom: .3rem;
+            }
         }
         .wait-confirm{
             .order-info{
@@ -1416,6 +1648,44 @@ import { query_detail, query_card_info,update_status} from '@/service/getData.js
                 @include bg-image('/static/images/refresh-icon.png');
             }
         }
+    }
+}
+.order-popup-wrap{
+    width: 4.9rem;
+    text-align: center;
+    padding-bottom: .5rem;
+    background-color: #fff;
+    @include border-radius(4px);
+
+    @keyframes roundLoop2{
+        0%{ transform: rotate(0deg); }
+        100%{ transform: rotate(360deg); }
+    }
+    .top-img{
+        width: 1.08rem;
+        height: 1.08rem;
+        margin:.4rem auto;
+        position: relative;
+        img{
+            &:nth-of-type(1){
+                width:100%;
+                position: absolute;
+                top:0;
+                left:0;
+            }
+            &:nth-of-type(2){
+                animation: roundLoop2 .7s linear infinite;
+            }
+        }
+    }
+    h4{
+        color: #333;
+        font-size: .3rem;
+    }
+    p{
+        color: #999;
+        font-size: .24rem;
+        margin-top:.15rem;
     }
 }
 </style>

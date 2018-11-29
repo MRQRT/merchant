@@ -333,24 +333,28 @@ export const query_status = (orderId) => fetch('/order/query_status?orderId='+or
  */
 
 export const query_list = (page,size) => fetch('/order/query_list?page='+page+'&size='+size,{},'get');
+// export const query_list = (page,size) => fetch('/order?page='+page+'&size='+size,{},'get');
 
 /**
  * 查看订单详情
  */
 
 export const query_detail = (orderId) => fetch('/order/query_detail?orderId='+orderId,{},'get');
+// export const query_detail = (id) => fetch('/order?id='+id,{},'get');
 
 /**
  * 查询物流信息(快递单号、编码)
  */
 
 export const query_logistics_mess = (orderId,type) => fetch('/logistics/query_logistics_mess?orderId='+orderId+'&type='+type,{},'get');
+// export const query_logistics_mess = (id) => fetch('/order/express?id='+id,{},'get');
 
 /**
  * 查询快递信息
  */
 
 export const query_express_mess = (expressNo,expressCode) => fetch('/logistics/query_express_mess?expressNo='+expressNo+'&expressCode='+expressCode,{},'get');
+// export const query_express_mess = (code) => fetch('/express/route?code='+code,{},'get');
 
 
 /**
@@ -358,6 +362,14 @@ export const query_express_mess = (expressNo,expressCode) => fetch('/logistics/q
  */
 
 export const query_process_mess = (orderId) => fetch('/order/query_process_mess?orderId='+orderId,{},'get');
+// export const query_process_mess = (id) => fetch('/order/detection?id='+id,{},'get');
+
+
+/**
+ * 查询检测报告明细
+ */
+
+export const query_report_detail = (id) => fetch('/order/goods/detection?id='+id,{},'get');
 
 
 /**
@@ -365,6 +377,7 @@ export const query_process_mess = (orderId) => fetch('/order/query_process_mess?
  */
 
 export const query_status_flow_mess = (orderId) => fetch('/order_flow/query_status_flow_mess?orderId='+orderId,{},'get');
+// export const query_status_flow_mess = (id) => fetch('/order/operate?id='+id,{},'get');
 
 /**
  * 确认订单(用户确认检测报告)

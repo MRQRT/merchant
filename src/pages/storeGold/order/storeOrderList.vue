@@ -21,31 +21,30 @@
                     bottomPullText="上滑加载更多" bottomDropText="松开加载" ref="loadmore" class="loadmore">
                     <ul class="order-list">
                         <li class="order-item" v-for="(item,index) in orderList" :key="index" @click="goOrderDetail(item)">
+                            <span class="lock-price-icon" v-if="item.lockprice"></span>
                             <!-- 左侧图片 -->
                             <div class="left-img">
-                                <img src="static/images/order-jintiao.png" alt="" v-if="item.productType==0">
-                                <img src="static/images/order-shiping.png" alt="" v-else>
+                                <img src="static/images/order-info-basic.png" alt="">
                             </div>
                             <!-- 右侧文字 -->
                             <div class="right-text">
                                 <!-- 变现or存入克重 -->
                                 <div class="trade-type">
-                                    <div class="left">
-                                        <span>{{item.cash ? '直接变现' : '存入克重'}}</span>
-                                        <span class="lock-price" v-if="item.lockprice"></span>
-                                    </div>
                                     <div class="right">
                                         <span class="status" :class="{'overStatus':item.status==1 ||item.status==8 || item.status==11 || item.status==13}">{{statusJson[item.status].name}}</span>
                                     </div>
                                 </div>
                                 <!-- 订单信息 -->
                                 <div class="bottom-info">
-                                    <div class="orderNo">
+                                    <!-- <div class="orderNo">
                                         <b>订单编号：</b>{{item.code}}
-                                    </div>
+                                    </div> -->
+                                    <div class="">总克重：{{item.applyWeight}}克</div>
+                                    <div class="">数&nbsp;&nbsp;量：{{item.count}}</div>
                                     <div class="ensure-cash" v-if="item.lockprice">保证金：{{item.ensureCash | formatPriceTwo}}元</div>
                                     <div class="weight-time">
-                                        <span>总克重：{{item.applyWeight}}克</span>
+                                        <span style="color:#C09C60">实收总额：{{11111 | formatPriceTwo}}元</span>
+                                        <span></span>
                                         <span>{{item.createTimeStr | deleteSec}}</span>
                                     </div>
                                 </div>
@@ -429,6 +428,7 @@ import { Indicator,Toast } from 'mint-ui';
                 margin-top:.2rem;
                 font-family:PingFangSC-Regular;
                 background-color: #fff;
+                position: relative;
                 @include flex-box();
                 .left-img{
                     width: 1.5rem;
@@ -444,6 +444,13 @@ import { Indicator,Toast } from 'mint-ui';
                     flex-direction: column;
                     @include flex-box();
                     @include justify-content();
+                }
+                .lock-price-icon{
+                    @include inline-block(.64rem,.64rem);
+                    @include bg-image('/static/images/order-right-lock.png');
+                    position: absolute;
+                    left:0;
+                    top:0;
                 }
                 .trade-type{
                     margin-top:-.05rem;
