@@ -2,8 +2,8 @@
     <div class="storeGold">
         <!-- 头部标题部分 -->
         <head-top headTitle='填写存金订单' class="head-top nomal-font" ref="topHead">
-            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.push('/index')">
-            <span slot="custom" class="custom" @click="showPopup(0)">存金说明</span>
+            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="goBack">
+            <span slot="custom" class="custom" @click="showPopup(0)">业务说明</span>
         </head-top>
         <!-- 主体部分 -->
         <div class="main-cont" v-show="!popupVisible">
@@ -138,33 +138,44 @@
         <!-- 各类弹窗 -->
         <div class="stor_box" v-show="popupVisible">
             <!-- 存金说明 -->
-            <div class="inner-box" v-show="popupNum==0">
-                <p class="priceTitle">存金说明</p>
+            <div class="inner-box yw-info" v-show="popupNum==0">
+                <p class="priceTitle">业务说明</p>
                 <div class="content" style="margin-top:.4rem;">
                     <div class="mess">
-                        <p>1. 重量大于10g，运费、保价费、检测费全免。</p>
+                        <h4>1. 上门取件，全程保价：</h4>
+                        <p>您提交的黄金回收订单产生的快递费和保价费将由您自己承担，该部分费用在确认订单后收取；在回收下单页面提交黄金物品信息与实际收到的实物信息不符导致交易失败，退回的运费及保价费（按实际发生）由您承担。</p>
                     </div>
                 </div>
                 <div class="content" style="margin-top:.5rem;">
                     <div class="mess">
-                        <p>2. 存入的黄金克重可以直接变现至绑定银行卡，（价格随金价波动变化）。</p>
+                        <h4>2. 预估金额，一键查询:</h4>
+                        <p>由于黄金价格实时波动，预估金额仅供参考。</p>
                     </div>
                 </div>
                 <div class="content" style="margin-top:.5rem;">
                     <div class="mess">
-                        <p>3. 存金通按照上海黄金交易所的实时金价回收，并收取少量手续费：各类投资金手续费0.8元/克，黄金饰品1.2元/克。</p>
+                        <h4>3. 回收手续费，了如指掌：</h4>
+                        <p>回收黄金会收取一定的回收手续费，各类投资金（按照实际成色换算成99.99%）手续费为0.8元/克。黄金饰品（按照实际成色换算成99.99%）手续费为1.2元/克。如遇费用调整，按照公告规则计算。</p>
                     </div>
                 </div>
                  <div class="content" style="margin-top:.5rem">
                     <div class="mess">
-                        <p>4. 如提交的存金信息与实际检测结果不符，与用户协商未达成一致时导致交易失败，退回的运费及保价费（按实际发生）由用户承担。</p>
+                        <h4>4. 检测报告，权威可信：</h4>
+                        <p>办理黄金回收业务时，我们需要进行破坏性检测，您须放弃该黄金的实物形态。检测结束后我们将为您提供检测报告，检测报告的结果经您确认后，将作为最终的依据确定实际黄金克重。</p>
                     </div>
                 </div>
                  <div class="content" style="margin-top:.5rem">
                     <div class="mess">
-                        <p>5. 由于黄金价格实时波动，预估金额仅供参考。</p>
+                        <h4>5. 一键锁价，收益安心：</h4>
+                        <p>您可提交锁价订单，该笔订单将按照锁价的金价进行结算。锁价订单需要预先支付10%的保证金，在订单完成后退回。若订单出现异常情况，退回保证金金额将视具体情况而定。</p>
                     </div>
                 </div>
+                <div class="content" style="margin-top:.5rem">
+                   <div class="mess">
+                       <h4>6、价格透明，实时变现：</h4>
+                       <p>在创建黄金回收订单时，我们会按照经您确认的检测结果中的实际黄金克重，以您的订单的上传检测报告时的上海黄金交易所实时黄金价格，扣除相应的手续费后，转入您的银行卡中。</p>
+                   </div>
+               </div>
             </div>
             <!-- 金价说明 -->
             <div class="inner-box" v-show="popupNum==1">
@@ -333,6 +344,14 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
             ...mapMutations([
                 'RECORD_SHOPSTATUS','RECORD_ACCESSTOKEN','RECORD_STOREORDERINFO'
             ]),
+            // 返回按钮
+            goBack(){
+                if(this.popupVisible){
+                    this.popupVisible = false;
+                }else{
+                    this.$router.push('/index')
+                }
+            },
             //存金说明弹框
 			showPopup(num){
 				this.popupVisible = true;
@@ -1366,6 +1385,20 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
         flex-direction: column;
         @include flex-box();
         @include justify-content();
+
+        .yw-info{
+            // height: 11rem;
+            overflow: scroll;
+            h4{
+                color: #222;
+                margin-bottom: .1rem;
+            }
+            .mess{
+                // p{
+                //     text-indent: 2em;
+                // }
+            }
+        }
 
         .priceTitle{
         	font-size: .38rem;
