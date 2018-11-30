@@ -20,7 +20,7 @@
                 <mt-loadmore :bottom-method="loadBottom" :bottom-all-loaded="allLoaded" :auto-fill="false"
                     bottomPullText="上滑加载更多" bottomDropText="松开加载" ref="loadmore" class="loadmore">
                     <ul class="order-list">
-                        <li class="order-item" v-for="(item,index) in orderList" :key="index" @click="goOrderDetail(item)">
+                        <li class="order-item" v-for="(item,index) in orderList" :key="index" @click="goOrderDetail(item)" :class="{'shadow':item.status==6}">
                             <span class="lock-price-icon" v-if="item.lockprice"></span>
                             <!-- 左侧图片 -->
                             <div class="left-img">
@@ -31,21 +31,20 @@
                                 <!-- 变现or存入克重 -->
                                 <div class="trade-type">
                                     <div class="right">
-                                        <span class="status" :class="{'overStatus':item.status==1 ||item.status==8 || item.status==11 || item.status==13}">{{statusJson[item.status].name}}</span>
+                                        <span class="status-icon" v-if="item.status==7"></span>
+                                        <span class="status" v-else :class="{'overStatus':item.status==1 ||item.status==8 || item.status==11 || item.status==13}">{{statusJson[item.status].name}}</span>
                                     </div>
                                 </div>
                                 <!-- 订单信息 -->
                                 <div class="bottom-info">
-                                    <!-- <div class="orderNo">
-                                        <b>订单编号：</b>{{item.code}}
-                                    </div> -->
-                                    <div class="">总克重：{{item.applyWeight}}克</div>
-                                    <div class="">数&nbsp;&nbsp;量：{{item.count}}</div>
-                                    <div class="ensure-cash" v-if="item.lockprice">保证金：{{item.ensureCash | formatPriceTwo}}元</div>
                                     <div class="weight-time">
-                                        <span style="color:#C09C60">实收总额：{{11111 | formatPriceTwo}}元</span>
-                                        <span></span>
-                                        <span>{{item.createTimeStr | deleteSec}}</span>
+                                        <div class="left-info">
+                                            <div class="total-weight">总&nbsp;克&nbsp;重：{{item.applyWeight}}克</div>
+                                            <div class="count">数&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;量：{{item.count}}</div>
+                                            <div class="ensure-cash" v-if="item.lockprice">保&nbsp;证&nbsp;金：{{item.ensureCash | formatPriceTwo}}元</div>
+                                            <div class="total-amount" v-if="item.lockprice && (item.status==6 || item.status==7)">实收总额：{{11111 | formatPriceTwo}}元</div>
+                                        </div>
+                                        <div class="right-time">{{item.createTimeStr | deleteSec}}</div>
                                     </div>
                                 </div>
                             </div>
@@ -420,6 +419,11 @@ import { Indicator,Toast } from 'mint-ui';
         overflow: scroll;
         padding-top:.88rem;
         .order-list{
+            .shadow{
+                width: 99% !important;
+                margin:0 auto;
+                @include box-shadow(8px 6px 24px rgba(0,0,0,0.06));
+            }
             .order-item{
                 width:100%;
                 padding:.3rem .4rem;
@@ -431,8 +435,8 @@ import { Indicator,Toast } from 'mint-ui';
                 position: relative;
                 @include flex-box();
                 .left-img{
-                    width: 1.5rem;
-                    height: 1.5rem;
+                    width: 1.2rem;
+                    height: 1.2rem;
                     margin-right:.25rem;
                     background-color: #eee;
                     img{
@@ -440,6 +444,7 @@ import { Indicator,Toast } from 'mint-ui';
                     }
                 }
                 .right-text{
+                    position: relative;
                     flex-grow: 2;
                     flex-direction: column;
                     @include flex-box();
@@ -454,29 +459,45 @@ import { Indicator,Toast } from 'mint-ui';
                 }
                 .trade-type{
                     margin-top:-.05rem;
-                    .left{
-                        align-items: center;
-                        @include flex-box();
-                        span{
-                            color: #333;
-                            font-size: .28rem;
-                        }
-                        .lock-price{
-                            display: inline-block;
-                            width: .54rem;
-                            height: .31rem;
-                            margin-left:.1rem;
-                            background-size: 100% 100% !important;
-                            @include bg-image('/static/images/lock-price-icon.png');
-                        }
+                    position: absolute;
+                    right:0;
+                    .status-icon{
+                        @include inline-block(1.3rem,1.3rem);
+                        @include bg-image('/static/images/order-wancheng-icon.png');
                     }
-
                 }
                 .bottom-info{
+                    color: #666;
+                    font-size: .26rem;
                     font-family:PingFangSC-Regular;
                     justify-content: flex-end;
                     flex-direction: column;
                     @include flex-box();
+
+                    .weight-time{
+                        margin-bottom: 0 !important;
+                        align-items: flex-end;
+                        @include flex-box();
+                        .left-info{
+                            div{
+                                margin-bottom: .1rem;
+                                font-size: .26rem;
+                                color: #666;
+                                font-family:PingFang-SC-Regular;
+                                font-weight:400;
+                                &:last-child{
+                                    margin-bottom: 0;
+                                }
+                            }
+                            .total-weight{
+                                margin-top:-.04rem;
+                            }
+                            .total-amount{
+                                color: #C09C60;
+                            }
+                        }
+                    }
+
                 }
                 .trade-type, .weight-time{
                     align-items: center;
@@ -484,6 +505,8 @@ import { Indicator,Toast } from 'mint-ui';
                     @include justify-content();
                     .status{
                         color: #C09C60;
+                        font-size: .32rem;
+
                     }
                     .overStatus{
                         color: #999999;

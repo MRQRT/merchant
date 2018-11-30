@@ -384,6 +384,14 @@ export const query_status_flow_mess = (orderId) => fetch('/order_flow/query_stat
  */
 
 export const confirm_order = (orderId) => fetch('/order/confirm_order',{'orderId':orderId},'post');
+// export const confirm_order = (id) => fetch('/order/confirm',{'id':id},'post');
+
+/**
+ *  取消订单
+ */
+
+export const cancel_order = (id) => fetch('/order/cancel',{'id':id},'post');
+
 
 /**
  * 修改订单(为支付订单超时)

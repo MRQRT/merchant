@@ -6,7 +6,7 @@
         </head-top>
         <!-- 主体内容 -->
         <!-- 待支付订单 -->
-        <div class="main-cont" v-if="status==10" v-show="showStatus">
+        <div class="main-cont" v-if="status==13" v-show="showStatus">
             <!-- 顶部倒计时 -->
             <div class="countDown">
                 <p class="clock-icon"></p>
@@ -74,8 +74,16 @@
         </div>
         <!-- 其他订单状态 -->
         <div class="main-cont" v-else>
+            <!-- part1:顶部倒计时 -->
+            <div class="countDown" v-if="status==10">
+                <p class="clock-icon"></p>
+                <p class="clock-text">
+                    <span>待支付</span>
+                    <span>剩余{{minu}}分钟{{secd}}秒自动关闭</span>
+                </p>
+            </div>
             <!-- part1:顶部进度提示文字 -->
-            <div class="step-tips">
+            <div class="step-tips" v-else>
                 我们正在马不停蹄的审核您的订单哦，审核结果将在2个工作日内通知到您！请耐心等待～～
             </div>
             <!-- part2:订单信息状态部分 -->
@@ -94,14 +102,16 @@
                             <span>数&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;量：</span>
                             <span>{{orderInfo.count}}</span>
                         </p>
-                        <p>
-                            <span>锁定金价：</span>
-                            <span>{{orderInfo.price}}元/克</span>
-                        </p>
-                        <p>
-                            <span>保&nbsp;&nbsp;证&nbsp;金：</span>
-                            <span>100.00元</span>
-                        </p>
+                        <div class="" v-if="orderInfo.lockPrice">
+                            <p>
+                                <span>锁定金价：</span>
+                                <span>{{orderInfo.lockPrice.lockPrice | formatPriceTwo}}元/克</span>
+                            </p>
+                            <p>
+                                <span>保&nbsp;&nbsp;证&nbsp;金：</span>
+                                <span>{{orderInfo.margin.paidAmount | formatPriceTwo}}元</span>
+                            </p>
+                        </div>
                         <p>
                             <span>提交时间：</span>
                             <span>{{orderInfo.createTime}}</span>
@@ -140,9 +150,7 @@
                     'stepSpecial':iconJson[status].status==3 && (index==3 || index==4),
                     'stepClosed':iconJson[status].status==4 && index==4}">
                         <span class="step-icon"></span>
-                        <span class="step-txt" v-if="index==3 && (status==5 || status==9 || status==13)">&nbsp;&nbsp;退货中&nbsp;</span>
-                        <span class="step-txt" v-else-if="index==4 && (status==5 || status==9 || status==13)">订单关闭</span>
-                        <span class="step-txt" v-else>{{item.name}}</span>
+                        <span class="step-txt">{{item.name}}</span>
                         <span class="left-line" :class="{'active-line':status==2 && iconJson[status].iconType==(index -1)}"></span>
                     </li>
                 </ul>
@@ -162,7 +170,7 @@
                 </p>
                 <p>
                     <span>银行卡号</span>
-                    <span class="info-bank">中国工商银行（尾号0123）</span>
+                    <span class="info-bank">{{orderInfo.bankCard.name}}（尾号{{orderInfo.bankCard.code}}）</span>
                 </p>
             </div>
             <!-- part4:物流包裹信息 -->
@@ -179,7 +187,7 @@
                         </div>
                         <!-- 隐藏掉的具体物流信息 -->
                         <div class="hideDelivery" :class="{'showDelivery':index==deliveryNum}">
-                            <p class="error" v-if="packagejson[item.stateCode].type==3">异常原因：吧啦吧啦吧啦～～</p>
+                            <p class="error" v-if="packagejson[item.stateCode].type==3">异常原因：{{item.remark}}</p>
                             <div class="item-detail">
                                 <p>快递公司：顺丰快递</p>
                                 <p>快递单号：{{item.expressCode}}</p>
@@ -221,12 +229,12 @@
                     </p>
                     <p>
                         <span>实收总额</span>
-                        <span style="color:#C09C60">元</span>
+                        <span style="color:#C09C60">{{orderInfo.paidAmount}}元</span>
                     </p>
                     <div class="detail-info" :class="{'showOrderList':orderDetailStatus}">
                         <p>
                             <span>卖金总额</span>
-                            <span>元</span>
+                            <span>{{orderInfo.amount}}元</span>
                         </p>
                         <p>
                             <span>物流费</span>
@@ -355,6 +363,14 @@
                     </li>
                 </ul>
             </div>
+            <!-- part6:待支付底部按钮 -->
+            <div class="pay-btn" v-if="status==10">
+                <div class="left-price">
+                    <span>锁价保证金：</span>
+                    <span>{{orderInfo.margin.paidAmount | formatPriceTwo}}元</span>
+                </div>
+                <div class="right-btn" @click="pay_beforehand_order(1)">支付</div>
+            </div>
         </div>
 
         <!-- 弹窗部分 -->
@@ -364,7 +380,6 @@
                 <h4>提示</h4>
                 <p>订单状态有更新，您暂时不能取消订单，请刷新页面以查看最新订单状态。</p>
                 <div class="btn">
-                    <span @click="closeCancelPopup">取消</span>
                     <span @click="refreshPage"><b></b>刷新</span>
                 </div>
             </div>
@@ -385,14 +400,14 @@
 <script>
 import headTop from '@/components/header/head.vue'
 import { MessageBox,Toast,Spinner } from 'mint-ui';
-import { query_detail, query_card_info,update_status,report_confirm,query_logistics_mess,query_express_mess,query_status_flow_mess,query_process_mess,query_report_detail,confirm_order} from '@/service/getData.js'
+import { query_detail, query_card_info,update_status,report_confirm,query_logistics_mess,query_express_mess,query_status_flow_mess,query_process_mess,query_report_detail,confirm_order,cancel_order} from '@/service/getData.js'
 
     export default {
         data(){
             return{
                 showStatus:true,         // 是否显示主体内容
                 orderId:'2c9380976757fe34016758261b1d0004',              // 订单ID
-                status:6,                // 订单当前状态
+                status:10,                // 订单当前状态
                 popupVisible:false,      // 禁止取消订单弹窗
                 popupVisible1:false,     // 确认检测报告中弹窗
                 deliveryStatus:true,     // 物流数据是否请求成功
@@ -441,16 +456,25 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                     code:'MR181127140821571339',
                     weight:2.3,
                     count:4,
-                    price:278.12,
+                    lockPrice:{
+                        lockPrice:278.12,
+                    },
                     amount:52000.23,
                     discountAmount:13.14,
                     paidAmount:520.1314,
                     createTime:'2018-08-20 12:12:12',
+                    margin:{
+                        paidAmount:1314
+                    },
                     address:{
                         contact:'张艺兴',
                         mobile:13520842445,
                         address:'中国北京市朝阳区中关村'
-                    }
+                    },
+                    bankCard:{
+                        name:'中国招商银行',
+                        code:'0820'
+                    },
                 },                      // 订单详情数据
                 bankInfo:{               // 未支付银行卡信息
                     code:'0820',
@@ -499,7 +523,7 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                 packageList:[            // 包裹列表
                     {
                         expressCode:'1234567',
-                        stateCode:'doing'
+                        stateCode:'doing',
                     },
                     {
                         expressCode:'1234567',
@@ -507,7 +531,8 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                     },
                     {
                         expressCode:'1234567',
-                        stateCode:'failure'
+                        stateCode:'failure',
+                        remark:'包裹异常啦包裹异常啦包裹异常啦包裹异常啦包裹异常啦包裹异常啦包裹异常啦包裹异常啦'
                     },
                 ],
                 deliveryList:[
@@ -605,13 +630,9 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                   closeOnClickModal:false,
               }).then(action => {
                     if(action == 'confirm'){
-                        console.log('确认取消订单')
+                        this.cancel_order();
                     }
               })
-            },
-            // 关闭禁止取消订单弹窗
-            closeCancelPopup(){
-                this.popupVisible = false;
             },
             // 刷新当前页面
             refreshPage(){
@@ -650,8 +671,8 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                         that.minu = '--';
                         that.secd = '--';
                         clearInterval(countdowns);
-                        // 调用取消订单函数
-                        that.update_status();
+                        // 刷新页面
+                        // that.query_detail();
                     }
                 },1000);
 
@@ -704,6 +725,19 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                     // this.query_detail(); // 取消成功后再次调用详情数据
                 }else{
                     Toast(res.message)
+                }
+            },
+            // 取消订单函数
+            async cancel_order(){
+                var that = this;
+                var res = await cancel_order(this.orderId);
+                if(res.code=='000000'){
+                    Toast('订单取消成功～')
+                    setTimeout(function(){
+                        that.query_detail();
+                    },500)
+                }else{
+
                 }
             },
             // 订单确认函数
@@ -852,78 +886,6 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                 }
             }
         }
-        .address-info{
-            width: 100%;
-            padding:.4rem;
-            align-items: center;
-            background-color: #fff;
-            @include flex-box();
-            .left-icon{
-                width: .44rem;
-                height: .44rem;
-                margin-right:.3rem;
-                background-color: #eee;
-                @include bg-image('/static/images/add-icon.png');
-            }
-            .right-text{
-                width:90%;
-                color: #333;
-                font-size: .32rem;
-                .name-tel{
-                    margin-bottom: .2rem;
-                    .name{
-                        margin-right: .2rem;
-                    }
-                }
-                .add{
-                    font-size: .26rem;
-                    @include overflow();
-                }
-            }
-        }
-        .bottom-orderInfo,.deal-other-info{
-            padding:.4rem;
-            background-color: #fff;
-            h3{
-                color: #000;
-                font-size: .34rem;
-                margin-bottom: .3rem;
-                font-family:PingFangSC-Regular;
-            }
-            p{
-                width: 100%;
-                color: #666;
-                font-size: .26rem;
-                line-height: .5rem;
-                font-family:PingFangSC-Regular;
-                @include flex-box();
-                @include justify-content();
-                span{
-                    b{
-                        display: inline-block;
-                        width: .24rem;
-                        height: .24rem;
-                        margin-left:.1rem;
-                        vertical-align: -.02rem;
-                        @include bg-image('/static/images/order-question.png');
-                    }
-                }
-                .special-color{
-                    color: #C09C60;
-                }
-            }
-        }
-        .bank{
-            width: 100%;
-            height: .9rem;
-            line-height: .9rem;
-            color: #333;
-            font-size: .3rem;
-            padding:0 .3rem;
-            background-color: #fff;
-            @include flex-box();
-            @include justify-content();
-        }
         .pay-btn{
             width: 100%;
             height: .98rem;
@@ -952,7 +914,7 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                 text-align: center;
                 line-height: .98rem;
                 font-size: .34rem;
-                background-color: #000;
+                background-color: #DDC899;
             }
         }
 
@@ -1074,7 +1036,7 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                         height: .6rem;
                         margin: 0 auto .2rem;
                         @include border-radius(50%);
-                        @include bg-image('/static/images/check-ing.png');
+                        @include bg-image('/static/images/check-fail.png');
                     }
                     .step-txt{
                         color: #666;
@@ -1105,6 +1067,11 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                 }
                 /**** 成功样式 *****/
                 .stepSuccess{
+                    &:nth-of-type(1){
+                        .step-icon{
+                            @include bg-image('/static/images/check-ing.png');
+                        }
+                    }
                     &:nth-of-type(2){
                         .step-icon{
                             @include bg-image('/static/images/delivery-ing.png');
@@ -1116,11 +1083,6 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                         }
                     }
                     &:nth-of-type(4){
-                        .step-icon{
-                            @include bg-image('/static/images/order-over.png');
-                        }
-                    }
-                    &:nth-of-type(5){
                         .step-icon{
                             @include bg-image('/static/images/order-ended.png');
                         }
@@ -1138,7 +1100,7 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                     }
                     &:nth-of-type(2){
                         .step-icon{
-                            @include bg-image('/static/images/delivery-ing.png');
+                            @include bg-image('/static/images/delivery-error.png');
                         }
                     }
                     &:nth-of-type(3){
@@ -1634,13 +1596,10 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
         border-top:1px solid #eee;
         @include flex-box();
         span{
-            width: 50%;
+            width: 100%;
             line-height: .88rem;
             text-align: center;
             color: #C09C60;
-            &:nth-of-type(1){
-                border-right:1px solid #eee;
-            }
             b{
                 background-color: #eee;
                 margin-right: .1rem;
