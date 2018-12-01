@@ -250,7 +250,7 @@ import headTop from '@/components/header/head.vue'
 import { clearNoNum } from '../../config/mUtils.js';
 import { MessageBox,Toast,Popup } from 'mint-ui';
 import { mapState,mapMutations } from 'vuex'
-import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, add_recycle_order_check, add_recycle_order, pay_beforehand_order, pay_formal_order, query_status,query_shop_address_detail } from '@/service/getData.js'
+import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, query_card_info, query_shop_address_list, add_recycle_order_check, add_recycle_order, pay_beforehand_order, pay_formal_order, query_status,query_shop_address_detail } from '@/service/getData.js'
 
 
     export default {
@@ -444,6 +444,26 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
                 this.popupVisible1 = true;  // 显示验证码弹窗
                 this.verifiCode = [];       // 将之前验证码清除
                 this.requestVerifi(1);      // 调用另一个获取短信验证码接口
+            },
+            // 获取最新商户审核信息
+            async merchant_open_apply_status(){
+                var res = await merchant_open_apply_status();
+                if(res.code=='000000'){
+                    if(res.data){
+                        this.margin_rate();
+                    }
+                }else{
+                    Toast(res.message)
+                }
+            },
+            //请求锁价保证金比例
+            async margin_rate(){
+                var res = await margin_rate();
+                if(res.code=='000000'){
+                    this.marginRate = res.data;
+                }else{
+                    Toast(res.message)
+                }
             },
             //判断店铺状态
             async shop_status(){
@@ -796,6 +816,7 @@ import { bizCloseCheck, shop_status, query_card_info, query_shop_address_list, a
             if(this.loginStatus){
                 this.shop_status();
                 this.queryBank();
+                this.merchant_open_apply_status();
                 if(this.$route.query.addressId){
                     this.addressId = this.$route.query.addressId;
                     this.query_shop_address_detail()

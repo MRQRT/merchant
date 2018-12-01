@@ -313,12 +313,15 @@ export const add_recycle_order = (applyQuantity,applyWeight,isLockPrice,isCash,c
  */
 
 export const pay_beforehand_order = (orderId,countType) => fetch('/order/pay_beforehand_order',{'orderId':orderId,'countType':countType},'post');
+// export const pay_beforehand_order = (id) => fetch('/order/margin/pay/captcha?id='+id,{},'get');
+
 
 /**
  * 支付正式下单(判断验证码是否正确及继续走支付流程)
  */
 
 export const pay_formal_order = (orderId,smsCode) => fetch('/order/pay_formal_order',{'orderId':orderId,'smsCode':smsCode},'post');
+// export const pay_formal_order = (id,captcha) => fetch('/order/margin/pay',{'id':id,'captcha':captcha},'post');
 
 
 /**
@@ -326,6 +329,7 @@ export const pay_formal_order = (orderId,smsCode) => fetch('/order/pay_formal_or
  */
 
 export const query_status = (orderId) => fetch('/order/query_status?orderId='+orderId,{},'get');
+// export const query_status = (id) => fetch('/order/margin/pay?id='+id,{},'get');
 
 
 /**
@@ -369,7 +373,7 @@ export const query_process_mess = (orderId) => fetch('/order/query_process_mess?
  * 查询检测报告明细
  */
 
-export const query_report_detail = (id) => fetch('/order/goods/detection?id='+id,{},'get');
+export const query_report_detail = (id,page,size) => fetch('/order/goods/detection?id='+id+'&page='+page+'&size='+size,{},'get');
 
 
 /**

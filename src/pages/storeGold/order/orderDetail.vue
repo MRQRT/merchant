@@ -2,80 +2,12 @@
     <div class="order-detail">
         <!-- 头部标题部分 -->
         <head-top headTitle='订单详情' class="head-top nomal-font" ref="topHead">
-            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="$router.push('/storeorderlist')">
+            <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="goback">
         </head-top>
         <!-- 主体内容 -->
-        <!-- 待支付订单 -->
-        <div class="main-cont" v-if="status==13" v-show="showStatus">
-            <!-- 顶部倒计时 -->
-            <div class="countDown">
-                <p class="clock-icon"></p>
-                <p class="clock-text">
-                    <span>待支付</span>
-                    <span>请在{{minu}}分{{secd}}秒内完成支付</span>
-                </p>
-            </div>
-            <!-- 地址 -->
-            <div class="address-info">
-                <div class="left-icon"></div>
-                <div class="right-text">
-                    <p class="name-tel">
-                        <span class="name">{{orderInfo.contact}}</span>
-                        <span class="tel">{{orderInfo.telephone | hideMible}}</span>
-                    </p>
-                    <p class="add" v-if="orderInfo.address">{{orderInfo.address | clearStr}}</p>
-                </div>
-            </div>
-            <div class="distans"></div>
-            <!-- 存金信息 -->
-            <div class="bottom-orderInfo">
-                <h3>存金信息</h3>
-                <div class="order-info">
-                    <p>
-                        <span>订单编号</span>
-                        <span>{{orderInfo.code}}</span>
-                    </p>
-                    <p>
-                        <span>总重量</span>
-                        <span>{{orderInfo.applyWeight | formatPriceTwo}}克</span>
-                    </p>
-                    <p>
-                        <span>数量</span>
-                        <span>{{orderInfo.applyQuantity}}件</span>
-                    </p>
-                    <div class="" v-if="orderInfo.lockprice">
-                        <p>
-                            <span>锁价保证金</span>
-                            <span>{{orderInfo.ensureCash | formatPriceTwo}}元</span>
-                        </p>
-                    </div>
-                    <div class="" v-if="orderInfo.lockprice">
-                        <p>
-                            <span>锁定金价<b @click="lockPricePopup"></b></span>
-                            <span class="special-color">{{orderInfo.lockPrices}}元/克</span>
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="distans"></div>
-            <!-- 银行卡 -->
-            <div class="bank">
-                <span>银行卡</span>
-                <span>{{bankInfo.name}}(尾号{{bankInfo.code}})</span>
-            </div>
-            <!-- 底部按钮 -->
-            <div class="pay-btn">
-                <div class="left-price">
-                    <span>锁价保证金：</span>
-                    <span>{{orderInfo.ensureCash | formatPriceTwo}}元</span>
-                </div>
-                <div class="right-btn" @click="pay_beforehand_order(1)">支付</div>
-            </div>
-        </div>
-        <!-- 其他订单状态 -->
-        <div class="main-cont" v-else>
-            <!-- part1:顶部倒计时 -->
-            <div class="countDown" v-if="status==10">
+        <div class="main-cont" :class="{'max-padding':status==1}" v-show="!popupVisible2">
+            <!-- part1:顶部倒计时 (待支付显示)-->
+            <div class="countDown" v-if="status==1">
                 <p class="clock-icon"></p>
                 <p class="clock-text">
                     <span>待支付</span>
@@ -84,15 +16,18 @@
             </div>
             <!-- part1:顶部进度提示文字 -->
             <div class="step-tips" v-else>
-                我们正在马不停蹄的审核您的订单哦，审核结果将在2个工作日内通知到您！请耐心等待～～
+                <div v-html="stepTipText" class="inner-box"></div>
             </div>
+
             <!-- part2:订单信息状态部分 -->
             <div class="order-basic-info">
                 <!-- 文字信息部分 -->
                 <div class="info-text">
+                    <!-- 左边图片 -->
                     <div class="left-img">
                         <img src="static/images/order-info-basic.png" alt="">
                     </div>
+                    <!-- 中间订单信息 -->
                     <div class="center-txt">
                         <p>
                             <span>总&nbsp;&nbsp;克&nbsp;重：</span>
@@ -117,44 +52,51 @@
                             <span>{{orderInfo.createTime}}</span>
                         </p>
                     </div>
+                    <!-- 按钮部分 -->
                     <!-- 已完成图标 -->
-                    <div class="order-end-icon" v-if="status==7"></div>
-                    <div class="right-status" v-else>{{iconJson[status].name}}</div>
+                    <div class="order-end-icon" v-if="status==9"></div>
+                    <!-- 其他状态文字 -->
+                    <div class="right-status" v-else-if="status==10">退款中</div>
+                    <div class="right-status" v-else-if="status==11">已关闭</div>
+                    <div class="right-status" :class="{'special':status==2}" v-else>{{statusJson[status].name}}</div>
                 </div>
                 <div class="line"></div>
                 <!-- 操作按钮部分 -->
                 <div class="info-btn">
                     <div class="">
-                        <!-- 待审核时显示 -->
-                        <span v-if="status==0" class="border-btn" @click="cancelOrder">取消订单</span>
-                        <span class="border-btn" @click="goStoreGold">再来一单</span>
-                        <span class="border-btn" v-if="status==6" @click="report_confirm()">确认订单</span>
+                        <!-- 待支付、审核中显示 -->
+                        <span v-if="status==1 || status==3" class="border-btn" @click="cancelOrder">取消订单</span>
+                        <!-- 待确认显示 -->
+                        <span v-else-if="status==7" class="border-btn" @click="report_confirm()">确认订单</span>
+                        <!-- 已关闭显示 -->
+                        <span v-else-if="status==11" class="border-btn" @click="goStoreGold">再来一单</span>
                         <span class="bg-btn"><a href="tel:4008-196-199">联系客服</a></span>
                     </div>
                 </div>
             </div>
-            <!-- part3:订单关闭部分 -->
-            <div class="order-closed" v-if="status==13">
+            <!-- part3:订单关闭部分(只在退款中/已关闭状态，且是取消订单/超时未支付才显示) -->
+            <div class="order-closed" v-if="(status==10||status==11) && (stateCode=='front_cancel'||stateCode=='back_cancel'||stateCode=='pay_margin')">
                 <div class="left-img"></div>
                 <div class="right-text">
-                    <h3>您的订单已关闭</h3>
+                    <h3>您的订单
+                        <span v-if="status==10">已取消</span>
+                        <span v-else>已关闭</span>
+                    </h3>
                     <p>好遗憾哦～～</p>
                 </div>
             </div>
             <!-- part3:进度图标部分 -->
             <div class="step-icon-wrap" v-else>
                 <ul>
-                    <li class="step-item" v-for="(item,index) in stepList" :key="index" @click="showTips(1,index,$event,status,isLockOrder)" ref="stepList"
-                    :class="{'stepSuccess':(iconJson[status].status==1 || iconJson[status].beforeStatus==1) && iconJson[status].iconType>=index,
-                    'stepError':iconJson[status].status==2 && iconJson[status].iconType==index,
-                    'stepSpecial':iconJson[status].status==3 && (index==3 || index==4),
-                    'stepClosed':iconJson[status].status==4 && index==4}">
+                    <li class="step-item" v-for="(item,index) in stepList" :key="index" @click="showOrderPart(index,$event)" ref="stepList"
+                    :class="{'stepSuccess': step_success_status(index),'stepError': step_error_status(index)}">
                         <span class="step-icon"></span>
                         <span class="step-txt">{{item.name}}</span>
-                        <span class="left-line" :class="{'active-line':status==2 && iconJson[status].iconType==(index -1)}"></span>
+                        <span class="left-line" :class="{'active-line':(status==4 || status==6 || status==8) && statusJson[status].iconType==(index-1)}"></span>
                     </li>
                 </ul>
             </div>
+
             <!-- part4:订单其他信息 -->
             <div class="order-other-info">
                 <p>
@@ -174,7 +116,7 @@
                 </p>
             </div>
             <!-- part4:物流包裹信息 -->
-            <div class="delivery-info-wrap">
+            <div class="delivery-info-wrap" v-if="status==5 || stepIconNum==1">
                 <h4>物流信息</h4>
                 <ul class="outer-delivery-list">
                     <li class="outer-delivery-item" v-for="(item,index) in packageList" :key="index">
@@ -207,7 +149,7 @@
                 </ul>
             </div>
             <!-- part4:检测中样式 -->
-            <div class="detection-ing" v-if="status==4">
+            <div class="detection-ing" v-if="status==6">
                 <div class="left-image">
                     <img src="static/images/jiance1.png" alt="" class="jiance1">
                     <img src="static/images/jiance2.png" alt="" class="jiance2">
@@ -221,8 +163,8 @@
             <!-- part4:待确认样式 -->
             <div class="wait-confirm">
                 <!-- 订单信息 -->
-                <div class="order-info">
-                    <h4>订单信息</h4>
+                <div class="order-info" v-if="(status==7 || status==8 || status==9) && (stepIconNum==2||stepIconNum==3)">
+                    <h4>订单信息<span @click="explanNoun()"></span></h4>
                     <p>
                         <span>订单编号</span>
                         <span>{{orderInfo.code}}</span>
@@ -264,7 +206,7 @@
                     </div>
                 </div>
                 <!-- 检测信息 -->
-                <div class="report-info" v-if="status==6">
+                <div class="report-info" v-if="status==7 || status==8 || stepIconNum==2">
                     <h4>检测信息</h4>
                     <p>
                         <span>实测总毛重</span>
@@ -298,37 +240,10 @@
                         </p>
                         <!-- 检测明细 -->
                         <div class="report-detail">
-                            <h4 @click="showList(3)">
+                            <h4 @click="$router.push('/reportdetail')">
                                 <span class="txt">查看检测明细</span>
-                                <span class="show-more" :class="{'rotate':reportDetialStatus}"></span>
+                                <span class="show-more"></span>
                             </h4>
-                            <!-- 具体检测明细列表 -->
-                            <ul class="report-more-detail" :class="{'showReportDetail':reportDetialStatus}">
-                                <li class="more-detail-item" v-for="(item,index) in reportDetailInfo">
-                                    <p class="title" @click="showEachReport(index)">
-                                        <span>产品{{index+1}}——卖金总额：{{item.amount|formatPriceTwo}}元</span>
-                                        <span class="show-more" :class="{'rotate':index==eachReportNum}"></span>
-                                    </p>
-                                    <div class="list" :class="{'showEachReport':index==eachReportNum}">
-                                        <p>
-                                            <span>检测编号</span>
-                                            <span>{{item.code}}</span>
-                                        </p>
-                                        <p>
-                                            <span>产品名称</span>
-                                            <span>{{item.goodsTypeCode=="jewelry"?'首饰':'金条'}}</span>
-                                        </p>
-                                        <p>
-                                            <span>质量</span>
-                                            <span>{{item.grossWeight|formatPriceTwo}}克</span>
-                                        </p>
-                                        <p>
-                                            <span>黄金含量</span>
-                                            <span>{{item.colour}}‰</span>
-                                        </p>
-                                    </div>
-                                </li>
-                            </ul>
                             <!-- 检测报告图片 -->
                             <ul class="report-img-list">
                                 <li class="img-item" v-for="(item,index) in 5">
@@ -344,6 +259,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- part5:订单追踪 -->
             <div class="order-tracking">
                 <div class="title" @click="showList(4)">
@@ -364,7 +280,7 @@
                 </ul>
             </div>
             <!-- part6:待支付底部按钮 -->
-            <div class="pay-btn" v-if="status==10">
+            <div class="pay-btn" v-if="status==1">
                 <div class="left-price">
                     <span>锁价保证金：</span>
                     <span>{{orderInfo.margin.paidAmount | formatPriceTwo}}元</span>
@@ -394,6 +310,29 @@
                 <h4>订单确认中，请稍后...</h4>
             </div>
         </mt-popup>
+        <!-- 名词解释弹窗 -->
+        <div class="noun-explan" v-show="popupVisible2">
+                <h3>名词解释</h3>
+                <div class="line"></div>
+                <div class="each-noun">
+                    <p>
+                        <span>卖金总额=</span>
+                        <span>所有产品的（毛重*成色*实收金价）之和</span>
+                    </p>
+                    <p>
+                        <span>手续费=</span>
+                        <span>毛重*默认手续费费率(默认手续费费率金条为0.8元/克，首饰为1.2元/克)</span>
+                    </p>
+                    <p>
+                        <span>优惠金额=</span>
+                        <span>金条毛重（0.8-金条实际手续费费率）+首饰毛重（0.8-首饰实际手续费费率）</span>
+                    </p>
+                    <p>
+                        <span>实收总额=卖金总额-物流费-保价费-检测费-手续费+优惠金额</span>
+                    </p>
+                </div>
+                <div class="close-btn" @click="explanNoun"></div>
+            </div>
     </div>
 </template>
 
@@ -406,17 +345,20 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
         data(){
             return{
                 showStatus:true,         // 是否显示主体内容
+                code:'',                 // 订单编号
                 orderId:'2c9380976757fe34016758261b1d0004',              // 订单ID
-                status:10,                // 订单当前状态
+                status:8,               // 订单当前状态
+                stateCode:'pick',            // 当前节点
+                stepTipText:'',          // 顶部提示文案
                 popupVisible:false,      // 禁止取消订单弹窗
                 popupVisible1:false,     // 确认检测报告中弹窗
+                popupVisible2:true,      // 名词解释弹窗
                 deliveryStatus:true,     // 物流数据是否请求成功
                 deliveryError:false,     // 物流信息出错
                 deliveryNum:-1,          // 展开物流详情
+                stepIconNum:0,           // 当前进度icon
                 orderDetailStatus:false, // 订单信息显示、隐藏
                 reportListStatus:false,  // 检测报告显示、隐藏
-                reportDetialStatus:false,// 检测报告明显显示、隐藏
-                eachReportNum:-1,        // 每一个产品的检测报告明细显示、隐藏
                 trackingStatus:false,    // 订单追踪显示、隐藏
                 minu:'--',               // 倒计时分
                 secd:'--',               // 倒计时秒
@@ -463,6 +405,7 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                     discountAmount:13.14,
                     paidAmount:520.1314,
                     createTime:'2018-08-20 12:12:12',
+                    stateCode:'front_cancel',
                     margin:{
                         paidAmount:1314
                     },
@@ -496,30 +439,6 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                     resultCode:'success',
                     reportPaths:[],
                 },
-                reportDetailInfo:[       // 检测报告明细数组
-                    {
-                        code:'MR2018123455',
-                        goodsTypeCode:'jewelry',
-                        grossWeight:12.12,
-                        colour:9999,
-                        amount:520.12
-                    },
-                    {
-                        code:'MR2018123455',
-                        goodsTypeCode:'bar',
-                        grossWeight:12.12,
-                        colour:9999,
-                        amount:520.12
-                    },
-                    {
-                        code:'MR2018123455',
-                        goodsTypeCode:'jewelry',
-                        grossWeight:12.12,
-                        colour:9999,
-                        amount:520.12
-                    },
-
-                ],
                 packageList:[            // 包裹列表
                     {
                         expressCode:'1234567',
@@ -565,7 +484,32 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                         'createTime':'2018-2-12 12:12:12',
                         'status':1,
                     },
-                ]          // 订单追踪信息
+                ],         // 订单追踪信息
+                statusJson:{
+                    '1':{name:'待支付',topNum:8,status:0,beforeStatus:0,iconType:0},
+                    '2':{name:'支付处理中',topNum:0,status:0,beforeStatus:0,iconType:0},
+                    '3':{name:'审核中',topNum:1,status:1,beforeStatus:0,iconType:0},
+                    '4':{name:'待取货',topNum:2,status:1,beforeStatus:0,iconType:0},
+                    '5':{name:'物流中',topNum:3,status:1,beforeStatus:1,iconType:1},
+                    '6':{name:'检测中',topNum:4,status:1,beforeStatus:1,iconType:1},
+                    '7':{name:'待确认',topNum:5,status:1,beforeStatus:1,iconType:2},
+                    '8':{name:'打款中',topNum:6,status:1,beforeStatus:1,iconType:2},
+                    '9':{name:'已完成',topNum:7,status:1,beforeStatus:1,iconType:3},
+                    '10':{
+                        'verify':{name:'退款中',topNum:13,status:2,beforeStatus:0,iconType:0},
+                        'pick':{name:'退款中',topNum:14,status:2,beforeStatus:1,iconType:1},
+                        'front_cancel':{name:'退款中',topNum:15,status:0,beforeStatus:0,iconType:0},
+                        'back_cancel':{name:'退款中',topNum:15,status:0,beforeStatus:0,iconType:0},
+                    },
+                    '11':{
+                        'pay_margin':{name:'已关闭',topNum:8},
+                        'front_cancel':{name:'已关闭',topNum:9},
+                        'back_cancel':{name:'已关闭',topNum:9},
+                        'verify':{name:'已关闭',topNum:10,status:2,beforeStatus:0,iconType:0},
+                        'pick':{name:'已关闭',topNum:11,status:2,beforeStatus:1,iconType:1},
+
+                    }
+                }
             }
         },
         filters:{
@@ -581,6 +525,65 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
 
         },
         methods: {
+            // 顶部返回按钮
+            goback(){
+                if(this.$route.path=='/storeorderdetail'){
+                    this.popupVisible2 = false;
+                }else{
+                    this.$router.push('/storeorderlist')
+                }
+            },
+            // 进度icon成功判断
+            step_success_status(index){
+                var status = this.status;
+                var statusJson = this.statusJson;
+                var stateCode = this.stateCode;
+                if(status==10 || status==11){  //退货中、已关闭
+                    if((statusJson[status][stateCode].status==1 || statusJson[status][stateCode].beforeStatus==1) && statusJson[status][stateCode].iconType>=index){
+                        return true;
+                    }else{
+                        return false;
+                    }
+                }else{
+                    if((statusJson[status].status==1 || statusJson[status].beforeStatus==1) && statusJson[status].iconType>=index){
+                        return true;
+                    }else{
+                        return false;
+                    }
+                }
+            },
+            // 进度icon失败判断
+            step_error_status(index){
+                var status = this.status;
+                var statusJson = this.statusJson;
+                var stateCode = this.stateCode;
+                if(status==10 || status==11){ //退货中、已关闭
+                    if((statusJson[status][stateCode].status==2 && statusJson[status][stateCode].iconType==index)){
+                        return true;
+                    }else{
+                        return false;
+                    }
+                }else{
+                    if((statusJson[status].status==2 && statusJson[status].iconType==index)){
+                        return true;
+                    }else{
+                        return false;
+                    }
+                }
+            },
+            // 点击进度icon显示对应订单部分
+            showOrderPart(index,event){
+                if(event.currentTarget.classList.contains('stepSuccess')){ //可点击状态
+                    this.stepIconNum = index;
+                    console.log(this.stepIconNum)
+                }else{
+                    return false;
+                }
+            },
+            // 订单信息名次解释
+            explanNoun(){
+                this.popupVisible2 = !this.popupVisible2;
+            },
             // 物流包裹显示、隐藏
             showDelivery(index,expressCode){
                 if(this.deliveryNum == index){
@@ -609,14 +612,6 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                     case 4:
                         this.trackingStatus = !this.trackingStatus;
                         break;
-                }
-            },
-            // 具体每一项产品的检测报告
-            showEachReport(index){
-                if(this.eachReportNum == index){
-                    this.eachReportNum = -1;
-                }else{
-                    this.eachReportNum = index
                 }
             },
             // 取消订单确认弹窗
@@ -692,24 +687,56 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                 var text2 = '<p>恭喜您，订单审核通过！我们已经安排快递小哥上门取件，请留意接听取件电话哦～</p>';
                 var text3 = '<p>您的宝贝已经取到，快递小哥正在用心传递速度送往深圳众恒隆进行检测～</p>'
                 var text4 = '<p>我们已经收到您的宝贝啦～专业检测师紧锣密鼓的开工了！1个工作日内就会有结果哦！</p>';
+                var text5 = `<p>亲，只差最后一步啦，您确认下方订单信息后，宝贝将成功卖出，同时您将得到实收总额 ${this.orderInfo.paidAmount} 元（若您未及时确认，系统72小时内自动确认）。</p>`;
+                var text6 = `<p>您的订单已确认，实收总额 ${this.orderInfo.paidAmount} 元将在T+1个工作日内发放到您的 ${this.orderInfo.bankCard.name}(${this.orderInfo.bankCard.code}) 银行卡中，记得查收哦～</p>`;
+                var text7 = `<p>实收总额 ${this.orderInfo.paidAmount} 元已发放到您的 ${this.orderInfo.bankCard.name}(${this.orderInfo.bankCard.code}) 银行卡中，记得查收哦～（具体到账时间以银行为准）</p>`;
 
-                var text5 = `<p>万事具备，只欠东风，您确认下方订单信息后，宝贝将成功卖出，同时您将得到实收总额 %金额% 元（若您未及时确认，系统72小时内自动确认）。</p>`;
-                var text6 = `<p>您已确认订单， 实收总额 ${this.orderId} 元将在T+1个工作日内发放到您的${this.orderId}${this.orderId} 银行卡中，记得查收哦～</p>`;
-                var text7 = `<p>订单已确认，实收总额 %金额% 元将在T+1个工作日内发放到您 ${this.orderId}${this.orderId} 银行卡中，记得查收哦～</p>`;
-                var text8 = `<p>实收总额 ${this.orderId} 元已发放到您的 ${this.orderId}${this.orderId} 银行卡中，记得查收哦～（具体到账时间以银行为准）</p>`;
+                // 已关闭
+                var text8 = '<p>由于您长时间未支付，订单已关闭～您可以重新发起订单，风里雨里，我们在这里等你！~</p>'
+                var text9 = '<p>您的订单已取消～您可以重新发起订单，风里雨里，我们在这里等你！</p>'
+                var text10 = `<p>抱歉哦，您的订单未通过审核，原因：${this.orderInfo.paidAmount}</p>`;
+                var text11 = `<p>很抱歉，您的订单物流发生异常，我们正在排查原因，客服届时将会与您取得联系，给您造成的不便敬请谅解～</p>`;
+                var text12 = '<p>订单已退款完成，请注意查收保证金到账情况～您可以重新发起订单，风里雨里，我们在这里等你！</p>';
 
-                var text9 = '<p>由于您长时间未支付，订单已关闭～您可以重新发起订单，风里雨里，我们在这里等你！~</p>'
-                var text10 = '<p>您的订单已取消～您可以重新发起订单，风里雨里，我们在这里等你！</p>'
-                var text11 = '<p>您的订单已取消，保证金正在急速退还中～您可以重新发起订单，风里雨里，我们在这里等你！</p>'
-                var text12 = '<p>平台已为您取消订单～您可以重新发起订单，风里雨里，我们在这里等你！</p>'
-                var text13 = '<p>平台已为您取消订单，保证金正在急速退还中～您可以重新发起订单，风里雨里，我们在这里等你！</p>'
-                var text14 = '<p>订单已退款完成，请注意查收保证金到账情况～您可以重新发起订单，风里雨里，我们在这里等你！</p>';
+                // 退款中
+                var text13 = `<p>抱歉哦，您的订单未通过审核，原因：${this.orderInfo.paidAmount}。您的锁价保证金将在1-2个工作日内退回至您绑定的银行卡中，请注意查收～</p>`;
+                var text14 = `<p>很抱歉，您的订单物流发生异常，我们正在排查原因，客服届时将会与您取得联系，给您造成的不便敬请谅解～您的锁价保证金将在1-2个工作日内退回至您绑定的银行卡中，请注意查收～</p>`;
+                var text15 = '<p>您的订单已取消，您可以重新发起订单，风里雨里，我们在这里等你！您的锁价保证金将在1-2个工作日内退回至您绑定的银行卡中，请注意查收～</p>'
 
-                var text15 = `<p>抱歉哦，您的订单未通过审核，原因：${this.orderId}</p>`;
-                var text16 = `<p>抱歉哦，您的订单未通过审核，原因：${this.orderId}。您支付的保证金正在急速退还中~</p>`;
-                var text17 = `<p>抱歉哦，您的订单未通过审核，原因：${this.orderId}。您支付的保证金正在急速退还中~</p>`;
-
-
+                var textJson = {
+                    '0':text0,  // 支付处理中
+                    '1':text1,  // 审核中
+                    '2':text2,  // 待取货
+                    '3':text3,  // 物流中
+                    '4':text4,  // 检测中
+                    '5':text5,  // 待确认
+                    '6':text6,  // 打款中
+                    '7':text7,  // 已完成
+                    '8':text8,  // 已关闭
+                    '9':text9,  // 已关闭
+                    '10':text10,// 已关闭
+                    '11':text11,// 已关闭
+                    '12':text12,// 已关闭
+                    '13':text13,// 退款中
+                    '14':text14,// 退款中
+                    '15':text15,// 退款中
+                }
+                if(this.status==10 || this.status==11){
+                    this.stepTipText = textJson[this.statusJson[this.status][this.stateCode].topNum];
+                }else{
+                    this.stepTipText = textJson[this.statusJson[this.status].topNum];
+                }
+            },
+            // 请求订单详情数据
+            async query_detail(){
+                var res = await query_detail(this.code)
+                if(res.code=='000000'){
+                    this.orderInfo = res.data;
+                    this.status = res.data.status;
+                    this.stateCode = res.data.stateCode;
+                }else{
+                    Toast(res.message)
+                }
             },
             // 请求银行卡信息
             async query_card_info(){
@@ -720,7 +747,7 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
             },
             // 修改订单状态(未支付倒计时结束)
             async update_status(){
-                var res = await update_status(this.orderId);
+                var res = await update_status(this.code);
                 if(res.code=='000000'){
                     // this.query_detail(); // 取消成功后再次调用详情数据
                 }else{
@@ -730,7 +757,7 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
             // 取消订单函数
             async cancel_order(){
                 var that = this;
-                var res = await cancel_order(this.orderId);
+                var res = await cancel_order(this.code);
                 if(res.code=='000000'){
                     Toast('订单取消成功～')
                     setTimeout(function(){
@@ -742,7 +769,7 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
             },
             // 订单确认函数
             async confirm_order(){
-                var res = await confirm_order(this.orderId);
+                var res = await confirm_order(this.code);
                 if(res.code=='000000'){
                     this.popupVisible1 = false;
                     this.query_detail(); // 刷新页面
@@ -751,16 +778,9 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                     Toast('确认失败，请稍后重试～')
                 }
             },
-            // 请求订单详情数据
-            async query_detail(){
-                var res = await query_detail(this.orderId)
-                if(res.code=='000000'){
-                    this.orderInfo = res.data
-                }
-            },
             // 请求物流单号
             async query_logistics_mess(typeNum){
-                var res = await query_logistics_mess(this.orderId) // type:0-取货；1-退货
+                var res = await query_logistics_mess(this.code) // type:0-取货；1-退货
                 if(res.code=='000000'){
 
                 }else{
@@ -781,7 +801,7 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
             },
             // 查询订单追踪
             async query_status_flow_mess(){
-                var res = await query_status_flow_mess(this.orderId);
+                var res = await query_status_flow_mess(this.code);
                 if(res.code=='000000'){
                     this.newTrackList = res.data;
                 }else{
@@ -790,9 +810,11 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
             },
         },
         created(){
-
+            this.code = this.$route.query.code;//订单编号
         },
         mounted(){
+            this.showStepTips();
+            this.stepIconNum = this.statusJson[this.status].iconType;
             // this.query_detail();
             this.countDown('2018-11-28 12:08');
         },
@@ -837,6 +859,9 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
     @include rotate(180deg);
 }
 .order-detail{
+    .max-padding{
+        padding-bottom: 1.4rem !important;
+    }
     .main-cont{
         width: 100%;
         min-height: 100vh;
@@ -895,7 +920,9 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
             @include flex-box();
             @include justify-content();
             .left-price{
+                width: 75%;
                 padding:.1rem 0 .1rem .4rem;
+                border-top:1px solid #f8f8f8;
                 flex-direction: column;
                 @include flex-box();
                 span{
@@ -908,7 +935,7 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                 }
             }
             .right-btn{
-                width: 2.2rem;
+                width: 25%;
                 height: .98rem;
                 color: #fff;
                 text-align: center;
@@ -924,9 +951,13 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
             padding:.25rem .4rem;
             font-size: .26rem;
             background-color: #F3EDE0;
+            .inner-box{
+                width: 100%;
+                overflow: hidden;
+            }
         }
         .order-basic-info{
-            padding:.4rem;
+            padding:.4rem .4rem .27rem;
             background-color: #fff;
             margin-bottom: .2rem;
             .info-text{
@@ -961,6 +992,10 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                     font-family:PingFang-SC-Medium;
                     font-weight:500;
                     margin-left:.2rem;
+                }
+                .special{
+                    position: absolute;
+                    right:0;
                 }
                 .order-end-icon{
                     width: 1.44rem;
@@ -1371,6 +1406,11 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                     color: #333;
                     font-size: .32rem;
                     padding:.35rem 0;
+                    span{
+                        margin-left:.1rem;
+                        @include inline-block(.24rem,.24rem);
+                        @include bg-image('/static/images/storeGold-question.png');
+                    }
                 }
                 p{
                     color: #666;
@@ -1414,12 +1454,14 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                         color: #C09060;
                         font-size: .26rem;
                         align-items: center;
+                        justify-content: flex-end;
                         @include flex-box();
                         .txt{
                             border-bottom: 1px solid #C09060;
                         }
                         .show-more{
                             margin-left:.12rem;
+                            @include rotate(-90deg);
                         }
                     }
                     .report-more-detail{
@@ -1645,6 +1687,43 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
         color: #999;
         font-size: .24rem;
         margin-top:.15rem;
+    }
+}
+.noun-explan{
+    width: 100%;
+    min-height: 100vh;
+    padding:1.7rem .75rem 0;
+    position: absolute;
+    top:0;
+    bottom: 0;
+    left:0;
+    right:0;
+    overflow: scroll;
+    background-color: #fff;
+    h3{
+        color: #000;
+        font-size: .4rem;
+        text-align: center;
+        margin-bottom: .5rem;
+    }
+    .each-noun{
+        margin-top:.4rem;
+        p{
+            color: #666;
+            font-size: .28rem;
+            margin-bottom: .3rem;
+            flex-direction: column;
+            @include flex-box();
+        }
+    }
+    .close-btn{
+        position: absolute;
+        bottom: 1.25rem;
+        left:50%;
+        margin-left:-.22rem;
+        width: .44rem;
+        height: .44rem;
+        @include bg-image('/static/images/close.png');
     }
 }
 </style>

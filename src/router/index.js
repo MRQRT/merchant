@@ -35,6 +35,7 @@ const storeOrderDetail = r => require.ensure([], () => r(require('../pages/store
 const orderDetail = r => require.ensure([], () => r(require('../pages/storeGold/order/orderDetail')), 'orderDetail')
 const waitPayOrder = r => require.ensure([], () => r(require('../pages/storeGold/order/waitPayOrder')), 'waitPayOrder')
 const report = r => require.ensure([], () => r(require('../pages/storeGold/order/report')), 'report')
+const reportdetail = r => require.ensure([], () => r(require('../pages/storeGold/order/reportDetail')), 'reportdetail')
 
 /* 我的资产 */
 const assets = r => require.ensure([], () => r(require('../pages/assets/assets')), 'assets')
@@ -153,6 +154,10 @@ const router = new Router({
         {
             path:'/report',        // 检测报告页
             component:report
+        },
+        {
+            path:'/reportdetail',        // 检测报告详情页
+            component:reportdetail
         },
         {
             path: '/assets',  // 我的资产页
