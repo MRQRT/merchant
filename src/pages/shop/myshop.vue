@@ -316,21 +316,21 @@ import back from 'static/images/hgdBg.jpg';
 }
 .shop_address{
     background-image:url('/static/images/address_icon.png');
-    background-position: 0 .09rem;
+    background-position: 0 .05rem;
     background-repeat: no-repeat;
     background-size: .28rem;
     padding-left: .5rem;
 }
 .shop_location{
     background-image:url('/static/images/location_icon.png');
-    background-position: 0 .09rem;
+    background-position: 0 .05rem;
     background-repeat: no-repeat;
     background-size: .28rem;
     padding-left: .5rem;
 }
 .shop_nearby{
     background-image:url('/static/images/nearby_icon.png');
-    background-position: 0 .09rem;
+    background-position: 0 .05rem;
     background-repeat: no-repeat;
     background-size: .28rem;
     padding-left: .5rem;
