@@ -30,10 +30,11 @@ const location = r => require.ensure([], () => r(require('../pages/shop/location
 /* 存金相关 */
 const storeGold = r => require.ensure([], () => r(require('../pages/storeGold/storeGold')), 'storeGold')
 const storeResult = r => require.ensure([], () => r(require('../pages/storeGold/storeResult')), 'storeResult')
+const payResult = r => require.ensure([], () => r(require('../pages/storeGold/payResult')), 'payResult')
 const storeOrderList = r => require.ensure([], () => r(require('../pages/storeGold/order/storeOrderList')), 'storeOrderList')
-const storeOrderDetail = r => require.ensure([], () => r(require('../pages/storeGold/order/storeOrderDetail')), 'storeOrderDetail')
+const storeOrderDetail = r => require.ensure([], () => r(require('../pages/storeGold/order/orderDetail')), 'storeOrderDetail')
 const orderDetail = r => require.ensure([], () => r(require('../pages/storeGold/order/orderDetail')), 'orderDetail')
-const waitPayOrder = r => require.ensure([], () => r(require('../pages/storeGold/order/waitPayOrder')), 'waitPayOrder')
+const paying = r => require.ensure([], () => r(require('../pages/storeGold/order/paying')), 'paying')
 const report = r => require.ensure([], () => r(require('../pages/storeGold/order/report')), 'report')
 const reportdetail = r => require.ensure([], () => r(require('../pages/storeGold/order/reportDetail')), 'reportdetail')
 
@@ -136,6 +137,10 @@ const router = new Router({
             component: storeResult,
         },
         {
+            path: '/payresult',  // 存金支付结果页
+            component: payResult,
+        },
+        {
             path: '/storeorderlist',  // 存金订单列表页
             component: storeOrderList,
         },
@@ -148,8 +153,8 @@ const router = new Router({
             component:orderDetail,
         },
         {
-            path: '/waitPayOrder',  // 存金订单待支付页
-            component: waitPayOrder,
+            path: '/paying',  // 存金支付处理页（过度页）
+            component: paying,
         },
         {
             path:'/report',        // 检测报告页

@@ -207,7 +207,7 @@
                         <span>锁定金价</span>
                         <span>{{lockPrice|formatPriceTwo}}元/克</span>
                     </div>
-                    <div class="input-wrap">
+                    <div class="input-wrap" :class="{'verify-error':!verifyStatus}">
                         <span>{{verifiCode[0]}}</span>
                         <span>{{verifiCode[1]}}</span>
                         <span>{{verifiCode[2]}}</span>
@@ -216,17 +216,14 @@
                         <span>{{verifiCode[5]}}</span>
                         <input type="tel" ref="verifiInput" maxlength="6" v-model="verifiCode" autofocus="autofocus" v-on:input="checkVerifi()">
                     </div>
+                    <!-- 验证码倒计时 -->
+                    <div class="verify-countdown">
+                        <span v-if="!countdownStatus">{{countDownSec}}S</span>
+                        <span v-else @click="requestVerifi()">重新获取验证码>></span>
+                    </div>
+                    <!-- 支付按钮 -->
+                    <div class="pay-btn" :class="{'active':payClickStatus}" @click="payment">立即支付</div>
                 </div>
-            </div>
-        </mt-popup>
-        <!-- 正在支付中弹窗 -->
-        <mt-popup v-model="popupVisible2" popup-transition="popup-fade" :closeOnClickModal="false">
-            <div class="pay-wrap">
-                <div class="top-img">
-                    <img src="static/images/pay-inner.png" alt="">
-                    <img src="static/images/pay-outer.png" alt="">
-                </div>
-                <p>处理中，请稍候...</p>
             </div>
         </mt-popup>
         <!-- 重试验证码弹窗 -->
@@ -267,20 +264,21 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
                 popupVisible:false,  // 全屏弹窗
                 btnCtroller:true,    // 按钮是否可以点击
                 popupVisible1:false, // 验证码弹窗
-                popupVisible2:false, // 支付中弹窗
                 popupVisible3:false, // 重试验证码弹窗
+                code:'',             // 订单code
                 orderId:'',          // 订单创建成功后的ID
                 ensureCash:'',       // 支付时的保证金
                 lockPrice:'',        // 支付时的锁定金价
+                verifyStatus:true,   // 验证码是否正确
                 verifiCode:[],       // 验证码
-                bankCardId:2,        // 银行卡ID
+                bankCardId:'',       // 银行卡ID
                 addressId:'',        // 查询地址ID
                 detailAddress:'',    // 传给后台的详细地址
                 screenHeight: document.documentElement.clientHeight,//记录高度值(这里是给到了一个默认值)
                 bankInfo:'',         // 银行卡信息
                 receiverInfo:'',     // 收货人信息
                 addressId:'',        // 地址id
-                countDownSec:50,     // 重试验证码倒计时
+                countDownSec:59,     // 重试验证码倒计时
                 countdownStatus:false,// 重试按钮是否可以点击
                 marginRate:10,         // 锁加保证金比例
             }
@@ -308,6 +306,14 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
                     return false;
                 }else{
                     return true;
+                }
+            },
+            // 立即支付按钮是否可以点击
+            payClickStatus(){
+                if(this.verifiCode.length==6){
+                    return true;
+                }else{
+                    return false;
                 }
             }
         },
@@ -502,6 +508,7 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
                     if(res.data){
                         this.bankStatus = true;
     					this.bankInfo = res.data;
+                        this.bankCardId = res.data.id;
                         this.RECORD_SHOPSTATUS(true);    // 店铺审核通过
                     }else{
                         this.bankStatus = false;         // 未绑卡
@@ -541,8 +548,8 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
                 this.$router.push({ // 跳转待支付订单详情页
                     path:'/storeorderdetail',
                     query:{
-                        id:this.orderId,
-                        status:10
+                        id:this.code,
+                        status:1
                     }
                 })
             },
@@ -642,7 +649,7 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
                           closeOnClickModal:false,
                       }).then(action => {
                             if(action == 'confirm'){
-                                this.directlyOrder(false)
+                                this.directlyOrder('normal');
                             }else{
                                 this.btnCtroller = true;
                             }
@@ -672,7 +679,7 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
                           closeOnClickModal:false,
                         }).then(action => {
                             if(action == 'confirm'){
-                                this.directlyOrder(true);
+                                this.directlyOrder('lock');
                             }else{
                                 this.btnCtroller = true;
                             }
@@ -683,14 +690,14 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
 
             },
             //直接提交创建订单
-            async directlyOrder(isLockOrder){
-                var res = await add_recycle_order(this.extractNum,this.weight,isLockOrder,true,this.receiverInfo.contact,this.receiverInfo.telephone,this.detailAddress)
+            async directlyOrder(typeCode){
+                var res = await add_recycle_order(typeCode,this.weight,this.extractNum,this.bankCardId,this.addressId);
                 if(res.code=='000000'){
-                    this.orderId = res.data.id;
+                    this.code = res.data;
                     this.$router.push({
                         path:'/storeresult',
                         query:{
-                            id:this.orderId,
+                            code:this.code,
                             status:1,
                         }
                     });
@@ -703,9 +710,9 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
             async lockPriceOrder(){
                 var that = this;
                 // 创建订单
-                var res = await add_recycle_order(this.extractNum,this.weight,true,true,this.receiverInfo.contact,this.receiverInfo.telephone,this.detailAddress)
+                var res = await add_recycle_order('lock',this.weight,this.extractNum,this.bankCardId,this.addressId)
                 if(res.code=='000000'){
-                    this.orderId = res.data.id;
+                    this.code = res.data;
                     this.ensureCash = res.data.ensureCash;
                     this.lockPrice = res.data.lockPrice;
                     this.popupVisible1 = true;    // 显示验证码弹窗
@@ -718,88 +725,83 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
             //检测输入的支付验证码
             checkVerifi(){
                 var res = /^[0-9]*$/g;
-                if(this.verifiCode.length==6){
-                    this.popupVisible1 = false;     // 关闭验证码弹窗
-                    this.$refs.verifiInput.blur();  // 隐藏键盘
-                    this.popupVisible2 = true;      // 显示正在支付动画
+            },
+            // 点击立即支付按钮
+            payment(){
+                if(this.payClickStatus){
                     this.checkoutVerifi();          // 校验验证码是否正确
+                }else{
+                    Toast({
+                        message:'请输入验证码～',
+                        position:'bottom'
+                    })
                 }
             },
             //支付预下单（发送验证码函数）
-            async requestVerifi(countType){
-                var res = await pay_beforehand_order(this.orderId,countType);
+            async requestVerifi(){
+                var res = await pay_beforehand_order(this.code);
                 if(res.code=='000000'){
                     this.popupVisible1 = true;    // 显示验证码弹窗
-                }else{
-                    this.popupVisible1 = false;  // 关闭验证码弹窗
-                    this.btnCtroller = true;     // 按钮恢复可点状态
-                    Toast(res.message)
-                }
-            },
-            // 支付正式下单 (校验验证码)
-            async checkoutVerifi(){
-                var that = this;
-                var res = await pay_formal_order(this.orderId,this.verifiCode);
-                if(res.code=='000000'){
-                    var timesRun = 0;
-                    window.timer = setInterval(function(){
-                        timesRun += 1000;
-                        that.query_status()       // 隔1秒查询一次状态
-
-                        if(timesRun==120000){    // 2min后自动跳转待支付详情页
-                            this.popupVisible2 = false; // 关闭处理中动画
-                            that.$router.push({
-                                path:'/storeorderdetail',
-                                query:{
-                                    id:that.orderId,
-                                    status:10,
-                                }
-                            })
-                        }
-                    },1000)
-                }else if(res.code=='200211'){ // 验证码错误显示重试对话框
-                    this.popupVisible2 = false; // 关闭处理中动画
-                    this.countdownStatus = false; // 将重试按钮置为不可点击
-                    this.popupVisible3 = true;  // 显示重试弹窗
+                    Toast({
+                        message:'验证码已发送，请注意查收哦',
+                        position:'bottom'
+                    })
                     var timer1 = setInterval(function(){
                         that.countDownSec--
                         if(that.countDownSec<=0){
                             clearInterval(timer1);
                             that.countdownStatus=true;
-                            that.countDownSec=50;
+                            that.countDownSec= 60;
                         }
                     },1000)
                 }else{
-                    this.popupVisible2 = false;
-                    this.btnCtroller = true;
-                    Toast(res.message)
+                    this.popupVisible1 = false;  // 关闭验证码弹窗
+                    this.btnCtroller = true;     // 按钮恢复可点状态
+
+                    var textJson = {
+                        '0003':'操作太过频繁，请稍后再试',
+                        '1014':'获取短信验证码失败',
+                        '9999':'系统繁忙，请稍后再试~'
+                    }
+                    Toast({
+                        message:textJson[res.code],
+                        position:'bottom'
+                    })
                 }
             },
-            //间隔查询订单状态
-            async query_status(){
+            // 支付正式下单 (立即支付，校验验证码)
+            async checkoutVerifi(){
                 var that = this;
-                var res = await query_status(this.orderId);
-                if(res.code=='000000'){
-                    if(res.data.pays==1){          // 存金支付成功
-                        this.popupVisible2 = false; // 关闭处理中动画
-                        this.$router.push({
-                            path:'/storeresult',
-                            query:{
-                                id:this.orderId,
-                                status:1
-                            }
-                        })
-                    }else if(res.data.pays==2){     // 存金支付失败
-                        this.popupVisible2 = false; // 关闭处理中动画
-                        this.$router.push({
-                            path:'/storeresult',
-                            query:{
-                                id:this.orderId,
-                                status:0,
-                                paysFailReason:res.data.paysFailReason
-                            }
-                        })
-                    }
+                var res = await pay_formal_order(this.code,this.verifiCode);
+                if(res.code=='000000'){    // 验证码正确，跳转支付处理中页面
+                    this.$router.push({
+                        path:'/paying',
+                        query:{
+                            code:this.code
+                        }
+                    })
+                }else if(res.code=='1016'){  // 验证码输入错误
+                    this.verifiCode = [];
+                    this.verifyStatus = false;
+                    Toast({
+                        message:'验证码有误，请重新输入',
+                        position:'bottom'
+                    })
+                }else if(res.code=='1018'){ // 验证码输入次数超过上限
+                    this.popupVisible1 = false;
+                    Toast({
+                        message:'今日请求次数已达上限',
+                        position:'bottom'
+                    })
+                    this.$router.push({     // 跳转待支付详情页
+                        path:'/storeorderdetail',
+                        query:{
+                            code:this.code,
+                            status:1,
+                        }
+                    })
+                }else{
+                    Toast(res.message)
                 }
             },
 
@@ -824,8 +826,6 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
                     this.queryAddress();
                 }
             }
-
-
             window.onresize = () => {
                 var that = this;
                 var h=document.documentElement.clientHeight;
@@ -1429,6 +1429,18 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
                     }
                 }
             }
+            @keyframes patt0{
+                0%{ transform: translate(-0.2%, -0.2%);}
+                25%{ transform: translate(0.2%, 0.2%);}
+                50%{ transform: translate(-0.2%, 0.2%);}
+                75%{ transform: translate(0.2%, -0.2%);}
+                100%{ transform: translate(-0.2%, -0.2%);}
+            }
+            @keyframes patt1{
+                 0%{ transform: translate(-0.5%, -0.5%);}
+                 50%{ transform: translate(0.5%, 0.5%);}
+                 100%{ transform: translate(-0.5%, -0.5%);}
+            }
             .input-wrap{
                 height: .98rem;
                 width: 6rem;
@@ -1464,6 +1476,33 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
                     text-indent: -999em;
                     z-index:999;
                 }
+            }
+            .verify-error{
+                animation: patt0 0.5s infinite;
+                border:1px solid #EC534F;
+            }
+            .verify-countdown{
+                text-align: right;
+                margin-top:.3rem;
+                padding-right:.05rem;
+                span{
+                    color: #C09C60;
+                    font-size: .26rem;
+                }
+            }
+            .pay-btn{
+                width: 5.6rem;
+                height: .88rem;
+                line-height: .88rem;
+                text-align: center;
+                color: #fff;
+                font-size: .34rem;
+                margin:.5rem auto 0;
+                background:#ddd;
+                @include border-radius(44px);
+            }
+            .active{
+                background:linear-gradient(-90deg,rgba(221,200,153,1),rgba(192,156,96,1));
             }
         }
     }

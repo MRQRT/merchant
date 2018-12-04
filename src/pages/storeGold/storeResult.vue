@@ -7,7 +7,7 @@
         <!-- 主体部分 -->
         <div class="main-cont">
             <!-- 订单成功 -->
-            <div class="success" v-if="orderStatus==1">
+            <div class="success">
                 <!-- 顶部图标部分 -->
                 <div class="top-info">
                     <div class="top-img">
@@ -18,12 +18,12 @@
                 <!-- 地址部分 -->
                 <div class="address-info">
                     <div class="left-icon"></div>
-                    <div class="right-text">
+                    <div class="right-text" v-if="orderInfo.address">
                         <p class="name-tel">
-                            <span class="name">{{orderInfo.contact}}</span>
-                            <span class="tel">{{orderInfo.telephone | hideMible}}</span>
+                            <span class="name">{{orderInfo.address.contact}}</span>
+                            <span class="tel">{{orderInfo.address.mobile | hideMible}}</span>
                         </p>
-                        <p class="add" v-if="orderInfo.address">{{orderInfo.address|clearStr}}</p>
+                        <p class="add">{{orderInfo.address.address}}</p>
                     </div>
                 </div>
                 <!-- 订单信息 -->
@@ -35,14 +35,10 @@
                             <span>{{orderInfo.code}}</span>
                         </div>
                         <div class="info-item">
-                            <span>存金类型</span>
-                            <span>{{typeJson[orderInfo.productType]}}</span>
-                        </div>
-                        <div class="info-item">
                             <span>存金重量</span>
-                            <span>{{orderInfo.applyWeight | formatPriceTwo}}克</span>
+                            <span>{{orderInfo.weight | formatPriceTwo}}克</span>
                         </div>
-                        <div class="" v-if="orderInfo.lockprice">
+                        <div class="" v-if="orderInfo.typeCode == 'lock'">
                             <div class="info-item">
                                 <span>锁价保证金</span>
                                 <span class="special-color">{{orderInfo.ensureCash | formatPriceTwo}}元</span>
@@ -55,7 +51,7 @@
                     </div>
                 </div>
                 <!-- 银行卡 -->
-                <div class="bank-info"  v-if="orderInfo.lockprice">
+                <div class="bank-info"  v-if="orderInfo.typeCode == 'lock'">
                     <span>银行卡</span>
                     <span>{{bankInfo.name}}(尾号{{bankInfo.code}})</span>
                 </div>
@@ -63,27 +59,24 @@
                 <div class="tip">工作人员会尽快联系您核实订单</div>
                 <!-- 按钮部分 -->
                 <div class="btn-opration">
-                    <div class="go-detail" @click="$router.push({path:'/storeorderdetail',query:{id:orderId,status:orderInfo.status}})">查看订单</div>
+                    <div class="go-detail" @click="$router.push({path:'/storeorderdetail',query:{code:code,status:orderInfo.state}})">查看订单</div>
                     <div class="go-index" @click="$router.push('/index')">返回首页</div>
                 </div>
             </div>
             <!-- 订单失败 -->
-            <div class="error" v-else>
-                <!-- 顶部图标部分 -->
+            <!-- <div class="error" v-else>
                 <div class="top-info">
                     <div class="top-img">
                         <img src="static/images/shopmsnopass.png" alt="">
                     </div>
                     <p>订单支付失败</p>
                 </div>
-                <!-- 失败原因 -->
                 <div class="reason">失败原因：{{paysFailReason}}</div>
-                <!-- 按钮部分 -->
                 <div class="btn-opration">
                     <div class="go-detail" @click="$router.push({path:'/storeorderdetail',query:{id:orderId,status:11}})">查看订单</div>
                     <div class="go-index" @click="$router.push('/index')">返回首页</div>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 </template>
@@ -96,13 +89,10 @@ import { query_detail, query_card_info} from '@/service/getData.js'
     export default {
         data(){
             return{
+                code:'',
                 orderId:'',        // 订单ID
                 orderStatus:null,  // 订单是否成功
                 paysFailReason:'', // 失败原因
-                typeJson:{
-                    '0':'金条',
-                    '1':'饰品',
-                },
                 orderInfo:'',
                 bankInfo:{
                     code:'0820',
@@ -142,10 +132,11 @@ import { query_detail, query_card_info} from '@/service/getData.js'
         methods: {
             // 请求订单详情数据
             async query_detail(){
-                var res = await query_detail(this.orderId);
+                var res = await query_detail(this.code);
                 if(res.code=='000000'){
                     this.orderInfo = res.data;
-                    if(res.data.lockprice){  // 如果是锁价请求银行卡信息
+                    console.log(this.orderInfo)
+                    if(res.data.typeCode == 'lock'){  // 如果是锁价请求银行卡信息
                         this.query_card_info();
                     }
                 }else{
@@ -161,14 +152,9 @@ import { query_detail, query_card_info} from '@/service/getData.js'
             }
         },
         created(){
-            this.orderId = this.$route.query.id;
-            if(this.$route.query.paysFailReason){
-                this.paysFailReason = this.$route.query.paysFailReason;
-            }
+            this.code = this.$route.query.code;
         },
         mounted(){
-            this.orderStatus = this.$route.query.status; // 支付成功 or 失败
-            // console.log(this.orderStatus)
             this.query_detail();
         },
     }

@@ -9,7 +9,7 @@ import {getStore} from '../config/mUtils.js'
 * 商户锁价保证金比例
 */
 
-export const margin_rate = () => fetch(' /merchant/margin_rate',{},'get')
+export const margin_rate = () => fetch('/merchant/margin_rate',{},'get')
 
 
 /**
@@ -306,14 +306,15 @@ export const add_recycle_order_check = () => fetch('/order/add_recycle_order_che
  * 创建订单
  */
 
-export const add_recycle_order = (applyQuantity,applyWeight,isLockPrice,isCash,contact,telephone,address) => fetch('/order/add_recycle_order',{'applyQuantity':applyQuantity,'applyWeight':applyWeight,'isLockPrice':isLockPrice,'isCash':isCash,'contact':contact,'telephone':telephone,'address':address},'post');
+// export const add_recycle_order = (applyQuantity,applyWeight,isLockPrice,isCash,contact,telephone,address) => fetch('/order/add_recycle_order',{'applyQuantity':applyQuantity,'applyWeight':applyWeight,'isLockPrice':isLockPrice,'isCash':isCash,'contact':contact,'telephone':telephone,'address':address},'post');
+export const add_recycle_order = (typeCode,weight,count,bankCardId,addressId) => fetch('/order',{'typeCode':typeCode,'weight':weight,'count':count,'bankCardId':bankCardId,'addressId':addressId},'post');
 
 /**
  * 支付预下单(发送短信验证码)
  */
 
 export const pay_beforehand_order = (orderId,countType) => fetch('/order/pay_beforehand_order',{'orderId':orderId,'countType':countType},'post');
-// export const pay_beforehand_order = (id) => fetch('/order/margin/pay/captcha?id='+id,{},'get');
+// export const pay_beforehand_order = (code) => fetch('/order/margin/pay/captcha?code='+code,{},'get');
 
 
 /**
@@ -321,80 +322,80 @@ export const pay_beforehand_order = (orderId,countType) => fetch('/order/pay_bef
  */
 
 export const pay_formal_order = (orderId,smsCode) => fetch('/order/pay_formal_order',{'orderId':orderId,'smsCode':smsCode},'post');
-// export const pay_formal_order = (id,captcha) => fetch('/order/margin/pay',{'id':id,'captcha':captcha},'post');
+// export const pay_formal_order = (code,captcha) => fetch('/order/margin/pay',{'code':code,'captcha':captcha},'post');
 
 
 /**
  * 定时查看订单状态
  */
 
-export const query_status = (orderId) => fetch('/order/query_status?orderId='+orderId,{},'get');
-// export const query_status = (id) => fetch('/order/margin/pay?id='+id,{},'get');
+// export const query_status = (orderId) => fetch('/order/query_status?orderId='+orderId,{},'get');
+export const query_status = (code) => fetch('/order/margin/pay?code='+code,{},'get');
 
 
 /**
  * 查看订单列表
  */
 
-export const query_list = (page,size) => fetch('/order/query_list?page='+page+'&size='+size,{},'get');
-// export const query_list = (page,size) => fetch('/order?page='+page+'&size='+size,{},'get');
+// export const query_list = (page,size) => fetch('/order/query_list?page='+page+'&size='+size,{},'get');
+export const query_list = (page,size) => fetch('/order?page='+page+'&size='+size,{},'get');
 
 /**
  * 查看订单详情
  */
 
-export const query_detail = (orderId) => fetch('/order/query_detail?orderId='+orderId,{},'get');
-// export const query_detail = (id) => fetch('/order?id='+id,{},'get');
+// export const query_detail = (orderId) => fetch('/order/query_detail?orderId='+orderId,{},'get');
+export const query_detail = (code) => fetch('/order?code='+code,{},'get');
 
 /**
  * 查询物流信息(快递单号、编码)
  */
 
-export const query_logistics_mess = (orderId,type) => fetch('/logistics/query_logistics_mess?orderId='+orderId+'&type='+type,{},'get');
-// export const query_logistics_mess = (id) => fetch('/order/express?id='+id,{},'get');
+// export const query_logistics_mess = (orderId,type) => fetch('/logistics/query_logistics_mess?orderId='+orderId+'&type='+type,{},'get');
+export const query_logistics_mess = (code) => fetch('/order/pick?code='+code,{},'get');
 
 /**
  * 查询快递信息
  */
 
-export const query_express_mess = (expressNo,expressCode) => fetch('/logistics/query_express_mess?expressNo='+expressNo+'&expressCode='+expressCode,{},'get');
-// export const query_express_mess = (code) => fetch('/express/route?code='+code,{},'get');
+// export const query_express_mess = (expressNo,expressCode) => fetch('/logistics/query_express_mess?expressNo='+expressNo+'&expressCode='+expressCode,{},'get');
+export const query_express_mess = (expressNo) => fetch('/logistics/query_express_mess?expressNo='+expressNo,{},'get');
 
 
 /**
  * 查询检测报告
  */
 
-export const query_process_mess = (orderId) => fetch('/order/query_process_mess?orderId='+orderId,{},'get');
-// export const query_process_mess = (id) => fetch('/order/detection?id='+id,{},'get');
+// export const query_process_mess = (orderId) => fetch('/order/query_process_mess?orderId='+orderId,{},'get');
+export const query_process_mess = (code) => fetch('/order/detection?code='+code,{},'get');
 
 
 /**
  * 查询检测报告明细
  */
 
-export const query_report_detail = (id,page,size) => fetch('/order/goods/detection?id='+id+'&page='+page+'&size='+size,{},'get');
+export const query_report_detail = (code,page,size) => fetch('/order/goods/detection?code='+code+'&page='+page+'&size='+size,{},'get');
 
 
 /**
  * 查询订单追踪
  */
 
-export const query_status_flow_mess = (orderId) => fetch('/order_flow/query_status_flow_mess?orderId='+orderId,{},'get');
-// export const query_status_flow_mess = (id) => fetch('/order/operate?id='+id,{},'get');
+// export const query_status_flow_mess = (orderId) => fetch('/order_flow/query_status_flow_mess?orderId='+orderId,{},'get');
+export const query_status_flow_mess = (code) => fetch('/order/operate?code='+code,{},'get');
 
 /**
  * 确认订单(用户确认检测报告)
  */
 
-export const confirm_order = (orderId) => fetch('/order/confirm_order',{'orderId':orderId},'post');
-// export const confirm_order = (id) => fetch('/order/confirm',{'id':id},'post');
+// export const confirm_order = (orderId) => fetch('/order/confirm_order',{'orderId':orderId},'post');
+export const confirm_order = (code) => fetch('/order/confirm',{'code':code},'post');
 
 /**
  *  取消订单
  */
 
-export const cancel_order = (id) => fetch('/order/cancel',{'id':id},'post');
+export const cancel_order = (code) => fetch('/order/cancel',{'code':code},'post');
 
 
 /**

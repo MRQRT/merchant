@@ -20,8 +20,9 @@
                 <mt-loadmore :bottom-method="loadBottom" :bottom-all-loaded="allLoaded" :auto-fill="false"
                     bottomPullText="上滑加载更多" bottomDropText="松开加载" ref="loadmore" class="loadmore">
                     <ul class="order-list">
-                        <li class="order-item" v-for="(item,index) in orderList" :key="index" @click="goOrderDetail(item)" :class="{'shadow':item.status==6}">
-                            <span class="lock-price-icon" v-if="item.lockprice"></span>
+                        <li class="order-item" v-for="(item,index) in orderList" :key="index" @click="goOrderDetail(item)" :class="{'shadow':item.state==7}">
+                            <!-- 锁价标示 -->
+                            <span class="lock-price-icon" v-if="item.typeCode=='lock'"></span>
                             <!-- 左侧图片 -->
                             <div class="left-img">
                                 <img src="static/images/order-info-basic.png" alt="">
@@ -31,20 +32,23 @@
                                 <!-- 变现or存入克重 -->
                                 <div class="trade-type">
                                     <div class="right">
-                                        <span class="status-icon" v-if="item.status==7"></span>
-                                        <span class="status" v-else :class="{'overStatus':item.status==1 ||item.status==8 || item.status==11 || item.status==13}">{{statusJson[item.status].name}}</span>
+                                        <!-- 已完成图标 -->
+                                        <span class="status-icon" v-if="item.state==9"></span>
+                                        <!-- 订单状态 -->
+                                        <span class="status" v-else-if="item.state==10 || item.state==11">{{statusJson[item.state][item.nodeCode].name}}</span>
+                                        <span class="status" v-else>{{statusJson[item.state].name}}</span>
                                     </div>
                                 </div>
                                 <!-- 订单信息 -->
                                 <div class="bottom-info">
                                     <div class="weight-time">
                                         <div class="left-info">
-                                            <div class="total-weight">总&nbsp;克&nbsp;重：{{item.applyWeight}}克</div>
+                                            <div class="total-weight">总&nbsp;克&nbsp;重：{{item.weight | formatPriceTwo}}克</div>
                                             <div class="count">数&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;量：{{item.count}}</div>
-                                            <div class="ensure-cash" v-if="item.lockprice">保&nbsp;证&nbsp;金：{{item.ensureCash | formatPriceTwo}}元</div>
-                                            <div class="total-amount" v-if="item.lockprice && (item.status==6 || item.status==7)">实收总额：{{11111 | formatPriceTwo}}元</div>
+                                            <div class="ensure-cash" v-if="item.typeCode=='lock'">保&nbsp;证&nbsp;金：{{item.ensureCash | formatPriceTwo}}元</div>
+                                            <div class="total-amount" v-if="item.typeCode=='lock' && (item.state==7 || item.state==8 || item.state==9)">实收总额：{{item.paidAmount | formatPriceTwo}}元</div>
                                         </div>
-                                        <div class="right-time">{{item.createTimeStr | deleteSec}}</div>
+                                        <div class="right-time">{{item.createdTime}}</div>
                                     </div>
                                 </div>
                             </div>
@@ -89,171 +93,32 @@ import { Indicator,Toast } from 'mint-ui';
             	},
                 pages:'',             // 总页数
                 statusJson:{
-                    '0':{name:'审核中'},
-                    '1':{name:'审核失败'},
-                    '2':{name:'审核通过'},
-                    '3':{name:'物流中'},
-                    '4':{name:'检测中'},
-                    '5':{name:'退货中'},
-                    '6':{name:'待确认'},
-                    '7':{name:'已完成'},
-                    '8':{name:'已取消'},
-                    '9':{name:'退货中'},
-                    '10':{name:'未支付'},
-                    '11':{name:'已失效'},
-                    '12':{name:'物流异常'},
-                    '13':{name:'已关闭'},
-                },
-                typeJson:{ // 存金类型
-                    '0':'存入克重',
-                    '1':'直接变现',
+                    '1':{name:'待支付'},
+                    '2':{name:'支付处理中'},
+                    '3':{name:'审核中'},
+                    '4':{name:'待取货'},
+                    '5':{name:'物流中'},
+                    '6':{name:'检测中'},
+                    '7':{name:'待确认'},
+                    '8':{name:'打款中'},
+                    '9':{name:'已完成'},
+                    '10':{
+                        'verify':{name:'退款中'},
+                        'pick':{name:'退款中'},
+                        'front_cancel':{name:'退款中'},
+                        'back_cancel':{name:'退款中'},
+                    },
+                    '11':{
+                        'pay_margin':{name:'已关闭'},
+                        'front_cancel':{name:'已关闭'},
+                        'back_cancel':{name:'已关闭'},
+                        'verify':{name:'已关闭'},
+                        'pick':{name:'已关闭'},
+                        'detection':{name:'什么鬼'}
+
+                    }
                 },
                 orderList:[],
-                // orderList:[
-                //     {
-                //         productType:0,
-                //         status:0,
-                //         code:'TR180309141234033476',
-                //         tradeType:0, // 存入克重or直接变现
-                //         isLockprice:1, // 是否锁价
-                //         applyWeight:23.456,
-                //         createTime:'2018-03-05 09:38',
-                //         cash:1,
-                //         ensureCash:543.345
-                //     },
-                //     {
-                //         productType:1,
-                //         status:1,
-                //         code:'TR180309141234033476',
-                //         tradeType:0,
-                //         isLockprice:1,
-                //         applyWeight:23.456,
-                //         createTime:'2018-03-05 09:38',
-                //         cash:0,
-                //         ensureCash:543.345
-                //     },
-                //     {
-                //         productType:0,
-                //         status:2,
-                //         code:'TR180309141234033476',
-                //         tradeType:0,
-                //         isLockprice:0,
-                //         applyWeight:23.456,
-                //         createTime:'2018-03-05 09:38',
-                //         cash:0,
-                //     },
-                //     {
-                //         productType:1,
-                //         status:3,
-                //         code:'TR180309141234033476',
-                //         tradeType:1,
-                //         isLockprice:0,
-                //         applyWeight:23.456,
-                //         createTime:'2018-03-05 09:38',
-                //         cash:0,
-                //     },
-                //     {
-                //         productType:0,
-                //         status:4,
-                //         code:'TR180309141234033476',
-                //         tradeType:0,
-                //         isLockprice:1,
-                //         applyWeight:23.456,
-                //         createTime:'2018-03-05 09:38',
-                //         cash:0,
-                //         ensureCash:543.345
-                //     },
-                //     {
-                //         productType:1,
-                //         status:5,
-                //         code:'TR180309141234033476',
-                //         tradeType:0,
-                //         isLockprice:0,
-                //         applyWeight:23.456,
-                //         createTime:'2018-03-05 09:38',
-                //         cash:0,
-                //     },
-                //     {
-                //         productType:1,
-                //         status:6,
-                //         code:'TR180309141234033476',
-                //         tradeType:0,
-                //         isLockprice:0,
-                //         applyWeight:23.456,
-                //         createTime:'2018-03-05 09:38',
-                //         cash:0,
-                //     },
-                //     {
-                //         productType:1,
-                //         status:7,
-                //         code:'TR180309141234033476',
-                //         tradeType:0,
-                //         isLockprice:0,
-                //         applyWeight:23.456,
-                //         createTime:'2018-03-05 09:38',
-                //         cash:0,
-                //     },
-                //     {
-                //         productType:0,
-                //         status:8,
-                //         code:'TR180309141234033476',
-                //         tradeType:0,
-                //         isLockprice:0,
-                //         applyWeight:23.456,
-                //         createTime:'2018-03-05 09:38',
-                //         cash:0,
-                //     },
-                //     {
-                //         productType:0,
-                //         status:9,
-                //         code:'TR180309141234033476',
-                //         tradeType:0,
-                //         isLockprice:0,
-                //         applyWeight:23.456,
-                //         createTime:'2018-03-05 09:38',
-                //         cash:0,
-                //     },
-                //     {
-                //         productType:0,
-                //         status:10,
-                //         code:'TR180309141234033476',
-                //         tradeType:0,
-                //         isLockprice:0,
-                //         applyWeight:23.456,
-                //         createTime:'2018-03-05 09:38',
-                //         cash:0,
-                //     },
-                //     {
-                //         productType:0,
-                //         status:11,
-                //         code:'TR180309141234033476',
-                //         tradeType:0,
-                //         isLockprice:0,
-                //         applyWeight:23.456,
-                //         createTime:'2018-03-05 09:38',
-                //         cash:0,
-                //     },
-                //     {
-                //         productType:0,
-                //         status:12,
-                //         code:'TR180309141234033476',
-                //         tradeType:0,
-                //         isLockprice:0,
-                //         applyWeight:23.456,
-                //         createTime:'2018-03-05 09:38',
-                //         cash:0,
-                //     },
-                //     {
-                //         productType:1,
-                //         status:13,
-                //         code:'TR180309141234033476',
-                //         tradeType:0,
-                //         isLockprice:0,
-                //         applyWeight:23.456,
-                //         createTime:'2018-03-05 09:38',
-                //         cash:0,
-                //     },
-                // ]
             }
         },
         components:{
@@ -280,13 +145,14 @@ import { Indicator,Toast } from 'mint-ui';
             },
             //跳转订单详情
             goOrderDetail(item){
-                var path = item.status == 6 ? '/report' : '/storeorderdetail';
+                var path = '/storeorderdetail';
 
                 this.$router.push({
                     path:path,
                     query:{
-                        id:item.id,
-                        status:item.status
+                        code:item.code,
+                        status:item.state,
+                        nodeCode:item.nodeCode,
                     }
                 })
             },
@@ -461,7 +327,12 @@ import { Indicator,Toast } from 'mint-ui';
                     margin-top:-.05rem;
                     position: absolute;
                     right:0;
+                    @keyframes scaleIn1{
+                        0%{ transform: scale(4); opacity: 0;}
+                        100%{ transform: scale(1); opacity: 1;}
+                    }
                     .status-icon{
+                        animation: scaleIn1 0.3s .3s ease-out both;
                         @include inline-block(1.3rem,1.3rem);
                         @include bg-image('/static/images/order-wancheng-icon.png');
                     }

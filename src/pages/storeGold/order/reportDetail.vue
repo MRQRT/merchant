@@ -49,37 +49,14 @@ import { query_report_detail } from '@/service/getData.js'
                 code:'',
                 eachReportNum:-1,        // 每一个产品的检测报告明细显示、隐藏
                 reportDetialStatus:false,// 检测报告明显显示、隐藏
-                allLoaded:false,     // 是否全部加载完毕
-                wrapperHeight:0,     // 加载内容动态高度
-                searchCondition: {   // 分页属性
-                    pageNo: 0,
+                allLoaded:false,         // 是否全部加载完毕
+                wrapperHeight:0,         // 加载内容动态高度
+                searchCondition: {       // 分页属性
+                    pageNo: 1,
                     pageSize: 15
                 },
-                pages:'',             // 总页数
-                reportDetailInfo:[       // 检测报告明细数组
-                    {
-                        code:'MR2018123455',
-                        goodsTypeCode:'jewelry',
-                        grossWeight:12.12,
-                        colour:9999,
-                        amount:520.12
-                    },
-                    {
-                        code:'MR2018123455',
-                        goodsTypeCode:'bar',
-                        grossWeight:12.12,
-                        colour:9999,
-                        amount:520.12
-                    },
-                    {
-                        code:'MR2018123455',
-                        goodsTypeCode:'jewelry',
-                        grossWeight:12.12,
-                        colour:9999,
-                        amount:520.12
-                    },
-
-                ],
+                pages:'',                // 总页数
+                reportDetailInfo:[],     // 检测报告明细数组    
             }
         },
         components:{
@@ -103,7 +80,7 @@ import { query_report_detail } from '@/service/getData.js'
             async query_detail(){
                 var res = await query_report_detail(this.code,this.searchCondition.pageNo,this.searchCondition.pageSize);
                 if(res.code=='000000'){
-                    this.reportDetailInfo = res.data;
+                    this.reportDetailInfo = res.data.content;
                     if(this.searchCondition.pageNo>=res.data.totalPages){
                        this.allLoaded=true;  //数据加载完，bottomMethod则不再执行
                     }
@@ -151,7 +128,7 @@ import { query_report_detail } from '@/service/getData.js'
           }
         },
         created(){
-
+            this.code = this.$route.query.code;
         },
         mounted(){
             // 计算滚动内容的高度
