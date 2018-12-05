@@ -218,24 +218,11 @@
                     </div>
                     <!-- 验证码倒计时 -->
                     <div class="verify-countdown">
-                        <span v-if="!countdownStatus">{{countDownSec}}S</span>
+                        <span v-if="!countdownStatus">{{countDownSec}}s</span>
                         <span v-else @click="requestVerifi()">重新获取验证码>></span>
                     </div>
                     <!-- 支付按钮 -->
                     <div class="pay-btn" :class="{'active':payClickStatus}" @click="payment">立即支付</div>
-                </div>
-            </div>
-        </mt-popup>
-        <!-- 重试验证码弹窗 -->
-        <mt-popup v-model="popupVisible3" popup-transition="popup-fade" :closeOnClickModal="false">
-            <div class="verifi-popup-wrap">
-                <div class="top-text">
-                    验证码错误，请重试
-                </div>
-                <div class="btn-wrap">
-                    <span @click="cancleVerifi()">取消</span>
-                    <span v-if="!countdownStatus">重试<b>({{countDownSec}}s)</b></span>
-                    <span v-else @click="againVerifi()" class="active">重试</span>
                 </div>
             </div>
         </mt-popup>
@@ -247,7 +234,7 @@ import headTop from '@/components/header/head.vue'
 import { clearNoNum } from '../../config/mUtils.js';
 import { MessageBox,Toast,Popup } from 'mint-ui';
 import { mapState,mapMutations } from 'vuex'
-import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, query_card_info, query_shop_address_list, add_recycle_order_check, add_recycle_order, pay_beforehand_order, pay_formal_order, query_status,query_shop_address_detail } from '@/service/getData.js'
+import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, query_card_info, query_shop_address_list, add_recycle_order_check, add_recycle_order, pay_beforehand_order, pay_formal_order, query_shop_address_detail } from '@/service/getData.js'
 
 
     export default {
@@ -262,25 +249,24 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
                 bg:true,             // 协议是否已读
                 popupNum:'',         // 控制哪个弹窗显示
                 popupVisible:false,  // 全屏弹窗
-                btnCtroller:true,    // 按钮是否可以点击
                 popupVisible1:false, // 验证码弹窗
-                popupVisible3:false, // 重试验证码弹窗
+                btnCtroller:true,    // 按钮是否可以点击
                 code:'',             // 订单code
                 orderId:'',          // 订单创建成功后的ID
                 ensureCash:'',       // 支付时的保证金
                 lockPrice:'',        // 支付时的锁定金价
-                verifyStatus:true,   // 验证码是否正确
+                verifyStatus:false,   // 验证码是否正确
                 verifiCode:[],       // 验证码
                 bankCardId:'',       // 银行卡ID
                 addressId:'',        // 查询地址ID
                 detailAddress:'',    // 传给后台的详细地址
-                screenHeight: document.documentElement.clientHeight,//记录高度值(这里是给到了一个默认值)
                 bankInfo:'',         // 银行卡信息
                 receiverInfo:'',     // 收货人信息
                 addressId:'',        // 地址id
                 countDownSec:59,     // 重试验证码倒计时
                 countdownStatus:false,// 重试按钮是否可以点击
                 marginRate:10,         // 锁加保证金比例
+                screenHeight: document.documentElement.clientHeight,//记录高度值(这里是给到了一个默认值)
             }
         },
         components:{
@@ -444,13 +430,6 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
                     }
                 })
             },
-            //显示重试验证码弹窗
-            againVerifi(){
-                this.popupVisible3 = false; // 将重试验证码弹窗关闭
-                this.popupVisible1 = true;  // 显示验证码弹窗
-                this.verifiCode = [];       // 将之前验证码清除
-                this.requestVerifi(1);      // 调用另一个获取短信验证码接口
-            },
             // 获取最新商户审核信息
             async merchant_open_apply_status(){
                 var res = await merchant_open_apply_status();
@@ -542,7 +521,7 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
                     }
                 }
             },
-            //关闭验证码弹窗(取消订单)
+            //关闭验证码弹窗(跳转 待支付-详情页)
             closeVerifi(){
                 this.popupVisible1 = false;
                 this.$router.push({ // 跳转待支付订单详情页
@@ -712,11 +691,11 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
                 // 创建订单
                 var res = await add_recycle_order('lock',this.weight,this.extractNum,this.bankCardId,this.addressId)
                 if(res.code=='000000'){
-                    this.code = res.data;
-                    this.ensureCash = res.data.ensureCash;
-                    this.lockPrice = res.data.lockPrice;
+                    this.code = res.data.code;
+                    this.ensureCash = res.data.margin.paidAmount;
+                    this.lockPrice = res.data.lockPrice.lockPrice;
                     this.popupVisible1 = true;    // 显示验证码弹窗
-                    this.requestVerifi(0);        // 调用预下单函数，发送验证码函数
+                    this.requestVerifi();         // 调用预下单函数，发送验证码函数
                 }else{
                     Toast(res.message);
                     this.btnCtroller = true;  // 按钮恢复可点状态
@@ -739,8 +718,10 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
             },
             //支付预下单（发送验证码函数）
             async requestVerifi(){
+                var that = this;
                 var res = await pay_beforehand_order(this.code);
                 if(res.code=='000000'){
+                    this.countdownStatus = false; // 验证码倒计时显示秒数
                     this.popupVisible1 = true;    // 显示验证码弹窗
                     Toast({
                         message:'验证码已发送，请注意查收哦',
@@ -751,7 +732,7 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
                         if(that.countDownSec<=0){
                             clearInterval(timer1);
                             that.countdownStatus=true;
-                            that.countDownSec= 60;
+                            that.countDownSec= 59;
                         }
                     },1000)
                 }else{
@@ -1437,9 +1418,9 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
                 100%{ transform: translate(-0.2%, -0.2%);}
             }
             @keyframes patt1{
-                 0%{ transform: translate(-0.5%, -0.5%);}
-                 50%{ transform: translate(0.5%, 0.5%);}
-                 100%{ transform: translate(-0.5%, -0.5%);}
+                 0%{ transform: translate(-1.2%, -1.2%);}
+                 50%{ transform: translate(1.2%, 1.2%);}
+                 100%{ transform: translate(-1.2%, -1.2%);}
             }
             .input-wrap{
                 height: .98rem;
@@ -1478,8 +1459,8 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
                 }
             }
             .verify-error{
-                animation: patt0 0.5s infinite;
-                border:1px solid #EC534F;
+                animation: patt0 0.3s 0.2s ease-out both;
+                // border:1px solid #EC534F;
             }
             .verify-countdown{
                 text-align: right;

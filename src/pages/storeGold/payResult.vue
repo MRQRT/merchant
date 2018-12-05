@@ -26,12 +26,18 @@
                 <div class="step-txt">
                     <p>
                         <span class="icon"></span>
-                        <span class="txt">订单已创建</span>
+                        <span class="txt">
+                            <b>订单已创建</b>
+                            <b class="time">12:12 11:11:11</b>
+                        </span>
                         <span class="left-line"></span>
                     </p>
-                    <p>
+                    <p class="pay-ing">
                         <span class="icon"></span>
-                        <span class="txt">银行处理中</span>
+                        <span class="txt">
+                            <b>银行处理中</b>
+                            <b class="time">12:12 11:11:11</b>
+                        </span>
                         <span class="left-line" :class="{'grey':orderStatus=='doing'}"></span>
                     </p>
                     <p v-if="orderStatus=='doing'" class="wait-pay">
@@ -40,7 +46,10 @@
                     </p>
                     <p v-else>
                         <span class="icon"></span>
-                        <span class="txt">支付成功</span>
+                        <span class="txt">
+                            <b>支付成功</b>
+                            <b class="time">12:12 11:11:11</b>
+                        </span>
                     </p>
                 </div>
             </div>
@@ -53,20 +62,27 @@
 <script>
 import headTop from '@/components/header/head.vue'
 import { MessageBox,Toast, } from 'mint-ui';
-import { query_detail, query_card_info} from '@/service/getData.js'
+import { query_status,} from '@/service/getData.js'
 
     export default {
         data(){
             return{
                 code:'',           // 订单code
-                orderStatus:'doing',  // 订单是否成功
+                orderStatus:'success',  // 订单是否成功
                 paysFailReason:'', // 失败原因
 
             }
         },
         filters:{
-            clearStr(val){
-                return val.replace(/,/g, "");
+            clearYear(val){
+                var arr=val.split(' ');
+
+                var timeArr1=arr[0].split('-');
+                timeArr1.shift();
+                timeArr1=timeArr1.join('-');
+
+                var timeArr2=arr[1];
+                return timeArr1 + ' ' + timeArr2;
             }
         },
         components:{
@@ -150,10 +166,18 @@ import { query_detail, query_card_info} from '@/service/getData.js'
                 p{
                     color: #C09C60;
                     font-size: .26rem;
-                    margin-bottom: .6rem;
+                    margin-bottom: .3rem;
                     position: relative;
-                    align-items: center;
+                    align-items: flex-start;
                     @include flex-box();
+                    span{
+                        flex-direction: column;
+                        @include flex-box();
+                        .time{
+                            color: #999;
+                            font-size: .2rem;
+                        }
+                    }
                     .icon{
                         margin-right:.2rem;
                         @include inline-block(.32rem,.32rem);
@@ -171,8 +195,16 @@ import { query_detail, query_card_info} from '@/service/getData.js'
                         background:#999;
                     }
                 }
+                .pay-ing{
+                    .icon{
+                        @include bg-image('/static/images/payresult-end.png');
+                    }
+                }
                 .wait-pay{
                     color: #999;
+                    .icon{
+                        @include bg-image('/static/images/payresult-ing.png');
+                    }
                 }
             }
         }

@@ -52,11 +52,11 @@ import { query_report_detail } from '@/service/getData.js'
                 allLoaded:false,         // 是否全部加载完毕
                 wrapperHeight:0,         // 加载内容动态高度
                 searchCondition: {       // 分页属性
-                    pageNo: 1,
+                    pageNo: 0,
                     pageSize: 15
                 },
                 pages:'',                // 总页数
-                reportDetailInfo:[],     // 检测报告明细数组    
+                reportDetailInfo:[],     // 检测报告明细数组
             }
         },
         components:{

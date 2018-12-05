@@ -69,8 +69,8 @@
                 </p>
             </div>
             <div class="report-img">
-                <!-- <img src="static/images/storeGold-banner.png" alt="检测报告" preview="1"> -->
-                <img :src="reportInfo.attachmentPath" alt="检测报告" preview="1">
+                <img src="static/images/storeGold-banner.png" alt="检测报告" preview="1">
+                <!-- <img :src="reportInfo.attachmentPath" alt="检测报告" preview="1"> -->
             </div>
             <!-- 异常情况 -->
             <div class="report-tel-btn" v-if="status==5 || status==9 || status==13"><a href="tel:4008196199">联系客服</a></div>
@@ -123,6 +123,7 @@ import { query_process_mess,confirm_order } from '@/service/getData.js'
                 popupVisible1:false,   // 订单确认中弹窗
                 popupVisible2:false,   // 确认失败弹窗
                 servicePriceStatus:false,  // 是否显示总服务费
+                arr:[{},{},{}]
             }
         },
         components:{

@@ -82,7 +82,7 @@
                 </div>
             </div>
             <!-- part3:订单关闭部分(只在退款中/已关闭状态，且是取消订单/超时未支付才显示) -->
-            <div class="order-closed" v-if="(status==10||status==11) && (nodeCode=='front_cancel'||nodeCode=='back_cancel'||nodeCode=='pay_margin')">
+            <div class="order-closed" v-if="order_close_status">
                 <div class="left-img"></div>
                 <div class="right-text">
                     <h3>您的订单
@@ -119,11 +119,11 @@
                 </p>
                 <p>
                     <span>银行卡号</span>
-                    <!-- <span class="info-bank">{{orderInfo.bankCard.name}}（尾号{{orderInfo.bankCard.code}}）</span> -->
+                    <span class="info-bank" v-if="orderInfo.bankCard">{{orderInfo.bankCard.name}}（尾号{{orderInfo.bankCard.code}}）</span>
                 </p>
             </div>
             <!-- part4.1 审核结果(回点到审核icon时显示) -->
-            <div class="verify-results" v-if="stepIconNum==0 && status > 4 && status <=9">
+            <div class="verify-results" v-if="verify_result_status">
                 <span>审核结果</span>
                 <span class="results">审核通过</span>
             </div>
@@ -259,8 +259,8 @@
                             </h4>
                             <!-- 检测报告图片 -->
                             <ul class="report-img-list">
-                                <li class="img-item" v-for="(item,index) in reportInfo.reportPaths" :class="{'single':reportInfo.reportPaths.length==1}">
-                                    <img :src="item" alt="">
+                                <li class="img-item" v-for="(item,index) in reportInfo.reportPaths" :key="index" :class="{'single':reportInfo.reportPaths.length==1}">
+                                    <img :src="item" alt="检测报告" preview='1'>
                                 </li>
                             </ul>
                         </div>
@@ -359,6 +359,7 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
     export default {
         data(){
             return{
+                arr:[{},{}],
                 showStatus:true,         // 是否显示主体内容
                 code:'',                 // 订单编号
                 orderId:'',              // 订单ID
@@ -383,7 +384,7 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                     minu:'-',
                     secd:'-',
                 },
-                timer:'',
+                timer:'',                // 待确认时顶部倒计时时间
                 stepList:[               // 进度icon对应文字
                     {name:'订单审核'},
                     {name:'物流运输'},
@@ -400,26 +401,11 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                     code:'0820',
                     name:'中国工商银行'
                 },
-                reportInfo:{             // 检测报告信息
-                    grossWeight:12,
-                    colour:999,
-                    suttleWeight:23.3,
-                    price:278.12,
-                    serviceFee:12,
-                    detectionFee:13,
-                    expressFee:14,
-                    insuranceFee:15,
-                    discountAmount:16,
-                    amount:17,
-                    operator:'小可爱',
-                    operateTime:'2018-12-12 12;12;12',
-                    resultCode:'success',
-                    reportPaths:[],
-                },
+                reportInfo:'',           // 检测报告信息
                 packageList:[],          // 包裹列表
                 deliveryList:[],         // 具体物流信息
                 newTrackList:[],         // 订单追踪信息
-                statusJson:{
+                statusJson:{             // 整个订单状态
                     '1':{name:'待支付',topNum:8,status:0,beforeStatus:0,iconType:0},
                     '2':{name:'支付处理中',topNum:0,status:0,beforeStatus:0,iconType:0},
                     '3':{name:'审核中',topNum:1,status:1,beforeStatus:0,iconType:0},
@@ -442,7 +428,7 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                         'verify':{name:'已关闭',topNum:10,status:2,beforeStatus:0,iconType:0},
                         'pick':{name:'已关闭',topNum:11,status:2,beforeStatus:1,iconType:1},
                     }
-                }            // 整个订单状态
+                }
             }
         },
         filters:{
@@ -452,7 +438,28 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
             headTop,
         },
         computed: {
-
+            // 审核结果回点显示
+            verify_result_status(){
+                if(this.stepIconNum==0&&this.status>4){
+                    if((this.status==10||this.status==11)&&this.nodeCode!='pick'){ //只有在物流异常情况下回点才显示
+                        return false;
+                    }else{
+                        return true;
+                    }
+                }else{
+                    return false;
+                }
+            },
+            // 订单取消、关闭图标显示
+            order_close_status(){
+                var status = this.status;
+                var nodeCode = this.nodeCode;
+                if((status==10||status==11) && (nodeCode=='front_cancel'||nodeCode=='back_cancel'||nodeCode=='pay_margin')){
+                    return true;
+                }else{
+                    return false;
+                }
+            }
         },
         watch:{
 
@@ -460,9 +467,8 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
         methods: {
             // 顶部返回按钮
             goback(){
-                if(this.$route.path=='/storeorderdetail'){
+                if(this.popupVisible2){
                     this.popupVisible2 = false;
-                    this.$router.push('/storeorderlist')
                 }else{
                     this.$router.push('/storeorderlist')
                 }
@@ -659,13 +665,13 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                 var text3 = '<p>您的宝贝已经取到，快递小哥正在用心传递速度送往深圳众恒隆进行检测～</p>'
                 var text4 = '<p>我们已经收到您的宝贝啦～专业检测师紧锣密鼓的开工了！1个工作日内就会有结果哦！</p>';
                 var text5 = `<p>亲，只差最后一步啦，您确认下方订单信息后，宝贝将成功卖出，同时您将得到实收总额 ${this.orderInfo.paidAmount} 元（若您未及时确认，系统72小时内自动确认）。</p>`;
-                var text6 = `<p>您的订单已确认，实收总额 ${this.orderInfo.paidAmount} 元将在T+1个工作日内发放到您的 ${this.orderInfo.bankCard}(${this.orderInfo.bankCard}) 银行卡中，记得查收哦～</p>`;
-                var text7 = `<p>实收总额 ${this.orderInfo.paidAmount} 元已发放到您的 ${this.orderInfo.bankCard}(${this.orderInfo.bankCard}) 银行卡中，记得查收哦～（具体到账时间以银行为准）</p>`;
+                var text6 = `<p>您的订单已确认，实收总额 ${this.orderInfo.paidAmount} 元将在T+1个工作日内发放到您的 ${this.orderInfo.bankCard.name}(${this.orderInfo.bankCard.code}) 银行卡中，记得查收哦～</p>`;
+                var text7 = `<p>实收总额 ${this.orderInfo.paidAmount} 元已发放到您的 ${this.orderInfo.bankCard.name}(${this.orderInfo.bankCard.code}) 银行卡中，记得查收哦～（具体到账时间以银行为准）</p>`;
 
                 // 已关闭
                 var text8 = '<p>由于您长时间未支付，订单已关闭～您可以重新发起订单，风里雨里，我们在这里等你！~</p>'
                 var text9 = '<p>您的订单已取消～您可以重新发起订单，风里雨里，我们在这里等你！</p>'
-                var text10 = `<p>抱歉哦，您的订单未通过审核，原因：${this.orderInfo.paidAmount}</p>`;
+                var text10 = `<p>抱歉哦，您的订单未通过审核，原因：${this.orderInfo.verify?this.orderInfo.verify.remark:''}</p>`;
                 var text11 = `<p>很抱歉，您的订单物流发生异常，我们正在排查原因，客服届时将会与您取得联系，给您造成的不便敬请谅解～</p>`;
                 var text12 = '<p>订单已退款完成，请注意查收保证金到账情况～您可以重新发起订单，风里雨里，我们在这里等你！</p>';
 
@@ -724,6 +730,8 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                             this.query_logistics_mess();
                             break;
                         case 7:
+                        case 8:
+                        case 9:
                             this.query_process_mess();   //待确认：检测信息函数
                             break;
                     }
@@ -803,6 +811,7 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                     this.reportInfo = res.data;
                     this.timer = res.data.createdTime; // 检测报告审核通过时间
                     this.countTime();                  // 顶部确认订单倒计时
+                    this.$previewRefresh();            // 加载数据后刷新图片放大功能
                 }else{
                     Toast(res.message)
                 }
@@ -826,6 +835,7 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
             this.query_detail();
             this.query_status_flow_mess();
 
+            // 用来控制订单部分是否显示
             if(this.status==10 || this.status==11){
                 this.stepIconNum = this.statusJson[this.status][this.nodeCode].iconType;
             }else{
@@ -1354,9 +1364,10 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                             height: 100%;
                             padding-left:.1rem;
                             position: relative;
+                            overflow: hidden;
                             .line{
                                 width:1px;
-                                height: 185%;
+                                height: 190%;
                                 position: absolute;
                                 left:1.05rem;
                                 top:.3rem;
