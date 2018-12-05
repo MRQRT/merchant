@@ -355,6 +355,7 @@ import { query_card_info,query_ensure_cash, merchant_open_apply_status,logout,qu
                         width: 100%;
                         height: 100%;
                         @include border-radius(50%);
+                        object-fit: cover;
                     }
                 }
                 .shop-name{
