@@ -207,6 +207,7 @@ import back from 'static/images/hgdBg.jpg';
 .swiper_image{
     width: 100%;
     height: 5rem;
+    object-fit: cover;
 }
 .shop-basic-info{
     width: 100%;
@@ -357,8 +358,8 @@ import back from 'static/images/hgdBg.jpg';
     padding-bottom: .4rem;
 }
 .headimg{
-    width: 1.54rem;
-    height: 1.54rem;
+    width: 1.58rem;
+    height: 1.58rem;
     border: 2px solid #fff;
     position: absolute;
     bottom: -.56rem;
@@ -366,7 +367,9 @@ import back from 'static/images/hgdBg.jpg';
     z-index: 2;
 }
 .headimg img{
-    height:1.54rem;
+    height:1.5rem;
+    width:1.5rem;
+    object-fit:cover;
 }
 .banner-item{
     width:100%;
