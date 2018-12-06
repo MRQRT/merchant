@@ -313,16 +313,16 @@ export const add_recycle_order = (typeCode,weight,count,bankCardId,addressId) =>
  * 支付预下单(发送短信验证码)
  */
 
-export const pay_beforehand_order = (orderId,countType) => fetch('/order/pay_beforehand_order',{'orderId':orderId,'countType':countType},'post');
-// export const pay_beforehand_order = (code) => fetch('/order/margin/pay/captcha?code='+code,{},'get');
+// export const pay_beforehand_order = (orderId,countType) => fetch('/order/pay_beforehand_order',{'orderId':orderId,'countType':countType},'post');
+export const pay_beforehand_order = (code) => fetch('/order/margin/pay/captcha?code='+code,{},'get');
 
 
 /**
  * 支付正式下单(判断验证码是否正确及继续走支付流程)
  */
 
-export const pay_formal_order = (orderId,smsCode) => fetch('/order/pay_formal_order',{'orderId':orderId,'smsCode':smsCode},'post');
-// export const pay_formal_order = (code,captcha) => fetch('/order/margin/pay',{'code':code,'captcha':captcha},'post');
+// export const pay_formal_order = (orderId,smsCode) => fetch('/order/pay_formal_order',{'orderId':orderId,'smsCode':smsCode},'post');
+export const pay_formal_order = (code,captcha) => fetch('/order/margin/pay',{'code':code,'captcha':captcha},'post');
 
 
 /**

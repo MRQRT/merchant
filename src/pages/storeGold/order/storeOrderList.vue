@@ -175,7 +175,7 @@ import { Indicator,Toast } from 'mint-ui';
                 }else{
                     this.orderStatus = false;
                     Indicator.close();
-                    // Toast(res.message)
+                    Toast(res.message)
                 }
             },
             //加载更多

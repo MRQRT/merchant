@@ -142,7 +142,10 @@
             <!-- part4:物流包裹信息 -->
             <div class="delivery-info-wrap" v-if="status>=5 && stepIconNum==1">
                 <h4>物流信息</h4>
-                <ul class="outer-delivery-list">
+                <!-- 加载中动画 -->
+                <mt-spinner type="triple-bounce" color="#C09C60" v-if="!packageStatus"></mt-spinner>
+                <!-- 包裹列表 -->
+                <ul class="outer-delivery-list" v-else>
                     <li class="outer-delivery-item" v-for="(item,index) in packageList" :key="index">
                         <div class="item-title" @click="showDelivery(index,item.expressCode)">
                             <span>
@@ -369,8 +372,8 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                 popupVisible:false,      // 禁止取消订单弹窗
                 popupVisible1:false,     // 确认检测报告中弹窗
                 popupVisible2:false,     // 名词解释弹窗
-                deliveryStatus:false,     // 物流数据是否请求成功
-                deliveryError:false,     // 物流信息出错
+                packageStatus:false,     // 包裹数据是否请求成功
+                deliveryStatus:false,    // 具体物流是否请求成功
                 deliveryNum:-1,          // 展开物流详情
                 stepIconNum:0,           // 当前进度icon
                 orderDetailStatus:false, // 订单信息显示、隐藏
@@ -406,6 +409,10 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                 deliveryList:[],         // 具体物流信息
                 newTrackList:[],         // 订单追踪信息
                 statusJson:{             // 整个订单状态
+                    /***
+                        topNum:顶部文案编号；beforeStatus:前一个图标的状态；iconType:0——4第几个图标
+                        status:0——>未进行；1——>成功；2——>失败；
+                    ***/
                     '1':{name:'待支付',topNum:8,status:0,beforeStatus:0,iconType:0},
                     '2':{name:'支付处理中',topNum:0,status:0,beforeStatus:0,iconType:0},
                     '3':{name:'审核中',topNum:1,status:1,beforeStatus:0,iconType:0},
@@ -564,9 +571,10 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
             },
             // 取消订单确认弹窗
             cancelOrder(){
+                var text = '<div style="text-align:center">您是否确认取消订单？</div>'
                 MessageBox({
                   title: '提示',
-                  message:'您是否确认取消订单？',
+                  message:text,
                   confirmButtonText: '取消订单',
                   cancelButtonText:'我点错了',
                   showCancelButton:true,
@@ -614,7 +622,7 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                         that.secd = '--';
                         clearInterval(countdowns);
                         // 刷新页面
-                        // that.query_detail();
+                        that.query_detail();
                     }
                 },1000);
 
@@ -643,7 +651,7 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                 }else{
                     clearTimeout(window.timer);
                     // 刷新页面
-                    // that.query_detail();
+                    that.query_detail();
                     return
                 }
                 // 递归每秒调用countTime方法，显示动态时间效果
@@ -676,7 +684,7 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                 var text12 = '<p>订单已退款完成，请注意查收保证金到账情况～您可以重新发起订单，风里雨里，我们在这里等你！</p>';
 
                 // 退款中
-                var text13 = `<p>抱歉哦，您的订单未通过审核，原因：${this.orderInfo.paidAmount}。</p>
+                var text13 = `<p>抱歉哦，您的订单未通过审核，原因：${this.orderInfo.verify?this.orderInfo.verify.remark:''}。</p>
                               <p>您的锁价保证金将在1-2个工作日内退回至您绑定的银行卡中，请注意查收～</p>`;
                 var text14 = `<p>很抱歉，您的订单物流发生异常，我们正在排查原因，客服届时将会与您取得联系，给您造成的不便敬请谅解～</p>
                               <p>您的锁价保证金将在1-2个工作日内退回至您绑定的银行卡中，请注意查收～</p>`;
@@ -778,15 +786,17 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                     this.query_detail(); // 刷新页面
                 }else{
                     this.popupVisible1 = false;
-                    Toast('确认失败，请稍后重试～')
+                    Toast('确认订单失败，请稍后重试～')
                 }
             },
             // 请求物流单号
             async query_logistics_mess(){
                 var res = await query_logistics_mess(this.code)
                 if(res.code=='000000'){
+                    this.packageStatus = true;
                     this.packageList = res.data;
                 }else{
+                    this.packageStatus = true;
                     Toast(res.message)
                 }
             },
@@ -1402,11 +1412,6 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                                 }
                             }
                         }
-                        .deliveryError{
-                            text-align: center;
-                            color: #999;
-                            font-size: .28rem;
-                        }
                     }
                 }
             }
@@ -1571,6 +1576,7 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                             width: 2.1rem;
                             height: 1.68rem;
                             margin-bottom: .2rem;
+                            overflow: hidden;
                             &:nth-of-type(3n+2){
                                 margin:0 .2rem;
                             }

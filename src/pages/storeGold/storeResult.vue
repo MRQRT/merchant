@@ -41,7 +41,7 @@
                         <div class="" v-if="orderInfo.typeCode == 'lock'">
                             <div class="info-item">
                                 <span>锁价保证金</span>
-                                <span class="special-color">{{orderInfo.ensureCash | formatPriceTwo}}元</span>
+                                <span class="special-color">{{orderInfo.margin.amount | formatPriceTwo}}元</span>
                             </div>
                             <div class="info-item">
                                 <span>锁定金价</span>
@@ -53,7 +53,7 @@
                 <!-- 银行卡 -->
                 <div class="bank-info"  v-if="orderInfo.typeCode == 'lock'">
                     <span>银行卡</span>
-                    <span>{{bankInfo.name}}(尾号{{bankInfo.code}})</span>
+                    <span>{{orderInfo.bankCard.name}}(尾号{{orderInfo.bankCard.code}})</span>
                 </div>
                 <!-- 提示 -->
                 <div class="tip">工作人员会尽快联系您核实订单</div>
@@ -94,10 +94,6 @@ import { query_detail, query_card_info} from '@/service/getData.js'
                 orderStatus:null,  // 订单是否成功
                 paysFailReason:'', // 失败原因
                 orderInfo:'',
-                bankInfo:{
-                    code:'0820',
-                    name:'招商银行'
-                },
                 // orderInfo:{
                 //     code:'57467288374467332677',
                 //     createTime:'2018-08-20 12:20:34',
@@ -136,20 +132,10 @@ import { query_detail, query_card_info} from '@/service/getData.js'
                 if(res.code=='000000'){
                     this.orderInfo = res.data;
                     console.log(this.orderInfo)
-                    if(res.data.typeCode == 'lock'){  // 如果是锁价请求银行卡信息
-                        this.query_card_info();
-                    }
                 }else{
                     Toast(res.message)
                 }
             },
-            // 请求银行卡信息
-            async query_card_info(){
-                var res = await query_card_info();
-                if(res.code=='000000'){
-                    this.bankInfo = res.data;
-                }
-            }
         },
         created(){
             this.code = this.$route.query.code;
