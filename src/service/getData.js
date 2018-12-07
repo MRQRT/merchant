@@ -314,7 +314,7 @@ export const add_recycle_order = (typeCode,weight,count,bankCardId,addressId) =>
  */
 
 // export const pay_beforehand_order = (orderId,countType) => fetch('/order/pay_beforehand_order',{'orderId':orderId,'countType':countType},'post');
-export const pay_beforehand_order = (code) => fetch('/order/margin/pay/captcha?code='+code,{},'get');
+export const pay_beforehand_order = (code) => fetch('/order/margin/pay/captcha',{'code':code},'post');
 
 
 /**

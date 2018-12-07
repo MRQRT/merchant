@@ -691,7 +691,7 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
             async directlyOrder(typeCode){
                 var res = await add_recycle_order(typeCode,this.weight,this.extractNum,this.bankCardId,this.addressId);
                 if(res.code=='000000'){
-                    this.code = res.data;
+                    this.code = res.data.code;
                     this.$router.push({
                         path:'/storeresult',
                         query:{
@@ -711,8 +711,8 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
                 var res = await add_recycle_order('lock',this.weight,this.extractNum,this.bankCardId,this.addressId)
                 if(res.code=='000000'){
                     this.code = res.data.code;
-                    this.ensureCash = res.data.margin.paidAmount;
-                    this.lockPrice = res.data.lockPrice.lockPrice;
+                    this.ensureCash = res.data.margin.amount;
+                    this.lockPrice = res.data.price;
                     this.popupVisible1 = true;    // 显示验证码弹窗
                     this.requestVerifi();         // 调用预下单函数，发送验证码函数
                 }else{
@@ -737,25 +737,27 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
             },
             //支付预下单（发送验证码函数）
             async requestVerifi(){
+                this.countdownStatus = false; // 验证码倒计时显示秒数
                 var that = this;
                 var res = await pay_beforehand_order(this.code);
+
+                var timer1 = setInterval(function(){
+                    that.countDownSec--
+                    if(that.countDownSec<=0){
+                        clearInterval(timer1);
+                        that.countdownStatus=true;
+                        that.countDownSec= 59;
+                    }
+                },1000)
+
                 if(res.code=='000000'){
-                    this.countdownStatus = false; // 验证码倒计时显示秒数
                     this.popupVisible1 = true;    // 显示验证码弹窗
                     Toast({
                         message:'验证码已发送，请注意查收哦',
                         position:'bottom'
                     })
-                    var timer1 = setInterval(function(){
-                        that.countDownSec--
-                        if(that.countDownSec<=0){
-                            clearInterval(timer1);
-                            that.countdownStatus=true;
-                            that.countDownSec= 59;
-                        }
-                    },1000)
                 }else{
-                    this.popupVisible1 = false;  // 关闭验证码弹窗
+                    // this.popupVisible1 = false;  // 关闭验证码弹窗
                     this.btnCtroller = true;     // 按钮恢复可点状态
 
                     var textJson = {
@@ -780,7 +782,7 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
                             code:this.code
                         }
                     })
-                }else if(res.code=='1016'){  // 验证码输入错误
+                }else if(res.code=='000002'){  // 验证码输入错误
                     this.verifiCode = [];
                     this.verifyStatus = false;
                     Toast({

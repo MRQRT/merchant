@@ -357,12 +357,11 @@
 <script>
 import headTop from '@/components/header/head.vue'
 import { MessageBox,Toast,Spinner } from 'mint-ui';
-import { query_detail, query_card_info,update_status,report_confirm,query_logistics_mess,query_express_mess,query_status_flow_mess,query_process_mess,query_report_detail,confirm_order,cancel_order} from '@/service/getData.js'
+import { query_detail,update_status,report_confirm,query_logistics_mess,query_express_mess,query_status_flow_mess,query_process_mess,query_report_detail,confirm_order,cancel_order} from '@/service/getData.js'
 
     export default {
         data(){
             return{
-                arr:[{},{}],
                 showStatus:true,         // 是否显示主体内容
                 code:'',                 // 订单编号
                 orderId:'',              // 订单ID
@@ -747,13 +746,6 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                     Toast(res.message)
                 }
             },
-            // 请求银行卡信息
-            async query_card_info(){
-                var res = await query_card_info();
-                if(res.code=='000000'){
-                    this.bankInfo = res.data;
-                }
-            },
             // 修改订单状态(未支付倒计时结束)
             async update_status(){
                 var res = await update_status(this.code);
@@ -772,8 +764,9 @@ import { query_detail, query_card_info,update_status,report_confirm,query_logist
                     setTimeout(function(){
                         that.query_detail();
                     },500)
+                }else if(res.code=='000001'){  //订单状态已更新，禁止用户取消
+                    this.popupVisible = true;
                 }else{
-                    // this.popupVisible = true;
                     Toast(res.message)
                 }
             },

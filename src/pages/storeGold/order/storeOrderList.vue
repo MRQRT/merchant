@@ -45,7 +45,7 @@
                                         <div class="left-info">
                                             <div class="total-weight">总&nbsp;克&nbsp;重：{{item.weight | formatPriceTwo}}克</div>
                                             <div class="count">数&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;量：{{item.count}}</div>
-                                            <div class="ensure-cash" v-if="item.typeCode=='lock'">保&nbsp;证&nbsp;金：{{item.ensureCash | formatPriceTwo}}元</div>
+                                            <div class="ensure-cash" v-if="item.typeCode=='lock'">保&nbsp;证&nbsp;金：{{item.margin.amount | formatPriceTwo}}元</div>
                                             <div class="total-amount" v-if="(item.state==7 || item.state==8 || item.state==9)">实收总额：{{item.paidAmount | formatPriceTwo}}元</div>
                                         </div>
                                         <div class="right-time">{{item.createdTime}}</div>
