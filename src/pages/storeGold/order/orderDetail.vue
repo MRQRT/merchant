@@ -5,7 +5,7 @@
             <img slot='head_goback' src='static/images/back.png' class="head_goback" @click="goback">
         </head-top>
         <!-- 主体内容 -->
-        <div class="main-cont" :class="{'max-padding':status==1}" v-show="!popupVisible2">
+        <div class="main-cont" :class="{'max-padding':status==1}" v-show="!popupVisible2 && showStatus">
             <!-- part1:顶部倒计时 (待支付显示)-->
             <div class="countDown" v-if="status==1">
                 <p class="clock-icon"></p>
@@ -343,14 +343,14 @@
                         <span>锁定金价</span>
                         <span>{{orderInfo.price|formatPriceTwo}}元/克</span>
                     </div>
-                    <div class="input-wrap" :class="{'verify-error':!verifyStatus}">
+                    <div class="input-wrap animated" :class="{'headShake':!verifyStatus}">
                         <span>{{verifiCode[0]}}</span>
                         <span>{{verifiCode[1]}}</span>
                         <span>{{verifiCode[2]}}</span>
                         <span>{{verifiCode[3]}}</span>
                         <span>{{verifiCode[4]}}</span>
                         <span>{{verifiCode[5]}}</span>
-                        <input type="tel" ref="verifiInput" maxlength="6" v-model="verifiCode" autofocus="autofocus" v-on:input="checkVerifi()">
+                        <input type="tel" ref="verifiInput" maxlength="6" v-model="verifiCode" autofocus="autofocus" v-on:input="checkVerifi()" @focus="focusInput()">
                     </div>
                     <!-- 验证码倒计时 -->
                     <div class="verify-countdown">
@@ -391,13 +391,13 @@
 
 <script>
 import headTop from '@/components/header/head.vue'
-import { MessageBox,Toast,Spinner } from 'mint-ui';
+import { MessageBox,Toast,Spinner,Indicator } from 'mint-ui';
 import { query_detail,update_status,report_confirm,query_logistics_mess,query_express_mess,query_status_flow_mess,query_process_mess,query_report_detail,confirm_order,cancel_order,pay_beforehand_order,pay_formal_order} from '@/service/getData.js'
 
     export default {
         data(){
             return{
-                showStatus:true,         // 是否显示主体内容
+                showStatus:false,        // 是否显示主体内容
                 code:'',                 // 订单编号
                 orderId:'',              // 订单ID
                 status:'',               // 订单当前状态
@@ -469,7 +469,7 @@ import { query_detail,update_status,report_confirm,query_logistics_mess,query_ex
                         'back_cancel':{name:'退款中',topNum:15,status:0,beforeStatus:0,iconType:0},
                     },
                     '11':{
-                        'add':{name:'已关闭',topNum:8,status:2,beforeStatus:0,iconType:0},
+                        'add':{name:'已关闭',topNum:8,status:0,beforeStatus:0,iconType:0},
                         'front_cancel':{name:'已关闭',topNum:9,status:2,beforeStatus:0,iconType:0},
                         'back_cancel':{name:'已关闭',topNum:9,status:2,beforeStatus:0,iconType:0},
                         'verify':{name:'已关闭',topNum:10,status:2,beforeStatus:0,iconType:0},
@@ -501,7 +501,7 @@ import { query_detail,update_status,report_confirm,query_logistics_mess,query_ex
             order_close_status(){
                 var status = this.status;
                 var nodeCode = this.nodeCode;
-                if((status==10||status==11) && (nodeCode=='front_cancel'||nodeCode=='back_cancel'||nodeCode=='pay_margin')){
+                if((status==10||status==11) && (nodeCode=='front_cancel'||nodeCode=='back_cancel'||nodeCode=='add')){
                     return true;
                 }else{
                     return false;
@@ -569,15 +569,19 @@ import { query_detail,update_status,report_confirm,query_logistics_mess,query_ex
             // 点击进度icon显示对应订单部分
             showOrderPart(index,event){
                 if(event.currentTarget.classList.contains('stepSuccess')){ //可点击状态
-                    this.stepIconNum = index;
+                    if(this.stepIconNum == index){  // 再次点击时不再请求数据
+                        return
+                    }else{
+                        this.stepIconNum = index;
 
-                    switch (this.stepIconNum) {
-                        case 1:  // 物流
-                            this.query_logistics_mess();
-                            break;
-                        case 2:  // 检测
-                            this.query_process_mess();
-                            break;
+                        switch (this.stepIconNum) {
+                            case 1:  // 物流
+                                this.query_logistics_mess();
+                                break;
+                            case 2:  // 检测
+                                this.query_process_mess();
+                                break;
+                        }
                     }
                 }else{
                     return false;
@@ -726,7 +730,7 @@ import { query_detail,update_status,report_confirm,query_logistics_mess,query_ex
                 var text7 = `<p>实收总额 ${this.orderInfo.paidAmount} 元已发放到您的 ${this.orderInfo.bankCard.name}(${this.orderInfo.bankCard.code}) 银行卡中，记得查收哦～（具体到账时间以银行为准）</p>`;
 
                 // 已关闭
-                var text8 = '<p>由于您长时间未支付，订单已关闭～您可以重新发起订单，风里雨里，我们在这里等你！~</p>'
+                var text8 = '<p>由于您长时间未支付，订单已关闭～您可以重新发起订单，风里雨里，我们在这里等你！</p>'
                 var text9 = '<p>您的订单已取消～您可以重新发起订单，风里雨里，我们在这里等你！</p>'
                 var text10 = `<p>抱歉哦，您的订单未通过审核，原因：${this.orderInfo.verify?this.orderInfo.verify.remark:''}</p>`;
                 var text11 = `<p>很抱歉，您的订单物流发生异常，我们正在排查原因，客服届时将会与您取得联系，给您造成的不便敬请谅解～</p>`;
@@ -758,7 +762,7 @@ import { query_detail,update_status,report_confirm,query_logistics_mess,query_ex
                     '14':text14,// 退款中
                     '15':text15,// 退款中
                 }
-                if(this.status==11 && this.orderInfo.typeCode=='lock'){  //锁价订单已关闭
+                if(this.status==11 && this.orderInfo.typeCode=='lock' && this.orderInfo.finishCode!='failure'){  //锁价订单已关闭
                     this.stepTipText = textJson[12];
                 }else if(this.status==10 || this.status==11){
                     this.stepTipText = textJson[this.statusJson[this.status][this.nodeCode].topNum];
@@ -769,6 +773,10 @@ import { query_detail,update_status,report_confirm,query_logistics_mess,query_ex
             //检测输入的支付验证码
             checkVerifi(){
                 var res = /^[0-9]*$/g;
+            },
+            //输入框获取焦点
+            focusInput(){
+                this.verifyStatus = true;
             },
             //点击弹窗【立即支付】按钮
             payment(){
@@ -789,6 +797,8 @@ import { query_detail,update_status,report_confirm,query_logistics_mess,query_ex
             async query_detail(){
                 var res = await query_detail(this.code);
                 if(res.code=='000000'){
+                    Indicator.close();
+                    this.showStatus = true;
                     this.orderInfo = res.data;
                     this.status = res.data.state;
                     this.nodeCode = res.data.nodeCode;
@@ -812,6 +822,7 @@ import { query_detail,update_status,report_confirm,query_logistics_mess,query_ex
                             break;
                     }
                 }else{
+                    Indicator.close();
                     Toast(res.message)
                 }
             },
@@ -951,7 +962,7 @@ import { query_detail,update_status,report_confirm,query_logistics_mess,query_ex
                             code:this.code
                         }
                     })
-                }else if(res.code=='1016'){  // 验证码输入错误
+                }else if(res.code=='1016'||res.code=='1018'){  // 验证码输入错误
                     this.verifiCode = [];
                     this.verifyStatus = false;
                     Toast({
@@ -979,6 +990,9 @@ import { query_detail,update_status,report_confirm,query_logistics_mess,query_ex
             this.nodeCode = this.$route.query.nodeCode;//订单节点
         },
         mounted(){
+            Indicator.open({
+              spinnerType: 'fading-circle'
+            });
             this.query_detail();
             this.query_status_flow_mess();
 
@@ -1715,6 +1729,7 @@ import { query_detail,update_status,report_confirm,query_logistics_mess,query_ex
                             height: 1.68rem;
                             margin-bottom: .2rem;
                             overflow: hidden;
+                            background-color: #f8f8f8;
                             &:nth-of-type(3n+2){
                                 margin:0 .2rem;
                             }

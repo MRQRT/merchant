@@ -13,6 +13,7 @@ import preview from 'vue-photo-preview'
 import 'vue-photo-preview/dist/skin.css'
 import './config/rem'
 import './style/common.css'
+import './style/animate.css'
 import 'swiper/dist/css/swiper.css'
 
 import Raven from 'raven-js';

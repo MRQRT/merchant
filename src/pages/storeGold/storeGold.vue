@@ -218,7 +218,7 @@
                         <span>锁定金价</span>
                         <span>{{lockPrice|formatPriceTwo}}元/克</span>
                     </div>
-                    <div class="input-wrap" :class="{'verify-error':!verifyStatus}">
+                    <div class="input-wrap animated" :class="{'headShake':!verifyStatus}">
                         <span>{{verifiCode[0]}}</span>
                         <span>{{verifiCode[1]}}</span>
                         <span>{{verifiCode[2]}}</span>
