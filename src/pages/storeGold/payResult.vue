@@ -24,7 +24,7 @@
             <div class="pay-result">
                 <h4>处理进度</h4>
                 <div class="step-txt">
-                    <p>
+                    <!-- <p>
                         <span class="icon"></span>
                         <span class="txt">
                             <b>订单已创建</b>
@@ -50,6 +50,19 @@
                             <b>支付成功</b>
                             <b class="time">12:12 11:11:11</b>
                         </span>
+                    </p> -->
+
+                    <p v-for="(item,index) in timeList" :class="{'pay-ing':nodeJson[item.typeCode].iconType==1}">
+                        <span class="icon"></span>
+                        <span class="txt">
+                            <b>{{nodeJson[item.typeCode].name}}</b>
+                            <b class="time">{{item.createdTime | clearYear}}</b>
+                        </span>
+                        <span class="left-line" v-if="index<2" :class="{'grey':orderStatus=='doing' && index==1}"></span>
+                    </p>
+                    <p v-if="orderStatus=='doing'" class="wait-pay">
+                        <span class="icon"></span>
+                        <span class="txt">等待结果~</span>
                     </p>
                 </div>
             </div>
@@ -62,13 +75,20 @@
 <script>
 import headTop from '@/components/header/head.vue'
 import { MessageBox,Toast, } from 'mint-ui';
-import { query_status,} from '@/service/getData.js'
+import { paying_time } from '@/service/getData.js'
 
     export default {
         data(){
             return{
                 code:'',           // 订单code
-                orderStatus:'success',  // 订单是否成功
+                orderStatus:'',    // 订单是否成功
+                timeList:[],       // 节点信息
+                nodeJson:{
+                    'add':{name:'订单已创建',iconType:0},
+                    'recharge_margin':{name:'银行处理中',iconType:1},
+                    'recharge_margin_success':{name:'支付成功',iconType:0},
+                    'recharge_margin_failure':{name:'支付失败',iconType:0},
+                },
                 paysFailReason:'', // 失败原因
 
             }
@@ -96,23 +116,45 @@ import { query_status,} from '@/service/getData.js'
         },
         methods: {
             goOrderDetail(){
+                var status;
+                switch (this.orderStatus) {
+                    case 'doing':
+                        status = 2;
+                        break;
+                    case 'success':
+                        status = 3;
+                        break;
+                    case 'failure':
+                        status = 1;
+                        break;
+                }
                 this.$router.push({
                     path:'/orderdetail',
                     query:{
-                        code:this.code
+                        code:this.code,
+                        status:status,
                     }
                 })
             },
+            async paying_time(){
+                var res = await paying_time(this.code);
+                if(res.code=='000000'){
+                    this.timeList = res.data;
+                }else{
+                    Toast(res.message)
+                }
+            },
         },
         created(){
-            this.orderId = this.$route.query.id;
+            this.code = this.$route.query.code;
+            this.orderStatus = this.$route.query.status; // 支付成功 or 失败 or 处理中
+
             if(this.$route.query.paysFailReason){
                 this.paysFailReason = this.$route.query.paysFailReason;
             }
         },
         mounted(){
-            // this.orderStatus = this.$route.query.status; // 支付成功 or 失败 or 处理中
-            // console.log(this.orderStatus)
+            this.paying_time();
         },
     }
 
@@ -180,16 +222,17 @@ import { query_status,} from '@/service/getData.js'
                     }
                     .icon{
                         margin-right:.2rem;
+                        margin-top:.05rem;
                         @include inline-block(.32rem,.32rem);
-                        @include bg-image('/static/images/delivery-success-icon.png');
+                        @include bg-image('/static/images/payresult-over.png');
                     }
                     .left-line{
                         width: 1px;
-                        height: .65rem;
+                        height: .6rem;
                         background: #C09C60;
                         position: absolute;
                         left:.15rem;
-                        top:.33rem;
+                        top:.38rem;
                     }
                     .grey{
                         background:#999;

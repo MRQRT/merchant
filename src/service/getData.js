@@ -322,7 +322,7 @@ export const pay_beforehand_order = (code) => fetch('/order/margin/pay/captcha',
  */
 
 // export const pay_formal_order = (orderId,smsCode) => fetch('/order/pay_formal_order',{'orderId':orderId,'smsCode':smsCode},'post');
-export const pay_formal_order = (code,captcha) => fetch('/order/margin/pay',{'code':code,'captcha':captcha},'post');
+export const pay_formal_order = (code,captcha,rechargeId) => fetch('/order/margin/pay',{'code':code,'captcha':captcha,'rechargeId':rechargeId},'post');
 
 
 /**
@@ -331,6 +331,13 @@ export const pay_formal_order = (code,captcha) => fetch('/order/margin/pay',{'co
 
 // export const query_status = (orderId) => fetch('/order/query_status?orderId='+orderId,{},'get');
 export const query_status = (code) => fetch('/order/margin/pay?code='+code,{},'get');
+
+
+/**
+ * 支付各节点时间
+ */
+export const paying_time = (code) => fetch('/order/margin/operate?code='+code,{},'get');
+
 
 
 /**

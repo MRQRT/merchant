@@ -43,19 +43,19 @@ import { query_status } from '@/service/getData.js'
                 var res = await query_status(this.code);
 
                 if(res.code == '000000'){
-                    if(res.data != 'doing'){ // 如果得到支付结果直接跳转
+                    if(res.data.stateCode != 'doing'){ // 如果得到支付结果直接跳转
                         this.$router.push({
                             path:'/payresult',
                             query:{
-                                id:this.code,
-                                status:res.data
+                                code:this.code,
+                                status:res.data.stateCode
                             }
                         })
                     }else if(this.time > 5){  // 如果5s后还是支付中直接跳转结果页
                         this.$router.push({
                             path:'/payresult',
                             query:{
-                                id:this.code,
+                                code:this.code,
                                 status:'doing'
                             }
                         })
@@ -70,9 +70,9 @@ import { query_status } from '@/service/getData.js'
         },
         mounted(){
             var that = this;
-            // window.timer = setInterval(function(){
-            //     that.query_status();
-            // },1000)
+            window.timer = setInterval(function(){
+                that.query_status();
+            },1000)
         },
         beforeRouteLeave (to, from, next) { // 离开此路由时清除定时器
             if(window.timer){

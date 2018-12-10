@@ -203,7 +203,7 @@
             </div>
         </div>
         <!-- 输入验证码弹窗 -->
-        <mt-popup v-model="popupVisible1" popup-transition="popup-fade" :closeOnClickModal="false">
+        <div v-if="popupVisible1" class="outer-cover">
             <div class="verifi-wrap">
                 <span class="close-btn" @click="closeVerifi()">×</span>
                 <!-- 顶部信息 -->
@@ -225,7 +225,7 @@
                         <span>{{verifiCode[3]}}</span>
                         <span>{{verifiCode[4]}}</span>
                         <span>{{verifiCode[5]}}</span>
-                        <input type="tel" ref="verifiInput" maxlength="6" v-model="verifiCode" autofocus="autofocus" v-on:input="checkVerifi()">
+                        <input type="tel" ref="verifiInput" maxlength="6" v-model="verifiCode" v-on:input="checkVerifi()" @focus="focusInput()">
                     </div>
                     <!-- 验证码倒计时 -->
                     <div class="verify-countdown">
@@ -233,17 +233,20 @@
                         <span v-else @click="requestVerifi()">重新获取验证码>></span>
                     </div>
                     <!-- 支付按钮 -->
-                    <div class="pay-btn" :class="{'active':payClickStatus}" @click="payment">立即支付</div>
+                    <div class="pay-btn" :class="{'active':payClickStatus}" @click="payment">
+                        <span>立即支付</span>
+                        <!-- <mt-spinner :type="3" :size="24" v-if="payClick"></mt-spinner> -->
+                    </div>
                 </div>
             </div>
-        </mt-popup>
+        </div>
     </div>
 </template>
 
 <script>
 import headTop from '@/components/header/head.vue'
 import { clearNoNum } from '../../config/mUtils.js';
-import { MessageBox,Toast,Popup } from 'mint-ui';
+import { MessageBox,Toast,Popup,Spinner } from 'mint-ui';
 import { mapState,mapMutations } from 'vuex'
 import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, query_card_info, query_shop_address_list, add_recycle_order_check, add_recycle_order, pay_beforehand_order, pay_formal_order, query_shop_address_detail } from '@/service/getData.js'
 
@@ -266,7 +269,9 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
                 orderId:'',          // 订单创建成功后的ID
                 ensureCash:'',       // 支付时的保证金
                 lockPrice:'',        // 支付时的锁定金价
-                verifyStatus:false,   // 验证码是否正确
+                verifyStatus:true,   // 验证码是否正确
+                payClick:false,      // 支付按钮ing动画
+                rechargeId:'',       // 支付时需要的验证码id
                 verifiCode:[],       // 验证码
                 bankCardId:'',       // 银行卡ID
                 addressId:'',        // 查询地址ID
@@ -319,9 +324,9 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
 			currentPrice(val){
 				return val
 			},
-            popupVisible1(val){
-                val ? this.fixed(true): this.fixed(false)
-            },
+            // popupVisible1(val){
+            //     val ? this.fixed(true): this.fixed(false)
+            // },
         },
         methods: {
             ...mapMutations([
@@ -546,8 +551,9 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
                 this.$router.push({ // 跳转待支付订单详情页
                     path:'/storeorderdetail',
                     query:{
-                        id:this.code,
-                        status:1
+                        code:this.code,
+                        status:1,
+                        nodeCode:'add'
                     }
                 })
             },
@@ -724,9 +730,14 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
             checkVerifi(){
                 var res = /^[0-9]*$/g;
             },
+            //输入框获取焦点
+            focusInput(){
+                this.verifyStatus = true;
+            },
             //点击立即支付按钮
             payment(){
                 if(this.payClickStatus){
+                    this.payClick = true;
                     this.checkoutVerifi();          // 校验验证码是否正确
                 }else{
                     Toast({
@@ -737,36 +748,51 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
             },
             //支付预下单（发送验证码函数）
             async requestVerifi(){
-                this.countdownStatus = false; // 验证码倒计时显示秒数
                 var that = this;
                 var res = await pay_beforehand_order(this.code);
 
-                var timer1 = setInterval(function(){
-                    that.countDownSec--
-                    if(that.countDownSec<=0){
-                        clearInterval(timer1);
-                        that.countdownStatus=true;
-                        that.countDownSec= 59;
-                    }
-                },1000)
-
                 if(res.code=='000000'){
+                    this.rechargeId = res.data;   // 验证码ID
                     this.popupVisible1 = true;    // 显示验证码弹窗
+                    this.countdownStatus = false; // 验证码倒计时显示秒数
+
+                    var timer1 = setInterval(function(){
+                        that.countDownSec--
+                        if(that.countDownSec<=0){
+                            clearInterval(timer1);
+                            that.countdownStatus=true;
+                            that.countDownSec= 59;
+                        }
+                    },1000)
                     Toast({
                         message:'验证码已发送，请注意查收哦',
                         position:'bottom'
                     })
+                }else if(res.code=='0003'){    // 发送次数超过上限，跳转待支付页面
+                    Toast({
+                        message:'今日请求次数已达上限',
+                        position:'bottom'
+                    })
+                    setTimeout(function(){   // 跳转待支付详情页
+                        that.popupVisible1 = false;
+                        that.$router.push({
+                            path:'/storeorderdetail',
+                            query:{
+                                code:that.code,
+                                status:1,
+                            }
+                        })
+                    },1000)
                 }else{
                     // this.popupVisible1 = false;  // 关闭验证码弹窗
                     this.btnCtroller = true;     // 按钮恢复可点状态
-
                     var textJson = {
                         '0003':'操作太过频繁，请稍后再试',
                         '1014':'获取短信验证码失败',
                         '9999':'系统繁忙，请稍后再试~'
                     }
                     Toast({
-                        message:textJson[res.code],
+                        message:textJson[res.code] || res.message,
                         position:'bottom'
                     })
                 }
@@ -774,36 +800,36 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
             // 支付正式下单 (立即支付，校验验证码)
             async checkoutVerifi(){
                 var that = this;
-                var res = await pay_formal_order(this.code,this.verifiCode);
+                var res = await pay_formal_order(this.code,this.verifiCode,this.rechargeId);
                 if(res.code=='000000'){    // 验证码正确，跳转支付处理中页面
+                    this.payClick = false;
                     this.$router.push({
                         path:'/paying',
                         query:{
                             code:this.code
                         }
                     })
-                }else if(res.code=='000002'){  // 验证码输入错误
+                }else if(res.code=='1016' || res.code=='1018'){  // 验证码输入错误
+                    this.payClick = false;
                     this.verifiCode = [];
                     this.verifyStatus = false;
                     Toast({
                         message:'验证码有误，请重新输入',
                         position:'bottom'
                     })
-                }else if(res.code=='1018'){ // 验证码输入次数超过上限
-                    this.popupVisible1 = false;
+                }else{
+                    this.payClick = false;
+                    var textJson = {
+                        '0003':'操作太过频繁，请稍后再试',
+                        '1017':'您的验证码已过期，请重新输入',
+                        '1018':'验证次数超限，请重新获取短信验证码',
+                        '9999':'系统繁忙，请稍后再试',
+                        '1019':res.message,
+                    }
                     Toast({
-                        message:'今日请求次数已达上限',
+                        message:textJson[res.code] || res.message,
                         position:'bottom'
                     })
-                    this.$router.push({     // 跳转待支付详情页
-                        path:'/storeorderdetail',
-                        query:{
-                            code:this.code,
-                            status:1,
-                        }
-                    })
-                }else{
-                    Toast(res.message)
                 }
             },
 
@@ -1394,6 +1420,17 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
             }
         }
     }
+    .outer-cover{
+        width: 100%;
+        height: 100vh;
+        position: fixed;
+        top:0;
+        bottom: 0;
+        left:0;
+        right:0;
+        z-index:9998;
+        background-color: rgba(0,0,0,0.5);
+    }
     .verifi-wrap{
         width: 6.7rem;
         padding:.4rem .3rem;
@@ -1401,6 +1438,16 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
         background-color: #fff;
         position: relative;
         @include border-radius(.2rem);
+
+        margin-left:5%;
+        margin-top:25%;
+
+        // position: absolute;
+        // left:50%;
+        // top:15%;
+        // margin-left:-3.35rem;
+        // z-index: 9999;
+
         .close-btn{
             font-size: .6rem;
             position: absolute;
@@ -1426,6 +1473,8 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
             }
         }
         .bottom-part{
+            flex-direction: column;
+            @include flex-box();
             .lock-single-price{
                 width: 100%;
                 color: #666;
@@ -1440,16 +1489,16 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
                 }
             }
             @keyframes patt0{
-                0%{ transform: translate(-0.2%, -0.2%);}
-                25%{ transform: translate(0.2%, 0.2%);}
-                50%{ transform: translate(-0.2%, 0.2%);}
-                75%{ transform: translate(0.2%, -0.2%);}
-                100%{ transform: translate(-0.2%, -0.2%);}
+                0%{ transform: translate(-0.5%, -0.5%);}
+                25%{ transform: translate(0.5%, 0.5%);}
+                50%{ transform: translate(-0.5%, 0.5%);}
+                75%{ transform: translate(0.5%, -0.5%);}
+                100%{ transform: translate(-0.5%, -0.5%);}
             }
             @keyframes patt1{
-                 0%{ transform: translate(-1.2%, -1.2%);}
-                 50%{ transform: translate(1.2%, 1.2%);}
-                 100%{ transform: translate(-1.2%, -1.2%);}
+                 0%{ transform: translate(-2%, -2%);}
+                 50%{ transform: translate(2%, 2%);}
+                 100%{ transform: translate(-2%, -2%);}
             }
             .input-wrap{
                 height: .98rem;
@@ -1488,8 +1537,9 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
                 }
             }
             .verify-error{
-                animation: patt0 0.3s 0.2s ease-out both;
+                animation: patt0 0.5s 0.3s;
                 // border:1px solid #EC534F;
+                // @include box-shadow(1px 0px 8px 0px #EC534F);
             }
             .verify-countdown{
                 text-align: right;
@@ -1507,9 +1557,15 @@ import { bizCloseCheck, merchant_open_apply_status, margin_rate, shop_status, qu
                 text-align: center;
                 color: #fff;
                 font-size: .34rem;
-                margin:.5rem auto 0;
+                margin:.45rem auto 0;
                 background:#ddd;
                 @include border-radius(44px);
+                justify-content: center;
+                align-items: center;
+                @include flex-box();
+                span{
+                    margin-right:.2rem;
+                }
             }
             .active{
                 background:linear-gradient(-90deg,rgba(221,200,153,1),rgba(192,156,96,1));

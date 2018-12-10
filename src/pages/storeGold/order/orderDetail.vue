@@ -47,11 +47,11 @@
                         <div class="" v-if="orderInfo.typeCode=='lock'">
                             <p>
                                 <span>锁定金价：</span>
-                                <span>{{orderInfo.lockPrice.lockPrice | formatPriceTwo}}元/克</span>
+                                <span>{{orderInfo.price | formatPriceTwo}} 元/克</span>
                             </p>
                             <p>
                                 <span>保&nbsp;&nbsp;证&nbsp;金：</span>
-                                <span>{{orderInfo.margin.paidAmount | formatPriceTwo}}元</span>
+                                <span  v-if="orderInfo.margin">{{orderInfo.margin.amount | formatPriceTwo}}元</span>
                             </p>
                         </div>
                         <p>
@@ -300,15 +300,15 @@
             <div class="pay-btn" v-if="status==1">
                 <div class="left-price">
                     <span>锁价保证金：</span>
-                    <span>{{orderInfo.margin.paidAmount | formatPriceTwo}}元</span>
+                    <span v-if="orderInfo.margin">{{orderInfo.margin.amount | formatPriceTwo}}元</span>
                 </div>
-                <div class="right-btn" @click="pay_beforehand_order(1)">支付</div>
+                <div class="right-btn" @click="requestVerifi()">支付</div>
             </div>
         </div>
 
         <!-- 弹窗部分 -->
         <!-- 禁止取消订单弹窗 -->
-        <mt-popup v-model="popupVisible" popup-transition="popup-fade" closeOnClickModal="false">
+        <mt-popup v-model="popupVisible" popup-transition="popup-fade" :closeOnClickModal="false">
             <div class="not-cancel">
                 <h4>提示</h4>
                 <p>订单状态有更新，您暂时不能取消订单，请刷新页面以查看最新订单状态。</p>
@@ -327,6 +327,41 @@
                 <h4>订单确认中，请稍后...</h4>
             </div>
         </mt-popup>
+        <!-- 输入验证码弹窗 -->
+        <div v-if="popupVisible3" class="outer-cover">
+            <div class="verifi-wrap">
+                <span class="close-btn" @click="closeVerifi()">×</span>
+                <!-- 顶部信息 -->
+                <div class="top-part">
+                    <h3>请输入短信验证码</h3>
+                    <p>锁价保证金</p>
+                    <p class="price" v-if="orderInfo.margin">¥{{orderInfo.margin.amount|formatPriceTwo}}</p>
+                </div>
+                <!-- 输入框 -->
+                <div class="bottom-part">
+                    <div class="lock-single-price">
+                        <span>锁定金价</span>
+                        <span>{{orderInfo.price|formatPriceTwo}}元/克</span>
+                    </div>
+                    <div class="input-wrap" :class="{'verify-error':!verifyStatus}">
+                        <span>{{verifiCode[0]}}</span>
+                        <span>{{verifiCode[1]}}</span>
+                        <span>{{verifiCode[2]}}</span>
+                        <span>{{verifiCode[3]}}</span>
+                        <span>{{verifiCode[4]}}</span>
+                        <span>{{verifiCode[5]}}</span>
+                        <input type="tel" ref="verifiInput" maxlength="6" v-model="verifiCode" autofocus="autofocus" v-on:input="checkVerifi()">
+                    </div>
+                    <!-- 验证码倒计时 -->
+                    <div class="verify-countdown">
+                        <span v-if="!countdownStatus">{{countDownSec}}s</span>
+                        <span v-else @click="requestVerifi()">重新获取验证码>></span>
+                    </div>
+                    <!-- 支付按钮 -->
+                    <div class="pay-btn" :class="{'active':payClickStatus}" @click="payment">立即支付</div>
+                </div>
+            </div>
+        </div>
         <!-- 名词解释弹窗 -->
         <div class="noun-explan" v-show="popupVisible2">
                 <h3>名词解释</h3>
@@ -357,7 +392,7 @@
 <script>
 import headTop from '@/components/header/head.vue'
 import { MessageBox,Toast,Spinner } from 'mint-ui';
-import { query_detail,update_status,report_confirm,query_logistics_mess,query_express_mess,query_status_flow_mess,query_process_mess,query_report_detail,confirm_order,cancel_order} from '@/service/getData.js'
+import { query_detail,update_status,report_confirm,query_logistics_mess,query_express_mess,query_status_flow_mess,query_process_mess,query_report_detail,confirm_order,cancel_order,pay_beforehand_order,pay_formal_order} from '@/service/getData.js'
 
     export default {
         data(){
@@ -371,6 +406,12 @@ import { query_detail,update_status,report_confirm,query_logistics_mess,query_ex
                 popupVisible:false,      // 禁止取消订单弹窗
                 popupVisible1:false,     // 确认检测报告中弹窗
                 popupVisible2:false,     // 名词解释弹窗
+                popupVisible3:false,     // 输入验证码弹窗
+                countDownSec:59,         // 重试验证码倒计时
+                countdownStatus:false,   // 秒数与文字显示/隐藏
+                rechargeId:'',           // 支付时所需的验证码ID
+                verifyStatus:true,       // 验证码是否正确
+                verifiCode:[],           // 验证码
                 packageStatus:false,     // 包裹数据是否请求成功
                 deliveryStatus:false,    // 具体物流是否请求成功
                 deliveryNum:-1,          // 展开物流详情
@@ -428,7 +469,7 @@ import { query_detail,update_status,report_confirm,query_logistics_mess,query_ex
                         'back_cancel':{name:'退款中',topNum:15,status:0,beforeStatus:0,iconType:0},
                     },
                     '11':{
-                        'pay_margin':{name:'已关闭',topNum:8,status:2,beforeStatus:0,iconType:0},
+                        'add':{name:'已关闭',topNum:8,status:2,beforeStatus:0,iconType:0},
                         'front_cancel':{name:'已关闭',topNum:9,status:2,beforeStatus:0,iconType:0},
                         'back_cancel':{name:'已关闭',topNum:9,status:2,beforeStatus:0,iconType:0},
                         'verify':{name:'已关闭',topNum:10,status:2,beforeStatus:0,iconType:0},
@@ -461,6 +502,14 @@ import { query_detail,update_status,report_confirm,query_logistics_mess,query_ex
                 var status = this.status;
                 var nodeCode = this.nodeCode;
                 if((status==10||status==11) && (nodeCode=='front_cancel'||nodeCode=='back_cancel'||nodeCode=='pay_margin')){
+                    return true;
+                }else{
+                    return false;
+                }
+            },
+            // 立即支付按钮是否可以点击
+            payClickStatus(){
+                if(this.verifiCode.length==6){
                     return true;
                 }else{
                     return false;
@@ -622,6 +671,7 @@ import { query_detail,update_status,report_confirm,query_logistics_mess,query_ex
                         clearInterval(countdowns);
                         // 刷新页面
                         that.query_detail();
+                        return
                     }
                 },1000);
 
@@ -716,6 +766,25 @@ import { query_detail,update_status,report_confirm,query_logistics_mess,query_ex
                     this.stepTipText = textJson[this.statusJson[this.status].topNum];
                 }
             },
+            //检测输入的支付验证码
+            checkVerifi(){
+                var res = /^[0-9]*$/g;
+            },
+            //点击弹窗【立即支付】按钮
+            payment(){
+                if(this.payClickStatus){
+                    this.checkoutVerifi();          // 校验验证码是否正确
+                }else{
+                    Toast({
+                        message:'请输入验证码～',
+                        position:'bottom'
+                    })
+                }
+            },
+            //关闭验证码弹窗
+            closeVerifi(){
+                this.popupVisible3 = false;
+            },
             // 请求订单详情数据
             async query_detail(){
                 var res = await query_detail(this.code);
@@ -764,7 +833,7 @@ import { query_detail,update_status,report_confirm,query_logistics_mess,query_ex
                     setTimeout(function(){
                         that.query_detail();
                     },500)
-                }else if(res.code=='000001'){  //订单状态已更新，禁止用户取消
+                }else if(res.code=='101003'){  //订单状态已更新，禁止用户取消
                     this.popupVisible = true;
                 }else{
                     Toast(res.message)
@@ -826,6 +895,81 @@ import { query_detail,update_status,report_confirm,query_logistics_mess,query_ex
                     this.newTrackList = res.data.reverse();
                 }else{
                     Toast(res.message)
+                }
+            },
+            //支付预下单（发送验证码函数）
+            async requestVerifi(){
+                var that = this;
+                var res = await pay_beforehand_order(this.code);
+
+                if(res.code=='000000'){
+                    this.rechargeId = res.data;   // 验证码ID
+                    this.popupVisible3 = true;    // 显示验证码弹窗
+                    this.countdownStatus = false; // 验证码倒计时显示秒数
+
+                    var timer1 = setInterval(function(){
+                        that.countDownSec--
+                        if(that.countDownSec<=0){
+                            clearInterval(timer1);
+                            that.countdownStatus=true;
+                            that.countDownSec= 59;
+                        }
+                    },1000)
+                    Toast({
+                        message:'验证码已发送，请注意查收哦',
+                        position:'bottom'
+                    })
+                }else if(res.code=='0003'){    // 发送次数超过上限，跳转待支付页面
+                    Toast({
+                        message:'今日请求次数已达上限',
+                        position:'bottom'
+                    })
+                    that.popupVisible3 = false;
+                }else{
+                    // this.popupVisible3 = false;  // 关闭验证码弹窗
+                    this.btnCtroller = true;     // 按钮恢复可点状态
+
+                    var textJson = {
+                        '0003':'操作太过频繁，请稍后再试',
+                        '1014':'获取短信验证码失败',
+                        '9999':'系统繁忙，请稍后再试~'
+                    }
+                    Toast({
+                        message:textJson[res.code] || res.message,
+                        position:'bottom'
+                    })
+                }
+            },
+            // 支付正式下单 (立即支付，校验验证码)
+            async checkoutVerifi(){
+                var that = this;
+                var res = await pay_formal_order(this.code,this.verifiCode,this.rechargeId);
+                if(res.code=='000000'){    // 验证码正确，跳转支付处理中页面
+                    this.$router.push({
+                        path:'/paying',
+                        query:{
+                            code:this.code
+                        }
+                    })
+                }else if(res.code=='1016'){  // 验证码输入错误
+                    this.verifiCode = [];
+                    this.verifyStatus = false;
+                    Toast({
+                        message:'验证码有误，请重新输入',
+                        position:'bottom'
+                    })
+                }else{
+                    var textJson = {
+                        '0003':'操作太过频繁，请稍后再试',
+                        '1017':'您的验证码已过期，请重新输入',
+                        '1018':'验证次数超限，请重新获取短信验证码',
+                        '9999':'系统繁忙，请稍后再试',
+                        '1019':res.message,
+                    }
+                    Toast({
+                        message:textJson[res.code] || res.message,
+                        position:'bottom'
+                    })
                 }
             },
         },
@@ -976,6 +1120,7 @@ import { query_detail,update_status,report_confirm,query_logistics_mess,query_ex
         /* 其他状态 */
         .step-tips{
             color: #C09C60;
+            min-height: 1rem;
             padding:.25rem .4rem;
             font-size: .26rem;
             background-color: #F3EDE0;
@@ -1747,6 +1892,143 @@ import { query_detail,update_status,report_confirm,query_logistics_mess,query_ex
         color: #999;
         font-size: .24rem;
         margin-top:.15rem;
+    }
+}
+.outer-cover{
+    width: 100%;
+    height: 100vh;
+    position: fixed;
+    top:0;
+    bottom: 0;
+    left:0;
+    right:0;
+    z-index:9998;
+    background-color: rgba(0,0,0,0.5);
+}
+.verifi-wrap{
+    width: 6.7rem;
+    padding:.4rem .3rem;
+    text-align: center;
+    background-color: #fff;
+    position: relative;
+    @include border-radius(.2rem);
+
+    margin-left:5%;
+    margin-top:25%;
+
+    .close-btn{
+        font-size: .6rem;
+        position: absolute;
+        left:.25rem;
+        top:.05rem;
+    }
+    .top-part{
+        border-bottom: 1px solid #eee;
+        h3{
+            color: #000;
+            font-size: .32rem;
+            margin-bottom: .25rem;
+        }
+        p{
+            color: #999;
+            font-size: .24rem;
+        }
+        .price{
+            color: #333;
+            font-size: .6rem;
+            margin-bottom: .4rem;
+            font-family:DINAlternate-Bold;
+        }
+    }
+    .bottom-part{
+        .lock-single-price{
+            width: 100%;
+            color: #666;
+            font-size: .28rem;
+            padding:.35rem 0 .4rem;
+            @include flex-box();
+            @include justify-content();
+            span{
+                &:nth-of-type(2){
+                    color: #C09C60;
+                }
+            }
+        }
+        @keyframes patt0{
+            0%{ transform: translate(-0.2%, -0.2%);}
+            25%{ transform: translate(0.2%, 0.2%);}
+            50%{ transform: translate(-0.2%, 0.2%);}
+            75%{ transform: translate(0.2%, -0.2%);}
+            100%{ transform: translate(-0.2%, -0.2%);}
+        }
+        @keyframes patt1{
+             0%{ transform: translate(-1.2%, -1.2%);}
+             50%{ transform: translate(1.2%, 1.2%);}
+             100%{ transform: translate(-1.2%, -1.2%);}
+        }
+        .input-wrap{
+            height: .98rem;
+            width: 6rem;
+            margin: 0 auto;
+            position: relative;
+            text-align: left;
+            align-items: center;
+            border:1px solid #E1E1E1;
+            border-left:none;
+            @include flex-box();
+            > span {
+                width: 1rem;
+                height: .98rem;
+                line-height: .98rem;
+                border-left: 1px solid #E1E1E1;
+                display: inline-block;
+                text-align: center;
+                vertical-align: middle;
+                // @include flex-grow(1);
+            }
+            > input {
+                width: 150%;
+                height: 100%;
+                position: absolute;
+                left: 0;
+                top:0;
+                // letter-spacing: 1rem;
+                padding-left: 0.3rem;
+                color: transparent;
+                text-shadow: 0 0 0 #000;
+                opacity: 0;
+                margin-left: -50%;
+                text-indent: -999em;
+                z-index:999;
+            }
+        }
+        .verify-error{
+            animation: patt0 0.3s 0.2s ease-out both;
+            // border:1px solid #EC534F;
+        }
+        .verify-countdown{
+            text-align: right;
+            margin-top:.3rem;
+            padding-right:.05rem;
+            span{
+                color: #C09C60;
+                font-size: .26rem;
+            }
+        }
+        .pay-btn{
+            width: 5.6rem;
+            height: .88rem;
+            line-height: .88rem;
+            text-align: center;
+            color: #fff;
+            font-size: .34rem;
+            margin:.5rem auto 0;
+            background:#ddd;
+            @include border-radius(44px);
+        }
+        .active{
+            background:linear-gradient(-90deg,rgba(221,200,153,1),rgba(192,156,96,1));
+        }
     }
 }
 .noun-explan{

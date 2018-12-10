@@ -109,14 +109,12 @@ import { Indicator,Toast } from 'mint-ui';
                         'back_cancel':{name:'退款中'},
                     },
                     '11':{
-                        'pay_margin':{name:'已关闭'},
+                        'add':{name:'已关闭'},
                         'front_cancel':{name:'已关闭'},
                         'back_cancel':{name:'已关闭'},
                         'verify':{name:'已关闭'},
                         'pick':{name:'已关闭'},
-                        'confirm':{name:'什么鬼'}
-
-                    }
+                    },
                 },
                 orderList:[],
             }
