@@ -9,7 +9,9 @@
             <!-- 顶部图标部分 -->
             <div class="top-info">
                 <div class="top-img">
-                    <img src="static/images/store-success.png" alt="">
+                    <img src="static/images/store-success.png" alt="" v-if="orderStatus=='success'">
+                    <img src="static/images/shopmsnopass.png" alt="" v-else-if="orderStatus=='failure'">
+                    <img src="static/images/paying-doing.png" alt="" v-else>
                 </div>
                 <p v-if="orderStatus=='success'">支付成功</p>
                 <p v-else-if="orderStatus=='failure'">支付失败</p>
@@ -24,34 +26,6 @@
             <div class="pay-result">
                 <h4>处理进度</h4>
                 <div class="step-txt">
-                    <!-- <p>
-                        <span class="icon"></span>
-                        <span class="txt">
-                            <b>订单已创建</b>
-                            <b class="time">12:12 11:11:11</b>
-                        </span>
-                        <span class="left-line"></span>
-                    </p>
-                    <p class="pay-ing">
-                        <span class="icon"></span>
-                        <span class="txt">
-                            <b>银行处理中</b>
-                            <b class="time">12:12 11:11:11</b>
-                        </span>
-                        <span class="left-line" :class="{'grey':orderStatus=='doing'}"></span>
-                    </p>
-                    <p v-if="orderStatus=='doing'" class="wait-pay">
-                        <span class="icon"></span>
-                        <span class="txt">等待结果~</span>
-                    </p>
-                    <p v-else>
-                        <span class="icon"></span>
-                        <span class="txt">
-                            <b>支付成功</b>
-                            <b class="time">12:12 11:11:11</b>
-                        </span>
-                    </p> -->
-
                     <p v-for="(item,index) in timeList" :class="{'pay-ing':nodeJson[item.typeCode].iconType==1}">
                         <span class="icon"></span>
                         <span class="txt">
@@ -75,7 +49,7 @@
 <script>
 import headTop from '@/components/header/head.vue'
 import { MessageBox,Toast, } from 'mint-ui';
-import { paying_time } from '@/service/getData.js'
+import { query_status, paying_time } from '@/service/getData.js'
 
     export default {
         data(){
@@ -136,6 +110,16 @@ import { paying_time } from '@/service/getData.js'
                     }
                 })
             },
+            // 再次请求支付结果，记录状态
+            async query_status(){
+                var res = await query_status(this.code);
+                if(res.code=='000000'){
+                    this.orderStatus = res.data.stateCode;
+                }else{
+                    Toast(res.message)
+                }
+            },
+            // 请求时间节点
             async paying_time(){
                 var res = await paying_time(this.code);
                 if(res.code=='000000'){
@@ -154,6 +138,7 @@ import { paying_time } from '@/service/getData.js'
             }
         },
         mounted(){
+            this.query_status();
             this.paying_time();
         },
     }

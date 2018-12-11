@@ -915,9 +915,9 @@ import { query_detail,update_status,report_confirm,query_logistics_mess,query_ex
 
                 if(res.code=='000000'){
                     this.rechargeId = res.data;   // 验证码ID
-                    this.popupVisible3 = true;    // 显示验证码弹窗
                     this.countdownStatus = false; // 验证码倒计时显示秒数
 
+                    this.popupVisible3 = true;    // 显示验证码弹窗
                     var timer1 = setInterval(function(){
                         that.countDownSec--
                         if(that.countDownSec<=0){
@@ -943,6 +943,7 @@ import { query_detail,update_status,report_confirm,query_logistics_mess,query_ex
                     var textJson = {
                         '0003':'操作太过频繁，请稍后再试',
                         '1014':'获取短信验证码失败',
+                        '1015':'验证码已发送，请勿频繁操作',
                         '9999':'系统繁忙，请稍后再试~'
                     }
                     Toast({
@@ -1493,10 +1494,22 @@ import { query_detail,update_status,report_confirm,query_logistics_mess,query_ex
                                 @include inline-block(.4rem,.4rem);
                                 @include bg-image('/static/images/delivery-doing-icon.png');
                             }
+                            @-webkit-keyframes flash {
+                              from, 50%, to {
+                                opacity: 1;
+                              }
+
+                              25%, 75% {
+                                opacity: 0;
+                              }
+                            }
                             .success{
                                 @include bg-image('/static/images/delivery-success-icon.png');
                             }
                             .error{
+                                -webkit-animation-name: flash;
+                                animation-name: flash;
+                                animation-duration: 1.2s;
                                 @include bg-image('/static/images/delivery-fail-icon.png');
                             }
                         }
